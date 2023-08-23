@@ -37,6 +37,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Locale;
@@ -147,10 +148,84 @@ public final class JsonAdapterAnnotationOnClassesTest {
   }
 
   @Test
-  public void testNullSafeObjectFromJson() {
+  public void testNullSafeObject() {
     Gson gson = new Gson();
     NullableClass fromJson = gson.fromJson("null", NullableClass.class);
     assertThat(fromJson).isNull();
+
+    fromJson = gson.fromJson("\"ignored\"", NullableClass.class);
+    assertThat(fromJson).isNotNull();
+
+    String json = gson.toJson(null, NullableClass.class);
+    assertThat(json).isEqualTo("null");
+
+    json = gson.toJson(new NullableClass());
+    assertThat(json).isEqualTo("\"nullable\"");
+  }
+
+  /**
+   * Tests behavior when a {@link TypeAdapterFactory} registered with {@code @JsonAdapter} returns
+   * {@code null}, indicating that it cannot handle the type and Gson should try a different factory
+   * instead.
+   */
+  @Test
+  public void testFactoryReturningNull() {
+    Gson gson = new Gson();
+
+    assertThat(gson.fromJson("null", WithNullReturningFactory.class)).isNull();
+    assertThat(gson.toJson(null, WithNullReturningFactory.class)).isEqualTo("null");
+
+    TypeToken<WithNullReturningFactory<String>> stringTypeArg = new TypeToken<WithNullReturningFactory<String>>() {};
+    WithNullReturningFactory<?> deserialized = gson.fromJson("\"a\"", stringTypeArg);
+    assertThat(deserialized.t).isEqualTo("custom-read:a");
+    assertThat(gson.fromJson("null", stringTypeArg)).isNull();
+    assertThat(gson.toJson(new WithNullReturningFactory<>("b"), stringTypeArg.getType())).isEqualTo("\"custom-write:b\"");
+    assertThat(gson.toJson(null, stringTypeArg.getType())).isEqualTo("null");
+
+    // Factory should return `null` for this type and Gson should fall back to reflection-based adapter
+    TypeToken<WithNullReturningFactory<Integer>> numberTypeArg = new TypeToken<WithNullReturningFactory<Integer>>() {};
+    deserialized = gson.fromJson("{\"t\":1}", numberTypeArg);
+    assertThat(deserialized.t).isEqualTo(1);
+    assertThat(gson.toJson(new WithNullReturningFactory<>(2), numberTypeArg.getType())).isEqualTo("{\"t\":2}");
+  }
+  // Also set `nullSafe = true` to verify that this does not cause a NullPointerException if the
+  // factory would accidentally call `nullSafe()` on null adapter
+  @JsonAdapter(value = WithNullReturningFactory.NullReturningFactory.class, nullSafe = true)
+  private static class WithNullReturningFactory<T> {
+    T t;
+
+    public WithNullReturningFactory(T t) {
+      this.t = t;
+    }
+
+    static class NullReturningFactory implements TypeAdapterFactory {
+      @Override
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        // Don't handle raw (non-parameterized) type
+        if (type.getType() instanceof Class) {
+          return null;
+        }
+        ParameterizedType parameterizedType = (ParameterizedType) type.getType();
+        // Makes this test a bit more realistic by only conditionally returning null (instead of always)
+        if (parameterizedType.getActualTypeArguments()[0] != String.class) {
+          return null;
+        }
+
+        @SuppressWarnings("unchecked")
+        TypeAdapter<T> adapter = (TypeAdapter<T>) new TypeAdapter<WithNullReturningFactory<String>>() {
+          @Override
+          public void write(JsonWriter out, WithNullReturningFactory<String> value) throws IOException {
+            out.value("custom-write:" + value.t);
+          }
+
+          @Override
+          public WithNullReturningFactory<String> read(JsonReader in) throws IOException {
+            return new WithNullReturningFactory<>("custom-read:" + in.nextString());
+          }
+        };
+        return adapter;
+      }
+    }
   }
 
   @JsonAdapter(A.JsonAdapter.class)
@@ -223,7 +298,6 @@ public final class JsonAdapterAnnotationOnClassesTest {
       out.name("name");
       out.value(user.firstName + " " + user.lastName);
       out.endObject();
-      // implement the write method
     }
     @Override public User read(JsonReader in) throws IOException {
       // implement read: split name into firstName and lastName
@@ -235,6 +309,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     }
   }
 
+  // Implicit `nullSafe=true`
   @JsonAdapter(value = NullableClassJsonAdapter.class)
   private static class NullableClass {
   }
@@ -603,6 +678,67 @@ public final class JsonAdapterAnnotationOnClassesTest {
       @Override
       public WithJsonDeserializer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         return new WithJsonDeserializer("123");
+      }
+    }
+  }
+
+  /**
+   * Tests creation of the adapter referenced by {@code @JsonAdapter} using an {@link InstanceCreator}.
+   */
+  @Test
+  public void testAdapterCreatedByInstanceCreator() {
+    CreatedByInstanceCreator.Serializer serializer = new CreatedByInstanceCreator.Serializer("custom");
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(CreatedByInstanceCreator.Serializer.class, (InstanceCreator<?>) t -> serializer)
+        .create();
+
+    String json = gson.toJson(new CreatedByInstanceCreator());
+    assertThat(json).isEqualTo("\"custom\"");
+  }
+  @JsonAdapter(CreatedByInstanceCreator.Serializer.class)
+  private static class CreatedByInstanceCreator {
+    static class Serializer implements JsonSerializer<CreatedByInstanceCreator> {
+      private final String value;
+
+      @SuppressWarnings("unused")
+      public Serializer() {
+        throw new AssertionError("should not be called");
+      }
+
+      public Serializer(String value) {
+        this.value = value;
+      }
+
+      @Override
+      public JsonElement serialize(CreatedByInstanceCreator src, Type typeOfSrc, JsonSerializationContext context) {
+        return new JsonPrimitive(value);
+      }
+    }
+  }
+
+  /**
+   * Tests creation of the adapter referenced by {@code @JsonAdapter} using JDK Unsafe.
+   */
+  @Test
+  public void testAdapterCreatedByJdkUnsafe() {
+    String json = new Gson().toJson(new CreatedByJdkUnsafe());
+    assertThat(json).isEqualTo("false");
+  }
+  @JsonAdapter(CreatedByJdkUnsafe.Serializer.class)
+  private static class CreatedByJdkUnsafe {
+    static class Serializer implements JsonSerializer<CreatedByJdkUnsafe> {
+      // JDK Unsafe leaves this at default value `false`
+      private boolean wasInitialized = true;
+
+      // Explicit constructor with args to remove implicit no-args constructor
+      @SuppressWarnings("unused")
+      public Serializer(int i) {
+        throw new AssertionError("should not be called");
+      }
+
+      @Override
+      public JsonElement serialize(CreatedByJdkUnsafe src, Type typeOfSrc, JsonSerializationContext context) {
+        return new JsonPrimitive(wasInitialized);
       }
     }
   }
