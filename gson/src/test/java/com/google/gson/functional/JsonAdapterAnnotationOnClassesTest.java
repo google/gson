@@ -153,8 +153,14 @@ public final class JsonAdapterAnnotationOnClassesTest {
     NullableClass fromJson = gson.fromJson("null", NullableClass.class);
     assertThat(fromJson).isNull();
 
+    fromJson = gson.fromJson("\"ignored\"", NullableClass.class);
+    assertThat(fromJson).isNotNull();
+
     String json = gson.toJson(null, NullableClass.class);
     assertThat(json).isEqualTo("null");
+
+    json = gson.toJson(new NullableClass());
+    assertThat(json).isEqualTo("\"nullable\"");
   }
 
   /**
@@ -182,8 +188,8 @@ public final class JsonAdapterAnnotationOnClassesTest {
     assertThat(deserialized.t).isEqualTo(1);
     assertThat(gson.toJson(new WithNullReturningFactory<>(2), numberTypeArg.getType())).isEqualTo("{\"t\":2}");
   }
-  // Also set `nullSafe = true` to verify that this does not cause a NullPointerException by calling
-  // `nullSafe()` on null
+  // Also set `nullSafe = true` to verify that this does not cause a NullPointerException if the
+  // factory would accidentally call `nullSafe()` on null adapter
   @JsonAdapter(value = WithNullReturningFactory.NullReturningFactory.class, nullSafe = true)
   private static class WithNullReturningFactory<T> {
     T t;
@@ -303,6 +309,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     }
   }
 
+  // Implicit `nullSafe=true`
   @JsonAdapter(value = NullableClassJsonAdapter.class)
   private static class NullableClass {
   }
