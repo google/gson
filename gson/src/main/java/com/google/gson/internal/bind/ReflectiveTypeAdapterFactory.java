@@ -156,7 +156,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     if (annotation != null) {
       // This is not safe; requires that user has specified correct adapter class for @JsonAdapter
       mapped = jsonAdapterFactory.getTypeAdapter(
-          constructorConstructor, context, fieldType, annotation);
+          constructorConstructor, context, fieldType, annotation, false);
     }
     final boolean jsonAdapterPresent = mapped != null;
     if (mapped == null) mapped = context.getAdapter(fieldType);

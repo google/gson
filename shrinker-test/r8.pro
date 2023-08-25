@@ -1,5 +1,5 @@
-# Extend the ProGuard rules
--include proguard.pro
+# Include common rules
+-include common.pro
 
 ### The following rules are needed for R8 in "full mode", which performs more aggressive optimizations than ProGuard
 ### See https://r8.googlesource.com/r8/+/refs/heads/main/compatibility-faq.md#r8-full-mode
@@ -10,11 +10,11 @@
 -keep,allowshrinking,allowoptimization,allowobfuscation,allowaccessmodification class com.example.GenericClasses$GenericUsingGenericClass
 
 # Don't obfuscate class name, to check it in exception message
--keep,allowshrinking,allowoptimization class com.example.DefaultConstructorMain$TestClass
--keep,allowshrinking,allowoptimization class com.example.DefaultConstructorMain$TestClassWithoutDefaultConstructor
+-keep,allowshrinking,allowoptimization class com.example.NoSerializedNameMain$TestClass
+-keep,allowshrinking,allowoptimization class com.example.NoSerializedNameMain$TestClassWithoutDefaultConstructor
 
 # This rule has the side-effect that R8 still removes the no-args constructor, but does not make the class abstract
--keep class com.example.DefaultConstructorMain$TestClassNotAbstract {
+-keep class com.example.NoSerializedNameMain$TestClassNotAbstract {
   @com.google.gson.annotations.SerializedName <fields>;
 }
 
