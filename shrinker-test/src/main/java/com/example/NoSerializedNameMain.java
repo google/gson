@@ -19,17 +19,17 @@ public class NoSerializedNameMain {
     public String s;
   }
 
-  static class TestClassWithoutDefaultConstructor {
+  static class TestClassConstructorHasArgs {
     public String s;
 
     // Specify explicit constructor with args to remove implicit no-args default constructor
-    public TestClassWithoutDefaultConstructor(String s) {
+    public TestClassConstructorHasArgs(String s) {
       this.s = s;
     }
   }
 
   /**
-   * Main entrypoint, called by {@code ShrinkingIT.testNoSerializedName_DefaultConstructor()}.
+   * Main entrypoint, called by {@code ShrinkingIT.testNoSerializedName_ConstructorHasArgs()}.
    */
   public static String runTest() {
     TestClass deserialized = new Gson().fromJson("{\"s\":\"value\"}", same(TestClass.class));
@@ -37,7 +37,7 @@ public class NoSerializedNameMain {
   }
 
   /**
-   * Main entrypoint, called by {@code ShrinkingIT.testNoSerializedName_DefaultConstructorNoJdkUnsafe()}.
+   * Main entrypoint, called by {@code ShrinkingIT.testNoSerializedName_NoArgsConstructorNoJdkUnsafe()}.
    */
   public static String runTestNoJdkUnsafe() {
     Gson gson = new GsonBuilder().disableJdkUnsafe().create();
@@ -46,10 +46,10 @@ public class NoSerializedNameMain {
   }
 
   /**
-   * Main entrypoint, called by {@code ShrinkingIT.testNoSerializedName_NoDefaultConstructor()}.
+   * Main entrypoint, called by {@code ShrinkingIT.testNoSerializedName_ConstructorHasArgs()}.
    */
-  public static String runTestNoDefaultConstructor() {
-    TestClassWithoutDefaultConstructor deserialized = new Gson().fromJson("{\"s\":\"value\"}", same(TestClassWithoutDefaultConstructor.class));
+  public static String runTestConstructorHasArgs() {
+    TestClassConstructorHasArgs deserialized = new Gson().fromJson("{\"s\":\"value\"}", same(TestClassConstructorHasArgs.class));
     return deserialized.s;
   }
 }

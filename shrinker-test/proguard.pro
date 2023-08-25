@@ -12,6 +12,6 @@
 -keepclassmembernames class com.example.NoSerializedNameMain$TestClassNotAbstract {
   <fields>;
 }
--keepclassmembernames class com.example.NoSerializedNameMain$TestClassWithoutDefaultConstructor {
+-keepclassmembernames class com.example.NoSerializedNameMain$TestClassConstructorHasArgs {
   <fields>;
 }

@@ -18,7 +18,7 @@
 -keep class com.example.NoSerializedNameMain {
   public static java.lang.String runTest();
   public static java.lang.String runTestNoJdkUnsafe();
-  public static java.lang.String runTestNoDefaultConstructor();
+  public static java.lang.String runTestConstructorHasArgs();
 }
 
 
