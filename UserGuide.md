@@ -405,7 +405,9 @@ gson.registerTypeAdapter(MyType.class, new MyDeserializer());
 gson.registerTypeAdapter(MyType.class, new MyInstanceCreator());
 ```
 
-`registerTypeAdapter` call checks if the type adapter implements more than one of these interfaces and register it for all of them.
+`registerTypeAdapter` call checks 
+1. if the type adapter implements more than one of these interfaces and register it for all of them.
+2. if the type adapter is for Object class or (JsonElements or any of its subclasses), it throws IllegalArgumentException.
 
 #### Writing a Serializer
 

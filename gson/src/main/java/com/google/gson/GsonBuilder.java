@@ -41,6 +41,8 @@ import com.google.gson.internal.sql.SqlTypesSupport;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayDeque;
@@ -337,7 +339,7 @@ public final class GsonBuilder {
    *
    * <p>In general using inner classes with Gson should be avoided; they should be converted to {@code static}
    * nested classes if possible.
-   *
+   *Ø
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
@@ -664,6 +666,7 @@ public final class GsonBuilder {
    * @param typeAdapter This object must implement at least one of the {@link TypeAdapter},
    * {@link InstanceCreator}, {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @throws IllegalArgumentException if the Type adapter being registered is for Object class or (JsonElements or any of its subclasses)
    */
   @CanIgnoreReturnValue
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
@@ -689,8 +692,9 @@ public final class GsonBuilder {
   }
 
   private boolean isTypeObjectOrJsonElements(Type type) {
-    return (type == Object.class
-            || JsonElement.class.isAssignableFrom((Class<?>) type));
+    return (!(type instanceof ParameterizedType) &&
+            (type == Object.class
+            || JsonElement.class.isAssignableFrom((Class<?>) type)));
   }
 
   /**
@@ -724,6 +728,7 @@ public final class GsonBuilder {
    * @param typeAdapter This object must implement at least one of {@link TypeAdapter},
    *        {@link JsonSerializer} or {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @throws IllegalArgumentException if the Type adapter being registered is for a JsonElements or any of its subclasses
    * @since 1.7
    */
   @CanIgnoreReturnValue
