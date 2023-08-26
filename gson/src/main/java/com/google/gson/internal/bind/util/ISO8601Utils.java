@@ -170,6 +170,7 @@ public class ISO8601Utils
 
             if (!hasT && (date.length() <= offset)) {
                 Calendar calendar = new GregorianCalendar(year, month - 1, day);
+                calendar.setTimeZone(TIMEZONE_UTC);
                 calendar.setLenient(false);
 
                 pos.setIndex(offset);

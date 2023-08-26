@@ -78,10 +78,12 @@ public class ISO8601UtilsTest {
 
   @Test
   @SuppressWarnings("UndefinedEquals")
-  public void testDateParseWithDefaultTimezone() throws ParseException {
+  public void testDateParseDefaultsToUTC() throws ParseException {
         String dateStr = "2018-06-25";
         Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
-        Date expectedDate = new GregorianCalendar(2018, Calendar.JUNE, 25).getTime();
+        GregorianCalendar calendar = createUtcCalendar();
+        calendar.set(2018, Calendar.JUNE, 25);
+        Date expectedDate = calendar.getTime();
         assertThat(date).isEqualTo(expectedDate);
     }
 
