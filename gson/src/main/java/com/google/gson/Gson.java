@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.GsonBuildConfig;
@@ -604,42 +605,50 @@ public final class Gson {
    * adapter that does a little bit of work but then delegates further processing to the Gson
    * default type adapter. Here is an example:
    * <p>Let's say we want to write a type adapter that counts the number of objects being read
-   *  from or written to JSON. We can achieve this by writing a type adapter factory that uses
-   *  the <code>getDelegateAdapter</code> method:
-   *  <pre> {@code
-   *  class StatsTypeAdapterFactory implements TypeAdapterFactory {
-   *    public int numReads = 0;
-   *    public int numWrites = 0;
-   *    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-   *      final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
-   *      return new TypeAdapter<T>() {
-   *        public void write(JsonWriter out, T value) throws IOException {
-   *          ++numWrites;
-   *          delegate.write(out, value);
-   *        }
-   *        public T read(JsonReader in) throws IOException {
-   *          ++numReads;
-   *          return delegate.read(in);
-   *        }
-   *      };
-   *    }
-   *  }
-   *  } </pre>
-   *  This factory can now be used like this:
-   *  <pre> {@code
-   *  StatsTypeAdapterFactory stats = new StatsTypeAdapterFactory();
-   *  Gson gson = new GsonBuilder().registerTypeAdapterFactory(stats).create();
-   *  // Call gson.toJson() and fromJson methods on objects
-   *  System.out.println("Num JSON reads" + stats.numReads);
-   *  System.out.println("Num JSON writes" + stats.numWrites);
-   *  }</pre>
-   *  Note that this call will skip all factories registered before {@code skipPast}. In case of
-   *  multiple TypeAdapterFactories registered it is up to the caller of this function to insure
-   *  that the order of registration does not prevent this method from reaching a factory they
-   *  would expect to reply from this call.
-   *  Note that since you can not override type adapter factories for String and Java primitive
-   *  types, our stats factory will not count the number of String or primitives that will be
-   *  read or written.
+   * from or written to JSON. We can achieve this by writing a type adapter factory that uses
+   * the <code>getDelegateAdapter</code> method:
+   * <pre>{@code
+   * class StatsTypeAdapterFactory implements TypeAdapterFactory {
+   *   public int numReads = 0;
+   *   public int numWrites = 0;
+   *   public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+   *     final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
+   *     return new TypeAdapter<T>() {
+   *       public void write(JsonWriter out, T value) throws IOException {
+   *         ++numWrites;
+   *         delegate.write(out, value);
+   *       }
+   *       public T read(JsonReader in) throws IOException {
+   *         ++numReads;
+   *         return delegate.read(in);
+   *       }
+   *     };
+   *   }
+   * }
+   * }</pre>
+   * This factory can now be used like this:
+   * <pre>{@code
+   * StatsTypeAdapterFactory stats = new StatsTypeAdapterFactory();
+   * Gson gson = new GsonBuilder().registerTypeAdapterFactory(stats).create();
+   * // Call gson.toJson() and fromJson methods on objects
+   * System.out.println("Num JSON reads: " + stats.numReads);
+   * System.out.println("Num JSON writes: " + stats.numWrites);
+   * }</pre>
+   * Note that this call will skip all factories registered before {@code skipPast}. In case of
+   * multiple TypeAdapterFactories registered it is up to the caller of this function to insure
+   * that the order of registration does not prevent this method from reaching a factory they
+   * would expect to reply from this call.
+   * Note that since you can not override the type adapter factories for some types, see
+   * {@link GsonBuilder#registerTypeAdapter(Type, Object)}, our stats factory will not count
+   * the number of instances of those types that will be read or written.
+   *
+   * <p>If {@code skipPast} is a factory which has neither been registered on the {@link GsonBuilder}
+   * nor specified with the {@link JsonAdapter @JsonAdapter} annotation on a class, then this
+   * method behaves as if {@link #getAdapter(TypeToken)} had been called. This also means that
+   * for fields with {@code @JsonAdapter} annotation this method behaves normally like {@code getAdapter}
+   * (except for corner cases where a custom {@link InstanceCreator} is used to create an
+   * instance of the factory).
+   *
    * @param skipPast The type adapter factory that needs to be skipped while searching for
    *   a matching type adapter. In most cases, you should just pass <i>this</i> (the type adapter
    *   factory from where {@code getDelegateAdapter} method is being invoked).
@@ -648,9 +657,10 @@ public final class Gson {
    * @since 2.2
    */
   public <T> TypeAdapter<T> getDelegateAdapter(TypeAdapterFactory skipPast, TypeToken<T> type) {
-    // Hack. If the skipPast factory isn't registered, assume the factory is being requested via
-    // our @JsonAdapter annotation.
-    if (!factories.contains(skipPast)) {
+    Objects.requireNonNull(skipPast, "skipPast must not be null");
+    Objects.requireNonNull(type, "type must not be null");
+
+    if (jsonAdapterFactory.isClassJsonAdapterFactory(type, skipPast)) {
       skipPast = jsonAdapterFactory;
     }
 
@@ -668,7 +678,13 @@ public final class Gson {
         return candidate;
       }
     }
-    throw new IllegalArgumentException("GSON cannot serialize " + type);
+
+    if (skipPastFound) {
+      throw new IllegalArgumentException("GSON cannot serialize " + type);
+    } else {
+      // Probably a factory from @JsonAdapter on a field
+      return getAdapter(type);
+    }
   }
 
   /**

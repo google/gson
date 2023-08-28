@@ -498,6 +498,9 @@ public class JsonWriter implements Closeable, Flushable {
     if (stackSize == 0) {
       throw new IllegalStateException("JsonWriter is closed.");
     }
+    if (stackSize == 1 && (peek() == EMPTY_DOCUMENT || peek() == NONEMPTY_DOCUMENT)) {
+      throw new IllegalStateException("Please begin an object before this.");
+    }
     deferredName = name;
     return this;
   }
