@@ -19,7 +19,9 @@ package com.google.gson.it;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
+import com.example.UnusedClass;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -247,5 +249,19 @@ public class ShrinkingIT {
         );
       }
     });
+  }
+
+  @Test
+  public void testUnusedClassRemoved() throws Exception {
+    // For some reason this test only works for R8 but not for ProGuard; ProGuard keeps the unused class
+    assumeTrue(jarToTest.equals(R8_RESULT_PATH));
+
+    String className = UnusedClass.class.getName();
+    ClassNotFoundException e = assertThrows(ClassNotFoundException.class, () -> {
+      runTest(className, c -> {
+        fail("Class should have been removed during shrinking: " + c);
+      });
+    });
+    assertThat(e).hasMessageThat().contains(className);
   }
 }
