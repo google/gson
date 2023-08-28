@@ -265,7 +265,7 @@ public class GsonBuilderTest {
     };
     GsonBuilder gsonBuilder = new GsonBuilder();
     for (Type type : types) {
-      assertThrows(IllegalArgumentException.class, () ->  gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER));
+      assertThrows(IllegalArgumentException.class, () -> gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER));
     }
   }
 
@@ -279,7 +279,7 @@ public class GsonBuilderTest {
     GsonBuilder gsonBuilder = new GsonBuilder();
     for (Type type : types) {
       assertThrows(IllegalArgumentException.class,
-              () ->  gsonBuilder.registerTypeHierarchyAdapter((Class<?>) type, NULL_TYPE_ADAPTER));
+              () -> gsonBuilder.registerTypeHierarchyAdapter((Class<?>) type, NULL_TYPE_ADAPTER));
     }
     gsonBuilder.registerTypeHierarchyAdapter(Object.class, NULL_TYPE_ADAPTER);
   }
