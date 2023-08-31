@@ -1,0 +1,9 @@
+{
+  "extensions": [
+    "github.vscode-codeql",
+    "slevesque.vscode-zipexplorer"
+  ],
+  "settings": {
+    "codeQL.runningQueries.memory": 2048
+   }
+ }
