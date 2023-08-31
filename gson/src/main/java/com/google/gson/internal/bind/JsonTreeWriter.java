@@ -139,14 +139,14 @@ public final class JsonTreeWriter extends JsonWriter {
   @Override public JsonWriter name(String name) throws IOException {
     Objects.requireNonNull(name, "name == null");
     if (stack.isEmpty() || pendingName != null) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Did not expect a name");
     }
     JsonElement element = peek();
     if (element instanceof JsonObject) {
       pendingName = name;
       return this;
     }
-    throw new IllegalStateException();
+    throw new IllegalStateException("Please begin an object before writing a name.");
   }
 
   @CanIgnoreReturnValue
