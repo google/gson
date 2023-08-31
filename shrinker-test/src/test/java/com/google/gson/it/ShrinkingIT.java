@@ -213,7 +213,7 @@ public class ShrinkingIT {
   @Test
   public void testNoSerializedName_NoArgsConstructor() throws Exception {
     runTest("com.example.NoSerializedNameMain", c -> {
-      Method m = c.getMethod("runTest");
+      Method m = c.getMethod("runTestNoArgsConstructor");
 
       if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
         Object result = m.invoke(null);
@@ -223,7 +223,7 @@ public class ShrinkingIT {
         Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
         assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
             "Abstract classes can't be instantiated! Adjust the R8 configuration or register an InstanceCreator"
-            + " or a TypeAdapter for this type. Class name: com.example.NoSerializedNameMain$TestClass"
+            + " or a TypeAdapter for this type. Class name: com.example.NoSerializedNameMain$TestClassNoArgsConstructor"
             + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class"
         );
       }
@@ -252,9 +252,9 @@ public class ShrinkingIT {
   }
 
   @Test
-  public void testNoSerializedName_ConstructorHasArgs() throws Exception {
+  public void testNoSerializedName_HasArgsConstructor() throws Exception {
     runTest("com.example.NoSerializedNameMain", c -> {
-      Method m = c.getMethod("runTestConstructorHasArgs");
+      Method m = c.getMethod("runTestHasArgsConstructor");
 
       if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
         Object result = m.invoke(null);
@@ -264,7 +264,7 @@ public class ShrinkingIT {
         Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
         assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
             "Abstract classes can't be instantiated! Adjust the R8 configuration or register an InstanceCreator"
-            + " or a TypeAdapter for this type. Class name: com.example.NoSerializedNameMain$TestClassConstructorHasArgs"
+            + " or a TypeAdapter for this type. Class name: com.example.NoSerializedNameMain$TestClassHasArgsConstructor"
             + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class"
         );
       }
