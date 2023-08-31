@@ -1,31 +1,10 @@
 {
     "codeQL.canary": true,
     "codeQL.telemetry.enableTelemetry": true,
-    "editor.inlineSuggest.enabled": true,
-    "github-actions.workflows.pinned.refresh.enabled": true,
-    "githubIssues.queries": [
-        {
-            "label": "My Issues",
-            "query": "default"
-        },
-        {
-            "label": "Remote query results",
-            "query": "state:open repo:${owner}/${repository} sort:created-desc"
-        }
-    ],
-    "github.copilot.enable": {
-        "*": true,
-        "yaml": true,
-        "plaintext": true,
-        "markdown": true
-    },
-    "json.maxItemsComputed": 10000,
-    "editor.wordWrap": "on",
     "codeQL.variantAnalysis.controllerRepo": "dsp-testing/qc-controller",
     "codeQL.dataExtensions.editor": true,
     "codeQL.dataExtensions.frameworkMode": true,
     "codeQL.runningQueries.useExtensionPacks": true,
-    "codeQL.codespacesTemplate": true,
     "codeQL.dataExtensions.llmGeneration": true,
     "codeQL.queriesPanel": true
 }
