@@ -29,7 +29,7 @@ public class NoSerializedNameMain {
   }
 
   /**
-   * Main entrypoint, called by {@code ShrinkingIT.testNoSerializedName_ConstructorHasArgs()}.
+   * Main entrypoint, called by {@code ShrinkingIT.testNoSerializedName_NoArgsConstructor()}.
    */
   public static String runTest() {
     TestClass deserialized = new Gson().fromJson("{\"s\":\"value\"}", same(TestClass.class));
