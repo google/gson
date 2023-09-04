@@ -49,7 +49,7 @@ public class NoSerializedNameMain {
   }
 
   /**
-   * Main entrypoint, called by {@code ShrinkingIT.testNoSerializedName_ConstructorHasArgs()}.
+   * Main entrypoint, called by {@code ShrinkingIT.testNoSerializedName_HasArgsConstructor()}.
    */
   public static String runTestHasArgsConstructor() {
     TestClassHasArgsConstructor deserialized = new Gson().fromJson(
