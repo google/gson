@@ -32,7 +32,11 @@ public class Main {
     testNamedFields(outputConsumer);
     testSerializedName(outputConsumer);
 
-    testNoDefaultConstructor(outputConsumer);
+    testConstructorNoArgs(outputConsumer);
+    testConstructorHasArgs(outputConsumer);
+    testUnreferencedConstructorNoArgs(outputConsumer);
+    testUnreferencedConstructorHasArgs(outputConsumer);
+
     testNoJdkUnsafe(outputConsumer);
 
     testEnum(outputConsumer);
@@ -90,12 +94,57 @@ public class Main {
     });
   }
 
-  private static void testNoDefaultConstructor(BiConsumer<String, String> outputConsumer) {
+  private static void testConstructorNoArgs(BiConsumer<String, String> outputConsumer) {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    TestExecutor.run(outputConsumer, "Write: No default constructor", () -> toJson(gson, new ClassWithoutDefaultConstructor(2)));
+    TestExecutor.run(outputConsumer, "Write: No args constructor", () -> toJson(
+        gson, new ClassWithNoArgsConstructor()));
+    TestExecutor.run(outputConsumer, "Read: No args constructor; initial constructor value", () -> {
+      ClassWithNoArgsConstructor deserialized = fromJson(gson, "{}", ClassWithNoArgsConstructor.class);
+      return Integer.toString(deserialized.i);
+    });
+    TestExecutor.run(outputConsumer, "Read: No args constructor; custom value", () -> {
+      ClassWithNoArgsConstructor deserialized = fromJson(gson, "{\"myField\": 3}", ClassWithNoArgsConstructor.class);
+      return Integer.toString(deserialized.i);
+    });
+  }
+
+  private static void testConstructorHasArgs(BiConsumer<String, String> outputConsumer) {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    TestExecutor.run(outputConsumer, "Write: Constructor with args", () -> toJson(
+        gson, new ClassWithHasArgsConstructor(2)));
     // This most likely relies on JDK Unsafe (unless the shrinker rewrites the constructor in some way)
-    TestExecutor.run(outputConsumer, "Read: No default constructor", () -> {
-      ClassWithoutDefaultConstructor deserialized = fromJson(gson, "{\"myField\": 3}", ClassWithoutDefaultConstructor.class);
+    TestExecutor.run(outputConsumer, "Read: Constructor with args", () -> {
+      ClassWithHasArgsConstructor deserialized = fromJson(
+          gson, "{\"myField\": 3}", ClassWithHasArgsConstructor.class);
+      return Integer.toString(deserialized.i);
+    });
+  }
+
+  private static void testUnreferencedConstructorNoArgs(BiConsumer<String, String> outputConsumer) {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    // No write because we're not referencing this class's constructor.
+
+    // This runs the no-args constructor.
+    TestExecutor.run(outputConsumer, "Read: Unreferenced no args constructor; initial constructor value", () -> {
+      ClassWithUnreferencedNoArgsConstructor deserialized = fromJson(
+          gson, "{}", ClassWithUnreferencedNoArgsConstructor.class);
+      return Integer.toString(deserialized.i);
+    });
+    TestExecutor.run(outputConsumer, "Read: Unreferenced no args constructor; custom value", () -> {
+      ClassWithUnreferencedNoArgsConstructor deserialized = fromJson(
+          gson, "{\"myField\": 3}", ClassWithUnreferencedNoArgsConstructor.class);
+      return Integer.toString(deserialized.i);
+    });
+  }
+
+  private static void testUnreferencedConstructorHasArgs(BiConsumer<String, String> outputConsumer) {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    // No write because we're not referencing this class's constructor.
+
+    // This most likely relies on JDK Unsafe (unless the shrinker rewrites the constructor in some way)
+    TestExecutor.run(outputConsumer, "Read: Unreferenced constructor with args", () -> {
+      ClassWithUnreferencedHasArgsConstructor deserialized = fromJson(
+          gson, "{\"myField\": 3}", ClassWithUnreferencedHasArgsConstructor.class);
       return Integer.toString(deserialized.i);
     });
   }
@@ -103,11 +152,13 @@ public class Main {
   private static void testNoJdkUnsafe(BiConsumer<String, String> outputConsumer) {
     Gson gson = new GsonBuilder().disableJdkUnsafe().create();
     TestExecutor.run(outputConsumer, "Read: No JDK Unsafe; initial constructor value", () -> {
-      ClassWithDefaultConstructor deserialized = fromJson(gson, "{}", ClassWithDefaultConstructor.class);
+      ClassWithNoArgsConstructor deserialized = fromJson(
+          gson, "{}", ClassWithNoArgsConstructor.class);
       return Integer.toString(deserialized.i);
     });
     TestExecutor.run(outputConsumer, "Read: No JDK Unsafe; custom value", () -> {
-      ClassWithDefaultConstructor deserialized = fromJson(gson, "{\"myField\": 3}", ClassWithDefaultConstructor.class);
+      ClassWithNoArgsConstructor deserialized = fromJson(
+          gson, "{\"myField\": 3}", ClassWithNoArgsConstructor.class);
       return Integer.toString(deserialized.i);
     });
   }

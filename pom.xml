@@ -100,7 +100,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.4.1</version>
         <executions>
           <execution>
             <id>enforce-versions</id>
@@ -299,7 +299,7 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.17.2</version>
+          <version>0.17.3</version>
           <configuration>
             <oldVersion>
               <dependency>
