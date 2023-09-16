@@ -338,6 +338,7 @@ public final class GsonBuilder {
    *
    * <p>In general using inner classes with Gson should be avoided; they should be converted to {@code static}
    * nested classes if possible.
+   *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.3
    */
@@ -664,16 +665,20 @@ public final class GsonBuilder {
    * @param typeAdapter This object must implement at least one of the {@link TypeAdapter},
    * {@link InstanceCreator}, {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @throws IllegalArgumentException if the Type adapter being registered is for {@code Object} class or {@link JsonElement} or any of its subclasses
+   * @throws IllegalArgumentException if the type adapter being registered is for {@code Object} class or {@link JsonElement} or any of its subclasses
    */
   @CanIgnoreReturnValue
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
     Objects.requireNonNull(type);
-    $Gson$Preconditions.checkArgument((typeAdapter instanceof JsonSerializer<?>
+    $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
-        || typeAdapter instanceof TypeAdapter<?>)
-        && !isTypeObjectOrJsonElement(type));
+        || typeAdapter instanceof TypeAdapter<?>);
+
+    if(isTypeObjectOrJsonElement(type)){
+      throw new IllegalArgumentException("Cannot override built-in adapter for " + type);
+    }
+
     if (typeAdapter instanceof InstanceCreator<?>) {
       instanceCreators.put(type, (InstanceCreator<?>) typeAdapter);
     }
@@ -692,7 +697,7 @@ public final class GsonBuilder {
   private boolean isTypeObjectOrJsonElement(Type type) {
     return (!(type instanceof ParameterizedType) &&
             (type == Object.class
-            || JsonElement.class.isAssignableFrom((Class<?>) type)));
+                    || (type instanceof Class && JsonElement.class.isAssignableFrom((Class<?>) type))));
   }
 
   /**
@@ -726,16 +731,20 @@ public final class GsonBuilder {
    * @param typeAdapter This object must implement at least one of {@link TypeAdapter},
    *        {@link JsonSerializer} or {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @throws IllegalArgumentException if the Type adapter being registered is for a JsonElements or any of its subclasses
+   * @throws IllegalArgumentException if the type adapter being registered is for {@link JsonElement} or any of its subclasses
    * @since 1.7
    */
   @CanIgnoreReturnValue
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
     Objects.requireNonNull(baseType);
-    $Gson$Preconditions.checkArgument((typeAdapter instanceof JsonSerializer<?>
+    $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
-        || typeAdapter instanceof TypeAdapter<?>)
-        && !JsonElement.class.isAssignableFrom(baseType));
+        || typeAdapter instanceof TypeAdapter<?>);
+
+    if(JsonElement.class.isAssignableFrom(baseType)){
+      throw new IllegalArgumentException("Cannot override built-in adapter for " + baseType);
+    }
+
     if (typeAdapter instanceof JsonDeserializer || typeAdapter instanceof JsonSerializer) {
       hierarchyFactories.add(TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
     }
