@@ -286,6 +286,7 @@ public class GsonBuilderTest {
               () -> gsonBuilder.registerTypeHierarchyAdapter((Class<?>) type, NULL_TYPE_ADAPTER));
       assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
     }
+    // But registering type hierarchy adapter for Object should be allowed
     gsonBuilder.registerTypeHierarchyAdapter(Object.class, NULL_TYPE_ADAPTER);
   }
 }
