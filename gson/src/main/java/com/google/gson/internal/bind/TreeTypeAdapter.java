@@ -36,7 +36,7 @@ import java.lang.reflect.Type;
 /**
  * Adapts a Gson 1.x tree-style adapter as a streaming TypeAdapter. Since the
  * tree adapter may be serialization-only or deserialization-only, this class
- * has a facility to lookup a delegate type adapter on demand.
+ * has a facility to look up a delegate type adapter on demand.
  */
 public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter<T> {
   private final JsonSerializer<T> serializer;

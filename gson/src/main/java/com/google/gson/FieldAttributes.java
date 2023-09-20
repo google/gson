@@ -64,6 +64,8 @@ public final class FieldAttributes {
   }
 
   /**
+   * Returns the declared generic type of the field.
+   *
    * <p>For example, assume the following class definition:
    * <pre class="code">
    * public class Foo {
@@ -104,7 +106,7 @@ public final class FieldAttributes {
   }
 
   /**
-   * Return the {@code T} annotation object from this field if it exist; otherwise returns
+   * Returns the {@code T} annotation object from this field if it exists; otherwise returns
    * {@code null}.
    *
    * @param annotation the class of the annotation that will be retrieved
@@ -115,7 +117,7 @@ public final class FieldAttributes {
   }
 
   /**
-   * Return the annotations that are present on this field.
+   * Returns the annotations that are present on this field.
    *
    * @return an array of all the annotations set on the field
    * @since 1.4
