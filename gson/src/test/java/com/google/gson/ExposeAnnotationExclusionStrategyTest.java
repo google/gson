@@ -31,38 +31,48 @@ import org.junit.Test;
 public class ExposeAnnotationExclusionStrategyTest {
   private Excluder excluder = Excluder.DEFAULT.excludeFieldsWithoutExposeAnnotation();
 
+  private void assertIncludesClass(Class<?> c) {
+    assertThat(excluder.excludeClass(c, true)).isFalse();
+    assertThat(excluder.excludeClass(c, false)).isFalse();
+  }
+
+  private void assertIncludesField(Field f) {
+    assertThat(excluder.excludeField(f, true)).isFalse();
+    assertThat(excluder.excludeField(f, false)).isFalse();
+  }
+
+  private void assertExcludesField(Field f) {
+    assertThat(excluder.excludeField(f, true)).isTrue();
+    assertThat(excluder.excludeField(f, false)).isTrue();
+  }
+
   @Test
   public void testNeverSkipClasses() {
-    assertThat(excluder.excludeClass(MockObject.class, true)).isFalse();
-    assertThat(excluder.excludeClass(MockObject.class, false)).isFalse();
+    assertIncludesClass(MockObject.class);
   }
 
   @Test
   public void testSkipNonAnnotatedFields() throws Exception {
     Field f = createFieldAttributes("hiddenField");
-    assertThat(excluder.excludeField(f, true)).isTrue();
-    assertThat(excluder.excludeField(f, false)).isTrue();
+    assertExcludesField(f);
   }
 
   @Test
   public void testSkipExplicitlySkippedFields() throws Exception {
     Field f = createFieldAttributes("explicitlyHiddenField");
-    assertThat(excluder.excludeField(f, true)).isTrue();
-    assertThat(excluder.excludeField(f, false)).isTrue();
+    assertExcludesField(f);
   }
 
   @Test
   public void testNeverSkipExposedAnnotatedFields() throws Exception {
     Field f = createFieldAttributes("exposedField");
-    assertThat(excluder.excludeField(f, true)).isFalse();
-    assertThat(excluder.excludeField(f, false)).isFalse();
+    assertIncludesField(f);
   }
 
   @Test
   public void testNeverSkipExplicitlyExposedAnnotatedFields() throws Exception {
     Field f = createFieldAttributes("explicitlyExposedField");
-    assertThat(excluder.excludeField(f, true)).isFalse();
-    assertThat(excluder.excludeField(f, false)).isFalse();
+    assertIncludesField(f);
   }
 
   @Test

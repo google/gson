@@ -32,28 +32,48 @@ public class InnerClassExclusionStrategyTest {
   public StaticNestedClass staticNestedClass = new StaticNestedClass();
   private Excluder excluder = Excluder.DEFAULT.disableInnerClassSerialization();
 
+  private void assertIncludesClass(Class<?> c) {
+    assertThat(excluder.excludeClass(c, true)).isFalse();
+    assertThat(excluder.excludeClass(c, false)).isFalse();
+  }
+
+  private void assertExcludesClass(Class<?> c) {
+    assertThat(excluder.excludeClass(c, true)).isTrue();
+    assertThat(excluder.excludeClass(c, false)).isTrue();
+  }
+
+  private void assertIncludesField(Field f) {
+    assertThat(excluder.excludeField(f, true)).isFalse();
+    assertThat(excluder.excludeField(f, false)).isFalse();
+  }
+
+  private void assertExcludesField(Field f) {
+    assertThat(excluder.excludeField(f, true)).isTrue();
+    assertThat(excluder.excludeField(f, false)).isTrue();
+  }
+
   @Test
   public void testExcludeInnerClassObject() {
     Class<?> clazz = innerClass.getClass();
-    assertThat(excluder.excludeClass(clazz, true)).isTrue();
+    assertExcludesClass(clazz);
   }
 
   @Test
   public void testExcludeInnerClassField() throws Exception {
     Field f = getClass().getField("innerClass");
-    assertThat(excluder.excludeField(f, true)).isTrue();
+    assertExcludesField(f);
   }
 
   @Test
   public void testIncludeStaticNestedClassObject() {
     Class<?> clazz = staticNestedClass.getClass();
-    assertThat(excluder.excludeClass(clazz, true)).isFalse();
+    assertIncludesClass(clazz);
   }
 
   @Test
   public void testIncludeStaticNestedClassField() throws Exception {
     Field f = getClass().getField("staticNestedClass");
-    assertThat(excluder.excludeField(f, true)).isFalse();
+    assertIncludesField(f);
   }
 
   @SuppressWarnings("ClassCanBeStatic")
