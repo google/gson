@@ -675,7 +675,7 @@ public final class GsonBuilder {
         || typeAdapter instanceof InstanceCreator<?>
         || typeAdapter instanceof TypeAdapter<?>);
 
-    if(isTypeObjectOrJsonElement(type)){
+    if (isTypeObjectOrJsonElement(type)){
       throw new IllegalArgumentException("Cannot override built-in adapter for " + type);
     }
 
@@ -695,9 +695,9 @@ public final class GsonBuilder {
   }
 
   private boolean isTypeObjectOrJsonElement(Type type) {
-    return (!(type instanceof ParameterizedType) &&
+    return type instanceof Class &&
             (type == Object.class
-                    || (type instanceof Class && JsonElement.class.isAssignableFrom((Class<?>) type))));
+                    || JsonElement.class.isAssignableFrom((Class<?>) type));
   }
 
   /**
