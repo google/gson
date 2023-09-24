@@ -48,11 +48,22 @@ public final class JsonTreeReader extends JsonReader {
   };
   private static final Object SENTINEL_CLOSED = new Object();
 
-  /*
+  /**
    * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
    */
   private Object[] stack = new Object[32];
+  /**
+   * The used size of {@link #stack}; the value at {@code stackSize - 1} is the
+   * value last placed on the stack.
+   * {@code stackSize} might differ from {@link #nestingDepth}, because the stack
+   * also contains temporary additional objects, for example for a JsonArray it
+   * contains the JsonArray object as well as the corresponding iterator.
+   */
   private int stackSize = 0;
+  /**
+   * The current nesting depth (= number of open arrays or objects).
+   */
+  private int nestingDepth = 0;
 
   /*
    * The path members. It corresponds directly to stack: At indices where the
@@ -70,8 +81,18 @@ public final class JsonTreeReader extends JsonReader {
     push(element);
   }
 
+  private void increaseNestingDepth() throws MalformedJsonException {
+    int nestingLimit = getNestingLimit();
+    if (nestingDepth >= nestingLimit) {
+      throw new MalformedJsonException("Nesting limit " + nestingLimit + " reached" + locationString());
+    }
+
+    nestingDepth++;
+  }
+
   @Override public void beginArray() throws IOException {
     expect(JsonToken.BEGIN_ARRAY);
+    increaseNestingDepth();
     JsonArray array = (JsonArray) peekStack();
     push(array.iterator());
     pathIndices[stackSize - 1] = 0;
@@ -79,6 +100,7 @@ public final class JsonTreeReader extends JsonReader {
 
   @Override public void endArray() throws IOException {
     expect(JsonToken.END_ARRAY);
+    nestingDepth--;
     popStack(); // empty iterator
     popStack(); // array
     if (stackSize > 0) {
@@ -88,12 +110,14 @@ public final class JsonTreeReader extends JsonReader {
 
   @Override public void beginObject() throws IOException {
     expect(JsonToken.BEGIN_OBJECT);
+    increaseNestingDepth();
     JsonObject object = (JsonObject) peekStack();
     push(object.entrySet().iterator());
   }
 
   @Override public void endObject() throws IOException {
     expect(JsonToken.END_OBJECT);
+    nestingDepth--;
     pathNames[stackSize - 1] = null; // Free the last path name so that it can be garbage collected
     popStack(); // empty iterator
     popStack(); // object
