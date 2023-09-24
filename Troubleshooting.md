@@ -66,7 +66,7 @@ Or in case this occurs for a field in one of your classes which you did not actu
 
 **Symptom:** You released a new version of your Android app and it fails to parse JSON data created by the previous version of your app
 
-**Reason:** You probably have not configured ProGuard / R8 correctly; probably the fields names are being obfuscated and their naming changed between the versions of your app
+**Reason:** You probably have not configured ProGuard / R8 correctly; probably the field names are being obfuscated and their naming changed between the versions of your app
 
 **Solution:** Make sure you have configured ProGuard / R8 correctly to preserve the names of your fields. See the [Android example](examples/android-proguard-example/README.md) for more information.
 
@@ -137,7 +137,7 @@ To spot syntax errors in the JSON data easily you can open it in an editor with 
 
 **Symptom:** JSON data contains an integral number such as `45` but Gson returns it as `double`
 
-**Reason:** When parsing a JSON number as `Object`, Gson will by default create always return a `double`
+**Reason:** When parsing a JSON number as `Object`, Gson will by default always return a `double`
 
 **Solution:** Use [`GsonBuilder.setObjectToNumberStrategy`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#setObjectToNumberStrategy(com.google.gson.ToNumberStrategy)) to specify what type of number should be returned
 

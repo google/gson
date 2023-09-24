@@ -27,7 +27,6 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("UnusedVariable") // workaround for https://github.com/google/error-prone/issues/2713
 class Java17RecordReflectionTest {
   public record PublicRecord(int i) {
   }
