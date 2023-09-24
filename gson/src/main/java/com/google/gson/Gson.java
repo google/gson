@@ -601,7 +601,7 @@ public final class Gson {
   /**
    * This method is used to get an alternate type adapter for the specified type. This is used
    * to access a type adapter that is overridden by a {@link TypeAdapterFactory} that you
-   * may have registered. This features is typically used when you want to register a type
+   * may have registered. This feature is typically used when you want to register a type
    * adapter that does a little bit of work but then delegates further processing to the Gson
    * default type adapter. Here is an example:
    * <p>Let's say we want to write a type adapter that counts the number of objects being read
@@ -635,7 +635,7 @@ public final class Gson {
    * System.out.println("Num JSON writes: " + stats.numWrites);
    * }</pre>
    * Note that this call will skip all factories registered before {@code skipPast}. In case of
-   * multiple TypeAdapterFactories registered it is up to the caller of this function to insure
+   * multiple TypeAdapterFactories registered it is up to the caller of this function to ensure
    * that the order of registration does not prevent this method from reaching a factory they
    * would expect to reply from this call.
    * Note that since you can not override the type adapter factories for some types, see
@@ -680,7 +680,7 @@ public final class Gson {
     }
 
     if (skipPastFound) {
-      throw new IllegalArgumentException("GSON cannot serialize " + type);
+      throw new IllegalArgumentException("GSON cannot serialize or deserialize " + type);
     } else {
       // Probably a factory from @JsonAdapter on a field
       return getAdapter(type);
@@ -1019,7 +1019,7 @@ public final class Gson {
    * This method deserializes the specified JSON into an object of the specified class. It is not
    * suitable to use if the specified class is a generic type since it will not have the generic
    * type information because of the Type Erasure feature of Java. Therefore, this method should not
-   * be used if the desired type is a generic type. Note that this method works fine if the any of
+   * be used if the desired type is a generic type. Note that this method works fine if any of
    * the fields of the specified object are generics, just the object itself should not be a
    * generic type. For the cases when the object is of generic type, invoke
    * {@link #fromJson(String, TypeToken)}. If you have the JSON in a {@link Reader} instead of

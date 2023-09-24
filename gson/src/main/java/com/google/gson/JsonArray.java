@@ -225,7 +225,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param i the index of the element that is being sought.
    * @return the element present at the i-th index.
-   * @throws IndexOutOfBoundsException if i is negative or greater than or equal to the
+   * @throws IndexOutOfBoundsException if {@code i} is negative or greater than or equal to the
    * {@link #size()} of the array.
    */
   public JsonElement get(int i) {

@@ -686,7 +686,7 @@ public class JsonReader implements Closeable {
       return PEEKED_NONE;
     }
 
-    // Upper cased keywords are not allowed in STRICT mode
+    // Uppercased keywords are not allowed in STRICT mode
     boolean allowsUpperCased = strictness != Strictness.STRICT;
 
     // Confirm that chars [0..length) match the keyword.
@@ -1745,7 +1745,7 @@ public class JsonReader implements Closeable {
    * Consumes the non-execute prefix if it exists.
    */
   private void consumeNonExecutePrefix() throws IOException {
-    // fast forward through the leading whitespace
+    // fast-forward through the leading whitespace
     int unused = nextNonWhitespace(true);
     pos--;
 

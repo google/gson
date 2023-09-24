@@ -63,7 +63,7 @@ import java.lang.annotation.Target;
 public @interface Until {
 
   /**
-   * The value indicating a version number until this member or type should be be included.
+   * The value indicating a version number until this member or type should be included.
    * The number is exclusive; annotated elements will be included if {@code gsonVersion < value}.
    */
   double value();
