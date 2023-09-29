@@ -260,14 +260,14 @@ public class GsonBuilderTest {
   public void testRegisterTypeAdapterForObjectAndJsonElements() {
     final String ERROR_MESSAGE = "Cannot override built-in adapter for ";
     Type[] types = {
-            Object.class,
-            JsonElement.class,
-            JsonArray.class,
+        Object.class,
+        JsonElement.class,
+        JsonArray.class,
     };
     GsonBuilder gsonBuilder = new GsonBuilder();
     for (Type type : types) {
       IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-              () -> gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER));
+          () -> gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER));
       assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
     }
   }
