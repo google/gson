@@ -741,7 +741,7 @@ public final class GsonBuilder {
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof TypeAdapter<?>);
 
-    if(JsonElement.class.isAssignableFrom(baseType)){
+    if (JsonElement.class.isAssignableFrom(baseType)) {
       throw new IllegalArgumentException("Cannot override built-in adapter for " + baseType);
     }
 
