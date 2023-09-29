@@ -276,14 +276,15 @@ public class GsonBuilderTest {
   @Test
   public void testRegisterTypeHierarchyAdapterJsonElements() {
     final String ERROR_MESSAGE = "Cannot override built-in adapter for ";
-    Type[] types = {
-            JsonElement.class,
-            JsonArray.class,
+    Class<?>[] types = {
+        JsonElement.class,
+        JsonArray.class,
     };
     GsonBuilder gsonBuilder = new GsonBuilder();
-    for (Type type : types) {
+    for (Class<?> type : types) {
       IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-              () -> gsonBuilder.registerTypeHierarchyAdapter((Class<?>) type, NULL_TYPE_ADAPTER));
+          () -> gsonBuilder.registerTypeHierarchyAdapter(type, NULL_TYPE_ADAPTER));
+
       assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
     }
     // But registering type hierarchy adapter for Object should be allowed
