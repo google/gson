@@ -246,9 +246,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
   private static IllegalArgumentException createDuplicateFieldException(Class<?> declaringType, String duplicateName, Field field1, Field field2) {
     throw new IllegalArgumentException("Class " + declaringType.getName()
-    + " declares multiple JSON fields named '" + duplicateName + "'; conflict is caused"
-    + " by fields " + ReflectionHelper.fieldToString(field1) + " and " + ReflectionHelper.fieldToString(field2)
-    + "\nSee " + TroubleshootingGuide.createUrl("duplicate-fields"));
+        + " declares multiple JSON fields named '" + duplicateName + "'; conflict is caused"
+        + " by fields " + ReflectionHelper.fieldToString(field1) + " and " + ReflectionHelper.fieldToString(field2)
+        + "\nSee " + TroubleshootingGuide.createUrl("duplicate-fields"));
   }
 
   private FieldsData getBoundFields(Gson context, TypeToken<?> type, Class<?> raw, boolean blockInaccessible, boolean isRecord) {
