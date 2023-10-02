@@ -142,9 +142,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private BoundField createBoundField(
-      final Gson context, final Field field, final Method accessor, final String name,
-      final TypeToken<?> fieldType, boolean serialize, boolean deserialize,
-      final boolean blockInaccessible) {
+      final Gson context, final Field field, final Method accessor, final String serializedName,
+      final TypeToken<?> fieldType, final boolean serialize, final boolean blockInaccessible) {
 
     final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
 
@@ -171,10 +170,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       // Will never actually be used, but we set it to avoid confusing nullness-analysis tools
       writeTypeAdapter = typeAdapter;
     }
-    return new BoundField(name, field, serialize, deserialize) {
+    return new BoundField(serializedName, field) {
       @Override void write(JsonWriter writer, Object source)
           throws IOException, IllegalAccessException {
-        if (!serialized) return;
         if (blockInaccessible) {
           if (accessor == null) {
             checkAccessible(source, field);
@@ -200,7 +198,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           // avoid direct recursion
           return;
         }
-        writer.name(name);
+        writer.name(serializedName);
         writeTypeAdapter.write(writer, fieldValue);
       }
 
@@ -233,12 +231,34 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     };
   }
 
-  private Map<String, BoundField> getBoundFields(Gson context, TypeToken<?> type, Class<?> raw,
-                                                 boolean blockInaccessible, boolean isRecord) {
-    Map<String, BoundField> result = new LinkedHashMap<>();
-    if (raw.isInterface()) {
-      return result;
+  private static class FieldsData {
+    public static final FieldsData EMPTY = new FieldsData(Collections.<String, BoundField>emptyMap(), Collections.<BoundField>emptyList());
+
+    /** Maps from JSON member name to field */
+    public final Map<String, BoundField> deserializedFields;
+    public final List<BoundField> serializedFields;
+
+    public FieldsData(Map<String, BoundField> deserializedFields, List<BoundField> serializedFields) {
+      this.deserializedFields = deserializedFields;
+      this.serializedFields = serializedFields;
     }
+  }
+
+  private static IllegalArgumentException createDuplicateFieldException(Class<?> declaringType, String duplicateName, Field field1, Field field2) {
+    throw new IllegalArgumentException("Class " + declaringType.getName()
+        + " declares multiple JSON fields named '" + duplicateName + "'; conflict is caused"
+        + " by fields " + ReflectionHelper.fieldToString(field1) + " and " + ReflectionHelper.fieldToString(field2)
+        + "\nSee " + TroubleshootingGuide.createUrl("duplicate-fields"));
+  }
+
+  private FieldsData getBoundFields(Gson context, TypeToken<?> type, Class<?> raw, boolean blockInaccessible, boolean isRecord) {
+    if (raw.isInterface()) {
+      return FieldsData.EMPTY;
+    }
+
+    Map<String, BoundField> deserializedFields = new LinkedHashMap<>();
+    // For serialized fields use a Map to track duplicate field names; otherwise this could be a List<BoundField> instead
+    Map<String, BoundField> serializedFields = new LinkedHashMap<>();
 
     Class<?> originalRaw = raw;
     while (raw != Object.class) {
@@ -293,44 +313,47 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         if (!blockInaccessible && accessor == null) {
           ReflectionHelper.makeAccessible(field);
         }
+
         Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
         List<String> fieldNames = getFieldNames(field);
-        BoundField previous = null;
-        for (int i = 0, size = fieldNames.size(); i < size; ++i) {
-          String name = fieldNames.get(i);
-          if (i != 0) serialize = false; // only serialize the default name
-          BoundField boundField = createBoundField(context, field, accessor, name,
-              TypeToken.get(fieldType), serialize, deserialize, blockInaccessible);
-          BoundField replaced = result.put(name, boundField);
-          if (previous == null) previous = replaced;
+        String serializedName = fieldNames.get(0);
+        BoundField boundField = createBoundField(context, field, accessor, serializedName,
+            TypeToken.get(fieldType), serialize, blockInaccessible);
+
+        if (deserialize) {
+          for (String name : fieldNames) {
+            BoundField replaced = deserializedFields.put(name, boundField);
+
+            if (replaced != null) {
+              throw createDuplicateFieldException(originalRaw, name, replaced.field, field);
+            }
+          }
         }
-        if (previous != null) {
-          throw new IllegalArgumentException("Class " + originalRaw.getName()
-              + " declares multiple JSON fields named '" + previous.name + "'; conflict is caused"
-              + " by fields " + ReflectionHelper.fieldToString(previous.field) + " and " + ReflectionHelper.fieldToString(field)
-              + "\nSee " + TroubleshootingGuide.createUrl("duplicate-fields"));
+
+        if (serialize) {
+          BoundField replaced = serializedFields.put(serializedName, boundField);
+          if (replaced != null) {
+            throw createDuplicateFieldException(originalRaw, serializedName, replaced.field, field);
+          }
         }
       }
       type = TypeToken.get($Gson$Types.resolve(type.getType(), raw, raw.getGenericSuperclass()));
       raw = type.getRawType();
     }
-    return result;
+    return new FieldsData(deserializedFields, new ArrayList<>(serializedFields.values()));
   }
 
   static abstract class BoundField {
-    final String name;
+    /** Name used for serialization (but not for deserialization) */
+    final String serializedName;
     final Field field;
     /** Name of the underlying field */
     final String fieldName;
-    final boolean serialized;
-    final boolean deserialized;
 
-    protected BoundField(String name, Field field, boolean serialized, boolean deserialized) {
-      this.name = name;
+    protected BoundField(String serializedName, Field field) {
+      this.serializedName = serializedName;
       this.field = field;
       this.fieldName = field.getName();
-      this.serialized = serialized;
-      this.deserialized = deserialized;
     }
 
     /** Read this field value from the source, and append its JSON value to the writer */
@@ -358,10 +381,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
    */
   // This class is public because external projects check for this class with `instanceof` (even though it is internal)
   public static abstract class Adapter<T, A> extends TypeAdapter<T> {
-    final Map<String, BoundField> boundFields;
+    private final FieldsData fieldsData;
 
-    Adapter(Map<String, BoundField> boundFields) {
-      this.boundFields = boundFields;
+    Adapter(FieldsData fieldsData) {
+      this.fieldsData = fieldsData;
     }
 
     @Override
@@ -373,7 +396,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
       out.beginObject();
       try {
-        for (BoundField boundField : boundFields.values()) {
+        for (BoundField boundField : fieldsData.serializedFields) {
           boundField.write(out, value);
         }
       } catch (IllegalAccessException e) {
@@ -390,13 +413,14 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       A accumulator = createAccumulator();
+      Map<String, BoundField> deserializedFields = fieldsData.deserializedFields;
 
       try {
         in.beginObject();
         while (in.hasNext()) {
           String name = in.nextName();
-          BoundField field = boundFields.get(name);
-          if (field == null || !field.deserialized) {
+          BoundField field = deserializedFields.get(name);
+          if (field == null) {
             in.skipValue();
           } else {
             readField(accumulator, in, field);
@@ -426,8 +450,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private static final class FieldReflectionAdapter<T> extends Adapter<T, T> {
     private final ObjectConstructor<T> constructor;
 
-    FieldReflectionAdapter(ObjectConstructor<T> constructor, Map<String, BoundField> boundFields) {
-      super(boundFields);
+    FieldReflectionAdapter(ObjectConstructor<T> constructor, FieldsData fieldsData) {
+      super(fieldsData);
       this.constructor = constructor;
     }
 
@@ -458,8 +482,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     // Map from component names to index into the constructors arguments.
     private final Map<String, Integer> componentIndices = new HashMap<>();
 
-    RecordAdapter(Class<T> raw, Map<String, BoundField> boundFields, boolean blockInaccessible) {
-      super(boundFields);
+    RecordAdapter(Class<T> raw, FieldsData fieldsData, boolean blockInaccessible) {
+      super(fieldsData);
       constructor = ReflectionHelper.getCanonicalRecordConstructor(raw);
 
       if (blockInaccessible) {

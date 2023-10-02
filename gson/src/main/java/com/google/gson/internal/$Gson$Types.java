@@ -496,9 +496,16 @@ public final class $Gson$Types {
     return false;
   }
 
+  // Here and below we put @SuppressWarnings("serial") on fields of type `Type`. Recent Java
+  // compilers complain that the declared type is not Serializable. But in this context we go out of
+  // our way to ensure that the Type in question is either Class (which is serializable) or one of
+  // the nested Type implementations here (which are also serializable).
   private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
+    @SuppressWarnings("serial")
     private final Type ownerType;
+    @SuppressWarnings("serial")
     private final Type rawType;
+    @SuppressWarnings("serial")
     private final Type[] typeArguments;
 
     public ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
@@ -564,6 +571,7 @@ public final class $Gson$Types {
   }
 
   private static final class GenericArrayTypeImpl implements GenericArrayType, Serializable {
+    @SuppressWarnings("serial")
     private final Type componentType;
 
     public GenericArrayTypeImpl(Type componentType) {
@@ -598,7 +606,9 @@ public final class $Gson$Types {
    * is set, the upper bound must be Object.class.
    */
   private static final class WildcardTypeImpl implements WildcardType, Serializable {
+    @SuppressWarnings("serial")
     private final Type upperBound;
+    @SuppressWarnings("serial")
     private final Type lowerBound;
 
     public WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {

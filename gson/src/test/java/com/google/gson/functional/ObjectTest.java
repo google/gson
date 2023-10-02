@@ -19,6 +19,8 @@ package com.google.gson.functional;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -171,14 +173,39 @@ public class ObjectTest {
 
   @Test
   public void testClassWithDuplicateFields() {
+    String expectedMessage = "Class com.google.gson.functional.ObjectTest$Subclass declares multiple JSON fields named 's';"
+        + " conflict is caused by fields com.google.gson.functional.ObjectTest$Superclass1#s and"
+        + " com.google.gson.functional.ObjectTest$Superclass2#s"
+        + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#duplicate-fields";
+
     try {
       gson.getAdapter(Subclass.class);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Class com.google.gson.functional.ObjectTest$Subclass declares multiple JSON fields named 's';"
-          + " conflict is caused by fields com.google.gson.functional.ObjectTest$Superclass1#s and"
-          + " com.google.gson.functional.ObjectTest$Superclass2#s"
-          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#duplicate-fields");
+      assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+    }
+
+    // Detection should also work properly when duplicate fields exist only for serialization
+    Gson gson = new GsonBuilder()
+        .addDeserializationExclusionStrategy(new ExclusionStrategy() {
+          @Override
+          public boolean shouldSkipField(FieldAttributes f) {
+            // Skip all fields for deserialization
+            return true;
+          }
+
+          @Override
+          public boolean shouldSkipClass(Class<?> clazz) {
+            return false;
+          }
+        })
+        .create();
+
+    try {
+      gson.getAdapter(Subclass.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
     }
   }
 
