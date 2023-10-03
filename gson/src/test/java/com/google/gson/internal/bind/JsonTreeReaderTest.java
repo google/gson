@@ -16,14 +16,12 @@
 package com.google.gson.internal.bind;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -139,74 +137,48 @@ public class JsonTreeReaderTest {
     }
   }
 
+  /**
+   * {@link JsonTreeReader} ignores nesting limit because:
+   * <ul>
+   *   <li>It is an internal class and often created implicitly without the user having
+   *       access to it (as {@link JsonReader}), so they cannot easily adjust the limit
+   *   <li>{@link JsonTreeReader} may be created based on an existing {@link JsonReader};
+   *       in that case it would be necessary to propagate settings to account for a custom
+   *       nesting limit, see also related https://github.com/google/gson/pull/2151
+   *   <li>Nesting limit as protection against {@link StackOverflowError} is not that
+   *       relevant for {@link JsonTreeReader} because a deeply nested {@link JsonElement}
+   *       tree would first have to be constructed; and if it is constructed from a regular
+   *       {@link JsonReader}, then its nesting limit would already apply
+   * </ul>
+   */
   @Test
-  public void testNestingLimitDefault() throws IOException {
-    int defaultLimit = 255;
+  public void testNestingLimitIgnored() throws IOException {
+    int limit = 10;
     JsonArray json = new JsonArray();
     JsonArray current = json;
-    // This adds additional `defaultLimit` nested arrays, so in total there are `defaultLimit + 1` arrays
-    for (int i = 0; i < defaultLimit; i++) {
+    // This adds additional `limit` nested arrays, so in total there are `limit + 1` arrays
+    for (int i = 0; i < limit; i++) {
       JsonArray nested = new JsonArray();
       current.add(nested);
       current = nested;
     }
 
     JsonTreeReader reader = new JsonTreeReader(json);
-    assertThat(reader.getNestingLimit()).isEqualTo(defaultLimit);
+    reader.setNestingLimit(limit);
+    assertThat(reader.getNestingLimit()).isEqualTo(limit);
 
-    for (int i = 0; i < defaultLimit; i++) {
+    for (int i = 0; i < limit; i++) {
       reader.beginArray();
     }
-    MalformedJsonException e = assertThrows(MalformedJsonException.class, () -> reader.beginArray());
-    assertThat(e).hasMessageThat().isEqualTo("Nesting limit 255 reached at path $" + "[0]".repeat(defaultLimit));
-  }
-
-  @Test
-  public void testNestingLimit() throws IOException {
-    // json = [{"a": 1}]
-    JsonArray json = new JsonArray();
-    JsonObject jsonObject = new JsonObject();
-    jsonObject.addProperty("a", 1);
-    json.add(jsonObject);
-
-    JsonTreeReader reader = new JsonTreeReader(json);
-    reader.setNestingLimit(2);
-    assertThat(reader.getNestingLimit()).isEqualTo(2);
+    // Does not throw exception; limit is ignored
     reader.beginArray();
-    reader.beginObject();
-    assertThat(reader.nextName()).isEqualTo("a");
-    assertThat(reader.nextInt()).isEqualTo(1);
-    reader.endObject();
+
     reader.endArray();
-
-    // json = [{"a": []}]
-    json = new JsonArray();
-    jsonObject = new JsonObject();
-    jsonObject.add("a", new JsonArray());
-    json.add(jsonObject);
-
-    JsonTreeReader reader2 = new JsonTreeReader(json);
-    reader2.setNestingLimit(2);
-    reader2.beginArray();
-    reader2.beginObject();
-    assertThat(reader2.nextName()).isEqualTo("a");
-    MalformedJsonException e = assertThrows(MalformedJsonException.class, () -> reader2.beginArray());
-    assertThat(e).hasMessageThat().isEqualTo("Nesting limit 2 reached at path $[0].a");
-
-    JsonTreeReader reader3 = new JsonTreeReader(new JsonArray());
-    reader3.setNestingLimit(0);
-    e = assertThrows(MalformedJsonException.class, () -> reader3.beginArray());
-    assertThat(e).hasMessageThat().isEqualTo("Nesting limit 0 reached at path $");
-
-    JsonTreeReader reader4 = new JsonTreeReader(new JsonArray());
-    reader4.setNestingLimit(0);
-    // Currently not checked when skipping values
-    reader4.skipValue();
-
-    JsonTreeReader reader5 = new JsonTreeReader(new JsonPrimitive(1));
-    reader5.setNestingLimit(0);
-    // Reading value other than array or object should be allowed
-    assertThat(reader5.nextInt()).isEqualTo(1);
+    for (int i = 0; i < limit; i++) {
+      reader.endArray();
+    }
+    assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+    reader.close();
   }
 
   /**
