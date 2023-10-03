@@ -66,7 +66,7 @@ public class BagOfPrimitivesDeserializationBenchmark {
       int intValue = 0;
       boolean booleanValue = false;
       String stringValue = null;
-      while(jr.hasNext()) {
+      while (jr.hasNext()) {
         String name = jr.nextName();
         if (name.equals("longValue")) {
           longValue = jr.nextLong();
@@ -96,7 +96,7 @@ public class BagOfPrimitivesDeserializationBenchmark {
       JsonReader jr = new JsonReader(reader);
       jr.beginObject();
       BagOfPrimitives bag = new BagOfPrimitives();
-      while(jr.hasNext()) {
+      while (jr.hasNext()) {
         String name = jr.nextName();
         for (Field field : BagOfPrimitives.class.getDeclaredFields()) {
           if (field.getName().equals(name)) {
