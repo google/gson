@@ -695,8 +695,8 @@ public final class GsonBuilder {
   }
 
   private boolean isTypeObjectOrJsonElement(Type type) {
-    return type instanceof Class &&
-        (type == Object.class
+    return type instanceof Class
+        && (type == Object.class
             || JsonElement.class.isAssignableFrom((Class<?>) type));
   }
 
