@@ -998,24 +998,29 @@ public class PrimitiveTest {
       gson.fromJson("-122.08e-213", Integer.class);
       fail();
     } catch (JsonSyntaxException expected) {
+      assertThat(expected).hasCauseThat().hasMessageThat().isEqualTo("Expected an int but was -122.08e-213 at line 1 column 13 path $");
     }
   }
 
   @Test
   public void testDeserializingBigIntegerAsInteger() {
+    String number = "12121211243123245845384534687435634558945453489543985435";
     try {
-      gson.fromJson("12121211243123245845384534687435634558945453489543985435", Integer.class);
+      gson.fromJson(number, Integer.class);
       fail();
     } catch (JsonSyntaxException expected) {
+      assertThat(expected).hasCauseThat().hasMessageThat().isEqualTo("Expected an int but was " + number + " at line 1 column 57 path $");
     }
   }
 
   @Test
   public void testDeserializingBigIntegerAsLong() {
+    String number = "12121211243123245845384534687435634558945453489543985435";
     try {
-      gson.fromJson("12121211243123245845384534687435634558945453489543985435", Long.class);
+      gson.fromJson(number, Long.class);
       fail();
     } catch (JsonSyntaxException expected) {
+      assertThat(expected).hasCauseThat().hasMessageThat().isEqualTo("Expected a long but was " + number + " at line 1 column 57 path $");
     }
   }
 
@@ -1029,20 +1034,6 @@ public class PrimitiveTest {
     assertThat(gson.fromJson("-122.08e-2132", double.class)).isEqualTo(-0.0);
     assertThat(gson.fromJson("122.08e-2132", float.class)).isEqualTo(0.0f);
     assertThat(gson.fromJson("122.08e-2132", double.class)).isEqualTo(0.0);
-  }
-
-  @Test
-  public void testDeserializingBigDecimalAsFloat() {
-    String json = "-122.08e-2132332";
-    float actual = gson.fromJson(json, float.class);
-    assertThat(actual).isEqualTo(-0.0f);
-  }
-
-  @Test
-  public void testDeserializingBigDecimalAsDouble() {
-    String json = "-122.08e-2132332";
-    double actual = gson.fromJson(json, double.class);
-    assertThat(actual).isEqualTo(-0.0d);
   }
 
   @Test
