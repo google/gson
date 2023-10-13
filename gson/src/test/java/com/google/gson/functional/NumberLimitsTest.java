@@ -29,6 +29,23 @@ public class NumberLimitsTest {
     return new JsonReader(new StringReader(json));
   }
 
+  /**
+   * Tests how {@link JsonReader} behaves for large numbers.
+   *
+   * <p>Currently {@link JsonReader} itself does not enforce any limits.
+   * The reasons for this are:
+   * <ul>
+   *   <li>Methods such as {@link JsonReader#nextDouble()} seem to have no problem
+   *       parsing extremely large or small numbers (it rounds to 0 or Infinity)
+   *       (to be verified?; if it had performance problems with certain numbers, then
+   *        it would affect other parts of Gson which parse as float or double as well)
+   *   <li>Enforcing limits only when a JSON number is encountered would be ineffective
+   *       unless users explicitly call {@link JsonReader#peek()} and check if the value
+   *       is a JSON number. Otherwise the limits could be circumvented because
+   *       {@link JsonReader#nextString()} reads both strings and numbers, and for
+   *       JSON strings no restrictions are enforced.
+   * </ul>
+   */
   @Test
   public void testJsonReader() throws IOException {
     JsonReader reader = jsonReader("1".repeat(1000));
@@ -49,14 +66,13 @@ public class NumberLimitsTest {
     assertThat(reader.peek()).isEqualTo(JsonToken.NUMBER);
     assertThat(reader.nextString()).isEqualTo("1e+9999");
 
-    JsonReader reader3 = jsonReader("1e10000");
-    e = assertThrows(MalformedJsonException.class, () -> reader3.peek());
-    assertThat(e).hasMessageThat().isEqualTo("Too many number exponent digits at line 1 column 1 path $");
+    reader = jsonReader("1e10000");
+    assertThat(reader.peek()).isEqualTo(JsonToken.NUMBER);
+    assertThat(reader.nextString()).isEqualTo("1e10000");
 
-    JsonReader reader4 = jsonReader("1e00001");
-    // Currently JsonReader does not ignore leading 0s in exponent
-    e = assertThrows(MalformedJsonException.class, () -> reader4.peek());
-    assertThat(e).hasMessageThat().isEqualTo("Too many number exponent digits at line 1 column 1 path $");
+    reader = jsonReader("1e00001");
+    assertThat(reader.peek()).isEqualTo(JsonToken.NUMBER);
+    assertThat(reader.nextString()).isEqualTo("1e00001");
   }
 
   @Test

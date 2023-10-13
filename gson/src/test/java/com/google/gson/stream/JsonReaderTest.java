@@ -601,8 +601,8 @@ public final class JsonReaderTest {
         + "0e0,"
         + "1e+0,"
         + "1e-0,"
-        + "1e000," // leading 0 is allowed for exponent
-        + "1e001,"
+        + "1e0000," // leading 0 is allowed for exponent
+        + "1e00001,"
         + "1e+1]";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();

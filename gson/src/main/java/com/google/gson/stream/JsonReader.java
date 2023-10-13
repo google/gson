@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.NumberLimits;
 import com.google.gson.internal.TroubleshootingGuide;
 import com.google.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
@@ -722,7 +721,6 @@ public class JsonReader implements Closeable {
     long value = 0; // Negative to accommodate Long.MIN_VALUE more easily.
     boolean negative = false;
     boolean fitsInLong = true;
-    int exponentDigitsCount = 0;
     int last = NUMBER_CHAR_NONE;
 
     int i = 0;
@@ -799,15 +797,6 @@ public class JsonReader implements Closeable {
           last = NUMBER_CHAR_FRACTION_DIGIT;
         } else if (last == NUMBER_CHAR_EXP_E || last == NUMBER_CHAR_EXP_SIGN) {
           last = NUMBER_CHAR_EXP_DIGIT;
-          exponentDigitsCount++;
-        } else if (last == NUMBER_CHAR_EXP_DIGIT) {
-          exponentDigitsCount++;
-
-          // Similar to the scale limit enforced by NumberLimits.parseBigDecimal(String)
-          // This also considers leading 0s (e.g. '1e000001'), but probably not worth the effort ignoring them
-          if (exponentDigitsCount > 4) {
-            throw new MalformedJsonException("Too many number exponent digits" + locationString());
-          }
         }
       }
     }
@@ -822,11 +811,6 @@ public class JsonReader implements Closeable {
     } else if (last == NUMBER_CHAR_DIGIT || last == NUMBER_CHAR_FRACTION_DIGIT
         || last == NUMBER_CHAR_EXP_DIGIT) {
       peekedNumberLength = i;
-      // Note: This will currently always be false because for PEEKED_NUMBER the number is backed
-      // by the `buffer` and its length is smaller than the max number string length
-      if (peekedNumberLength > NumberLimits.MAX_NUMBER_STRING_LENGTH) {
-        throw new MalformedJsonException("Number too large" + locationString());
-      }
       return peeked = PEEKED_NUMBER;
     } else {
       return PEEKED_NONE;
