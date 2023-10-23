@@ -28,6 +28,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.internal.NumberLimits;
 import com.google.gson.internal.TroubleshootingGuide;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -437,7 +438,7 @@ public final class TypeAdapters {
       }
       String s = in.nextString();
       try {
-        return new BigDecimal(s);
+        return NumberLimits.parseBigDecimal(s);
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException("Failed parsing '" + s + "' as BigDecimal; at path " + in.getPreviousPath(), e);
       }
@@ -456,7 +457,7 @@ public final class TypeAdapters {
       }
       String s = in.nextString();
       try {
-        return new BigInteger(s);
+        return NumberLimits.parseBigInteger(s);
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException("Failed parsing '" + s + "' as BigInteger; at path " + in.getPreviousPath(), e);
       }

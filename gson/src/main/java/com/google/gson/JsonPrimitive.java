@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.internal.NumberLimits;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -172,7 +173,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public BigDecimal getAsBigDecimal() {
-    return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(getAsString());
+    return value instanceof BigDecimal ? (BigDecimal) value : NumberLimits.parseBigDecimal(getAsString());
   }
 
   /**
@@ -184,7 +185,7 @@ public final class JsonPrimitive extends JsonElement {
         ? (BigInteger) value
         : isIntegral(this)
             ? BigInteger.valueOf(this.getAsNumber().longValue())
-            : new BigInteger(this.getAsString());
+            : NumberLimits.parseBigInteger(this.getAsString());
   }
 
   /**
