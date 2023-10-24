@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.internal.NumberLimits;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
@@ -89,7 +90,7 @@ public enum ToNumberPolicy implements ToNumberStrategy {
     @Override public BigDecimal readNumber(JsonReader in) throws IOException {
       String value = in.nextString();
       try {
-        return new BigDecimal(value);
+        return NumberLimits.parseBigDecimal(value);
       } catch (NumberFormatException e) {
         throw new JsonParseException("Cannot parse " + value + "; at path " + in.getPreviousPath(), e);
       }

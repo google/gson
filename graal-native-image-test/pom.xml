@@ -150,7 +150,7 @@
           <plugin>
             <groupId>org.graalvm.buildtools</groupId>
             <artifactId>native-maven-plugin</artifactId>
-            <version>0.9.27</version>
+            <version>0.9.28</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -163,16 +163,6 @@
                 </configuration>
               </execution>
             </executions>
-            <dependencies>
-              <!-- Workaround for https://github.com/graalvm/native-build-tools/issues/418 -->
-              <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-utils</artifactId>
-                <!-- Don't upgrade version to >= 4 because that seems to contain potentially backward
-                  incompatible changes -->
-                <version>3.5.1</version>
-              </dependency>
-            </dependencies>
           </plugin>
         </plugins>
       </build>

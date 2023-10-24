@@ -41,6 +41,7 @@ import com.google.gson.internal.sql.SqlTypesSupport;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayDeque;
@@ -664,6 +665,7 @@ public final class GsonBuilder {
    * @param typeAdapter This object must implement at least one of the {@link TypeAdapter},
    * {@link InstanceCreator}, {@link JsonSerializer}, and a {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @throws IllegalArgumentException if the type adapter being registered is for {@code Object} class or {@link JsonElement} or any of its subclasses
    */
   @CanIgnoreReturnValue
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
@@ -672,6 +674,11 @@ public final class GsonBuilder {
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof InstanceCreator<?>
         || typeAdapter instanceof TypeAdapter<?>);
+
+    if (isTypeObjectOrJsonElement(type)) {
+      throw new IllegalArgumentException("Cannot override built-in adapter for " + type);
+    }
+
     if (typeAdapter instanceof InstanceCreator<?>) {
       instanceCreators.put(type, (InstanceCreator<?>) typeAdapter);
     }
@@ -685,6 +692,12 @@ public final class GsonBuilder {
       factories.add(factory);
     }
     return this;
+  }
+
+  private boolean isTypeObjectOrJsonElement(Type type) {
+    return type instanceof Class
+        && (type == Object.class
+            || JsonElement.class.isAssignableFrom((Class<?>) type));
   }
 
   /**
@@ -718,6 +731,7 @@ public final class GsonBuilder {
    * @param typeAdapter This object must implement at least one of {@link TypeAdapter},
    *        {@link JsonSerializer} or {@link JsonDeserializer} interfaces.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @throws IllegalArgumentException if the type adapter being registered is for {@link JsonElement} or any of its subclasses
    * @since 1.7
    */
   @CanIgnoreReturnValue
@@ -726,6 +740,11 @@ public final class GsonBuilder {
     $Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?>
         || typeAdapter instanceof JsonDeserializer<?>
         || typeAdapter instanceof TypeAdapter<?>);
+
+    if (JsonElement.class.isAssignableFrom(baseType)) {
+      throw new IllegalArgumentException("Cannot override built-in adapter for " + baseType);
+    }
+
     if (typeAdapter instanceof JsonDeserializer || typeAdapter instanceof JsonSerializer) {
       hierarchyFactories.add(TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
     }

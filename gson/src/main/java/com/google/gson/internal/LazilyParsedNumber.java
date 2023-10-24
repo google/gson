@@ -35,6 +35,10 @@ public final class LazilyParsedNumber extends Number {
     this.value = value;
   }
 
+  private BigDecimal asBigDecimal() {
+    return NumberLimits.parseBigDecimal(value);
+  }
+
   @Override
   public int intValue() {
     try {
@@ -43,7 +47,7 @@ public final class LazilyParsedNumber extends Number {
       try {
         return (int) Long.parseLong(value);
       } catch (NumberFormatException nfe) {
-        return new BigDecimal(value).intValue();
+        return asBigDecimal().intValue();
       }
     }
   }
@@ -53,7 +57,7 @@ public final class LazilyParsedNumber extends Number {
     try {
       return Long.parseLong(value);
     } catch (NumberFormatException e) {
-      return new BigDecimal(value).longValue();
+      return asBigDecimal().longValue();
     }
   }
 
@@ -78,7 +82,7 @@ public final class LazilyParsedNumber extends Number {
    * deserialize it.
    */
   private Object writeReplace() throws ObjectStreamException {
-    return new BigDecimal(value);
+    return asBigDecimal();
   }
 
   private void readObject(ObjectInputStream in) throws IOException {
