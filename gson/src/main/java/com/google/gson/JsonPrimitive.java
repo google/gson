@@ -291,10 +291,14 @@ public final class JsonPrimitive extends JsonElement {
           : this.getAsNumber().longValue() == other.getAsNumber().longValue();
     }
     if (value instanceof Number && other.value instanceof Number) {
+      double thisAsDouble = this.getAsDouble();
+      double otherAsDouble = other.getAsDouble();
+
       return (this.value instanceof BigDecimal && other.value instanceof BigDecimal)
+          // Uses compareTo to ignore scale of values, e.g. `0` and `0.00` should be considered equal
           ? this.getAsBigDecimal().compareTo(other.getAsBigDecimal()) == 0
-          : this.getAsDouble() == other.getAsDouble()
-              || (Double.isNaN(this.getAsDouble()) && Double.isNaN(other.getAsDouble()));
+          : thisAsDouble == otherAsDouble
+              || (Double.isNaN(thisAsDouble) && Double.isNaN(otherAsDouble));
     }
     return value.equals(other.value);
   }
