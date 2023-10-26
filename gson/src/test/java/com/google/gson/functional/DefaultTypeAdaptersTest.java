@@ -95,6 +95,8 @@ public class DefaultTypeAdaptersTest {
       gson.toJson(String.class);
       fail();
     } catch (UnsupportedOperationException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Attempted to serialize java.lang.Class: java.lang.String. Forgot to register a type adapter?"
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
     }
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
@@ -107,6 +109,8 @@ public class DefaultTypeAdaptersTest {
       gson.fromJson("String.class", Class.class);
       fail();
     } catch (UnsupportedOperationException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?"
+          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
     }
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
@@ -124,11 +128,11 @@ public class DefaultTypeAdaptersTest {
   public void testUrlDeserialization() {
     String urlValue = "http://google.com/";
     String json = "'http:\\/\\/google.com\\/'";
-    URL target = gson.fromJson(json, URL.class);
-    assertThat(target.toExternalForm()).isEqualTo(urlValue);
+    URL target1 = gson.fromJson(json, URL.class);
+    assertThat(target1.toExternalForm()).isEqualTo(urlValue);
 
-    gson.fromJson('"' + urlValue + '"', URL.class);
-    assertThat(target.toExternalForm()).isEqualTo(urlValue);
+    URL target2 = gson.fromJson('"' + urlValue + '"', URL.class);
+    assertThat(target2.toExternalForm()).isEqualTo(urlValue);
   }
 
   @Test
@@ -365,7 +369,7 @@ public class DefaultTypeAdaptersTest {
       gson.fromJson("[1, []]", BitSet.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertThat(e.getMessage()).isEqualTo("Invalid bitset value type: BEGIN_ARRAY; at path $[1]");
+      assertThat(e).hasMessageThat().isEqualTo("Invalid bitset value type: BEGIN_ARRAY; at path $[1]");
     }
 
     try {
@@ -380,11 +384,7 @@ public class DefaultTypeAdaptersTest {
   public void testDefaultDateSerialization() {
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    if (JavaVersion.isJava9OrLater()) {
-      assertThat(json).isEqualTo("\"Sep 11, 2011, 10:55:03 PM\"");
-    } else {
-      assertThat(json).isEqualTo("\"Sep 11, 2011 10:55:03 PM\"");
-    }
+    assertThat(json).matches("\"Sep 11, 2011,? 10:55:03\\hPM\"");
   }
 
   @Test
@@ -416,11 +416,7 @@ public class DefaultTypeAdaptersTest {
     Gson gson = new GsonBuilder().create();
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
-    if (JavaVersion.isJava9OrLater()) {
-      assertThat(json).isEqualTo("\"Sep 11, 2011, 10:55:03 PM\"");
-    } else {
-      assertThat(json).isEqualTo("\"Sep 11, 2011 10:55:03 PM\"");
-    }
+    assertThat(json).matches("\"Sep 11, 2011,? 10:55:03\\hPM\"");
   }
 
   @Test
@@ -631,7 +627,7 @@ public class DefaultTypeAdaptersTest {
       gson.fromJson("\"abc\"", JsonObject.class);
       fail();
     } catch (JsonSyntaxException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive; at path $");
+      assertThat(expected).hasMessageThat().isEqualTo("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive; at path $");
     }
   }
 
@@ -687,6 +683,7 @@ public class DefaultTypeAdaptersTest {
     assertThat(treeSet).contains("Value1");
   }
 
+  @SuppressWarnings("UnnecessaryStringBuilder") // TODO: b/287969247 - remove when EP bug fixed
   @Test
   public void testStringBuilderSerialization() {
     StringBuilder sb = new StringBuilder("abc");

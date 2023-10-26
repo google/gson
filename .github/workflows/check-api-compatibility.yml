@@ -1,3 +1,5 @@
+# This workflow makes sure that a pull request does not make any incompatible changes
+# to the public API of Gson
 name: Check API compatibility
 
 on: pull_request

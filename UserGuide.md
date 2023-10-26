@@ -135,7 +135,7 @@ BagOfPrimitives obj = new BagOfPrimitives();
 Gson gson = new Gson();
 String json = gson.toJson(obj);
 
-// ==> json is {"value1":1,"value2":"abc"}
+// ==> {"value1":1,"value2":"abc"}
 ```
 
 Note that you can not serialize objects with circular references since that will result in infinite recursion.
@@ -222,7 +222,7 @@ Gson gson = new Gson();
 Collection<Integer> ints = Arrays.asList(1,2,3,4,5);
 
 // Serialization
-String json = gson.toJson(ints);  // ==> json is [1,2,3,4,5]
+String json = gson.toJson(ints);  // ==> [1,2,3,4,5]
 
 // Deserialization
 TypeToken<Collection<Integer>> collectionType = new TypeToken<Collection<Integer>>(){};
@@ -251,14 +251,14 @@ stringMap.put("key", "value");
 stringMap.put(null, "null-entry");
 
 // Serialization
-String json = gson.toJson(stringMap); // ==> json is {"key":"value","null":"null-entry"}
+String json = gson.toJson(stringMap); // ==> {"key":"value","null":"null-entry"}
 
 Map<Integer, Integer> intMap = new LinkedHashMap<>();
 intMap.put(2, 4);
 intMap.put(3, 6);
 
 // Serialization
-String json = gson.toJson(intMap); // ==> json is {"2":4,"3":6}
+String json = gson.toJson(intMap); // ==> {"2":4,"3":6}
 ```
 
 For deserialization Gson uses the `read` method of the `TypeAdapter` registered for the Map key type. Similar to the Collection example shown above, for deserialization a `TypeToken` has to be used to tell Gson what types the Map keys and values have:
@@ -297,12 +297,12 @@ complexMap.put(new PersonName("Jane", "Doe"), 35);
 
 // Serialization; complex map is serialized as a JSON array containing key-value pairs (as JSON arrays)
 String json = gson.toJson(complexMap);
-// ==> json is [[{"firstName":"John","lastName":"Doe"},30],[{"firstName":"Jane","lastName":"Doe"},35]]
+// ==> [[{"firstName":"John","lastName":"Doe"},30],[{"firstName":"Jane","lastName":"Doe"},35]]
 
 Map<String, String> stringMap = new LinkedHashMap<>();
 stringMap.put("key", "value");
 // Serialization; non-complex map is serialized as a regular JSON object
-String json = gson.toJson(stringMap); // json is {"key":"value"}
+String json = gson.toJson(stringMap); // ==> {"key":"value"}
 ```
 
 **Important:** Because Gson by default uses `toString()` to serialize Map keys, this can lead to malformed encoded keys or can cause mismatch between serialization and deserialization of the keys, for example when `toString()` is not properly implemented. A workaround for this can be to use `enableComplexMapKeySerialization()` to make sure the `TypeAdapter` registered for the Map key type is used for deserialization _and_ serialization. As shown in the example above, when none of the keys are serialized by the adapter as JSON array or JSON object, the Map is serialized as a regular JSON object, as desired.
@@ -366,7 +366,7 @@ class Event {
 
 You can serialize the collection with Gson without doing anything specific: `toJson(collection)` would write out the desired output.
 
-However, deserialization with `fromJson(json, Collection.class)` will not work since Gson has no way of knowing how to map the input to the types. Gson requires that you provide a genericised version of collection type in `fromJson()`. So, you have three options:
+However, deserialization with `fromJson(json, Collection.class)` will not work since Gson has no way of knowing how to map the input to the types. Gson requires that you provide a genericized version of the collection type in `fromJson()`. So, you have three options:
 
 1. Use Gson's parser API (low-level streaming parser or the DOM parser JsonParser) to parse the array elements and then use `Gson.fromJson()` on each of the array elements.This is the preferred approach. [Here is an example](extras/src/main/java/com/google/gson/extras/examples/rawcollections/RawCollectionsExample.java) that demonstrates how to do this.
 
@@ -389,7 +389,7 @@ You can also find source code for some commonly used classes such as JodaTime at
 
 ### Custom Serialization and Deserialization
 
-Sometimes default representation is not what you want. This is often the case when dealing with library classes (DateTime, etc).
+Sometimes the default representation is not what you want. This is often the case when dealing with library classes (DateTime, etc.).
 Gson allows you to register your own custom serializers and deserializers. This is done by defining two parts:
 
 * JSON Serializers: Need to define custom serialization for an object
@@ -405,7 +405,9 @@ gson.registerTypeAdapter(MyType.class, new MyDeserializer());
 gson.registerTypeAdapter(MyType.class, new MyInstanceCreator());
 ```
 
-`registerTypeAdapter` call checks if the type adapter implements more than one of these interfaces and register it for all of them.
+`registerTypeAdapter` call checks 
+1. if the type adapter implements more than one of these interfaces, in that case it registers the adapter for all of them.
+2. if the type adapter is for the Object class or JsonElement or any of its subclasses, in that case it throws IllegalArgumentException because overriding the built-in adapters for these types is not supported.
 
 #### Writing a Serializer
 
@@ -741,7 +743,7 @@ In addition Gson's object model and data binding, you can use Gson to read from 
 
 ## Issues in Designing Gson
 
-See the [Gson design document](GsonDesignDocument.md "Gson design document") for a discussion of issues we faced while designing Gson. It also include a comparison of Gson with other Java libraries that can be used for JSON conversion.
+See the [Gson design document](GsonDesignDocument.md "Gson design document") for a discussion of issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for JSON conversion.
 
 ## Future Enhancements to Gson
 

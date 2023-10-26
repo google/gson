@@ -41,7 +41,7 @@ public final class JsonParser {
    * An exception is thrown if the JSON string has multiple top-level JSON elements,
    * or if there is trailing data.
    *
-   * <p>The JSON string is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode}.
+   * <p>The JSON string is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode}.
    *
    * @param json JSON text
    * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
@@ -57,7 +57,7 @@ public final class JsonParser {
    * An exception is thrown if the JSON string has multiple top-level JSON elements,
    * or if there is trailing data.
    *
-   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode}.
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode}.
    *
    * @param reader JSON text
    * @return a parse tree of {@link JsonElement}s corresponding to the specified JSON
@@ -87,8 +87,8 @@ public final class JsonParser {
    * Unlike the other {@code parse} methods, no exception is thrown if the JSON data has
    * multiple top-level JSON elements, or if there is trailing data.
    *
-   * <p>The JSON data is parsed in {@linkplain JsonReader#setLenient(boolean) lenient mode},
-   * regardless of the lenient mode setting of the provided reader. The lenient mode setting
+   * <p>The JSON data is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode},
+   * regardless of the strictness setting of the provided reader. The strictness setting
    * of the reader is restored once this method returns.
    *
    * @throws JsonParseException if there is an IOException or if the specified
@@ -97,8 +97,8 @@ public final class JsonParser {
    */
   public static JsonElement parseReader(JsonReader reader)
       throws JsonIOException, JsonSyntaxException {
-    boolean lenient = reader.isLenient();
-    reader.setLenient(true);
+    Strictness strictness = reader.getStrictness();
+    reader.setStrictness(Strictness.LENIENT);
     try {
       return Streams.parse(reader);
     } catch (StackOverflowError e) {
@@ -106,7 +106,7 @@ public final class JsonParser {
     } catch (OutOfMemoryError e) {
       throw new JsonParseException("Failed parsing JSON source: " + reader + " to Json", e);
     } finally {
-      reader.setLenient(lenient);
+      reader.setStrictness(strictness);
     }
   }
 

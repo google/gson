@@ -17,11 +17,14 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -223,5 +226,68 @@ public class GsonBuilderTest {
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessageThat().isEqualTo("Invalid version: -0.1");
     }
+  }
+
+  @Test
+  public void testDefaultStrictness() throws IOException {
+    GsonBuilder builder = new GsonBuilder();
+    Gson gson = builder.create();
+    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
+  }
+
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // for GsonBuilder.setLenient
+  @Test
+  public void testSetLenient() throws IOException {
+    GsonBuilder builder = new GsonBuilder();
+    builder.setLenient();
+    Gson gson = builder.create();
+    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(Strictness.LENIENT);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(Strictness.LENIENT);
+  }
+
+  @Test
+  public void testSetStrictness() throws IOException {
+    final Strictness STRICTNESS = Strictness.STRICT;
+    GsonBuilder builder = new GsonBuilder();
+    builder.setStrictness(STRICTNESS);
+    Gson gson = builder.create();
+    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(STRICTNESS);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(STRICTNESS);
+  }
+
+  @Test
+  public void testRegisterTypeAdapterForObjectAndJsonElements() {
+    final String ERROR_MESSAGE = "Cannot override built-in adapter for ";
+    Type[] types = {
+        Object.class,
+        JsonElement.class,
+        JsonArray.class,
+    };
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    for (Type type : types) {
+      IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+          () -> gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER));
+      assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
+    }
+  }
+
+
+  @Test
+  public void testRegisterTypeHierarchyAdapterJsonElements() {
+    final String ERROR_MESSAGE = "Cannot override built-in adapter for ";
+    Class<?>[] types = {
+        JsonElement.class,
+        JsonArray.class,
+    };
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    for (Class<?> type : types) {
+      IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+          () -> gsonBuilder.registerTypeHierarchyAdapter(type, NULL_TYPE_ADAPTER));
+
+      assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
+    }
+    // But registering type hierarchy adapter for Object should be allowed
+    gsonBuilder.registerTypeHierarchyAdapter(Object.class, NULL_TYPE_ADAPTER);
   }
 }

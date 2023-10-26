@@ -72,7 +72,6 @@ public final class Java17RecordTest {
         .isEqualTo("v3");
   }
 
-  @SuppressWarnings("unused")
   private record RecordWithCustomNames(
       @SerializedName("name") String a,
       @SerializedName(value = "name1", alternate = {"name2", "name3"}) String b) {}
@@ -89,7 +88,7 @@ public final class Java17RecordTest {
 
     var exception = assertThrows(JsonIOException.class, () -> gson.getAdapter(LocalRecord.class));
     assertThat(exception).hasMessageThat()
-            .isEqualTo("@SerializedName on method '" + LocalRecord.class.getName() + "#i()' is not supported");
+        .isEqualTo("@SerializedName on method '" + LocalRecord.class.getName() + "#i()' is not supported");
   }
 
   @Test
@@ -154,7 +153,7 @@ public final class Java17RecordTest {
     // TODO: Adjust this once Gson throws more specific exception type
     catch (RuntimeException e) {
       assertThat(e).hasMessageThat()
-              .isEqualTo("Failed to invoke constructor '" + LocalRecord.class.getName() + "(String)' with args [value]");
+          .isEqualTo("Failed to invoke constructor '" + LocalRecord.class.getName() + "(String)' with args [value]");
       assertThat(e).hasCauseThat().isSameInstanceAs(LocalRecord.thrownException);
     }
   }
@@ -227,7 +226,7 @@ public final class Java17RecordTest {
     String s = "{'aString': 's', 'aByte': null, 'aShort': 0}";
     var e = assertThrows(JsonParseException.class, () -> gson.fromJson(s, RecordWithPrimitives.class));
     assertThat(e).hasMessageThat()
-            .isEqualTo("null is not allowed as value for record component 'aByte' of primitive type; at path $.aByte");
+        .isEqualTo("null is not allowed as value for record component 'aByte' of primitive type; at path $.aByte");
   }
 
   /**
@@ -256,7 +255,6 @@ public final class Java17RecordTest {
         .isEqualTo("null is not allowed as value for record component 'aByte' of primitive type; at path $.aByte");
   }
 
-  @SuppressWarnings("unused")
   private record RecordWithPrimitives(
       String aString, byte aByte, short aShort, int anInt, long aLong, float aFloat, double aDouble, char aChar, boolean aBoolean) {}
 
@@ -384,8 +382,8 @@ public final class Java17RecordTest {
 
     var exception = assertThrows(JsonIOException.class, () -> gson.toJson(new Blocked(1)));
     assertThat(exception).hasMessageThat()
-            .isEqualTo("ReflectionAccessFilter does not permit using reflection for class " + Blocked.class.getName() +
-                ". Register a TypeAdapter for this type or adjust the access filter.");
+        .isEqualTo("ReflectionAccessFilter does not permit using reflection for class " + Blocked.class.getName() +
+            ". Register a TypeAdapter for this type or adjust the access filter.");
   }
 
   @Test
@@ -396,23 +394,21 @@ public final class Java17RecordTest {
 
     var exception = assertThrows(JsonIOException.class, () -> gson.toJson(new PrivateRecord(1)));
     assertThat(exception).hasMessageThat()
-            .isEqualTo("Constructor 'com.google.gson.functional.Java17RecordTest$PrivateRecord(int)' is not accessible and"
-                + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
-                + " type, adjust the access filter or increase the visibility of the element and its declaring type.");
+        .isEqualTo("Constructor 'com.google.gson.functional.Java17RecordTest$PrivateRecord(int)' is not accessible and"
+            + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
+            + " type, adjust the access filter or increase the visibility of the element and its declaring type.");
 
     exception = assertThrows(JsonIOException.class, () -> gson.fromJson("{}", PrivateRecord.class));
     assertThat(exception).hasMessageThat()
-            .isEqualTo("Constructor 'com.google.gson.functional.Java17RecordTest$PrivateRecord(int)' is not accessible and"
-                + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
-                + " type, adjust the access filter or increase the visibility of the element and its declaring type.");
+        .isEqualTo("Constructor 'com.google.gson.functional.Java17RecordTest$PrivateRecord(int)' is not accessible and"
+            + " ReflectionAccessFilter does not permit making it accessible. Register a TypeAdapter for the declaring"
+            + " type, adjust the access filter or increase the visibility of the element and its declaring type.");
 
     assertThat(gson.toJson(new PublicRecord(1))).isEqualTo("{\"i\":1}");
     assertThat(gson.fromJson("{\"i\":2}", PublicRecord.class)).isEqualTo(new PublicRecord(2));
   }
 
-  @SuppressWarnings("unused")
   private record PrivateRecord(int i) {}
-  @SuppressWarnings("unused")
   public record PublicRecord(int i) {}
 
   /**
@@ -427,7 +423,8 @@ public final class Java17RecordTest {
 
     var exception = assertThrows(JsonIOException.class, () -> gson.fromJson("{}", Record.class));
     assertThat(exception).hasMessageThat()
-            .isEqualTo("Abstract classes can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
-                + " this type. Class name: java.lang.Record");
+        .isEqualTo("Abstract classes can't be instantiated! Adjust the R8 configuration or register an InstanceCreator"
+            + " or a TypeAdapter for this type. Class name: java.lang.Record"
+            + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class");
   }
 }

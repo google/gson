@@ -64,7 +64,7 @@ public final class UtcDateTypeAdapterTest {
     Gson gson = new GsonBuilder()
       .registerTypeAdapter(Date.class, new UtcDateTypeAdapter())
       .create();
-    gson.fromJson("'2014-12-05T04:00:00.000Z'", Date.class);
+    Date unused = gson.fromJson("'2014-12-05T04:00:00.000Z'", Date.class);
   }
 
   @Test

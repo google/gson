@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -143,6 +144,7 @@ public abstract class JsonElement {
    * @throws IllegalStateException if this element is of another type.
    * @since 1.2
    */
+  @CanIgnoreReturnValue // When this method is used only to verify that the value is JsonNull
   public JsonNull getAsJsonNull() {
     if (isJsonNull()) {
       return (JsonNull) this;
@@ -319,7 +321,8 @@ public abstract class JsonElement {
     try {
       StringWriter stringWriter = new StringWriter();
       JsonWriter jsonWriter = new JsonWriter(stringWriter);
-      jsonWriter.setLenient(true);
+      // Make writer lenient because toString() must not fail, even if for example JsonPrimitive contains NaN
+      jsonWriter.setStrictness(Strictness.LENIENT);
       Streams.write(this, jsonWriter);
       return stringWriter.toString();
     } catch (IOException e) {

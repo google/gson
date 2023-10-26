@@ -28,6 +28,8 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.internal.NumberLimits;
+import com.google.gson.internal.TroubleshootingGuide;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -73,12 +75,14 @@ public final class TypeAdapters {
     @Override
     public void write(JsonWriter out, Class value) throws IOException {
       throw new UnsupportedOperationException("Attempted to serialize java.lang.Class: "
-              + value.getName() + ". Forgot to register a type adapter?");
+          + value.getName() + ". Forgot to register a type adapter?"
+          + "\nSee " + TroubleshootingGuide.createUrl("java-lang-class-unsupported"));
     }
     @Override
     public Class read(JsonReader in) throws IOException {
       throw new UnsupportedOperationException(
-              "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?");
+          "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?"
+          + "\nSee " + TroubleshootingGuide.createUrl("java-lang-class-unsupported"));
     }
   }.nullSafe();
 
@@ -434,7 +438,7 @@ public final class TypeAdapters {
       }
       String s = in.nextString();
       try {
-        return new BigDecimal(s);
+        return NumberLimits.parseBigDecimal(s);
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException("Failed parsing '" + s + "' as BigDecimal; at path " + in.getPreviousPath(), e);
       }
@@ -453,7 +457,7 @@ public final class TypeAdapters {
       }
       String s = in.nextString();
       try {
-        return new BigInteger(s);
+        return NumberLimits.parseBigInteger(s);
       } catch (NumberFormatException e) {
         throw new JsonSyntaxException("Failed parsing '" + s + "' as BigInteger; at path " + in.getPreviousPath(), e);
       }
@@ -567,7 +571,11 @@ public final class TypeAdapters {
         return null;
       }
       // regrettably, this should have included both the host name and the host address
-      return InetAddress.getByName(in.nextString());
+      // For compatibility, we use InetAddress.getByName rather than the possibly-better
+      // .getAllByName
+      @SuppressWarnings("AddressSelection")
+      InetAddress addr = InetAddress.getByName(in.nextString());
+      return addr;
     }
     @Override
     public void write(JsonWriter out, InetAddress value) throws IOException {

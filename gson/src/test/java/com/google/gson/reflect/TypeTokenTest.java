@@ -17,10 +17,13 @@
 package com.google.gson.reflect;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -103,11 +106,13 @@ public final class TypeTokenTest {
     Type listOfString = new TypeToken<List<String>>() {}.getType();
     assertThat(TypeToken.getArray(listOfString)).isEqualTo(expectedListOfStringArray);
 
-    try {
-      TypeToken.getArray(null);
-      fail();
-    } catch (NullPointerException e) {
-    }
+    TypeToken<?> expectedIntArray = new TypeToken<int[]>() {};
+    assertThat(TypeToken.getArray(int.class)).isEqualTo(expectedIntArray);
+
+    assertThrows(NullPointerException.class, () -> TypeToken.getArray(null));
+  }
+
+  static class NestedGeneric<T> {
   }
 
   @Test
@@ -131,84 +136,73 @@ public final class TypeTokenTest {
 
     TypeToken<?> expectedSatisfyingTwoBounds = new TypeToken<GenericWithMultiBound<ClassSatisfyingBounds>>() {};
     assertThat(TypeToken.getParameterized(GenericWithMultiBound.class, ClassSatisfyingBounds.class)).isEqualTo(expectedSatisfyingTwoBounds);
+
+    TypeToken<?> nestedTypeToken = TypeToken.getParameterized(NestedGeneric.class, Integer.class);
+    ParameterizedType nestedParameterizedType = (ParameterizedType) nestedTypeToken.getType();
+    // TODO: This seems to differ from how Java reflection behaves; when using TypeToken<NestedGeneric<Integer>>,
+    // then NestedGeneric<Integer> does have an owner type
+    assertThat(nestedParameterizedType.getOwnerType()).isNull();
+    assertThat(nestedParameterizedType.getRawType()).isEqualTo(NestedGeneric.class);
+    assertThat(nestedParameterizedType.getActualTypeArguments()).asList().containsExactly(Integer.class);
+
+    class LocalGenericClass<T> {}
+    TypeToken<?> expectedLocalType = new TypeToken<LocalGenericClass<Integer>>() {};
+    assertThat(TypeToken.getParameterized(LocalGenericClass.class, Integer.class)).isEqualTo(expectedLocalType);
+
+    // For legacy reasons, if requesting parameterized type for non-generic class, create a `TypeToken(Class)`
+    assertThat(TypeToken.getParameterized(String.class)).isEqualTo(TypeToken.get(String.class));
   }
 
   @Test
   public void testParameterizedFactory_Invalid() {
-    try {
-      TypeToken.getParameterized(null, new Type[0]);
-      fail();
-    } catch (NullPointerException e) {
-    }
+    assertThrows(NullPointerException.class, () -> TypeToken.getParameterized(null, new Type[0]));
+    assertThrows(NullPointerException.class, () -> TypeToken.getParameterized(List.class, new Type[] { null }));
 
     GenericArrayType arrayType = (GenericArrayType) TypeToken.getArray(String.class).getType();
-    try {
-      TypeToken.getParameterized(arrayType, new Type[0]);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("rawType must be of type Class, but was java.lang.String[]");
+    IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(arrayType, new Type[0]));
+    assertThat(e).hasMessageThat().isEqualTo("rawType must be of type Class, but was java.lang.String[]");
+
+    e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(String.class, Number.class));
+    assertThat(e).hasMessageThat().isEqualTo("java.lang.String requires 0 type arguments, but got 1");
+
+    e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(List.class, new Type[0]));
+    assertThat(e).hasMessageThat().isEqualTo("java.util.List requires 1 type arguments, but got 0");
+
+    e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(List.class, String.class, String.class));
+    assertThat(e).hasMessageThat().isEqualTo("java.util.List requires 1 type arguments, but got 2");
+
+    // Primitive types must not be used as type argument
+    e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(List.class, int.class));
+    assertThat(e).hasMessageThat().isEqualTo("Type argument int does not satisfy bounds"
+        + " for type variable E declared by " + List.class);
+
+    e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(GenericWithBound.class, String.class));
+    assertThat(e).hasMessageThat().isEqualTo("Type argument class java.lang.String does not satisfy bounds"
+        + " for type variable T declared by " + GenericWithBound.class);
+
+    e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(GenericWithBound.class, Object.class));
+    assertThat(e).hasMessageThat().isEqualTo("Type argument class java.lang.Object does not satisfy bounds"
+        + " for type variable T declared by " + GenericWithBound.class);
+
+    e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(GenericWithMultiBound.class, Number.class));
+    assertThat(e).hasMessageThat().isEqualTo("Type argument class java.lang.Number does not satisfy bounds"
+        + " for type variable T declared by " + GenericWithMultiBound.class);
+
+    e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(GenericWithMultiBound.class, CharSequence.class));
+    assertThat(e).hasMessageThat().isEqualTo("Type argument interface java.lang.CharSequence does not satisfy bounds"
+        + " for type variable T declared by " + GenericWithMultiBound.class);
+
+    e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(GenericWithMultiBound.class, Object.class));
+    assertThat(e).hasMessageThat().isEqualTo("Type argument class java.lang.Object does not satisfy bounds"
+        + " for type variable T declared by " + GenericWithMultiBound.class);
+
+    class Outer {
+      class NonStaticInner<T> {}
     }
 
-    try {
-      TypeToken.getParameterized(String.class, String.class);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("java.lang.String requires 0 type arguments, but got 1");
-    }
-
-    try {
-      TypeToken.getParameterized(List.class, new Type[0]);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("java.util.List requires 1 type arguments, but got 0");
-    }
-
-    try {
-      TypeToken.getParameterized(List.class, String.class, String.class);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("java.util.List requires 1 type arguments, but got 2");
-    }
-
-    try {
-      TypeToken.getParameterized(GenericWithBound.class, String.class);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Type argument class java.lang.String does not satisfy bounds "
-          + "for type variable T declared by " + GenericWithBound.class);
-    }
-
-    try {
-      TypeToken.getParameterized(GenericWithBound.class, Object.class);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Type argument class java.lang.Object does not satisfy bounds "
-          + "for type variable T declared by " + GenericWithBound.class);
-    }
-
-    try {
-      TypeToken.getParameterized(GenericWithMultiBound.class, Number.class);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Type argument class java.lang.Number does not satisfy bounds "
-          + "for type variable T declared by " + GenericWithMultiBound.class);
-    }
-
-    try {
-      TypeToken.getParameterized(GenericWithMultiBound.class, CharSequence.class);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Type argument interface java.lang.CharSequence does not satisfy bounds "
-          + "for type variable T declared by " + GenericWithMultiBound.class);
-    }
-
-    try {
-      TypeToken.getParameterized(GenericWithMultiBound.class, Object.class);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Type argument class java.lang.Object does not satisfy bounds "
-          + "for type variable T declared by " + GenericWithMultiBound.class);
-    }
+    e = assertThrows(IllegalArgumentException.class, () -> TypeToken.getParameterized(Outer.NonStaticInner.class, Object.class));
+    assertThat(e).hasMessageThat().isEqualTo("Raw type " + Outer.NonStaticInner.class.getName()
+        + " is not supported because it requires specifying an owner type");
   }
 
   private static class CustomTypeToken extends TypeToken<String> {
@@ -231,38 +225,118 @@ public final class TypeTokenTest {
     class SubSubTypeToken1<T> extends SubTypeToken<T> {}
     class SubSubTypeToken2 extends SubTypeToken<Integer> {}
 
-    try {
-      new SubTypeToken<Integer>() {};
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Must only create direct subclasses of TypeToken");
+    IllegalStateException e = assertThrows(IllegalStateException.class, () -> new SubTypeToken<Integer>() {});
+    assertThat(e).hasMessageThat().isEqualTo("Must only create direct subclasses of TypeToken");
+
+    e = assertThrows(IllegalStateException.class, () -> new SubSubTypeToken1<Integer>());
+    assertThat(e).hasMessageThat().isEqualTo("Must only create direct subclasses of TypeToken");
+
+    e = assertThrows(IllegalStateException.class, () -> new SubSubTypeToken2());
+    assertThat(e).hasMessageThat().isEqualTo("Must only create direct subclasses of TypeToken");
+  }
+
+  private static <M> void createTypeTokenTypeVariable() {
+    new TypeToken<M>() {};
+  }
+
+  /**
+   * TypeToken type argument must not contain a type variable because, due to
+   * type erasure, at runtime only the bound of the type variable is available
+   * which is likely not what the user wanted.
+   *
+   * <p>Note that type variables are allowed for the {@code TypeToken} factory
+   * methods calling {@code TypeToken(Type)} because for them the return type is
+   * {@code TypeToken<?>} which does not give a false sense of type-safety.
+   */
+  @Test
+  public void testTypeTokenTypeVariable() throws Exception {
+    // Put the test code inside generic class to be able to access `T`
+    class Enclosing<T> {
+      class Inner {}
+
+      void test() {
+        String expectedMessage = "TypeToken type argument must not contain a type variable;"
+            + " captured type variable T declared by " + Enclosing.class
+            + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#typetoken-type-variable";
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new TypeToken<T>() {});
+        assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+        e = assertThrows(IllegalArgumentException.class, () -> new TypeToken<List<List<T>>>() {});
+        assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+        e = assertThrows(IllegalArgumentException.class, () -> new TypeToken<List<? extends List<T>>>() {});
+        assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+        e = assertThrows(IllegalArgumentException.class, () -> new TypeToken<List<? super List<T>>>() {});
+        assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+        e = assertThrows(IllegalArgumentException.class, () -> new TypeToken<List<T>[]>() {});
+        assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+        e = assertThrows(IllegalArgumentException.class, () -> new TypeToken<Enclosing<T>.Inner>() {});
+        assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+        String systemProperty = "gson.allowCapturingTypeVariables";
+        try {
+          // Any value other than 'true' should be ignored
+          System.setProperty(systemProperty, "some-value");
+
+          e = assertThrows(IllegalArgumentException.class, () -> new TypeToken<T>() {});
+          assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+        } finally {
+          System.clearProperty(systemProperty);
+        }
+
+        try {
+          System.setProperty(systemProperty, "true");
+
+          TypeToken<?> typeToken = new TypeToken<T>() {};
+          assertThat(typeToken.getType()).isEqualTo(Enclosing.class.getTypeParameters()[0]);
+        } finally {
+          System.clearProperty(systemProperty);
+        }
+      }
+
+      <M> void testMethodTypeVariable() throws Exception {
+        Method testMethod = Enclosing.class.getDeclaredMethod("testMethodTypeVariable");
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new TypeToken<M>() {});
+        assertThat(e).hasMessageThat().isAnyOf("TypeToken type argument must not contain a type variable;"
+            + " captured type variable M declared by " + testMethod
+            + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#typetoken-type-variable",
+            // Note: When running this test in Eclipse IDE or with certain Java versions it seems to capture `null`
+            // instead of the type variable, see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/975
+            "TypeToken captured `null` as type argument; probably a compiler / runtime bug");
+      }
     }
 
-    try {
-      new SubSubTypeToken1<Integer>();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Must only create direct subclasses of TypeToken");
-    }
+    new Enclosing<>().test();
+    new Enclosing<>().testMethodTypeVariable();
 
-    try {
-      new SubSubTypeToken2();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected.getMessage()).isEqualTo("Must only create direct subclasses of TypeToken");
-    }
+    Method testMethod = TypeTokenTest.class.getDeclaredMethod("createTypeTokenTypeVariable");
+    IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> createTypeTokenTypeVariable());
+    assertThat(e).hasMessageThat().isEqualTo("TypeToken type argument must not contain a type variable;"
+        + " captured type variable M declared by " + testMethod
+        + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#typetoken-type-variable");
+
+    // Using type variable as argument for factory methods should be allowed; this is not a type-safety
+    // problem because the user would have to perform unsafe casts
+    TypeVariable<?> typeVar = Enclosing.class.getTypeParameters()[0];
+    TypeToken<?> typeToken = TypeToken.get(typeVar);
+    assertThat(typeToken.getType()).isEqualTo(typeVar);
+
+    TypeToken<?> parameterizedTypeToken = TypeToken.getParameterized(List.class, typeVar);
+    ParameterizedType parameterizedType = (ParameterizedType) parameterizedTypeToken.getType();
+    assertThat(parameterizedType.getRawType()).isEqualTo(List.class);
+    assertThat(parameterizedType.getActualTypeArguments()).asList().containsExactly(typeVar);
   }
 
   @SuppressWarnings("rawtypes")
   @Test
   public void testTypeTokenRaw() {
-    try {
-      new TypeToken() {};
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("TypeToken must be created with a type argument: new TypeToken<...>() {}; "
-          + "When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.");
-    }
+    IllegalStateException e = assertThrows(IllegalStateException.class, () -> new TypeToken() {});
+    assertThat(e).hasMessageThat().isEqualTo("TypeToken must be created with a type argument: new TypeToken<...>() {};"
+        + " When using code shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved."
+        + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#type-token-raw");
   }
 }
 

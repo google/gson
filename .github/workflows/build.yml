@@ -24,3 +24,22 @@ jobs:
       - name: Build with Maven
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
         run: mvn --batch-mode --update-snapshots --no-transfer-progress verify javadoc:jar
+
+  native-image-test:
+    name: "GraalVM Native Image test"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Set up GraalVM"
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17'
+          distribution: 'graalvm'
+          # According to documentation in graalvm/setup-graalvm this is used to avoid rate-limiting issues
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache: 'maven'
+      - name: Build and run tests
+        # Only run tests in `graal-native-image-test` (and implicitly build and run tests in `gson`),
+        # everything else is covered already by regular build job above
+        run: mvn test --batch-mode --update-snapshots --no-transfer-progress --activate-profiles native-image-test --projects graal-native-image-test --also-make
