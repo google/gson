@@ -54,6 +54,318 @@ module mymodule {
 
 Or in case this occurs for a field in one of your classes which you did not actually want to serialize or deserialize in the first place, you can exclude that field, see the [user guide](UserGuide.md#excluding-fields-from-serialization-and-deserialization).
 
+## <a id="unsupported-json-library-class"></a>`RuntimeException`: 'Unsupported class from other JSON library: ...'
+
+**Symptom:** An exception with a message in the form 'Unsupported class from other JSON library: ...' is thrown
+
+**Reason:** You are using classes from a different JSON library with Gson, and because Gson does not support those classes it throws an exception to avoid unexpected serialization or deserialization results
+
+**Solution:** The easiest solution is to avoid mixing multiple JSON libraries; Gson provides the classes [`com.google.gson.JsonArray`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/JsonArray.html) and [`com.google.gson.JsonObject`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/JsonObject.html) which you can use instead of the classes from the other JSON library.
+
+If you cannot switch the classes you are using, see the library-specific solutions below:
+
+- `org.json.JSONArray`, `org.json.JSONObject` ([JSON-java](https://github.com/stleary/JSON-java), Android)  
+  <details>
+
+  <summary>(Click to show)</summary>
+
+  If you cannot switch to the Gson classes, but the structure of the JSON data does not have to remain the same, you can use the following Gson `TypeAdapterFactory` which you have to [register on a `GsonBuilder`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#registerTypeAdapterFactory(com.google.gson.TypeAdapterFactory)):
+
+  <!-- Important: Make sure the code below is in sync with the code in JsonOrgInteropTest -->
+  ```java
+  /**
+   * {@code TypeAdapterFactory} for {@link JSONArray} and {@link JSONObject}.
+   *
+   * <p>This factory is mainly intended for applications which cannot switch to
+   * Gson's own {@link JsonArray} and {@link JsonObject} classes.
+   */
+  public class JsonOrgAdapterFactory implements TypeAdapterFactory {
+    private abstract static class JsonOrgAdapter<T> extends TypeAdapter<T> {
+      private final TypeAdapter<JsonElement> jsonElementAdapter;
+
+      public JsonOrgAdapter(TypeAdapter<JsonElement> jsonElementAdapter) {
+        this.jsonElementAdapter = jsonElementAdapter;
+      }
+
+      protected abstract T readJsonOrgValue(String json) throws JSONException;
+
+      @Override
+      public T read(JsonReader in) throws IOException {
+        if (in.peek() == JsonToken.NULL) {
+          in.nextNull();
+          return null;
+        }
+
+        // For correctness convert JSON data to string, then let JSON-java parse it;
+        // this is pretty inefficient, but makes sure it gets all the corner cases
+        // of JSON-java correct
+        // However, unlike JSONObject this will not prevent duplicate member names
+        JsonElement jsonElement = jsonElementAdapter.read(in);
+        String json = jsonElementAdapter.toJson(jsonElement);
+        try {
+          return readJsonOrgValue(json);
+        }
+        // For Android this is a checked exception; for the latest JSON-java artifacts it isn't anymore
+        catch (JSONException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public void write(JsonWriter out, T value) throws IOException {
+        if (value == null) {
+          out.nullValue();
+          return;
+        }
+
+        // For correctness let JSON-java perform JSON conversion, then parse again and write
+        // with Gson; this is pretty inefficient, but makes sure it gets all the corner cases
+        // of JSON-java correct
+        String json = value.toString();
+        JsonElement jsonElement = jsonElementAdapter.fromJson(json);
+        jsonElementAdapter.write(out, jsonElement);
+      }
+    }
+
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      Class<?> rawType = type.getRawType();
+      if (rawType != JSONArray.class && rawType != JSONObject.class) {
+        return null;
+      }
+
+      TypeAdapter<JsonElement> jsonElementAdapter = gson.getAdapter(JsonElement.class);
+
+      TypeAdapter<?> adapter;
+      if (rawType == JSONArray.class) {
+        adapter = new JsonOrgAdapter<JSONArray>(jsonElementAdapter) {
+          @Override
+          protected JSONArray readJsonOrgValue(String json) throws JSONException {
+            return new JSONArray(json);
+          }
+        };
+      } else {
+        adapter = new JsonOrgAdapter<JSONObject>(jsonElementAdapter) {
+          @Override
+          protected JSONObject readJsonOrgValue(String json) throws JSONException {
+            return new JSONObject(json);
+          }
+        };
+      }
+
+      // Safe due to type check at beginning of method
+      @SuppressWarnings("unchecked")
+      TypeAdapter<T> t = (TypeAdapter<T>) adapter;
+      return t;
+    }
+  }
+  ```
+
+  Otherwise, if for backward compatibility you also have to preserve the existing JSON structure which was previously produced by Gson's reflection-based adapter, you can use the following factory:
+
+  <!-- Important: Make sure the code below is in sync with the code in JsonOrgInteropTest -->
+  ```java
+  /**
+   * Custom {@code TypeAdapterFactory} for {@link JSONArray} and {@link JSONObject},
+   * which uses a format similar to what Gson's reflection-based adapter would have
+   * used.
+   *
+   * <p>This factory is mainly intended for applications which in the past by accident
+   * relied on Gson's reflection-based adapter for {@code JSONArray} and {@code JSONObject}
+   * and now have to keep this format for backward compatibility.
+   */
+  public class JsonOrgBackwardCompatibleAdapterFactory implements TypeAdapterFactory {
+    private abstract static class JsonOrgBackwardCompatibleAdapter<W, T> extends TypeAdapter<T> {
+      /** Internal field name used by JSON-java / Android for the respective JSON value class */
+      private final String fieldName;
+      private final TypeAdapter<W> wrappedTypeAdapter;
+
+      public JsonOrgBackwardCompatibleAdapter(String fieldName, TypeAdapter<W> wrappedTypeAdapter) {
+        this.fieldName = fieldName;
+        this.wrappedTypeAdapter = wrappedTypeAdapter;
+      }
+
+      protected abstract T createJsonOrgValue(W wrapped) throws JSONException;
+
+      @Override
+      public T read(JsonReader in) throws IOException {
+        if (in.peek() == JsonToken.NULL) {
+          in.nextNull();
+          return null;
+        }
+
+        in.beginObject();
+        String name = in.nextName();
+        if (!name.equals(fieldName)) {
+          throw new IllegalArgumentException("Unexpected name '" + name + "', expected '" + fieldName + "' at " + in.getPath());
+        }
+        T value;
+        try {
+          value = createJsonOrgValue(wrappedTypeAdapter.read(in));
+        }
+        // For Android this is a checked exception; for the latest JSON-java artifacts it isn't anymore
+        catch (JSONException e) {
+          throw new RuntimeException(e);
+        }
+        in.endObject();
+
+        return value;
+      }
+
+      protected abstract W getWrapped(T value);
+
+      @Override
+      public void write(JsonWriter out, T value) throws IOException {
+        if (value == null) {
+          out.nullValue();
+          return;
+        }
+
+        out.beginObject();
+        out.name(fieldName);
+        wrappedTypeAdapter.write(out, getWrapped(value));
+        out.endObject();
+      }
+    }
+
+    /**
+     * For multiple alternative field names, tries to find the first which exists on the class.
+     */
+    private static String getFieldName(Class<?> c, String... names) throws NoSuchFieldException {
+      assert(names.length > 0);
+      NoSuchFieldException exception = null;
+
+      for (String name : names) {
+        try {
+          Field unused = c.getDeclaredField(name);
+          return name;
+        } catch (NoSuchFieldException e) {
+          exception = e;
+        }
+      }
+
+      throw exception;
+    }
+
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      Class<?> rawType = type.getRawType();
+
+      // Note: This handling for JSONObject.NULL is not the same as the previous Gson reflection-based
+      // behavior which would have written `{}`, but this implementation here probably makes more sense
+      if (rawType == JSONObject.NULL.getClass()) {
+        return new TypeAdapter<T>() {
+          @Override
+          public T read(JsonReader in) throws IOException {
+            in.nextNull();
+            return null;
+          }
+
+          @Override
+          public void write(JsonWriter out, T value) throws IOException {
+            out.nullValue();
+          }
+        };
+      }
+
+      if (rawType != JSONArray.class && rawType != JSONObject.class) {
+        return null;
+      }
+
+      TypeAdapter<?> adapter;
+      if (rawType == JSONArray.class) {
+        // Choose correct field name depending on whether JSON-java or Android is used
+        String fieldName;
+        try {
+          String jsonJavaName = "myArrayList";
+          String androidName = "values";
+          fieldName = getFieldName(JSONArray.class, jsonJavaName, androidName);
+        } catch (NoSuchFieldException e) {
+          throw new RuntimeException("Unable to get internal field name for JSONArray", e);
+        }
+
+        TypeAdapter<List<Object>> wrappedAdapter = gson.getAdapter(new TypeToken<List<Object>> () {});
+        adapter = new JsonOrgBackwardCompatibleAdapter<List<Object>, JSONArray>(fieldName, wrappedAdapter) {
+          @Override
+          protected JSONArray createJsonOrgValue(List<Object> wrapped) throws JSONException {
+            JSONArray jsonArray = new JSONArray();
+            // Unlike JSONArray(Collection) constructor, `put` does not wrap elements and is therefore closer
+            // to original Gson reflection-based behavior
+            for (Object element : wrapped) {
+              jsonArray.put(element);
+            }
+
+            return jsonArray;
+          }
+
+          @Override
+          protected List<Object> getWrapped(JSONArray jsonArray) {
+            // Cannot use JSONArray.toList() because that converts elements
+            List<Object> list = new ArrayList<>(jsonArray.length());
+            for (int i = 0; i < jsonArray.length(); i++) {
+              // Use opt(int) because get(int) cannot handle null values
+              Object element = jsonArray.opt(i);
+              list.add(element);
+            }
+
+            return list;
+          }
+        };
+      } else {
+        // Choose correct field name depending on whether JSON-java or Android is used
+        String fieldName;
+        try {
+          String jsonJavaName = "map";
+          String androidName = "nameValuePairs";
+          fieldName = getFieldName(JSONObject.class, jsonJavaName, androidName);
+        } catch (NoSuchFieldException e) {
+          throw new RuntimeException("Unable to get internal field name for JSONObject", e);
+        }
+
+        TypeAdapter<Map<String, Object>> wrappedAdapter = gson.getAdapter(new TypeToken<Map<String, Object>> () {});
+        adapter = new JsonOrgBackwardCompatibleAdapter<Map<String, Object>, JSONObject>(fieldName, wrappedAdapter) {
+          @Override
+          protected JSONObject createJsonOrgValue(Map<String, Object> map) throws JSONException {
+            // JSONObject(Map) constructor wraps elements, so instead put elements separately to be closer
+            // to original Gson reflection-based behavior
+            JSONObject jsonObject = new JSONObject();
+            for (Entry<String, Object> entry : map.entrySet()) {
+              jsonObject.put(entry.getKey(), entry.getValue());
+            }
+
+            return jsonObject;
+          }
+
+          @Override
+          protected Map<String, Object> getWrapped(JSONObject jsonObject) {
+            // Cannot use JSONObject.toMap() because that converts elements
+            Map<String, Object> map = new LinkedHashMap<>(jsonObject.length());
+            @SuppressWarnings("unchecked") // Old JSON-java versions return just `Iterator` instead of `Iterator<String>`
+            Iterator<String> names = jsonObject.keys();
+            while (names.hasNext()) {
+              String name = names.next();
+              // Use opt(String) because get(String) cannot handle null values
+              // Most likely null values cannot occur normally though; they would be JSONObject.NULL
+              map.put(name, jsonObject.opt(name));
+            }
+
+            return map;
+          }
+        };
+      }
+
+      // Safe due to type check at beginning of method
+      @SuppressWarnings("unchecked")
+      TypeAdapter<T> t = (TypeAdapter<T>) adapter;
+      return t;
+    }
+  }
+  ```
+
+</details>
+
+**Important:** Verify carefully that these solutions work as expected for your use case and produce the desired JSON data or parse the JSON data without issues. There might be corner cases where they behave slightly differently than Gson's reflection-based adapter, respectively behave differently than the other JSON library would behave.
+
 ## <a id="android-app-random-names"></a> Android app not working in Release mode; random property names
 
 **Symptom:** Your Android app is working fine in Debug mode but fails in Release mode and the JSON properties have seemingly random names such as `a`, `b`, ...

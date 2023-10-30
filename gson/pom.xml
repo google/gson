@@ -49,6 +49,16 @@
       <version>2.23.0</version>
     </dependency>
 
+    <!-- For testing interoperability with other JSON libraries -->
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <!-- Uses an ancient version because it matches roughly the API of the same classes from Android
+        See also https://stackoverflow.com/q/39564936 -->
+      <version>20090211</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

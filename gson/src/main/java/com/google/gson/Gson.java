@@ -26,6 +26,7 @@ import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DateTypeAdapter;
+import com.google.gson.internal.bind.UnsupportedJsonLibraryTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
@@ -352,6 +353,9 @@ public final class Gson {
     this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
     factories.add(jsonAdapterFactory);
     factories.add(TypeAdapters.ENUM_FACTORY);
+    // Register this right before reflection-based adapter to allow other adapters to handle these
+    // types (if possible) and to let users specify their own custom adapters
+    factories.add(UnsupportedJsonLibraryTypeAdapterFactory.INSTANCE);
     factories.add(new ReflectiveTypeAdapterFactory(
         constructorConstructor, fieldNamingStrategy, excluder, jsonAdapterFactory, reflectionFilters));
 
