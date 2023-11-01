@@ -38,6 +38,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -93,7 +94,7 @@ public class EnumTest {
   @Test
   public void testClassWithEnumFieldSerialization() {
     ClassWithEnumFields target = new ClassWithEnumFields();
-    assertThat(gson.toJson(target)).isEqualTo(target.getExpectedJson());
+    assertThat(target.getExpectedJson().contains(gson.toJson(target))).isTrue();;
   }
 
   @Test
@@ -111,9 +112,12 @@ public class EnumTest {
   private static class ClassWithEnumFields {
     private final MyEnum value1 = MyEnum.VALUE1;
     private final MyEnum value2 = MyEnum.VALUE2;
-    public String getExpectedJson() {
-      return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
-    }
+    public Set<String> getExpectedJson() {
+      Set<String> possiblejsonvalues = new HashSet<String>();
+      possiblejsonvalues.add("{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}");
+      possiblejsonvalues.add("{\"value2\":\"" + value2 + "\",\"value1\":\"" + value1 + "\"}");
+      return possiblejsonvalues;
+      }
   }
 
   /**
