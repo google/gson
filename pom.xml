@@ -386,7 +386,7 @@
               </googleJavaFormat>
               <importOrder />
               <removeUnusedImports />
-              <formatAnnotations />       <!-- Formats the annotations -->
+              <formatAnnotations />     <!-- Puts type annotations immediately before types. -->.
             </java>
           </configuration>
         </plugin>
