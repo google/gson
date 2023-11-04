@@ -384,8 +384,8 @@
                 <reflowLongStrings>true</reflowLongStrings>
                 <formatJavadoc>true</formatJavadoc>
               </googleJavaFormat>
-              <importOrder />             <!-- Checks imports order -->
-              <removeUnusedImports />     <!-- Removes unused imports -->
+              <importOrder />
+              <removeUnusedImports />
               <formatAnnotations />       <!-- Formats the annotations -->
             </java>
           </configuration>
