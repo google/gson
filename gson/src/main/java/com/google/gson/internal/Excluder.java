@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.Ignore;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.reflect.TypeToken;
@@ -38,7 +39,7 @@ import java.util.List;
  * This class selects which fields and types to omit. It is configurable,
  * supporting version attributes {@link Since} and {@link Until}, modifiers,
  * synthetic fields, anonymous and local classes, inner classes, and fields with
- * the {@link Expose} annotation.
+ * the {@link Expose} annotation, the {@link Ignore} annotation.
  *
  * <p>This class is a type adapter factory; types that are excluded will be
  * adapted to null. It may delegate to another type adapter if only one
@@ -46,6 +47,7 @@ import java.util.List;
  *
  * @author Joel Leitch
  * @author Jesse Wilson
+ * @author Rao Mengnan
  */
 public final class Excluder implements TypeAdapterFactory, Cloneable {
   private static final double IGNORE_VERSIONS = -1.0d;
@@ -55,6 +57,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private int modifiers = Modifier.TRANSIENT | Modifier.STATIC;
   private boolean serializeInnerClasses = true;
   private boolean requireExpose;
+  private boolean checkIgnored;
   private List<ExclusionStrategy> serializationStrategies = Collections.emptyList();
   private List<ExclusionStrategy> deserializationStrategies = Collections.emptyList();
 
@@ -90,6 +93,12 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   public Excluder excludeFieldsWithoutExposeAnnotation() {
     Excluder result = clone();
     result.requireExpose = true;
+    return result;
+  }
+
+  public Excluder excludeFieldsWithIgnoreAnnotation() {
+    Excluder result = clone();
+    result.checkIgnored = true;
     return result;
   }
 
@@ -164,6 +173,13 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     if (requireExpose) {
       Expose annotation = field.getAnnotation(Expose.class);
       if (annotation == null || (serialize ? !annotation.serialize() : !annotation.deserialize())) {
+        return true;
+      }
+    }
+
+    if (checkIgnored) {
+      Ignore ignore = field.getAnnotation(Ignore.class);
+      if (ignore != null && (serialize ? ignore.serialize() : ignore.deserialize())) {
         return true;
       }
     }
@@ -248,4 +264,5 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     }
     return true;
   }
+
 }

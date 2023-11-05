@@ -226,6 +226,17 @@ public final class GsonBuilder {
   }
 
   /**
+   * Configures Gson to exclude all fields that have the {@link com.google.gson.annotations.Ignore}
+   * annotation during serialization or deserialization
+   *
+   * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   */
+  public GsonBuilder excludeFieldsWithIgnoreAnnotation() {
+    excluder = excluder.excludeFieldsWithIgnoreAnnotation();
+    return this;
+  }
+
+  /**
    * Configure Gson to serialize null fields. By default, Gson omits all fields that are null
    * during serialization.
    *
