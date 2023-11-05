@@ -1130,6 +1130,7 @@ public class JsonReader implements Closeable {
         case ';':
         case '#':
         case '=':
+        case '\'':
           checkLenient(); // fall-through
         case '{':
         case '}':
@@ -1138,6 +1139,7 @@ public class JsonReader implements Closeable {
         case ':':
         case ',':
         case ' ':
+        case '\"':
         case '\t':
         case '\f':
         case '\r':
