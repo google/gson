@@ -148,7 +148,6 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * @author Joel Leitch
  * @author Jesse Wilson
  */
-
 public final class Gson {
 
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
