@@ -62,9 +62,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
-// Temporary unused import
-import java.math.RoundingMode;
-
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a
  * Gson instance and then invoking {@link #toJson(Object)} or {@link #fromJson(String, Class)}
@@ -151,12 +148,7 @@ import java.math.RoundingMode;
  * @author Jesse Wilson
  */
 
-// Temporary formatting issue
-public
-final
-class Gson
-
-{
+public final class Gson {
   static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
   // Strictness of `null` is the legacy mode where some Gson APIs are always lenient
   static final Strictness DEFAULT_STRICTNESS = null;
