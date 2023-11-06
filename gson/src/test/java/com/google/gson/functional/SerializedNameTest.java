@@ -44,12 +44,19 @@ public final class SerializedNameTest {
   @Test
   public void testMultipleNamesInTheSameString() {
     // The last value takes precedence
-    assertThat(gson.fromJson("{'name1':'v1','name2':'v2','name3':'v3'}", MyClass.class).b).isEqualTo("v3");
+    assertThat(gson.fromJson("{'name1':'v1','name2':'v2','name3':'v3'}", MyClass.class).b)
+        .isEqualTo("v3");
   }
 
   private static final class MyClass {
-    @SerializedName("name") String a;
-    @SerializedName(value="name1", alternate={"name2", "name3"}) String b;
+    @SerializedName("name")
+    String a;
+
+    @SerializedName(
+        value = "name1",
+        alternate = {"name2", "name3"})
+    String b;
+
     MyClass(String a, String b) {
       this.a = a;
       this.b = b;

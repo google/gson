@@ -30,7 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Functional test for Json serialization and deserialization for classes in java.util.concurrent.atomic
+ * Functional test for Json serialization and deserialization for classes in
+ * java.util.concurrent.atomic
  */
 public class JavaUtilConcurrentAtomicTest {
   private Gson gson;
@@ -66,9 +67,8 @@ public class JavaUtilConcurrentAtomicTest {
 
   @Test
   public void testAtomicLongWithStringSerializationPolicy() {
-    Gson gson = new GsonBuilder()
-        .setLongSerializationPolicy(LongSerializationPolicy.STRING)
-        .create();
+    Gson gson =
+        new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING).create();
     AtomicLongHolder target = gson.fromJson("{'value':'10'}", AtomicLongHolder.class);
     assertThat(target.value.get()).isEqualTo(10);
     String json = gson.toJson(target);
@@ -99,9 +99,8 @@ public class JavaUtilConcurrentAtomicTest {
 
   @Test
   public void testAtomicLongArrayWithStringSerializationPolicy() {
-    Gson gson = new GsonBuilder()
-        .setLongSerializationPolicy(LongSerializationPolicy.STRING)
-        .create();
+    Gson gson =
+        new GsonBuilder().setLongSerializationPolicy(LongSerializationPolicy.STRING).create();
     AtomicLongArray target = gson.fromJson("['10', '13', '14']", AtomicLongArray.class);
     assertThat(target.length()).isEqualTo(3);
     assertThat(target.get(0)).isEqualTo(10);

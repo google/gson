@@ -4,12 +4,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * This class enforces limits on numbers parsed from JSON to avoid potential performance
- * problems when extremely large numbers are used.
+ * This class enforces limits on numbers parsed from JSON to avoid potential performance problems
+ * when extremely large numbers are used.
  */
 public class NumberLimits {
-  private NumberLimits() {
-  }
+  private NumberLimits() {}
 
   private static final int MAX_NUMBER_STRING_LENGTH = 10_000;
 

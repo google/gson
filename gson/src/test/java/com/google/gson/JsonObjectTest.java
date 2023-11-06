@@ -78,7 +78,8 @@ public class JsonObjectTest {
     try {
       jsonObj.add(null, JsonNull.INSTANCE);
       fail("Should not allow null property names.");
-    } catch (NullPointerException expected) { }
+    } catch (NullPointerException expected) {
+    }
 
     jsonObj.add("", JsonNull.INSTANCE);
     jsonObj.add("   \t", JsonNull.INSTANCE);
@@ -131,9 +132,7 @@ public class JsonObjectTest {
     assertThat(character).isEqualTo(value);
   }
 
-  /**
-   * From bug report http://code.google.com/p/google-gson/issues/detail?id=182
-   */
+  /** From bug report http://code.google.com/p/google-gson/issues/detail?id=182 */
   @Test
   public void testPropertyWithQuotes() {
     JsonObject jsonObj = new JsonObject();
@@ -142,9 +141,7 @@ public class JsonObjectTest {
     assertThat(json).isEqualTo("{\"a\\\"b\":\"c\\\"d\"}");
   }
 
-  /**
-   * From issue 227.
-   */
+  /** From issue 227. */
   @Test
   public void testWritePropertyWithEmptyStringName() {
     JsonObject jsonObj = new JsonObject();
@@ -243,9 +240,7 @@ public class JsonObjectTest {
     assertThat(copy.get("key").getAsJsonArray()).hasSize(0);
   }
 
-  /**
-   * From issue 941
-   */
+  /** From issue 941 */
   @Test
   public void testKeySet() {
     JsonObject a = new JsonObject();
@@ -291,10 +286,10 @@ public class JsonObjectTest {
 
     o.addProperty("a", false);
     // Insertion order should be preserved by entrySet()
-    List<?> expectedEntriesList = Arrays.asList(
-        new SimpleEntry<>("b", new JsonPrimitive(true)),
-        new SimpleEntry<>("a", new JsonPrimitive(false))
-      );
+    List<?> expectedEntriesList =
+        Arrays.asList(
+            new SimpleEntry<>("b", new JsonPrimitive(true)),
+            new SimpleEntry<>("a", new JsonPrimitive(false)));
     assertThat(new ArrayList<>(o.entrySet())).isEqualTo(expectedEntriesList);
 
     Iterator<Entry<String, JsonElement>> iterator = o.entrySet().iterator();
@@ -306,10 +301,10 @@ public class JsonObjectTest {
       assertThat(entry.getValue()).isEqualTo(new JsonPrimitive(i));
     }
 
-    expectedEntriesList = Arrays.asList(
-        new SimpleEntry<>("b", new JsonPrimitive(0)),
-        new SimpleEntry<>("a", new JsonPrimitive(1))
-      );
+    expectedEntriesList =
+        Arrays.asList(
+            new SimpleEntry<>("b", new JsonPrimitive(0)),
+            new SimpleEntry<>("a", new JsonPrimitive(1)));
     assertThat(new ArrayList<>(o.entrySet())).isEqualTo(expectedEntriesList);
 
     Entry<String, JsonElement> entry = o.entrySet().iterator().next();
@@ -327,12 +322,13 @@ public class JsonObjectTest {
     o.addProperty("key1", 1);
     o.addProperty("key2", 2);
 
-    Deque<?> expectedEntriesQueue = new ArrayDeque<>(Arrays.asList(
-        new SimpleEntry<>("b", new JsonPrimitive(0)),
-        new SimpleEntry<>("a", new JsonPrimitive(1)),
-        new SimpleEntry<>("key1", new JsonPrimitive(1)),
-        new SimpleEntry<>("key2", new JsonPrimitive(2))
-      ));
+    Deque<?> expectedEntriesQueue =
+        new ArrayDeque<>(
+            Arrays.asList(
+                new SimpleEntry<>("b", new JsonPrimitive(0)),
+                new SimpleEntry<>("a", new JsonPrimitive(1)),
+                new SimpleEntry<>("key1", new JsonPrimitive(1)),
+                new SimpleEntry<>("key2", new JsonPrimitive(2))));
     // Note: Must wrap in ArrayList because Deque implementations do not implement `equals`
     assertThat(new ArrayList<>(o.entrySet())).isEqualTo(new ArrayList<>(expectedEntriesQueue));
     iterator = o.entrySet().iterator();

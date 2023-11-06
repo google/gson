@@ -37,7 +37,9 @@ public class GenericArrayTypeTest {
 
   @Before
   public void setUp() throws Exception {
-    ourType = $Gson$Types.arrayOf($Gson$Types.newParameterizedTypeWithOwner(null, List.class, String.class));
+    ourType =
+        $Gson$Types.arrayOf(
+            $Gson$Types.newParameterizedTypeWithOwner(null, List.class, String.class));
   }
 
   @Test

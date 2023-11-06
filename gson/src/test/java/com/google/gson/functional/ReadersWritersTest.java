@@ -147,8 +147,8 @@ public class ReadersWritersTest {
   }
 
   /**
-   * Verifies that passing an {@link Appendable} which is not an instance of {@link Writer}
-   * to {@code Gson.toJson} works correctly.
+   * Verifies that passing an {@link Appendable} which is not an instance of {@link Writer} to
+   * {@code Gson.toJson} works correctly.
    */
   @Test
   public void testToJsonAppendable() {

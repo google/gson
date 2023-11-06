@@ -18,9 +18,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-/**
- * Uses {@link JsonAdapter} annotation on fields.
- */
+/** Uses {@link JsonAdapter} annotation on fields. */
 public class ClassWithJsonAdapterAnnotation {
   // For this field don't use @SerializedName and ignore it for deserialization
   // Has custom ProGuard rule to keep the field name
@@ -43,8 +41,7 @@ public class ClassWithJsonAdapterAnnotation {
   @JsonAdapter(Deserializer.class)
   DummyClass f4;
 
-  public ClassWithJsonAdapterAnnotation() {
-  }
+  public ClassWithJsonAdapterAnnotation() {}
 
   // Note: R8 seems to make this constructor the no-args constructor and initialize fields
   // by default; currently this is not visible in the deserialization test because the JSON data
@@ -60,7 +57,15 @@ public class ClassWithJsonAdapterAnnotation {
 
   @Override
   public String toString() {
-    return "ClassWithJsonAdapterAnnotation[f1=" + f1 + ", f2=" + f2 + ", f3=" + f3 + ", f4=" + f4 + "]";
+    return "ClassWithJsonAdapterAnnotation[f1="
+        + f1
+        + ", f2="
+        + f2
+        + ", f3="
+        + f3
+        + ", f4="
+        + f4
+        + "]";
   }
 
   static class Adapter extends TypeAdapter<DummyClass> {
@@ -78,18 +83,21 @@ public class ClassWithJsonAdapterAnnotation {
   static class Factory implements TypeAdapterFactory {
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-      @SuppressWarnings("unchecked") // the code below is not type-safe, but does not matter for this test
-      TypeAdapter<T> r = (TypeAdapter<T>) new TypeAdapter<DummyClass>() {
-        @Override
-        public DummyClass read(JsonReader in) throws IOException {
-          return new DummyClass("factory-" + in.nextInt());
-        }
+      // the code below is not type-safe, but does not matter for this test
+      @SuppressWarnings("unchecked")
+      TypeAdapter<T> r =
+          (TypeAdapter<T>)
+              new TypeAdapter<DummyClass>() {
+                @Override
+                public DummyClass read(JsonReader in) throws IOException {
+                  return new DummyClass("factory-" + in.nextInt());
+                }
 
-        @Override
-        public void write(JsonWriter out, DummyClass value) throws IOException {
-          out.value("factory-" + value.s);
-        }
-      };
+                @Override
+                public void write(JsonWriter out, DummyClass value) throws IOException {
+                  out.value("factory-" + value.s);
+                }
+              };
 
       return r;
     }
@@ -104,7 +112,9 @@ public class ClassWithJsonAdapterAnnotation {
 
   static class Deserializer implements JsonDeserializer<DummyClass> {
     @Override
-    public DummyClass deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public DummyClass deserialize(
+        JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
       return new DummyClass("deserializer-" + json.getAsInt());
     }
   }

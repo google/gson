@@ -37,9 +37,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * This type adapter supports subclasses of date by defining a
- * {@link DefaultDateTypeAdapter.DateType} and then using its {@code createAdapterFactory}
- * methods.
+ * This type adapter supports subclasses of date by defining a {@link
+ * DefaultDateTypeAdapter.DateType} and then using its {@code createAdapterFactory} methods.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -47,12 +46,14 @@ import java.util.Objects;
 public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T> {
   private static final String SIMPLE_NAME = "DefaultDateTypeAdapter";
 
-  public static abstract class DateType<T extends Date> {
-    public static final DateType<Date> DATE = new DateType<Date>(Date.class) {
-      @Override protected Date deserialize(Date date) {
-        return date;
-      }
-    };
+  public abstract static class DateType<T extends Date> {
+    public static final DateType<Date> DATE =
+        new DateType<Date>(Date.class) {
+          @Override
+          protected Date deserialize(Date date) {
+            return date;
+          }
+        };
 
     private final Class<T> dateClass;
 
@@ -79,15 +80,16 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
     }
 
     public final TypeAdapterFactory createDefaultsAdapterFactory() {
-      return createFactory(new DefaultDateTypeAdapter<>(this, DateFormat.DEFAULT, DateFormat.DEFAULT));
+      return createFactory(
+          new DefaultDateTypeAdapter<>(this, DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
   }
 
   private final DateType<T> dateType;
 
   /**
-   * List of 1 or more different date formats used for de-serialization attempts.
-   * The first of them is used for serialization as well.
+   * List of 1 or more different date formats used for de-serialization attempts. The first of them
+   * is used for serialization as well.
    */
   private final List<DateFormat> dateFormats = new ArrayList<>();
 
@@ -163,7 +165,8 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
     try {
       return ISO8601Utils.parse(s, new ParsePosition(0));
     } catch (ParseException e) {
-      throw new JsonSyntaxException("Failed parsing '" + s + "' as Date; at path " + in.getPreviousPath(), e);
+      throw new JsonSyntaxException(
+          "Failed parsing '" + s + "' as Date; at path " + in.getPreviousPath(), e);
     }
   }
 

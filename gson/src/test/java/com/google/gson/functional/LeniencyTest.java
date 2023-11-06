@@ -25,9 +25,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Functional tests for leniency option.
- */
+/** Functional tests for leniency option. */
 public class LeniencyTest {
 
   private Gson gson;
@@ -40,10 +38,10 @@ public class LeniencyTest {
 
   @Test
   public void testLenientFromJson() {
-    List<String> json = gson.fromJson(""
-        + "[ # One!\n"
-        + "  'Hi' #Element!\n"
-        + "] # Array!", new TypeToken<List<String>>() {}.getType());
+    List<String> json =
+        gson.fromJson(
+            "" + "[ # One!\n" + "  'Hi' #Element!\n" + "] # Array!",
+            new TypeToken<List<String>>() {}.getType());
     assertThat(json).isEqualTo(singletonList("Hi"));
   }
 }
