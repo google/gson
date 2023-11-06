@@ -719,6 +719,7 @@ public class DefaultTypeAdaptersTest {
       builder.setDateFormat(invalidPattern);
     });
   }
+
   @Test
   public void testSetDateFormatWithValidPattern() {
     GsonBuilder builder = new GsonBuilder();
