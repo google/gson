@@ -720,7 +720,7 @@ public class DefaultTypeAdaptersTest {
     });
   }
   @Test
-  void testSetDateFormatWithValidPattern() {
+  public void testSetDateFormatWithValidPattern() {
     GsonBuilder builder = new GsonBuilder();
     String validPattern = "yyyy-MM-dd";
     builder.setDateFormat(validPattern);
