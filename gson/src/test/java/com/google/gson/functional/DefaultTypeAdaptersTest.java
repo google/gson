@@ -16,6 +16,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -709,6 +710,20 @@ public class DefaultTypeAdaptersTest {
   public void testStringBufferDeserialization() {
     StringBuffer sb = gson.fromJson("'abc'", StringBuffer.class);
     assertThat(sb.toString()).isEqualTo("abc");
+  }
+  @Test
+  public void testSetDateFormatWithInvalidPattern() {
+    GsonBuilder builder = new GsonBuilder();
+    String invalidPattern = "This is a invalid Pattern";
+    assertThrows(IllegalArgumentException.class, () -> {
+      builder.setDateFormat(invalidPattern);
+    });
+  }
+  @Test
+  void testSetDateFormatWithValidPattern() {
+    GsonBuilder builder = new GsonBuilder();
+    String validPattern = "yyyy-MM-dd";
+    builder.setDateFormat(validPattern);
   }
 
   private static class MyClassTypeAdapter extends TypeAdapter<Class<?>> {
