@@ -152,6 +152,9 @@
             </format>
           </formats>
           <java>
+            <excludes>
+              <exclude>src/test/java/com/google/gson/functional/Java17RecordTest.java</exclude>
+            </excludes>
             <googleJavaFormat>
               <style>GOOGLE</style>
               <reflowLongStrings>true</reflowLongStrings>
