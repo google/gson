@@ -41,14 +41,22 @@ public class GsonVersionDiagnosticsTest {
 
   @Before
   public void setUp() {
-    gson = new GsonBuilder().registerTypeAdapter(TestType.class, new TypeAdapter<TestType>() {
-      @Override public void write(JsonWriter out, TestType value) {
-        throw new AssertionError("Expected during serialization");
-      }
-      @Override public TestType read(JsonReader in) {
-        throw new AssertionError("Expected during deserialization");
-      }
-    }).create();
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                TestType.class,
+                new TypeAdapter<TestType>() {
+                  @Override
+                  public void write(JsonWriter out, TestType value) {
+                    throw new AssertionError("Expected during serialization");
+                  }
+
+                  @Override
+                  public TestType read(JsonReader in) {
+                    throw new AssertionError("Expected during deserialization");
+                  }
+                })
+            .create();
   }
 
   @Test
@@ -65,8 +73,8 @@ public class GsonVersionDiagnosticsTest {
 
   @Test
   public void testAssertionErrorInDeserializationPrintsVersion() {
-    AssertionError e = assertThrows(AssertionError.class,
-        () -> gson.fromJson("{'a':'abc'}", TestType.class));
+    AssertionError e =
+        assertThrows(AssertionError.class, () -> gson.fromJson("{'a':'abc'}", TestType.class));
 
     ensureAssertionErrorPrintsGsonVersion(e);
   }

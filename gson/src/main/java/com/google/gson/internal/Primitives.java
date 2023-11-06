@@ -19,24 +19,22 @@ package com.google.gson.internal;
 import java.lang.reflect.Type;
 
 /**
- * Contains static utility methods pertaining to primitive types and their
- * corresponding wrapper types.
+ * Contains static utility methods pertaining to primitive types and their corresponding wrapper
+ * types.
  *
  * @author Kevin Bourrillion
  */
 public final class Primitives {
   private Primitives() {}
 
-  /**
-   * Returns true if this type is a primitive.
-   */
+  /** Returns true if this type is a primitive. */
   public static boolean isPrimitive(Type type) {
     return type instanceof Class<?> && ((Class<?>) type).isPrimitive();
   }
 
   /**
-   * Returns {@code true} if {@code type} is one of the nine
-   * primitive-wrapper types, such as {@link Integer}.
+   * Returns {@code true} if {@code type} is one of the nine primitive-wrapper types, such as {@link
+   * Integer}.
    *
    * @see Class#isPrimitive
    */
@@ -53,8 +51,9 @@ public final class Primitives {
   }
 
   /**
-   * Returns the corresponding wrapper type of {@code type} if it is a primitive
-   * type; otherwise returns {@code type} itself. Idempotent.
+   * Returns the corresponding wrapper type of {@code type} if it is a primitive type; otherwise
+   * returns {@code type} itself. Idempotent.
+   *
    * <pre>
    *     wrap(int.class) == Integer.class
    *     wrap(Integer.class) == Integer.class
@@ -76,8 +75,9 @@ public final class Primitives {
   }
 
   /**
-   * Returns the corresponding primitive type of {@code type} if it is a
-   * wrapper type; otherwise returns {@code type} itself. Idempotent.
+   * Returns the corresponding primitive type of {@code type} if it is a wrapper type; otherwise
+   * returns {@code type} itself. Idempotent.
+   *
    * <pre>
    *     unwrap(Integer.class) == int.class
    *     unwrap(int.class) == int.class

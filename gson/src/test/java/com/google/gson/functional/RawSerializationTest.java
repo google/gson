@@ -60,7 +60,7 @@ public class RawSerializationTest {
     String json = gson.toJson(bar);
     assertThat(json).isEqualTo(expectedJson);
     // Ensure that serialization also works when the type is specified explicitly
-    json = gson.toJson(bar, new TypeToken<Bar<Foo>>(){}.getType());
+    json = gson.toJson(bar, new TypeToken<Bar<Foo>>() {}.getType());
     assertThat(json).isEqualTo(expectedJson);
   }
 
@@ -72,7 +72,7 @@ public class RawSerializationTest {
     String json = gson.toJson(bar);
     assertThat(json).isEqualTo(expectedJson);
     // Ensure that serialization also works when the type is specified explicitly
-    json = gson.toJson(bar, new TypeToken<Bar<Bar<Foo>>>(){}.getType());
+    json = gson.toJson(bar, new TypeToken<Bar<Bar<Foo>>>() {}.getType());
     assertThat(json).isEqualTo(expectedJson);
   }
 
@@ -84,13 +84,14 @@ public class RawSerializationTest {
     String json = gson.toJson(bar);
     assertThat(json).isEqualTo(expectedJson);
     // Ensure that serialization also works when the type is specified explicitly
-    json = gson.toJson(bar, new TypeToken<Bar<Bar<Bar<Foo>>>>(){}.getType());
+    json = gson.toJson(bar, new TypeToken<Bar<Bar<Bar<Foo>>>>() {}.getType());
     assertThat(json).isEqualTo(expectedJson);
   }
 
   private static class Foo {
     @SuppressWarnings("unused")
     int b;
+
     Foo(int b) {
       this.b = b;
     }
@@ -99,6 +100,7 @@ public class RawSerializationTest {
   private static class Bar<T> {
     @SuppressWarnings("unused")
     T t;
+
     Bar(T t) {
       this.t = t;
     }

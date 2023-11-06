@@ -20,16 +20,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.junit.Before;
-import org.junit.Test;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * This test covers the scenario described in #1390 where a type variable needs to be used
- * by a type definition multiple times.  Both type variable references should resolve to the
- * same underlying concrete type.
+ * This test covers the scenario described in #1390 where a type variable needs to be used by a type
+ * definition multiple times. Both type variable references should resolve to the same underlying
+ * concrete type.
  */
 public class ReusedTypeVariablesFullyResolveTest {
 
@@ -40,10 +40,12 @@ public class ReusedTypeVariablesFullyResolveTest {
     gson = new GsonBuilder().create();
   }
 
-  @SuppressWarnings("ConstantConditions") // The instances were being unmarshaled as Strings instead of TestEnums
+  // The instances were being unmarshaled as Strings instead of TestEnums
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void testGenericsPreservation() {
-    TestEnumSetCollection withSet = gson.fromJson("{\"collection\":[\"ONE\",\"THREE\"]}", TestEnumSetCollection.class);
+    TestEnumSetCollection withSet =
+        gson.fromJson("{\"collection\":[\"ONE\",\"THREE\"]}", TestEnumSetCollection.class);
     Iterator<TestEnum> iterator = withSet.collection.iterator();
     assertThat(withSet).isNotNull();
     assertThat(withSet.collection).isNotNull();
@@ -55,15 +57,17 @@ public class ReusedTypeVariablesFullyResolveTest {
     assertThat(second).isInstanceOf(TestEnum.class);
   }
 
-  enum TestEnum { ONE, TWO, THREE }
+  enum TestEnum {
+    ONE,
+    TWO,
+    THREE
+  }
 
   private static class TestEnumSetCollection extends SetCollection<TestEnum> {}
 
   private static class SetCollection<T> extends BaseCollection<T, Set<T>> {}
 
-  private static class BaseCollection<U, C extends Collection<U>>
-  {
+  private static class BaseCollection<U, C extends Collection<U>> {
     public C collection;
   }
-
 }

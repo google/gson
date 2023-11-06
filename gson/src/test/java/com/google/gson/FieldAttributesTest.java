@@ -46,7 +46,8 @@ public class FieldAttributesTest {
     try {
       new FieldAttributes(null);
       fail("Field parameter can not be null");
-    } catch (NullPointerException expected) { }
+    } catch (NullPointerException expected) {
+    }
   }
 
   @Test

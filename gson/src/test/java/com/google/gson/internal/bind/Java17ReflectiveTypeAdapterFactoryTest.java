@@ -33,7 +33,8 @@ import org.junit.Test;
 
 public class Java17ReflectiveTypeAdapterFactoryTest {
 
-  // The class jdk.net.UnixDomainPrincipal is one of the few Record types that are included in the JDK.
+  // The class jdk.net.UnixDomainPrincipal is one of the few Record types that are included in the
+  // JDK.
   // We use this to test serialization and deserialization of Record classes, so we do not need to
   // have record support at the language level for these tests. This class was added in JDK 16.
   Class<?> unixDomainPrincipalClass;
@@ -87,7 +88,8 @@ public class Java17ReflectiveTypeAdapterFactoryTest {
     @Override
     public T read(JsonReader in) throws IOException {
       final String name = in.nextString();
-      // This type adapter is only used for Group and User Principal, both of which are implemented by PrincipalImpl.
+      // This type adapter is only used for Group and User Principal, both of which are implemented
+      // by PrincipalImpl.
       @SuppressWarnings("unchecked")
       T principal = (T) new Java17ReflectionHelperTest.PrincipalImpl(name);
       return principal;

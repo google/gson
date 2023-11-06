@@ -31,9 +31,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Functional tests for {@link Gson#toJsonTree(Object)} and 
- * {@link Gson#toJsonTree(Object, java.lang.reflect.Type)}
- * 
+ * Functional tests for {@link Gson#toJsonTree(Object)} and {@link Gson#toJsonTree(Object,
+ * java.lang.reflect.Type)}
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -79,7 +79,7 @@ public class JsonTreeTest {
     String json1 = gson.toJson(bag);
     JsonElement jsonElement = gson.toJsonTree(bag, SubTypeOfBagOfPrimitives.class);
     String json2 = gson.toJson(jsonElement);
-   assertThat(json2).isEqualTo(json1);
+    assertThat(json2).isEqualTo(json1);
   }
 
   @Test
@@ -100,10 +100,11 @@ public class JsonTreeTest {
     }
     fail();
   }
-  
+
   private static class SubTypeOfBagOfPrimitives extends BagOfPrimitives {
     @SuppressWarnings("unused")
     float f = 1.2F;
+
     public SubTypeOfBagOfPrimitives(long l, int i, boolean b, String string, float f) {
       super(l, i, b, string);
       this.f = f;
