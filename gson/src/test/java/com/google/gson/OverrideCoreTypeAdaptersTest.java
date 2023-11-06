@@ -30,30 +30,36 @@ import org.junit.Test;
  * @author Jesse Wilson
  */
 public class OverrideCoreTypeAdaptersTest {
-  private static final TypeAdapter<Boolean> booleanAsIntAdapter = new TypeAdapter<Boolean>() {
-    @Override public void write(JsonWriter out, Boolean value) throws IOException {
-      out.value(value ? 1 : 0);
-    }
-    @Override public Boolean read(JsonReader in) throws IOException {
-      int value = in.nextInt();
-      return value != 0;
-    }
-  };
+  private static final TypeAdapter<Boolean> booleanAsIntAdapter =
+      new TypeAdapter<Boolean>() {
+        @Override
+        public void write(JsonWriter out, Boolean value) throws IOException {
+          out.value(value ? 1 : 0);
+        }
 
-  private static final TypeAdapter<String> swapCaseStringAdapter = new TypeAdapter<String>() {
-    @Override public void write(JsonWriter out, String value) throws IOException {
-      out.value(value.toUpperCase(Locale.US));
-    }
-    @Override public String read(JsonReader in) throws IOException {
-      return in.nextString().toLowerCase(Locale.US);
-    }
-  };
+        @Override
+        public Boolean read(JsonReader in) throws IOException {
+          int value = in.nextInt();
+          return value != 0;
+        }
+      };
+
+  private static final TypeAdapter<String> swapCaseStringAdapter =
+      new TypeAdapter<String>() {
+        @Override
+        public void write(JsonWriter out, String value) throws IOException {
+          out.value(value.toUpperCase(Locale.US));
+        }
+
+        @Override
+        public String read(JsonReader in) throws IOException {
+          return in.nextString().toLowerCase(Locale.US);
+        }
+      };
 
   @Test
   public void testOverrideWrapperBooleanAdapter() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(Boolean.class, booleanAsIntAdapter)
-        .create();
+    Gson gson = new GsonBuilder().registerTypeAdapter(Boolean.class, booleanAsIntAdapter).create();
     assertThat(gson.toJson(true, boolean.class)).isEqualTo("true");
     assertThat(gson.toJson(true, Boolean.class)).isEqualTo("1");
     assertThat(gson.fromJson("true", boolean.class)).isEqualTo(Boolean.TRUE);
@@ -63,9 +69,7 @@ public class OverrideCoreTypeAdaptersTest {
 
   @Test
   public void testOverridePrimitiveBooleanAdapter() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(boolean.class, booleanAsIntAdapter)
-        .create();
+    Gson gson = new GsonBuilder().registerTypeAdapter(boolean.class, booleanAsIntAdapter).create();
     assertThat(gson.toJson(true, boolean.class)).isEqualTo("1");
     assertThat(gson.toJson(true, Boolean.class)).isEqualTo("true");
     assertThat(gson.fromJson("1", boolean.class)).isEqualTo(Boolean.TRUE);
@@ -75,9 +79,7 @@ public class OverrideCoreTypeAdaptersTest {
 
   @Test
   public void testOverrideStringAdapter() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(String.class, swapCaseStringAdapter)
-        .create();
+    Gson gson = new GsonBuilder().registerTypeAdapter(String.class, swapCaseStringAdapter).create();
     assertThat(gson.toJson("Hello", String.class)).isEqualTo("\"HELLO\"");
     assertThat(gson.fromJson("\"Hello\"", String.class)).isEqualTo("hello");
   }

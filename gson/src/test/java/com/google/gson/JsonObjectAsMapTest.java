@@ -32,9 +32,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.junit.Test;
 
-/**
- * Tests for {@link JsonObject#asMap()}.
- */
+/** Tests for {@link JsonObject#asMap()}. */
 public class JsonObjectAsMapTest {
   @Test
   public void testSize() {
@@ -223,7 +221,8 @@ public class JsonObjectAsMapTest {
     }
 
     assertThat(values.remove(new JsonPrimitive(2))).isTrue();
-    assertThat(new ArrayList<>(map.values())).isEqualTo(Collections.singletonList(new JsonPrimitive(1)));
+    assertThat(new ArrayList<>(map.values()))
+        .isEqualTo(Collections.singletonList(new JsonPrimitive(1)));
     assertThat(o.size()).isEqualTo(1);
     assertThat(o.get("b")).isEqualTo(new JsonPrimitive(1));
   }
@@ -237,10 +236,10 @@ public class JsonObjectAsMapTest {
     Map<String, JsonElement> map = o.asMap();
     Set<Entry<String, JsonElement>> entrySet = map.entrySet();
 
-    List<Entry<?, ?>> expectedEntrySet = Arrays.<Entry<?, ?>>asList(
-        new SimpleEntry<>("b", new JsonPrimitive(2)),
-        new SimpleEntry<>("a", new JsonPrimitive(1))
-    );
+    List<Entry<?, ?>> expectedEntrySet =
+        Arrays.<Entry<?, ?>>asList(
+            new SimpleEntry<>("b", new JsonPrimitive(2)),
+            new SimpleEntry<>("a", new JsonPrimitive(1)));
     // Should contain entries in same order
     assertThat(new ArrayList<>(entrySet)).isEqualTo(expectedEntrySet);
 
@@ -251,8 +250,10 @@ public class JsonObjectAsMapTest {
     }
 
     assertThat(entrySet.remove(new SimpleEntry<>("a", new JsonPrimitive(1)))).isTrue();
-    assertThat(map.entrySet()).isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(2))));
-    assertThat(o.entrySet()).isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(2))));
+    assertThat(map.entrySet())
+        .isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(2))));
+    assertThat(o.entrySet())
+        .isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(2))));
 
     // Should return false because entry has already been removed
     assertThat(entrySet.remove(new SimpleEntry<>("a", new JsonPrimitive(1)))).isFalse();
@@ -260,8 +261,10 @@ public class JsonObjectAsMapTest {
     Entry<String, JsonElement> entry = entrySet.iterator().next();
     JsonElement old = entry.setValue(new JsonPrimitive(3));
     assertThat(old).isEqualTo(new JsonPrimitive(2));
-    assertThat(map.entrySet()).isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(3))));
-    assertThat(o.entrySet()).isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(3))));
+    assertThat(map.entrySet())
+        .isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(3))));
+    assertThat(o.entrySet())
+        .isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(3))));
 
     try {
       entry.setValue(null);

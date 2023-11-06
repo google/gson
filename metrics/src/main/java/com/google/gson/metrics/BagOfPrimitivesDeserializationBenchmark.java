@@ -37,7 +37,7 @@ public class BagOfPrimitivesDeserializationBenchmark {
   public static void main(String[] args) {
     NonUploadingCaliperRunner.run(BagOfPrimitivesDeserializationBenchmark.class, args);
   }
-  
+
   @BeforeExperiment
   void setUp() throws Exception {
     this.gson = new Gson();
@@ -45,20 +45,16 @@ public class BagOfPrimitivesDeserializationBenchmark {
     this.json = gson.toJson(bag);
   }
 
-  /** 
-   * Benchmark to measure Gson performance for deserializing an object
-   */
+  /** Benchmark to measure Gson performance for deserializing an object */
   public void timeBagOfPrimitivesDefault(int reps) {
-    for (int i=0; i<reps; ++i) {
+    for (int i = 0; i < reps; ++i) {
       gson.fromJson(json, BagOfPrimitives.class);
     }
   }
 
-  /**
-   * Benchmark to measure deserializing objects by hand
-   */
+  /** Benchmark to measure deserializing objects by hand */
   public void timeBagOfPrimitivesStreaming(int reps) throws IOException {
-    for (int i=0; i<reps; ++i) {
+    for (int i = 0; i < reps; ++i) {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);
       jr.beginObject();
@@ -91,7 +87,7 @@ public class BagOfPrimitivesDeserializationBenchmark {
    * and {@link #timeBagOfPrimitivesDefault(int)} .
    */
   public void timeBagOfPrimitivesReflectionStreaming(int reps) throws Exception {
-    for (int i=0; i<reps; ++i) {
+    for (int i = 0; i < reps; ++i) {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);
       jr.beginObject();

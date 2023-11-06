@@ -44,117 +44,127 @@ public class ProtosWithAnnotationsTest {
 
   @Before
   public void setUp() throws Exception {
-    ProtoTypeAdapter.Builder protoTypeAdapter = ProtoTypeAdapter.newBuilder()
-        .setEnumSerialization(EnumSerialization.NAME)
-        .addSerializedNameExtension(Annotations.serializedName)
-        .addSerializedEnumValueExtension(Annotations.serializedValue);
-    gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(GeneratedMessageV3.class, protoTypeAdapter.build())
-        .create();
-    gsonWithEnumNumbers = new GsonBuilder()
-        .registerTypeHierarchyAdapter(GeneratedMessageV3.class, protoTypeAdapter
-            .setEnumSerialization(EnumSerialization.NUMBER)
-            .build())
-        .create();
-    gsonWithLowerHyphen = new GsonBuilder()
-        .registerTypeHierarchyAdapter(GeneratedMessageV3.class, protoTypeAdapter
-            .setFieldNameSerializationFormat(CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_HYPHEN)
-            .build())
-        .create();
+    ProtoTypeAdapter.Builder protoTypeAdapter =
+        ProtoTypeAdapter.newBuilder()
+            .setEnumSerialization(EnumSerialization.NAME)
+            .addSerializedNameExtension(Annotations.serializedName)
+            .addSerializedEnumValueExtension(Annotations.serializedValue);
+    gson =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(GeneratedMessageV3.class, protoTypeAdapter.build())
+            .create();
+    gsonWithEnumNumbers =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(
+                GeneratedMessageV3.class,
+                protoTypeAdapter.setEnumSerialization(EnumSerialization.NUMBER).build())
+            .create();
+    gsonWithLowerHyphen =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(
+                GeneratedMessageV3.class,
+                protoTypeAdapter
+                    .setFieldNameSerializationFormat(
+                        CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_HYPHEN)
+                    .build())
+            .create();
   }
 
   @Test
   public void testProtoWithAnnotations_deserialize() {
-    String json = String.format("{  %n"
-        + "   \"id\":\"41e5e7fd6065d101b97018a465ffff01\",%n"
-        + "   \"expiration_date\":{  %n"
-        + "      \"month\":\"12\",%n"
-        + "      \"year\":\"2017\",%n"
-        + "      \"timeStamp\":\"9864653135687\",%n"
-        + "      \"countryCode5f55\":\"en_US\"%n"
-        + "   },%n"
-        // Don't define innerMessage1
-        + "   \"innerMessage2\":{  %n"
-        // Set a number as a string; it should work
-        + "      \"nIdCt\":\"98798465\",%n"
-        + "      \"content\":\"text/plain\",%n"
-        + "      \"$binary_data$\":[  %n"
-        + "         {  %n"
-        + "            \"data\":\"OFIN8e9fhwoeh8((⁹8efywoih\",%n"
-        // Don't define width
-        + "            \"height\":665%n"
-        + "         },%n"
-        + "         {  %n"
-        // Define as an int; it should work
-        + "            \"data\":65,%n"
-        + "            \"width\":-56684%n"
-        // Don't define height
-        + "         }%n"
-        + "      ]%n"
-        + "   },%n"
-        // Define a bunch of non recognizable data
-        + "   \"non_existing\":\"foobar\",%n"
-        + "   \"stillNot\":{  %n"
-        + "      \"bunch\":\"of_useless data\"%n"
-        + "   }%n"
-        + "}");
+    String json =
+        String.format(
+            "{  %n"
+                + "   \"id\":\"41e5e7fd6065d101b97018a465ffff01\",%n"
+                + "   \"expiration_date\":{  %n"
+                + "      \"month\":\"12\",%n"
+                + "      \"year\":\"2017\",%n"
+                + "      \"timeStamp\":\"9864653135687\",%n"
+                + "      \"countryCode5f55\":\"en_US\"%n"
+                + "   },%n"
+                // Don't define innerMessage1
+                + "   \"innerMessage2\":{  %n"
+                // Set a number as a string; it should work
+                + "      \"nIdCt\":\"98798465\",%n"
+                + "      \"content\":\"text/plain\",%n"
+                + "      \"$binary_data$\":[  %n"
+                + "         {  %n"
+                + "            \"data\":\"OFIN8e9fhwoeh8((⁹8efywoih\",%n"
+                // Don't define width
+                + "            \"height\":665%n"
+                + "         },%n"
+                + "         {  %n"
+                // Define as an int; it should work
+                + "            \"data\":65,%n"
+                + "            \"width\":-56684%n"
+                // Don't define height
+                + "         }%n"
+                + "      ]%n"
+                + "   },%n"
+                // Define a bunch of non recognizable data
+                + "   \"non_existing\":\"foobar\",%n"
+                + "   \"stillNot\":{  %n"
+                + "      \"bunch\":\"of_useless data\"%n"
+                + "   }%n"
+                + "}");
     ProtoWithAnnotations proto = gson.fromJson(json, ProtoWithAnnotations.class);
     assertThat(proto.getId()).isEqualTo("41e5e7fd6065d101b97018a465ffff01");
-    assertThat(proto.getOuterMessage()).isEqualTo(OuterMessage.newBuilder()
-        .setMonth(12)
-        .setYear(2017)
-        .setLongTimestamp(9864653135687L)
-        .setCountryCode5F55("en_US")
-        .build());
+    assertThat(proto.getOuterMessage())
+        .isEqualTo(
+            OuterMessage.newBuilder()
+                .setMonth(12)
+                .setYear(2017)
+                .setLongTimestamp(9864653135687L)
+                .setCountryCode5F55("en_US")
+                .build());
     assertThat(proto.hasInnerMessage1()).isFalse();
-    assertThat(proto.getInnerMessage2()).isEqualTo(InnerMessage.newBuilder()
-        .setNIdCt(98798465)
-        .setContent(InnerMessage.Type.TEXT)
-        .addData(InnerMessage.Data.newBuilder()
-            .setData("OFIN8e9fhwoeh8((⁹8efywoih")
-            .setHeight(665))
-        .addData(InnerMessage.Data.newBuilder()
-            .setData("65")
-            .setWidth(-56684))
-        .build());
+    assertThat(proto.getInnerMessage2())
+        .isEqualTo(
+            InnerMessage.newBuilder()
+                .setNIdCt(98798465)
+                .setContent(InnerMessage.Type.TEXT)
+                .addData(
+                    InnerMessage.Data.newBuilder()
+                        .setData("OFIN8e9fhwoeh8((⁹8efywoih")
+                        .setHeight(665))
+                .addData(InnerMessage.Data.newBuilder().setData("65").setWidth(-56684))
+                .build());
 
     String rebuilt = gson.toJson(proto);
-    assertThat(rebuilt).isEqualTo("{"
-        + "\"id\":\"41e5e7fd6065d101b97018a465ffff01\","
-        + "\"expiration_date\":{"
-        + "\"month\":12,"
-        + "\"year\":2017,"
-        + "\"timeStamp\":9864653135687,"
-        + "\"countryCode5f55\":\"en_US\""
-        + "},"
-        + "\"innerMessage2\":{"
-        + "\"nIdCt\":98798465,"
-        + "\"content\":\"text/plain\","
-        + "\"$binary_data$\":["
-        + "{"
-        + "\"data\":\"OFIN8e9fhwoeh8((⁹8efywoih\","
-        + "\"height\":665"
-        + "},"
-        + "{"
-        + "\"data\":\"65\","
-        + "\"width\":-56684"
-        + "}]}}");
+    assertThat(rebuilt)
+        .isEqualTo(
+            "{"
+                + "\"id\":\"41e5e7fd6065d101b97018a465ffff01\","
+                + "\"expiration_date\":{"
+                + "\"month\":12,"
+                + "\"year\":2017,"
+                + "\"timeStamp\":9864653135687,"
+                + "\"countryCode5f55\":\"en_US\""
+                + "},"
+                + "\"innerMessage2\":{"
+                + "\"nIdCt\":98798465,"
+                + "\"content\":\"text/plain\","
+                + "\"$binary_data$\":["
+                + "{"
+                + "\"data\":\"OFIN8e9fhwoeh8((⁹8efywoih\","
+                + "\"height\":665"
+                + "},"
+                + "{"
+                + "\"data\":\"65\","
+                + "\"width\":-56684"
+                + "}]}}");
   }
 
   @Test
   public void testProtoWithAnnotations_deserializeUnknownEnumValue() {
-    String json = String.format("{  %n"
-        + "   \"content\":\"UNKNOWN\"%n"
-        + "}");
+    String json = String.format("{  %n" + "   \"content\":\"UNKNOWN\"%n" + "}");
     InnerMessage proto = gson.fromJson(json, InnerMessage.class);
     assertThat(proto.getContent()).isEqualTo(InnerMessage.Type.UNKNOWN);
   }
 
   @Test
   public void testProtoWithAnnotations_deserializeUnrecognizedEnumValue() {
-    String json = String.format("{  %n"
-        + "   \"content\":\"UNRECOGNIZED\"%n"
-        + "}");
+    String json = String.format("{  %n" + "   \"content\":\"UNRECOGNIZED\"%n" + "}");
     try {
       gson.fromJson(json, InnerMessage.class);
       assertWithMessage("Should have thrown").fail();
@@ -165,17 +175,13 @@ public class ProtosWithAnnotationsTest {
 
   @Test
   public void testProtoWithAnnotations_deserializeWithEnumNumbers() {
-    String json = String.format("{  %n"
-        + "   \"content\":\"0\"%n"
-        + "}");
+    String json = String.format("{  %n" + "   \"content\":\"0\"%n" + "}");
     InnerMessage proto = gsonWithEnumNumbers.fromJson(json, InnerMessage.class);
     assertThat(proto.getContent()).isEqualTo(InnerMessage.Type.UNKNOWN);
     String rebuilt = gsonWithEnumNumbers.toJson(proto);
     assertThat(rebuilt).isEqualTo("{\"content\":0}");
 
-    json = String.format("{  %n"
-        + "   \"content\":\"2\"%n"
-        + "}");
+    json = String.format("{  %n" + "   \"content\":\"2\"%n" + "}");
     proto = gsonWithEnumNumbers.fromJson(json, InnerMessage.class);
     assertThat(proto.getContent()).isEqualTo(InnerMessage.Type.IMAGE);
     rebuilt = gsonWithEnumNumbers.toJson(proto);
@@ -184,44 +190,45 @@ public class ProtosWithAnnotationsTest {
 
   @Test
   public void testProtoWithAnnotations_serialize() {
-    ProtoWithAnnotations proto = ProtoWithAnnotations.newBuilder()
-        .setId("09f3j20839h032y0329hf30932h0nffn")
-        .setOuterMessage(OuterMessage.newBuilder()
-            .setMonth(14)
-            .setYear(6650)
-            .setLongTimestamp(468406876880768L))
-        .setInnerMessage1(InnerMessage.newBuilder()
-            .setNIdCt(12)
-            .setContent(InnerMessage.Type.IMAGE)
-            .addData(InnerMessage.Data.newBuilder()
-                .setData("data$$")
-                .setWidth(200))
-            .addData(InnerMessage.Data.newBuilder()
-                .setHeight(56)))
-        .build();
+    ProtoWithAnnotations proto =
+        ProtoWithAnnotations.newBuilder()
+            .setId("09f3j20839h032y0329hf30932h0nffn")
+            .setOuterMessage(
+                OuterMessage.newBuilder()
+                    .setMonth(14)
+                    .setYear(6650)
+                    .setLongTimestamp(468406876880768L))
+            .setInnerMessage1(
+                InnerMessage.newBuilder()
+                    .setNIdCt(12)
+                    .setContent(InnerMessage.Type.IMAGE)
+                    .addData(InnerMessage.Data.newBuilder().setData("data$$").setWidth(200))
+                    .addData(InnerMessage.Data.newBuilder().setHeight(56)))
+            .build();
 
     String json = gsonWithLowerHyphen.toJson(proto);
-    assertThat(json).isEqualTo(
-        "{\"id\":\"09f3j20839h032y0329hf30932h0nffn\","
-        + "\"expiration_date\":{"
-            + "\"month\":14,"
-            + "\"year\":6650,"
-            + "\"timeStamp\":468406876880768"
-        + "},"
-        // This field should be using hyphens
-        + "\"inner-message-1\":{"
-            + "\"n--id-ct\":12,"
-            + "\"content\":2,"
-            + "\"$binary_data$\":["
-              + "{"
-                  + "\"data\":\"data$$\","
-                  + "\"width\":200"
-              + "},"
-              + "{"
-                  + "\"height\":56"
-              + "}]"
-            + "}"
-        + "}");
+    assertThat(json)
+        .isEqualTo(
+            "{\"id\":\"09f3j20839h032y0329hf30932h0nffn\","
+                + "\"expiration_date\":{"
+                + "\"month\":14,"
+                + "\"year\":6650,"
+                + "\"timeStamp\":468406876880768"
+                + "},"
+                // This field should be using hyphens
+                + "\"inner-message-1\":{"
+                + "\"n--id-ct\":12,"
+                + "\"content\":2,"
+                + "\"$binary_data$\":["
+                + "{"
+                + "\"data\":\"data$$\","
+                + "\"width\":200"
+                + "},"
+                + "{"
+                + "\"height\":56"
+                + "}]"
+                + "}"
+                + "}");
 
     ProtoWithAnnotations rebuilt = gsonWithLowerHyphen.fromJson(json, ProtoWithAnnotations.class);
     assertThat(rebuilt).isEqualTo(proto);

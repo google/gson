@@ -25,8 +25,8 @@ import java.util.Map;
 import org.junit.Test;
 
 /**
- * Unit test for the default JSON map serialization object located in the
- * {@link DefaultTypeAdapters} class.
+ * Unit test for the default JSON map serialization object located in the {@link
+ * DefaultTypeAdapters} class.
  *
  * @author Joel Leitch
  */
@@ -44,7 +44,7 @@ public class DefaultMapJsonSerializerTest {
 
   @Test
   public void testEmptyMapSerialization() {
-    Type mapType = new TypeToken<Map<String, String>>() { }.getType();
+    Type mapType = new TypeToken<Map<String, String>>() {}.getType();
     Map<String, String> emptyMap = new HashMap<>();
     JsonElement element = gson.toJsonTree(emptyMap, mapType);
 
@@ -55,7 +55,7 @@ public class DefaultMapJsonSerializerTest {
 
   @Test
   public void testNonEmptyMapSerialization() {
-    Type mapType = new TypeToken<Map<String, String>>() { }.getType();
+    Type mapType = new TypeToken<Map<String, String>>() {}.getType();
     Map<String, String> myMap = new HashMap<>();
     String key = "key1";
     myMap.put(key, "value1");

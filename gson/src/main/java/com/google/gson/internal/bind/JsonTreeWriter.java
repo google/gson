@@ -29,21 +29,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * This writer creates a JsonElement.
- */
+/** This writer creates a JsonElement. */
 public final class JsonTreeWriter extends JsonWriter {
-  private static final Writer UNWRITABLE_WRITER = new Writer() {
-    @Override public void write(char[] buffer, int offset, int counter) {
-      throw new AssertionError();
-    }
-    @Override public void flush() {
-      throw new AssertionError();
-    }
-    @Override public void close() {
-      throw new AssertionError();
-    }
-  };
+  private static final Writer UNWRITABLE_WRITER =
+      new Writer() {
+        @Override
+        public void write(char[] buffer, int offset, int counter) {
+          throw new AssertionError();
+        }
+
+        @Override
+        public void flush() {
+          throw new AssertionError();
+        }
+
+        @Override
+        public void close() {
+          throw new AssertionError();
+        }
+      };
+
   /** Added to the top of the stack when this writer is closed to cause following ops to fail. */
   private static final JsonPrimitive SENTINEL_CLOSED = new JsonPrimitive("closed");
 
@@ -60,9 +65,7 @@ public final class JsonTreeWriter extends JsonWriter {
     super(UNWRITABLE_WRITER);
   }
 
-  /**
-   * Returns the top level object produced by this writer.
-   */
+  /** Returns the top level object produced by this writer. */
   public JsonElement get() {
     if (!stack.isEmpty()) {
       throw new IllegalStateException("Expected one JSON element but was " + stack);
@@ -94,7 +97,8 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter beginArray() throws IOException {
+  @Override
+  public JsonWriter beginArray() throws IOException {
     JsonArray array = new JsonArray();
     put(array);
     stack.add(array);
@@ -102,7 +106,8 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter endArray() throws IOException {
+  @Override
+  public JsonWriter endArray() throws IOException {
     if (stack.isEmpty() || pendingName != null) {
       throw new IllegalStateException();
     }
@@ -115,7 +120,8 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter beginObject() throws IOException {
+  @Override
+  public JsonWriter beginObject() throws IOException {
     JsonObject object = new JsonObject();
     put(object);
     stack.add(object);
@@ -123,7 +129,8 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter endObject() throws IOException {
+  @Override
+  public JsonWriter endObject() throws IOException {
     if (stack.isEmpty() || pendingName != null) {
       throw new IllegalStateException();
     }
@@ -136,7 +143,8 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter name(String name) throws IOException {
+  @Override
+  public JsonWriter name(String name) throws IOException {
     Objects.requireNonNull(name, "name == null");
     if (stack.isEmpty() || pendingName != null) {
       throw new IllegalStateException("Did not expect a name");
@@ -150,7 +158,8 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter value(String value) throws IOException {
+  @Override
+  public JsonWriter value(String value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -158,24 +167,28 @@ public final class JsonTreeWriter extends JsonWriter {
     return this;
   }
 
-  @Override public JsonWriter jsonValue(String value) throws IOException {
+  @Override
+  public JsonWriter jsonValue(String value) throws IOException {
     throw new UnsupportedOperationException();
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter nullValue() throws IOException {
+  @Override
+  public JsonWriter nullValue() throws IOException {
     put(JsonNull.INSTANCE);
     return this;
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter value(boolean value) throws IOException {
+  @Override
+  public JsonWriter value(boolean value) throws IOException {
     put(new JsonPrimitive(value));
     return this;
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter value(Boolean value) throws IOException {
+  @Override
+  public JsonWriter value(Boolean value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -184,7 +197,8 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter value(float value) throws IOException {
+  @Override
+  public JsonWriter value(float value) throws IOException {
     if (!isLenient() && (Float.isNaN(value) || Float.isInfinite(value))) {
       throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
     }
@@ -193,7 +207,8 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter value(double value) throws IOException {
+  @Override
+  public JsonWriter value(double value) throws IOException {
     if (!isLenient() && (Double.isNaN(value) || Double.isInfinite(value))) {
       throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
     }
@@ -202,13 +217,15 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter value(long value) throws IOException {
+  @Override
+  public JsonWriter value(long value) throws IOException {
     put(new JsonPrimitive(value));
     return this;
   }
 
   @CanIgnoreReturnValue
-  @Override public JsonWriter value(Number value) throws IOException {
+  @Override
+  public JsonWriter value(Number value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -224,10 +241,11 @@ public final class JsonTreeWriter extends JsonWriter {
     return this;
   }
 
-  @Override public void flush() throws IOException {
-  }
+  @Override
+  public void flush() throws IOException {}
 
-  @Override public void close() throws IOException {
+  @Override
+  public void close() throws IOException {
     if (!stack.isEmpty()) {
       throw new IOException("Incomplete document");
     }

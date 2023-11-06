@@ -18,25 +18,21 @@ package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.ToNumberStrategy;
 import com.google.gson.ToNumberPolicy;
+import com.google.gson.ToNumberStrategy;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import java.io.IOException;
 
-/**
- * Type adapter for {@link Number}.
- */
+/** Type adapter for {@link Number}. */
 public final class NumberTypeAdapter extends TypeAdapter<Number> {
-  /**
-   * Gson default factory using {@link ToNumberPolicy#LAZILY_PARSED_NUMBER}.
-   */
-  private static final TypeAdapterFactory LAZILY_PARSED_NUMBER_FACTORY = newFactory(ToNumberPolicy.LAZILY_PARSED_NUMBER);
+  /** Gson default factory using {@link ToNumberPolicy#LAZILY_PARSED_NUMBER}. */
+  private static final TypeAdapterFactory LAZILY_PARSED_NUMBER_FACTORY =
+      newFactory(ToNumberPolicy.LAZILY_PARSED_NUMBER);
 
   private final ToNumberStrategy toNumberStrategy;
 
@@ -48,7 +44,8 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
     final NumberTypeAdapter adapter = new NumberTypeAdapter(toNumberStrategy);
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
-      @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      @Override
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return type.getRawType() == Number.class ? (TypeAdapter<T>) adapter : null;
       }
     };
@@ -62,21 +59,24 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
     }
   }
 
-  @Override public Number read(JsonReader in) throws IOException {
+  @Override
+  public Number read(JsonReader in) throws IOException {
     JsonToken jsonToken = in.peek();
     switch (jsonToken) {
-    case NULL:
-      in.nextNull();
-      return null;
-    case NUMBER:
-    case STRING:
-      return toNumberStrategy.readNumber(in);
-    default:
-      throw new JsonSyntaxException("Expecting number, got: " + jsonToken + "; at path " + in.getPath());
+      case NULL:
+        in.nextNull();
+        return null;
+      case NUMBER:
+      case STRING:
+        return toNumberStrategy.readNumber(in);
+      default:
+        throw new JsonSyntaxException(
+            "Expecting number, got: " + jsonToken + "; at path " + in.getPath());
     }
   }
 
-  @Override public void write(JsonWriter out, Number value) throws IOException {
+  @Override
+  public void write(JsonWriter out, Number value) throws IOException {
     out.value(value);
   }
 }
