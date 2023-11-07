@@ -24,7 +24,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.protobuf.ProtoTypeAdapter;
 import com.google.gson.protobuf.ProtoTypeAdapter.EnumSerialization;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
-import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.GeneratedMessageV3;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,11 +33,14 @@ public class ProtosWithPrimitiveTypesTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new GsonBuilder().registerTypeHierarchyAdapter(
-      GeneratedMessageV3.class, ProtoTypeAdapter.newBuilder()
-          .setEnumSerialization(EnumSerialization.NUMBER)
-          .build())
-      .create();
+    gson =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(
+                GeneratedMessageV3.class,
+                ProtoTypeAdapter.newBuilder()
+                    .setEnumSerialization(EnumSerialization.NUMBER)
+                    .build())
+            .create();
   }
 
   @Test
@@ -57,10 +59,7 @@ public class ProtosWithPrimitiveTypesTest {
 
   @Test
   public void testSerializeProto() {
-    SimpleProto proto = SimpleProto.newBuilder()
-      .setCount(3)
-      .setMsg("foo")
-      .build();
+    SimpleProto proto = SimpleProto.newBuilder().setCount(3).setMsg("foo").build();
     String json = gson.toJson(proto);
     assertTrue(json.contains("\"msg\":\"foo\""));
     assertTrue(json.contains("\"count\":3"));
@@ -79,5 +78,4 @@ public class ProtosWithPrimitiveTypesTest {
     assertEquals("foo", proto.getMsg());
     assertEquals(0, proto.getCount());
   }
-
 }

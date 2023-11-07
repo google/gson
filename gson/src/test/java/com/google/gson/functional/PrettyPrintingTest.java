@@ -69,27 +69,30 @@ public class PrettyPrintingTest {
 
   @Test
   public void testPrettyPrintArrayOfPrimitives() {
-    int[] ints = new int[] { 1, 2, 3, 4, 5 };
+    int[] ints = new int[] {1, 2, 3, 4, 5};
     String json = gson.toJson(ints);
     assertThat(json).isEqualTo("[\n  1,\n  2,\n  3,\n  4,\n  5\n]");
   }
 
   @Test
   public void testPrettyPrintArrayOfPrimitiveArrays() {
-    int[][] ints = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
-        { 9, 0 }, { 10 } };
+    int[][] ints = new int[][] {{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 0}, {10}};
     String json = gson.toJson(ints);
-    assertThat(json).isEqualTo("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
-        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
+    assertThat(json)
+        .isEqualTo(
+            "[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
+                + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
   }
 
   @Test
   public void testPrettyPrintListOfPrimitiveArrays() {
-    List<Integer[]> list = Arrays.asList(new Integer[][] { { 1, 2 }, { 3, 4 },
-        { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } });
+    List<Integer[]> list =
+        Arrays.asList(new Integer[][] {{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 0}, {10}});
     String json = gson.toJson(list);
-    assertThat(json).isEqualTo("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
-        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
+    assertThat(json)
+        .isEqualTo(
+            "[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
+                + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
   }
 
   @Test
@@ -118,7 +121,7 @@ public class PrettyPrintingTest {
 
   @Test
   public void testMultipleArrays() {
-    int[][][] ints = new int[][][] { { { 1 }, { 2 } } };
+    int[][][] ints = new int[][][] {{{1}, {2}}};
     String json = gson.toJson(ints);
     assertThat(json).isEqualTo("[\n  [\n    [\n      1\n    ],\n    [\n      2\n    ]\n  ]\n]");
   }

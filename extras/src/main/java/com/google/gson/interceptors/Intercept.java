@@ -21,13 +21,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 /**
- * Use this annotation to indicate various interceptors for class instances after
- * they have been processed by Gson. For example, you can use it to validate an instance
- * after it has been deserialized from Json.
- * Here is an example of how this annotation is used:
+ * Use this annotation to indicate various interceptors for class instances after they have been
+ * processed by Gson. For example, you can use it to validate an instance after it has been
+ * deserialized from Json. Here is an example of how this annotation is used:
+ *
  * <p>Here is an example of how this annotation is used:
+ *
  * <pre>
  * &#64;Intercept(postDeserialize=UserValidator.class)
  * public class User {
@@ -56,8 +56,8 @@ import java.lang.annotation.Target;
 public @interface Intercept {
 
   /**
-   * Specify the class that provides the methods that should be invoked after an instance
-   * has been deserialized.
+   * Specify the class that provides the methods that should be invoked after an instance has been
+   * deserialized.
    */
   @SuppressWarnings("rawtypes")
   public Class<? extends JsonPostDeserializer> postDeserialize();

@@ -30,20 +30,18 @@ public class JsonParserParameterizedTest {
   @Parameters
   public static Iterable<String> data() {
     return Arrays.asList(
-      "[]",
-      "{}",
-      "null",
-      "1.0",
-      "true",
-      "\"string\"",
-      "[true,1.0,null,{},2.0,{\"a\":[false]},[3.0,\"test\"],4.0]",
-      "{\"\":1.0,\"a\":true,\"b\":null,\"c\":[],\"d\":{\"a1\":2.0,\"b2\":[true,{\"a3\":3.0}]},\"e\":[{\"f\":4.0},\"test\"]}"
-    );
+        "[]",
+        "{}",
+        "null",
+        "1.0",
+        "true",
+        "\"string\"",
+        "[true,1.0,null,{},2.0,{\"a\":[false]},[3.0,\"test\"],4.0]",
+        "{\"\":1.0,\"a\":true,\"b\":null,\"c\":[],\"d\":{\"a1\":2.0,\"b2\":[true,{\"a3\":3.0}]},\"e\":[{\"f\":4.0},\"test\"]}");
   }
 
   private final TypeAdapter<JsonElement> adapter = new Gson().getAdapter(JsonElement.class);
-  @Parameter
-  public String json;
+  @Parameter public String json;
 
   @Test
   public void testParse() {

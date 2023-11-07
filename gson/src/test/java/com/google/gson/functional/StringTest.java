@@ -136,7 +136,8 @@ public class StringTest {
   }
 
   /**
-   * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
+   * Created in response to
+   * http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
    */
   @Test
   public void testAssignmentCharSerialization() {
@@ -146,7 +147,8 @@ public class StringTest {
   }
 
   /**
-   * Created in response to http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
+   * Created in response to
+   * http://groups.google.com/group/google-gson/browse_thread/thread/2431d4a3d0d6cb23
    */
   @Test
   public void testAssignmentCharDeserialization() {

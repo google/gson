@@ -44,7 +44,7 @@ public class InterfaceTest {
   public void testSerializingObjectImplementingInterface() {
     assertThat(gson.toJson(obj)).isEqualTo(OBJ_JSON);
   }
-  
+
   @Test
   public void testSerializingInterfaceObjectField() {
     TestObjectWrapper objWrapper = new TestObjectWrapper(obj);
@@ -54,11 +54,11 @@ public class InterfaceTest {
   private static interface TestObjectInterface {
     // Holder
   }
-  
+
   private static class TestObject implements TestObjectInterface {
     @SuppressWarnings("unused")
     private String someStringValue;
-    
+
     private TestObject(String value) {
       this.someStringValue = value;
     }
@@ -67,7 +67,7 @@ public class InterfaceTest {
   private static class TestObjectWrapper {
     @SuppressWarnings("unused")
     private TestObjectInterface obj;
-    
+
     private TestObjectWrapper(TestObjectInterface obj) {
       this.obj = obj;
     }

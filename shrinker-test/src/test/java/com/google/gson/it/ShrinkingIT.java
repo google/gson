@@ -39,9 +39,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-/**
- * Integration test verifying behavior of shrunken and obfuscated JARs.
- */
+/** Integration test verifying behavior of shrunken and obfuscated JARs. */
 @RunWith(Parameterized.class)
 public class ShrinkingIT {
   // These JAR files are prepared by the Maven build
@@ -53,8 +51,7 @@ public class ShrinkingIT {
     return Arrays.asList(PROGUARD_RESULT_PATH, R8_RESULT_PATH);
   }
 
-  @Parameter
-  public Path jarToTest;
+  @Parameter public Path jarToTest;
 
   @Before
   public void verifyJarExists() {
@@ -75,7 +72,8 @@ public class ShrinkingIT {
 
     // Load the shrunken and obfuscated JARs with a separate class loader, then load
     // the main test class from it and let the test action invoke its test methods
-    try (URLClassLoader loader = new URLClassLoader(new URL[] {jarToTest.toUri().toURL()}, classLoader)) {
+    try (URLClassLoader loader =
+        new URLClassLoader(new URL[] {jarToTest.toUri().toURL()}, classLoader)) {
       Class<?> c = loader.loadClass(className);
       testAction.run(c);
     }
@@ -85,203 +83,235 @@ public class ShrinkingIT {
   public void test() throws Exception {
     StringBuilder output = new StringBuilder();
 
-    runTest("com.example.Main", c -> {
-      Method m = c.getMethod("runTests", BiConsumer.class);
-      m.invoke(null, (BiConsumer<String, String>) (name, content) -> output.append(name + "\n" + content + "\n===\n"));
-    });
+    runTest(
+        "com.example.Main",
+        c -> {
+          Method m = c.getMethod("runTests", BiConsumer.class);
+          m.invoke(
+              null,
+              (BiConsumer<String, String>)
+                  (name, content) -> output.append(name + "\n" + content + "\n===\n"));
+        });
 
-    assertThat(output.toString()).isEqualTo(String.join("\n",
-        "Write: TypeToken anonymous",
-        "[",
-        "  {",
-        "    \"custom\": 1",
-        "  }",
-        "]",
-        "===",
-        "Read: TypeToken anonymous",
-        "[ClassWithAdapter[3]]",
-        "===",
-        "Write: TypeToken manual",
-        "[",
-        "  {",
-        "    \"custom\": 1",
-        "  }",
-        "]",
-        "===",
-        "Read: TypeToken manual",
-        "[ClassWithAdapter[3]]",
-        "===",
-        "Write: Named fields",
-        "{",
-        "  \"myField\": 2,",
-        "  \"notAccessedField\": -1",
-        "}",
-        "===",
-        "Read: Named fields",
-        "3",
-        "===",
-        "Write: SerializedName",
-        "{",
-        "  \"myField\": 2,",
-        "  \"notAccessed\": -1",
-        "}",
-        "===",
-        "Read: SerializedName",
-        "3",
-        "===",
-        "Write: No args constructor",
-        "{",
-        "  \"myField\": -3",
-        "}",
-        "===",
-        "Read: No args constructor; initial constructor value",
-        "-3",
-        "===",
-        "Read: No args constructor; custom value",
-        "3",
-        "===",
-        "Write: Constructor with args",
-        "{",
-        "  \"myField\": 2",
-        "}",
-        "===",
-        "Read: Constructor with args",
-        "3",
-        "===",
-        "Read: Unreferenced no args constructor; initial constructor value",
-        "-3",
-        "===",
-        "Read: Unreferenced no args constructor; custom value",
-        "3",
-        "===",
-        "Read: Unreferenced constructor with args",
-        "3",
-        "===",
-        "Read: No JDK Unsafe; initial constructor value",
-        "-3",
-        "===",
-        "Read: No JDK Unsafe; custom value",
-        "3",
-        "===",
-        "Write: Enum",
-        "\"FIRST\"",
-        "===",
-        "Read: Enum",
-        "SECOND",
-        "===",
-        "Write: Enum SerializedName",
-        "\"one\"",
-        "===",
-        "Read: Enum SerializedName",
-        "SECOND",
-        "===",
-        "Write: @Expose",
-        "{\"i\":0}",
-        "===",
-        "Write: Version annotations",
-        "{\"i1\":0,\"i4\":0}",
-        "===",
-        "Write: JsonAdapter on fields",
-        "{",
-        "  \"f\": \"adapter-null\",",
-        "  \"f1\": \"adapter-1\",",
-        "  \"f2\": \"factory-2\",",
-        "  \"f3\": \"serializer-3\",",
-        // For f4 only a JsonDeserializer is registered, so serialization falls back to reflection
-        "  \"f4\": {",
-        "    \"s\": \"4\"",
-        "  }",
-        "}",
-        "===",
-        "Read: JsonAdapter on fields",
-        // For f3 only a JsonSerializer is registered, so for deserialization value is read as is using reflection
-        "ClassWithJsonAdapterAnnotation[f1=adapter-1, f2=factory-2, f3=3, f4=deserializer-4]",
-        "===",
-        "Read: Generic TypeToken",
-        "{t=read-1}",
-        "===",
-        "Read: Using Generic",
-        "{g={t=read-1}}",
-        "===",
-        "Read: Using Generic TypeToken",
-        "{g={t=read-1}}",
-        "===",
-        ""
-      ));
+    assertThat(output.toString())
+        .isEqualTo(
+            String.join(
+                "\n",
+                "Write: TypeToken anonymous",
+                "[",
+                "  {",
+                "    \"custom\": 1",
+                "  }",
+                "]",
+                "===",
+                "Read: TypeToken anonymous",
+                "[ClassWithAdapter[3]]",
+                "===",
+                "Write: TypeToken manual",
+                "[",
+                "  {",
+                "    \"custom\": 1",
+                "  }",
+                "]",
+                "===",
+                "Read: TypeToken manual",
+                "[ClassWithAdapter[3]]",
+                "===",
+                "Write: Named fields",
+                "{",
+                "  \"myField\": 2,",
+                "  \"notAccessedField\": -1",
+                "}",
+                "===",
+                "Read: Named fields",
+                "3",
+                "===",
+                "Write: SerializedName",
+                "{",
+                "  \"myField\": 2,",
+                "  \"notAccessed\": -1",
+                "}",
+                "===",
+                "Read: SerializedName",
+                "3",
+                "===",
+                "Write: No args constructor",
+                "{",
+                "  \"myField\": -3",
+                "}",
+                "===",
+                "Read: No args constructor; initial constructor value",
+                "-3",
+                "===",
+                "Read: No args constructor; custom value",
+                "3",
+                "===",
+                "Write: Constructor with args",
+                "{",
+                "  \"myField\": 2",
+                "}",
+                "===",
+                "Read: Constructor with args",
+                "3",
+                "===",
+                "Read: Unreferenced no args constructor; initial constructor value",
+                "-3",
+                "===",
+                "Read: Unreferenced no args constructor; custom value",
+                "3",
+                "===",
+                "Read: Unreferenced constructor with args",
+                "3",
+                "===",
+                "Read: No JDK Unsafe; initial constructor value",
+                "-3",
+                "===",
+                "Read: No JDK Unsafe; custom value",
+                "3",
+                "===",
+                "Write: Enum",
+                "\"FIRST\"",
+                "===",
+                "Read: Enum",
+                "SECOND",
+                "===",
+                "Write: Enum SerializedName",
+                "\"one\"",
+                "===",
+                "Read: Enum SerializedName",
+                "SECOND",
+                "===",
+                "Write: @Expose",
+                "{\"i\":0}",
+                "===",
+                "Write: Version annotations",
+                "{\"i1\":0,\"i4\":0}",
+                "===",
+                "Write: JsonAdapter on fields",
+                "{",
+                "  \"f\": \"adapter-null\",",
+                "  \"f1\": \"adapter-1\",",
+                "  \"f2\": \"factory-2\",",
+                "  \"f3\": \"serializer-3\",",
+                // For f4 only a JsonDeserializer is registered, so serialization falls back to
+                // reflection
+                "  \"f4\": {",
+                "    \"s\": \"4\"",
+                "  }",
+                "}",
+                "===",
+                "Read: JsonAdapter on fields",
+                // For f3 only a JsonSerializer is registered, so for deserialization value is read
+                // as is using reflection
+                "ClassWithJsonAdapterAnnotation[f1=adapter-1, f2=factory-2, f3=3,"
+                    + " f4=deserializer-4]",
+                "===",
+                "Read: Generic TypeToken",
+                "{t=read-1}",
+                "===",
+                "Read: Using Generic",
+                "{g={t=read-1}}",
+                "===",
+                "Read: Using Generic TypeToken",
+                "{g={t=read-1}}",
+                "===",
+                ""));
   }
 
   @Test
   public void testNoSerializedName_NoArgsConstructor() throws Exception {
-    runTest("com.example.NoSerializedNameMain", c -> {
-      Method m = c.getMethod("runTestNoArgsConstructor");
+    runTest(
+        "com.example.NoSerializedNameMain",
+        c -> {
+          Method m = c.getMethod("runTestNoArgsConstructor");
 
-      if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
-        Object result = m.invoke(null);
-        assertThat(result).isEqualTo("value");
-      } else {
-        // R8 performs more aggressive optimizations
-        Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
-        assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
-            "Abstract classes can't be instantiated! Adjust the R8 configuration or register an InstanceCreator"
-            + " or a TypeAdapter for this type. Class name: com.example.NoSerializedNameMain$TestClassNoArgsConstructor"
-            + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class"
-        );
-      }
-    });
+          if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
+            Object result = m.invoke(null);
+            assertThat(result).isEqualTo("value");
+          } else {
+            // R8 performs more aggressive optimizations
+            Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
+            assertThat(e)
+                .hasCauseThat()
+                .hasMessageThat()
+                .isEqualTo(
+                    "Abstract classes can't be instantiated! Adjust the R8 configuration or"
+                        + " register an InstanceCreator or a TypeAdapter for this type. Class name:"
+                        + " com.example.NoSerializedNameMain$TestClassNoArgsConstructor\n"
+                        + "See https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class");
+          }
+        });
   }
 
   @Test
   public void testNoSerializedName_NoArgsConstructorNoJdkUnsafe() throws Exception {
-    runTest("com.example.NoSerializedNameMain", c -> {
-      Method m = c.getMethod("runTestNoJdkUnsafe");
+    runTest(
+        "com.example.NoSerializedNameMain",
+        c -> {
+          Method m = c.getMethod("runTestNoJdkUnsafe");
 
-      if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
-        Object result = m.invoke(null);
-        assertThat(result).isEqualTo("value");
-      } else {
-        // R8 performs more aggressive optimizations
-        Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
-        assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
-            "Unable to create instance of class com.example.NoSerializedNameMain$TestClassNotAbstract;"
-            + " usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type,"
-            + " adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem. Or adjust"
-            + " your R8 configuration to keep the no-args constructor of the class."
-        );
-      }
-    });
+          if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
+            Object result = m.invoke(null);
+            assertThat(result).isEqualTo("value");
+          } else {
+            // R8 performs more aggressive optimizations
+            Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
+            assertThat(e)
+                .hasCauseThat()
+                .hasMessageThat()
+                .isEqualTo(
+                    "Unable to create instance of class"
+                        + " com.example.NoSerializedNameMain$TestClassNotAbstract; usage of JDK"
+                        + " Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for"
+                        + " this type, adding a no-args constructor, or enabling usage of JDK"
+                        + " Unsafe may fix this problem. Or adjust your R8 configuration to keep"
+                        + " the no-args constructor of the class.");
+          }
+        });
   }
 
   @Test
   public void testNoSerializedName_HasArgsConstructor() throws Exception {
-    runTest("com.example.NoSerializedNameMain", c -> {
-      Method m = c.getMethod("runTestHasArgsConstructor");
+    runTest(
+        "com.example.NoSerializedNameMain",
+        c -> {
+          Method m = c.getMethod("runTestHasArgsConstructor");
 
-      if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
-        Object result = m.invoke(null);
-        assertThat(result).isEqualTo("value");
-      } else {
-        // R8 performs more aggressive optimizations
-        Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
-        assertThat(e).hasCauseThat().hasMessageThat().isEqualTo(
-            "Abstract classes can't be instantiated! Adjust the R8 configuration or register an InstanceCreator"
-            + " or a TypeAdapter for this type. Class name: com.example.NoSerializedNameMain$TestClassHasArgsConstructor"
-            + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class"
-        );
-      }
-    });
+          if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
+            Object result = m.invoke(null);
+            assertThat(result).isEqualTo("value");
+          } else {
+            // R8 performs more aggressive optimizations
+            Exception e = assertThrows(InvocationTargetException.class, () -> m.invoke(null));
+            assertThat(e)
+                .hasCauseThat()
+                .hasMessageThat()
+                .isEqualTo(
+                    "Abstract classes can't be instantiated! Adjust the R8 configuration or"
+                        + " register an InstanceCreator or a TypeAdapter for this type. Class name:"
+                        + " com.example.NoSerializedNameMain$TestClassHasArgsConstructor\n"
+                        + "See https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class");
+          }
+        });
   }
 
   @Test
   public void testUnusedClassRemoved() throws Exception {
-    // For some reason this test only works for R8 but not for ProGuard; ProGuard keeps the unused class
+    // For some reason this test only works for R8 but not for ProGuard; ProGuard keeps the unused
+    // class
     assumeTrue(jarToTest.equals(R8_RESULT_PATH));
 
     String className = UnusedClass.class.getName();
-    ClassNotFoundException e = assertThrows(ClassNotFoundException.class, () -> {
-      runTest(className, c -> {
-        fail("Class should have been removed during shrinking: " + c);
-      });
-    });
+    ClassNotFoundException e =
+        assertThrows(
+            ClassNotFoundException.class,
+            () -> {
+              runTest(
+                  className,
+                  c -> {
+                    fail("Class should have been removed during shrinking: " + c);
+                  });
+            });
     assertThat(e).hasMessageThat().contains(className);
   }
 }

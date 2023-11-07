@@ -114,7 +114,8 @@ public final class JsonWriterTest {
   public void testNameAsTopLevelValue() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    IllegalStateException e = assertThrows(IllegalStateException.class, () -> jsonWriter.name("hello"));
+    IllegalStateException e =
+        assertThrows(IllegalStateException.class, () -> jsonWriter.name("hello"));
     assertThat(e).hasMessageThat().isEqualTo("Please begin an object before writing a name.");
 
     jsonWriter.value(12);
@@ -130,7 +131,8 @@ public final class JsonWriterTest {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
 
     jsonWriter.beginArray();
-    IllegalStateException e = assertThrows(IllegalStateException.class, () -> jsonWriter.name("hello"));
+    IllegalStateException e =
+        assertThrows(IllegalStateException.class, () -> jsonWriter.name("hello"));
     assertThat(e).hasMessageThat().isEqualTo("Please begin an object before writing a name.");
 
     jsonWriter.value(12);
@@ -190,7 +192,8 @@ public final class JsonWriterTest {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginArray().endArray();
 
-    IllegalStateException expected = assertThrows(IllegalStateException.class, jsonWriter::beginArray);
+    IllegalStateException expected =
+        assertThrows(IllegalStateException.class, jsonWriter::beginArray);
     assertThat(expected).hasMessageThat().isEqualTo("JSON must have only one top-level value.");
   }
 
@@ -201,7 +204,8 @@ public final class JsonWriterTest {
     jsonWriter.setStrictness(Strictness.STRICT);
     jsonWriter.beginArray().endArray();
 
-    IllegalStateException expected = assertThrows(IllegalStateException.class, jsonWriter::beginArray);
+    IllegalStateException expected =
+        assertThrows(IllegalStateException.class, jsonWriter::beginArray);
     assertThat(expected).hasMessageThat().isEqualTo("JSON must have only one top-level value.");
   }
 
@@ -288,14 +292,23 @@ public final class JsonWriterTest {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginArray();
 
-    IllegalArgumentException expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Float.NaN));
+    IllegalArgumentException expected =
+        assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Float.NaN));
     assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Float.NEGATIVE_INFINITY));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was -Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Float.NEGATIVE_INFINITY));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was -Infinity");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Float.POSITIVE_INFINITY));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Float.POSITIVE_INFINITY));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was Infinity");
   }
 
   @Test
@@ -305,14 +318,23 @@ public final class JsonWriterTest {
     jsonWriter.setStrictness(Strictness.STRICT);
     jsonWriter.beginArray();
 
-    IllegalArgumentException expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Float.NaN));
+    IllegalArgumentException expected =
+        assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Float.NaN));
     assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Float.NEGATIVE_INFINITY));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was -Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Float.NEGATIVE_INFINITY));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was -Infinity");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Float.POSITIVE_INFINITY));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Float.POSITIVE_INFINITY));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was Infinity");
   }
 
   @Test
@@ -321,14 +343,23 @@ public final class JsonWriterTest {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginArray();
 
-    IllegalArgumentException expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.NaN));
+    IllegalArgumentException expected =
+        assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.NaN));
     assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.NEGATIVE_INFINITY));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was -Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Double.NEGATIVE_INFINITY));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was -Infinity");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.POSITIVE_INFINITY));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Double.POSITIVE_INFINITY));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was Infinity");
   }
 
   @Test
@@ -338,14 +369,23 @@ public final class JsonWriterTest {
     jsonWriter.setStrictness(Strictness.STRICT);
     jsonWriter.beginArray();
 
-    IllegalArgumentException expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.NaN));
+    IllegalArgumentException expected =
+        assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.NaN));
     assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.NEGATIVE_INFINITY));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was -Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Double.NEGATIVE_INFINITY));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was -Infinity");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.POSITIVE_INFINITY));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Double.POSITIVE_INFINITY));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was Infinity");
   }
 
   @Test
@@ -354,17 +394,34 @@ public final class JsonWriterTest {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginArray();
 
-    IllegalArgumentException expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NaN)));
+    IllegalArgumentException expected =
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NaN)));
     assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY)));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was -Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY)));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was -Infinity");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY)));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY)));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was Infinity");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(new LazilyParsedNumber("Infinity")));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> jsonWriter.value(new LazilyParsedNumber("Infinity")));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was Infinity");
   }
 
   @Test
@@ -374,17 +431,34 @@ public final class JsonWriterTest {
     jsonWriter.setStrictness(Strictness.STRICT);
     jsonWriter.beginArray();
 
-    IllegalArgumentException expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NaN)));
+    IllegalArgumentException expected =
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NaN)));
     assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY)));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was -Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY)));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was -Infinity");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY)));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY)));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was Infinity");
 
-    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(new LazilyParsedNumber("Infinity")));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was Infinity");
+    expected =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> jsonWriter.value(new LazilyParsedNumber("Infinity")));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was Infinity");
   }
 
   @Test
@@ -444,16 +518,18 @@ public final class JsonWriterTest {
     jsonWriter.value((float) Math.E);
     jsonWriter.endArray();
     jsonWriter.close();
-    assertThat(stringWriter.toString()).isEqualTo("[-0.0,"
-        + "1.0,"
-        + "3.4028235E38,"
-        + "1.4E-45,"
-        + "0.0,"
-        + "-0.5,"
-        + "2.2250739E-38,"
-        + "3.723379,"
-        + "3.1415927,"
-        + "2.7182817]");
+    assertThat(stringWriter.toString())
+        .isEqualTo(
+            "[-0.0,"
+                + "1.0,"
+                + "3.4028235E38,"
+                + "1.4E-45,"
+                + "0.0,"
+                + "-0.5,"
+                + "2.2250739E-38,"
+                + "3.723379,"
+                + "3.1415927,"
+                + "2.7182817]");
   }
 
   @Test
@@ -472,15 +548,17 @@ public final class JsonWriterTest {
     jsonWriter.value(Math.E);
     jsonWriter.endArray();
     jsonWriter.close();
-    assertThat(stringWriter.toString()).isEqualTo("[-0.0,"
-        + "1.0,"
-        + "1.7976931348623157E308,"
-        + "4.9E-324,"
-        + "0.0,"
-        + "-0.5,"
-        + "2.2250738585072014E-308,"
-        + "3.141592653589793,"
-        + "2.718281828459045]");
+    assertThat(stringWriter.toString())
+        .isEqualTo(
+            "[-0.0,"
+                + "1.0,"
+                + "1.7976931348623157E308,"
+                + "4.9E-324,"
+                + "0.0,"
+                + "-0.5,"
+                + "2.2250738585072014E-308,"
+                + "3.141592653589793,"
+                + "2.718281828459045]");
   }
 
   @Test
@@ -495,11 +573,8 @@ public final class JsonWriterTest {
     jsonWriter.value(Long.MAX_VALUE);
     jsonWriter.endArray();
     jsonWriter.close();
-    assertThat(stringWriter.toString()).isEqualTo("[0,"
-        + "1,"
-        + "-1,"
-        + "-9223372036854775808,"
-        + "9223372036854775807]");
+    assertThat(stringWriter.toString())
+        .isEqualTo("[0," + "1," + "-1," + "-9223372036854775808," + "9223372036854775807]");
   }
 
   @Test
@@ -513,36 +588,36 @@ public final class JsonWriterTest {
     jsonWriter.value(new BigDecimal("3.141592653589793238462643383"));
     jsonWriter.endArray();
     jsonWriter.close();
-    assertThat(stringWriter.toString()).isEqualTo("[0,"
-        + "9223372036854775808,"
-        + "-9223372036854775809,"
-        + "3.141592653589793238462643383]");
+    assertThat(stringWriter.toString())
+        .isEqualTo(
+            "[0,"
+                + "9223372036854775808,"
+                + "-9223372036854775809,"
+                + "3.141592653589793238462643383]");
   }
 
-  /**
-   * Tests writing {@code Number} instances which are not one of the standard JDK ones.
-   */
+  /** Tests writing {@code Number} instances which are not one of the standard JDK ones. */
   @Test
   public void testNumbersCustomClass() throws IOException {
     String[] validNumbers = {
-        "-0.0",
-        "1.0",
-        "1.7976931348623157E308",
-        "4.9E-324",
-        "0.0",
-        "0.00",
-        "-0.5",
-        "2.2250738585072014E-308",
-        "3.141592653589793",
-        "2.718281828459045",
-        "0",
-        "0.01",
-        "0e0",
-        "1e+0",
-        "1e-0",
-        "1e0000", // leading 0 is allowed for exponent
-        "1e00001",
-        "1e+1",
+      "-0.0",
+      "1.0",
+      "1.7976931348623157E308",
+      "4.9E-324",
+      "0.0",
+      "0.00",
+      "-0.5",
+      "2.2250738585072014E-308",
+      "3.141592653589793",
+      "2.718281828459045",
+      "0",
+      "0.01",
+      "0e0",
+      "1e+0",
+      "1e-0",
+      "1e0000", // leading 0 is allowed for exponent
+      "1e00001",
+      "1e+1",
     };
 
     for (String validNumber : validNumbers) {
@@ -559,30 +634,30 @@ public final class JsonWriterTest {
   @Test
   public void testMalformedNumbers() throws IOException {
     String[] malformedNumbers = {
-        "some text",
-        "",
-        ".",
-        "00",
-        "01",
-        "-00",
-        "-",
-        "--1",
-        "+1", // plus sign is not allowed for integer part
-        "+",
-        "1,0",
-        "1,000",
-        "0.", // decimal digit is required
-        ".1", // integer part is required
-        "e1",
-        ".e1",
-        ".1e1",
-        "1e-",
-        "1e+",
-        "1e--1",
-        "1e+-1",
-        "1e1e1",
-        "1+e1",
-        "1e1.0",
+      "some text",
+      "",
+      ".",
+      "00",
+      "01",
+      "-00",
+      "-",
+      "--1",
+      "+1", // plus sign is not allowed for integer part
+      "+",
+      "1,0",
+      "1,000",
+      "0.", // decimal digit is required
+      ".1", // integer part is required
+      "e1",
+      ".e1",
+      ".1e1",
+      "1e-",
+      "1e+",
+      "1e--1",
+      "1e+-1",
+      "1e1e1",
+      "1+e1",
+      "1e1.0",
     };
 
     for (String malformedNumber : malformedNumbers) {
@@ -591,7 +666,12 @@ public final class JsonWriterTest {
         jsonWriter.value(new LazilyParsedNumber(malformedNumber));
         fail("Should have failed writing malformed number: " + malformedNumber);
       } catch (IllegalArgumentException e) {
-        assertThat(e).hasMessageThat().isEqualTo("String created by class com.google.gson.internal.LazilyParsedNumber is not a valid JSON number: " + malformedNumber);
+        assertThat(e)
+            .hasMessageThat()
+            .isEqualTo(
+                "String created by class com.google.gson.internal.LazilyParsedNumber is not a valid"
+                    + " JSON number: "
+                    + malformedNumber);
       }
     }
   }
@@ -653,24 +733,26 @@ public final class JsonWriterTest {
     jsonWriter.value("\0");
     jsonWriter.value("\u0019");
     jsonWriter.endArray();
-    assertThat(stringWriter.toString()).isEqualTo("[\"a\","
-        + "\"a\\\"\","
-        + "\"\\\"\","
-        + "\":\","
-        + "\",\","
-        + "\"\\b\","
-        + "\"\\f\","
-        + "\"\\n\","
-        + "\"\\r\","
-        + "\"\\t\","
-        + "\" \","
-        + "\"\\\\\","
-        + "\"{\","
-        + "\"}\","
-        + "\"[\","
-        + "\"]\","
-        + "\"\\u0000\","
-        + "\"\\u0019\"]");
+    assertThat(stringWriter.toString())
+        .isEqualTo(
+            "[\"a\","
+                + "\"a\\\"\","
+                + "\"\\\"\","
+                + "\":\","
+                + "\",\","
+                + "\"\\b\","
+                + "\"\\f\","
+                + "\"\\n\","
+                + "\"\\r\","
+                + "\"\\t\","
+                + "\" \","
+                + "\"\\\\\","
+                + "\"{\","
+                + "\"}\","
+                + "\"[\","
+                + "\"]\","
+                + "\"\\u0000\","
+                + "\"\\u0019\"]");
   }
 
   @Test
@@ -680,8 +762,8 @@ public final class JsonWriterTest {
     jsonWriter.beginArray();
     jsonWriter.value("\u2028 \u2029");
     jsonWriter.endArray();
-    // JSON specification does not require that they are escaped, but Gson escapes them for compatibility with JavaScript
-    // where they are considered line breaks
+    // JSON specification does not require that they are escaped, but Gson escapes them for
+    // compatibility with JavaScript where they are considered line breaks
     assertThat(stringWriter.toString()).isEqualTo("[\"\\u2028 \\u2029\"]");
   }
 
@@ -717,8 +799,8 @@ public final class JsonWriterTest {
     jsonWriter.name("d").value(true);
     jsonWriter.endObject();
     jsonWriter.endArray();
-    assertThat(stringWriter.toString()).isEqualTo("[{\"a\":5,\"b\":false},"
-        + "{\"c\":6,\"d\":true}]");
+    assertThat(stringWriter.toString())
+        .isEqualTo("[{\"a\":5,\"b\":false}," + "{\"c\":6,\"d\":true}]");
   }
 
   @Test
@@ -737,8 +819,7 @@ public final class JsonWriterTest {
     jsonWriter.value(true);
     jsonWriter.endArray();
     jsonWriter.endObject();
-    assertThat(stringWriter.toString()).isEqualTo("{\"a\":[5,false],"
-        + "\"b\":[6,true]}");
+    assertThat(stringWriter.toString()).isEqualTo("{\"a\":[5,false]," + "\"b\":[6,true]}");
   }
 
   @Test
@@ -767,9 +848,11 @@ public final class JsonWriterTest {
       jsonWriter.endObject();
     }
     jsonWriter.endObject();
-    assertThat(stringWriter.toString()).isEqualTo("{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":"
-        + "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
-        + "}}}}}}}}}}}}}}}}}}}}}");
+    assertThat(stringWriter.toString())
+        .isEqualTo(
+            "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":"
+                + "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+                + "}}}}}}}}}}}}}}}}}}}}}");
   }
 
   @Test
@@ -805,20 +888,21 @@ public final class JsonWriterTest {
     jsonWriter.endObject();
     jsonWriter.endObject();
 
-    String expected = "{\n"
-        + "   \"a\": true,\n"
-        + "   \"b\": false,\n"
-        + "   \"c\": 5.0,\n"
-        + "   \"e\": null,\n"
-        + "   \"f\": [\n"
-        + "      6.0,\n"
-        + "      7.0\n"
-        + "   ],\n"
-        + "   \"g\": {\n"
-        + "      \"h\": 8.0,\n"
-        + "      \"i\": 9.0\n"
-        + "   }\n"
-        + "}";
+    String expected =
+        "{\n"
+            + "   \"a\": true,\n"
+            + "   \"b\": false,\n"
+            + "   \"c\": 5.0,\n"
+            + "   \"e\": null,\n"
+            + "   \"f\": [\n"
+            + "      6.0,\n"
+            + "      7.0\n"
+            + "   ],\n"
+            + "   \"g\": {\n"
+            + "      \"h\": 8.0,\n"
+            + "      \"i\": 9.0\n"
+            + "   }\n"
+            + "}";
     assertThat(stringWriter.toString()).isEqualTo(expected);
   }
 
@@ -843,20 +927,21 @@ public final class JsonWriterTest {
     jsonWriter.endArray();
     jsonWriter.endArray();
 
-    String expected = "[\n"
-        + "   true,\n"
-        + "   false,\n"
-        + "   5.0,\n"
-        + "   null,\n"
-        + "   {\n"
-        + "      \"a\": 6.0,\n"
-        + "      \"b\": 7.0\n"
-        + "   },\n"
-        + "   [\n"
-        + "      8.0,\n"
-        + "      9.0\n"
-        + "   ]\n"
-        + "]";
+    String expected =
+        "[\n"
+            + "   true,\n"
+            + "   false,\n"
+            + "   5.0,\n"
+            + "   null,\n"
+            + "   {\n"
+            + "      \"a\": 6.0,\n"
+            + "      \"b\": 7.0\n"
+            + "   },\n"
+            + "   [\n"
+            + "      8.0,\n"
+            + "      9.0\n"
+            + "   ]\n"
+            + "]";
     assertThat(stringWriter.toString()).isEqualTo(expected);
   }
 
@@ -949,7 +1034,8 @@ public final class JsonWriterTest {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     // Default should be FormattingStyle.COMPACT
     assertThat(jsonWriter.getFormattingStyle()).isSameInstanceAs(FormattingStyle.COMPACT);
-    jsonWriter.setFormattingStyle(FormattingStyle.PRETTY.withIndent(" \t ").withNewline(lineSeparator));
+    jsonWriter.setFormattingStyle(
+        FormattingStyle.PRETTY.withIndent(" \t ").withNewline(lineSeparator));
 
     jsonWriter.beginArray();
     jsonWriter.value(true);
@@ -958,12 +1044,8 @@ public final class JsonWriterTest {
     jsonWriter.nullValue();
     jsonWriter.endArray();
 
-    String expected = "[\r\n"
-        + " \t true,\r\n"
-        + " \t \"text\",\r\n"
-        + " \t 5.0,\r\n"
-        + " \t null\r\n"
-        + "]";
+    String expected =
+        "[\r\n" + " \t true,\r\n" + " \t \"text\",\r\n" + " \t 5.0,\r\n" + " \t null\r\n" + "]";
     assertThat(stringWriter.toString()).isEqualTo(expected);
 
     assertThat(jsonWriter.getFormattingStyle().getNewline()).isEqualTo(lineSeparator);
@@ -985,12 +1067,7 @@ public final class JsonWriterTest {
     jsonWriter.endArray();
     jsonWriter.endObject();
 
-    String expected = "{\n"
-        + "  \"a\": [\n"
-        + "    1,\n"
-        + "    2\n"
-        + "  ]\n"
-        + "}";
+    String expected = "{\n" + "  \"a\": [\n" + "    1,\n" + "    2\n" + "  ]\n" + "}";
     assertThat(stringWriter.toString()).isEqualTo(expected);
   }
 }

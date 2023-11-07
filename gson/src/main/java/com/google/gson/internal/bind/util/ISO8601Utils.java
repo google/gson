@@ -25,121 +25,122 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * Utilities methods for manipulating dates in iso8601 format. This is much faster and GC friendly than using SimpleDateFormat so
- * highly suitable if you (un)serialize lots of date objects.
- * 
- * Supported parse format: [yyyy-MM-dd|yyyyMMdd][T(hh:mm[:ss[.sss]]|hhmm[ss[.sss]])]?[Z|[+-]hh[:]mm]]
- * 
+ * Utilities methods for manipulating dates in iso8601 format. This is much faster and GC friendly
+ * than using SimpleDateFormat so highly suitable if you (un)serialize lots of date objects.
+ *
+ * <p>Supported parse format:
+ * [yyyy-MM-dd|yyyyMMdd][T(hh:mm[:ss[.sss]]|hhmm[ss[.sss]])]?[Z|[+-]hh[:]mm]]
+ *
  * @see <a href="http://www.w3.org/TR/NOTE-datetime">this specification</a>
  */
 // Date parsing code from Jackson databind ISO8601Utils.java
 // https://github.com/FasterXML/jackson-databind/blob/2.8/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
-public class ISO8601Utils
-{
-    /**
-     * ID to represent the 'UTC' string, default timezone since Jackson 2.7
-     * 
-     * @since 2.7
-     */
-    private static final String UTC_ID = "UTC";
-    /**
-     * The UTC timezone, prefetched to avoid more lookups.
-     * 
-     * @since 2.7
-     */
-    private static final TimeZone TIMEZONE_UTC = TimeZone.getTimeZone(UTC_ID);
+public class ISO8601Utils {
+  /**
+   * ID to represent the 'UTC' string, default timezone since Jackson 2.7
+   *
+   * @since 2.7
+   */
+  private static final String UTC_ID = "UTC";
 
-    /*
-    /**********************************************************
-    /* Formatting
-    /**********************************************************
-     */
+  /**
+   * The UTC timezone, prefetched to avoid more lookups.
+   *
+   * @since 2.7
+   */
+  private static final TimeZone TIMEZONE_UTC = TimeZone.getTimeZone(UTC_ID);
 
-    /**
-     * Format a date into 'yyyy-MM-ddThh:mm:ssZ' (default timezone, no milliseconds precision)
-     * 
-     * @param date the date to format
-     * @return the date formatted as 'yyyy-MM-ddThh:mm:ssZ'
-     */
-    public static String format(Date date) {
-        return format(date, false, TIMEZONE_UTC);
+  /*
+  /**********************************************************
+  /* Formatting
+  /**********************************************************
+   */
+
+  /**
+   * Format a date into 'yyyy-MM-ddThh:mm:ssZ' (default timezone, no milliseconds precision)
+   *
+   * @param date the date to format
+   * @return the date formatted as 'yyyy-MM-ddThh:mm:ssZ'
+   */
+  public static String format(Date date) {
+    return format(date, false, TIMEZONE_UTC);
+  }
+
+  /**
+   * Format a date into 'yyyy-MM-ddThh:mm:ss[.sss]Z' (GMT timezone)
+   *
+   * @param date the date to format
+   * @param millis true to include millis precision otherwise false
+   * @return the date formatted as 'yyyy-MM-ddThh:mm:ss[.sss]Z'
+   */
+  public static String format(Date date, boolean millis) {
+    return format(date, millis, TIMEZONE_UTC);
+  }
+
+  /**
+   * Format date into yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
+   *
+   * @param date the date to format
+   * @param millis true to include millis precision otherwise false
+   * @param tz timezone to use for the formatting (UTC will produce 'Z')
+   * @return the date formatted as yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
+   */
+  public static String format(Date date, boolean millis, TimeZone tz) {
+    Calendar calendar = new GregorianCalendar(tz, Locale.US);
+    calendar.setTime(date);
+
+    // estimate capacity of buffer as close as we can (yeah, that's pedantic ;)
+    int capacity = "yyyy-MM-ddThh:mm:ss".length();
+    capacity += millis ? ".sss".length() : 0;
+    capacity += tz.getRawOffset() == 0 ? "Z".length() : "+hh:mm".length();
+    StringBuilder formatted = new StringBuilder(capacity);
+
+    padInt(formatted, calendar.get(Calendar.YEAR), "yyyy".length());
+    formatted.append('-');
+    padInt(formatted, calendar.get(Calendar.MONTH) + 1, "MM".length());
+    formatted.append('-');
+    padInt(formatted, calendar.get(Calendar.DAY_OF_MONTH), "dd".length());
+    formatted.append('T');
+    padInt(formatted, calendar.get(Calendar.HOUR_OF_DAY), "hh".length());
+    formatted.append(':');
+    padInt(formatted, calendar.get(Calendar.MINUTE), "mm".length());
+    formatted.append(':');
+    padInt(formatted, calendar.get(Calendar.SECOND), "ss".length());
+    if (millis) {
+      formatted.append('.');
+      padInt(formatted, calendar.get(Calendar.MILLISECOND), "sss".length());
     }
 
-    /**
-     * Format a date into 'yyyy-MM-ddThh:mm:ss[.sss]Z' (GMT timezone)
-     * 
-     * @param date the date to format
-     * @param millis true to include millis precision otherwise false
-     * @return the date formatted as 'yyyy-MM-ddThh:mm:ss[.sss]Z'
-     */
-    public static String format(Date date, boolean millis) {
-        return format(date, millis, TIMEZONE_UTC);
+    int offset = tz.getOffset(calendar.getTimeInMillis());
+    if (offset != 0) {
+      int hours = Math.abs((offset / (60 * 1000)) / 60);
+      int minutes = Math.abs((offset / (60 * 1000)) % 60);
+      formatted.append(offset < 0 ? '-' : '+');
+      padInt(formatted, hours, "hh".length());
+      formatted.append(':');
+      padInt(formatted, minutes, "mm".length());
+    } else {
+      formatted.append('Z');
     }
 
-    /**
-     * Format date into yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
-     * 
-     * @param date the date to format
-     * @param millis true to include millis precision otherwise false
-     * @param tz timezone to use for the formatting (UTC will produce 'Z')
-     * @return the date formatted as yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
-     */
-    public static String format(Date date, boolean millis, TimeZone tz) {
-        Calendar calendar = new GregorianCalendar(tz, Locale.US);
-        calendar.setTime(date);
+    return formatted.toString();
+  }
 
-        // estimate capacity of buffer as close as we can (yeah, that's pedantic ;)
-        int capacity = "yyyy-MM-ddThh:mm:ss".length();
-        capacity += millis ? ".sss".length() : 0;
-        capacity += tz.getRawOffset() == 0 ? "Z".length() : "+hh:mm".length();
-        StringBuilder formatted = new StringBuilder(capacity);
+  /*
+  /**********************************************************
+  /* Parsing
+  /**********************************************************
+   */
 
-        padInt(formatted, calendar.get(Calendar.YEAR), "yyyy".length());
-        formatted.append('-');
-        padInt(formatted, calendar.get(Calendar.MONTH) + 1, "MM".length());
-        formatted.append('-');
-        padInt(formatted, calendar.get(Calendar.DAY_OF_MONTH), "dd".length());
-        formatted.append('T');
-        padInt(formatted, calendar.get(Calendar.HOUR_OF_DAY), "hh".length());
-        formatted.append(':');
-        padInt(formatted, calendar.get(Calendar.MINUTE), "mm".length());
-        formatted.append(':');
-        padInt(formatted, calendar.get(Calendar.SECOND), "ss".length());
-        if (millis) {
-            formatted.append('.');
-            padInt(formatted, calendar.get(Calendar.MILLISECOND), "sss".length());
-        }
-
-        int offset = tz.getOffset(calendar.getTimeInMillis());
-        if (offset != 0) {
-            int hours = Math.abs((offset / (60 * 1000)) / 60);
-            int minutes = Math.abs((offset / (60 * 1000)) % 60);
-            formatted.append(offset < 0 ? '-' : '+');
-            padInt(formatted, hours, "hh".length());
-            formatted.append(':');
-            padInt(formatted, minutes, "mm".length());
-        } else {
-            formatted.append('Z');
-        }
-
-        return formatted.toString();
-    }
-
-    /*
-    /**********************************************************
-    /* Parsing
-    /**********************************************************
-     */
-
-    /**
-     * Parse a date from ISO-8601 formatted string. It expects a format
-     * [yyyy-MM-dd|yyyyMMdd][T(hh:mm[:ss[.sss]]|hhmm[ss[.sss]])]?[Z|[+-]hh[:mm]]]
-     * 
-     * @param date ISO string to parse in the appropriate format.
-     * @param pos The position to start parsing from, updated to where parsing stopped.
-     * @return the parsed date
-     * @throws ParseException if the date is not in the appropriate format
-     */
+  /**
+   * Parse a date from ISO-8601 formatted string. It expects a format
+   * [yyyy-MM-dd|yyyyMMdd][T(hh:mm[:ss[.sss]]|hhmm[ss[.sss]])]?[Z|[+-]hh[:mm]]]
+   *
+   * @param date ISO string to parse in the appropriate format.
+   * @param pos The position to start parsing from, updated to where parsing stopped.
+   * @return the parsed date
+   * @throws ParseException if the date is not in the appropriate format
+   */
     public static Date parse(String date, ParsePosition pos) throws ParseException {
         Exception fail = null;
         try {
@@ -293,77 +294,77 @@ public class ISO8601Utils
         throw ex;
     }
 
-    /**
-     * Check if the expected character exist at the given offset in the value.
-     * 
-     * @param value the string to check at the specified offset
-     * @param offset the offset to look for the expected character
-     * @param expected the expected character
-     * @return true if the expected character exist at the given offset
-     */
-    private static boolean checkOffset(String value, int offset, char expected) {
-        return (offset < value.length()) && (value.charAt(offset) == expected);
-    }
+  /**
+   * Check if the expected character exist at the given offset in the value.
+   *
+   * @param value the string to check at the specified offset
+   * @param offset the offset to look for the expected character
+   * @param expected the expected character
+   * @return true if the expected character exist at the given offset
+   */
+  private static boolean checkOffset(String value, int offset, char expected) {
+    return (offset < value.length()) && (value.charAt(offset) == expected);
+  }
 
-    /**
-     * Parse an integer located between 2 given offsets in a string
-     * 
-     * @param value the string to parse
-     * @param beginIndex the start index for the integer in the string
-     * @param endIndex the end index for the integer in the string
-     * @return the int
-     * @throws NumberFormatException if the value is not a number
-     */
-    private static int parseInt(String value, int beginIndex, int endIndex) throws NumberFormatException {
-        if (beginIndex < 0 || endIndex > value.length() || beginIndex > endIndex) {
-            throw new NumberFormatException(value);
-        }
-        // use same logic as in Integer.parseInt() but less generic we're not supporting negative values
-        int i = beginIndex;
-        int result = 0;
-        int digit;
-        if (i < endIndex) {
-            digit = Character.digit(value.charAt(i++), 10);
-            if (digit < 0) {
-                throw new NumberFormatException("Invalid number: " + value.substring(beginIndex, endIndex));
-            }
-            result = -digit;
-        }
-        while (i < endIndex) {
-            digit = Character.digit(value.charAt(i++), 10);
-            if (digit < 0) {
-                throw new NumberFormatException("Invalid number: " + value.substring(beginIndex, endIndex));
-            }
-            result *= 10;
-            result -= digit;
-        }
-        return -result;
+  /**
+   * Parse an integer located between 2 given offsets in a string
+   *
+   * @param value the string to parse
+   * @param beginIndex the start index for the integer in the string
+   * @param endIndex the end index for the integer in the string
+   * @return the int
+   * @throws NumberFormatException if the value is not a number
+   */
+  private static int parseInt(String value, int beginIndex, int endIndex)
+      throws NumberFormatException {
+    if (beginIndex < 0 || endIndex > value.length() || beginIndex > endIndex) {
+      throw new NumberFormatException(value);
     }
-
-    /**
-     * Zero pad a number to a specified length
-     * 
-     * @param buffer buffer to use for padding
-     * @param value the integer value to pad if necessary.
-     * @param length the length of the string we should zero pad
-     */
-    private static void padInt(StringBuilder buffer, int value, int length) {
-        String strValue = Integer.toString(value);
-        for (int i = length - strValue.length(); i > 0; i--) {
-            buffer.append('0');
-        }
-        buffer.append(strValue);
+    // use same logic as in Integer.parseInt() but less generic we're not supporting negative values
+    int i = beginIndex;
+    int result = 0;
+    int digit;
+    if (i < endIndex) {
+      digit = Character.digit(value.charAt(i++), 10);
+      if (digit < 0) {
+        throw new NumberFormatException("Invalid number: " + value.substring(beginIndex, endIndex));
+      }
+      result = -digit;
     }
-
-    /**
-     * Returns the index of the first character in the string that is not a digit, starting at offset.
-     */
-    private static int indexOfNonDigit(String string, int offset) {
-        for (int i = offset; i < string.length(); i++) {
-            char c = string.charAt(i);
-            if (c < '0' || c > '9') return i;
-        }
-        return string.length();
+    while (i < endIndex) {
+      digit = Character.digit(value.charAt(i++), 10);
+      if (digit < 0) {
+        throw new NumberFormatException("Invalid number: " + value.substring(beginIndex, endIndex));
+      }
+      result *= 10;
+      result -= digit;
     }
+    return -result;
+  }
 
+  /**
+   * Zero pad a number to a specified length
+   *
+   * @param buffer buffer to use for padding
+   * @param value the integer value to pad if necessary.
+   * @param length the length of the string we should zero pad
+   */
+  private static void padInt(StringBuilder buffer, int value, int length) {
+    String strValue = Integer.toString(value);
+    for (int i = length - strValue.length(); i > 0; i--) {
+      buffer.append('0');
+    }
+    buffer.append(strValue);
+  }
+
+  /**
+   * Returns the index of the first character in the string that is not a digit, starting at offset.
+   */
+  private static int indexOfNonDigit(String string, int offset) {
+    for (int i = offset; i < string.length(); i++) {
+      char c = string.charAt(i);
+      if (c < '0' || c > '9') return i;
+    }
+    return string.length();
+  }
 }

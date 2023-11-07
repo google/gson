@@ -15,28 +15,29 @@
  */
 package com.google.gson.extras.examples.rawcollections;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class RawCollectionsExample {
   static class Event {
     private String name;
     private String source;
+
     private Event(String name, String source) {
       this.name = name;
       this.source = source;
     }
+
     @Override
     public String toString() {
       return String.format("(name=%s, source=%s)", name, source);
     }
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public static void main(String[] args) {
     Gson gson = new Gson();
     Collection collection = new ArrayList();
