@@ -159,7 +159,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.6.0</version>
+          <version>3.6.2</version>
           <configuration>
             <!-- Specify newer JDK as target to allow linking to newer Java API, and to generate
               module overview in Javadoc for Gson's module descriptor -->
