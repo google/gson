@@ -113,7 +113,16 @@ public class FormattingStyleTest {
     String expectedJson = buildExpected("\n", "  ", true);
     assertThat(json).isEqualTo(expectedJson);
     // Sanity check to verify that `buildExpected` works correctly
-    assertThat(json).isEqualTo("{\n" + "  \"a\": [\n" + "    1,\n" + "    2\n" + "  ]\n" + "}");
+    assertThat(json)
+        .isEqualTo(
+            // spotless:off
+            "{\n"
+            + "  \"a\": [\n"
+            + "    1,\n"
+            + "    2\n"
+            + "  ]\n"
+            + "}");
+            // spotless:on
   }
 
   @Test

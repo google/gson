@@ -124,6 +124,7 @@
           </execution>
         </executions>
       </plugin>
+
       <!-- Spotless plugin: keeps the code formatted following the google-java-styleguide -->
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
@@ -136,34 +137,45 @@
             </goals>
           </execution>
         </executions>
+        <!-- Note: The configuration here is not specific to the `<execution>` above to allow users to run
+          `mvn spotless:apply` from the command line, using the same configuration -->
         <configuration>
+          <!-- Perform some basic formatting for non-Java code -->
           <formats>
             <format>
               <includes>
                 <include>*.md</include>
+                <include>*.xml</include>
                 <include>.gitignore</include>
               </includes>
+              <!-- For Markdown files removing trailing whitespace causes issues for hard line breaks,
+                which use two trailing spaces. However, the trailing spaces are difficult to notice anyway;
+                prefer a trailing `\` instead of two spaces. -->
               <trimTrailingWhitespace/>
               <endWithNewline/>
               <indent>
                 <spaces>true</spaces>
-                <spacesPerTab>4</spacesPerTab>
+                <!-- This seems to mostly (or only?) affect the suggested fix in case code contains tabs -->
+                <spacesPerTab>2</spacesPerTab>
               </indent>
             </format>
           </formats>
+
           <java>
+            <!-- Exclude classes which need Java 17 for compilation; Google Java Format internally relies on javac,
+              so formatting will fail if build is executed with JDK 11 -->
             <excludes>
               <exclude>src/test/java/com/google/gson/functional/Java17RecordTest.java</exclude>
               <exclude>src/test/java/com/google/gson/native_test/Java17RecordReflectionTest.java</exclude>
             </excludes>
+            <toggleOffOn/>
             <googleJavaFormat>
               <style>GOOGLE</style>
               <reflowLongStrings>true</reflowLongStrings>
+              <reorderImports>true</reorderImports>
               <formatJavadoc>true</formatJavadoc>
             </googleJavaFormat>
-            <importOrder/>
-            <removeUnusedImports/>
-            <formatAnnotations/>     <!-- Puts type annotations immediately before types. -->.
+            <formatAnnotations/>     <!-- Puts type annotations immediately before types. -->
           </java>
         </configuration>
       </plugin>
@@ -209,17 +221,17 @@
             <release>11</release>
             <!-- Exclude `missing` group because some tags have been omitted when they are redundant -->
             <doclint>all,-missing</doclint>
-            <!-- Link against newer Java API Javadoc because most users likely 
+            <!-- Link against newer Java API Javadoc because most users likely
               use a newer Java version than the one used for building this project -->
             <detectJavaApiLink>false</detectJavaApiLink>
             <links>
               <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
               <link>https://errorprone.info/api/latest/</link>
             </links>
-            <!-- Disable detection of offline links between Maven modules: 
-              (1) Only `gson` module is published, so for other modules Javadoc links don't 
-              matter much at the moment; (2) The derived URL for the modules is based on 
-              the project URL (= Gson GitHub repo) which is incorrect because it is not 
+            <!-- Disable detection of offline links between Maven modules:
+              (1) Only `gson` module is published, so for other modules Javadoc links don't
+              matter much at the moment; (2) The derived URL for the modules is based on
+              the project URL (= Gson GitHub repo) which is incorrect because it is not
               hosting the Javadoc (3) It might fail due to https://bugs.openjdk.java.net/browse/JDK-8212233 -->
             <detectOfflineLinks>false</detectOfflineLinks>
             <!-- Only show warnings and errors -->

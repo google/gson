@@ -148,8 +148,8 @@ public final class JsonReaderTest {
     assertThat(expected)
         .hasMessageThat()
         .startsWith(
-            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed"
-                + " JSON at line 1 column 1 path $");
+            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
+                + " at line 1 column 1 path $");
 
     reader = new JsonReader(reader("True"));
     reader.setStrictness(Strictness.STRICT);
@@ -158,8 +158,8 @@ public final class JsonReaderTest {
     assertThat(expected)
         .hasMessageThat()
         .startsWith(
-            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed"
-                + " JSON at line 1 column 1 path $");
+            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
+                + " at line 1 column 1 path $");
   }
 
   @Test
@@ -171,8 +171,8 @@ public final class JsonReaderTest {
     assertThat(expected)
         .hasMessageThat()
         .startsWith(
-            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed"
-                + " JSON at line 1 column 1 path $");
+            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
+                + " at line 1 column 1 path $");
 
     reader = new JsonReader(reader("FaLse"));
     reader.setStrictness(Strictness.STRICT);
@@ -181,8 +181,8 @@ public final class JsonReaderTest {
     assertThat(expected)
         .hasMessageThat()
         .startsWith(
-            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed"
-                + " JSON at line 1 column 1 path $");
+            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
+                + " at line 1 column 1 path $");
   }
 
   @Test
@@ -194,8 +194,8 @@ public final class JsonReaderTest {
     assertThat(expected)
         .hasMessageThat()
         .startsWith(
-            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed"
-                + " JSON at line 1 column 1 path $");
+            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
+                + " at line 1 column 1 path $");
 
     reader = new JsonReader(reader("nulL"));
     reader.setStrictness(Strictness.STRICT);
@@ -204,8 +204,8 @@ public final class JsonReaderTest {
     assertThat(expected)
         .hasMessageThat()
         .startsWith(
-            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed"
-                + " JSON at line 1 column 1 path $");
+            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
+                + " at line 1 column 1 path $");
   }
 
   @Test
@@ -416,7 +416,13 @@ public final class JsonReaderTest {
 
   @Test
   public void testHelloWorld() throws IOException {
-    String json = "{\n" + "   \"hello\": true,\n" + "   \"foo\": [\"world\"]\n" + "}";
+    String json =
+        // spotless:off
+        "{\n" +
+        "   \"hello\": true,\n" +
+        "   \"foo\": [\"world\"]\n" +
+        "}";
+        // spotless:on
     JsonReader reader = new JsonReader(reader(json));
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("hello");
@@ -431,7 +437,13 @@ public final class JsonReaderTest {
 
   @Test
   public void testInvalidJsonInput() throws IOException {
-    String json = "{\n" + "   \"h\\ello\": true,\n" + "   \"foo\": [\"world\"]\n" + "}";
+    String json =
+        // spotless:off
+        "{\n"
+        + "   \"h\\ello\": true,\n"
+        + "   \"foo\": [\"world\"]\n"
+        + "}";
+        // spotless:on
 
     JsonReader reader = new JsonReader(reader(json));
     reader.beginObject();

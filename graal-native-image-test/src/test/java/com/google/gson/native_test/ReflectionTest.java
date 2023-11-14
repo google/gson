@@ -90,8 +90,8 @@ class ReflectionTest {
     assertThat(c.i).isEqualTo(1);
 
     c = gson.fromJson("{}", ClassWithoutDefaultConstructor.class);
-    // Class is instantiated with JDK Unsafe, so field keeps its default value instead of assigned
-    // -1
+    // Class is instantiated with JDK Unsafe, therefore field keeps its default value instead of
+    // assigned -1
     assertThat(c.i).isEqualTo(0);
   }
 

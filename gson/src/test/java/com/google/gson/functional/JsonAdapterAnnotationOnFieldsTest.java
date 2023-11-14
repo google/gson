@@ -604,8 +604,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     assertThat(new Gson().toJson(serialized)).isEqualTo("{\"f\":\"value-custom\"}");
   }
 
-  // suppress Error Prone warning; should be clear that `Factory` refers to nested class to nested
-  // class
+  // suppress Error Prone warning; should be clear that `Factory` refers to nested class
   @SuppressWarnings("SameNameButDifferent")
   private static class WithDelayedDelegatingFactory {
     @JsonAdapter(Factory.class)

@@ -30,20 +30,20 @@ public class JavaVersionTest {
 
   @Test
   public void testGetMajorJavaVersion() {
-    assertThat(JavaVersion.getMajorJavaVersion() >= 7)
-        .isTrue(); // Gson currently requires at least Java 7
+    // Gson currently requires at least Java 7
+    assertThat(JavaVersion.getMajorJavaVersion() >= 7).isTrue();
   }
 
   @Test
   public void testJava6() {
-    assertThat(JavaVersion.getMajorJavaVersion("1.6.0"))
-        .isEqualTo(6); // http://www.oracle.com/technetwork/java/javase/version-6-141920.html
+    // http://www.oracle.com/technetwork/java/javase/version-6-141920.html
+    assertThat(JavaVersion.getMajorJavaVersion("1.6.0")).isEqualTo(6);
   }
 
   @Test
   public void testJava7() {
-    assertThat(JavaVersion.getMajorJavaVersion("1.7.0"))
-        .isEqualTo(7); // http://www.oracle.com/technetwork/java/javase/jdk7-naming-418744.html
+    // http://www.oracle.com/technetwork/java/javase/jdk7-naming-418744.html
+    assertThat(JavaVersion.getMajorJavaVersion("1.7.0")).isEqualTo(7);
   }
 
   @Test
@@ -63,8 +63,9 @@ public class JavaVersionTest {
   public void testJava9() {
     // Legacy style
     assertThat(JavaVersion.getMajorJavaVersion("9.0.4")).isEqualTo(9); // Oracle JDK 9
-    assertThat(JavaVersion.getMajorJavaVersion("9-Debian"))
-        .isEqualTo(9); // Debian as reported in https://github.com/google/gson/issues/1310
+    // Debian as reported in https://github.com/google/gson/issues/1310
+    assertThat(JavaVersion.getMajorJavaVersion("9-Debian")).isEqualTo(9);
+
     // New style
     assertThat(JavaVersion.getMajorJavaVersion("9-ea+19")).isEqualTo(9);
     assertThat(JavaVersion.getMajorJavaVersion("9+100")).isEqualTo(9);

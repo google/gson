@@ -648,8 +648,8 @@ public class DefaultTypeAdaptersTest {
       assertThat(expected)
           .hasMessageThat()
           .isEqualTo(
-              "Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive; at path"
-                  + " $");
+              "Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive;"
+                  + " at path $");
     }
   }
 

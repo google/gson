@@ -303,8 +303,7 @@ public final class ConstructorConstructor {
           throw new RuntimeException(
               "Failed to invoke constructor '"
                   + ReflectionHelper.constructorToString(constructor)
-                  + "'"
-                  + " with no args",
+                  + "' with no args",
               e);
         } catch (InvocationTargetException e) {
           // TODO: don't wrap if cause is unchecked?
@@ -312,8 +311,7 @@ public final class ConstructorConstructor {
           throw new RuntimeException(
               "Failed to invoke constructor '"
                   + ReflectionHelper.constructorToString(constructor)
-                  + "'"
-                  + " with no args",
+                  + "' with no args",
               e.getCause());
         } catch (IllegalAccessException e) {
           throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);

@@ -207,8 +207,7 @@ public final class TypeTokenTest {
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
-            "Type argument int does not satisfy bounds"
-                + " for type variable E declared by "
+            "Type argument int does not satisfy bounds for type variable E declared by "
                 + List.class);
 
     e =

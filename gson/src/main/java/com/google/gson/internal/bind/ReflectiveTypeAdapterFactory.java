@@ -228,8 +228,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           throw new JsonParseException(
               "null is not allowed as value for record component '"
                   + fieldName
-                  + "'"
-                  + " of primitive type; at path "
+                  + "' of primitive type; at path "
                   + reader.getPath());
         }
         target[index] = fieldValue;
@@ -244,8 +243,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
             checkAccessible(target, field);
           } else if (isStaticFinalField) {
             // Reflection does not permit setting value of `static final` field, even after calling
-            // `setAccessible` Handle this here to avoid causing IllegalAccessException when calling
-            // `Field.set`
+            // `setAccessible`
+            // Handle this here to avoid causing IllegalAccessException when calling `Field.set`
             String fieldDescription = ReflectionHelper.getAccessibleObjectDescription(field, false);
             throw new JsonIOException("Cannot set value of 'static final' " + fieldDescription);
           }
@@ -279,8 +278,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
             + declaringType.getName()
             + " declares multiple JSON fields named '"
             + duplicateName
-            + "'; conflict is caused"
-            + " by fields "
+            + "'; conflict is caused by fields "
             + ReflectionHelper.fieldToString(field1)
             + " and "
             + ReflectionHelper.fieldToString(field2)
@@ -313,8 +311,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
                   + raw
                   + " (supertype of "
                   + originalRaw
-                  + "). Register a TypeAdapter for this type"
-                  + " or adjust the access filter.");
+                  + "). Register a TypeAdapter for this type or adjust the access filter.");
         }
         blockInaccessible = filterResult == FilterResult.BLOCK_INACCESSIBLE;
       }
@@ -603,8 +600,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         throw new IllegalStateException(
             "Could not find the index in the constructor '"
                 + ReflectionHelper.constructorToString(constructor)
-                + "'"
-                + " for field with name '"
+                + "' for field with name '"
                 + field.fieldName
                 + "', unable to determine which argument in the constructor the field corresponds"
                 + " to. This is unexpected behavior, as we expect the RecordComponents to have the"
@@ -624,13 +620,12 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
       // Note: InstantiationException should be impossible because record class is not abstract;
       //  IllegalArgumentException should not be possible unless a bad adapter returns objects of
-      // the wrong type
+      //  the wrong type
       catch (InstantiationException | IllegalArgumentException e) {
         throw new RuntimeException(
             "Failed to invoke constructor '"
                 + ReflectionHelper.constructorToString(constructor)
-                + "'"
-                + " with args "
+                + "' with args "
                 + Arrays.toString(accumulator),
             e);
       } catch (InvocationTargetException e) {
@@ -638,8 +633,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         throw new RuntimeException(
             "Failed to invoke constructor '"
                 + ReflectionHelper.constructorToString(constructor)
-                + "'"
-                + " with args "
+                + "' with args "
                 + Arrays.toString(accumulator),
             e.getCause());
       }

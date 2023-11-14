@@ -163,7 +163,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
 
   /**
    * Removes the element at the specified position in this array. Shifts any subsequent elements to
-   * the left (subtracts one from their indices). Returns the element removed from the array.
+   * the left (subtracts one from their indices). Returns the element that was removed from the
+   * array.
    *
    * @param index index the index of the element to be removed
    * @return the element previously at the specified position

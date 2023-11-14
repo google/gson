@@ -139,11 +139,11 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <!-- Deny illegal access, this is required for ReflectionAccessTest -->
-          <!-- Requires Java >= 9; Important: In case future Java versions 
-            don't support this flag anymore, don't remove it unless CI also runs with 
-            that Java version. Ideally would use toolchain to specify that this should 
-            run with e.g. Java 11, but Maven toolchain requirements (unlike Gradle ones) 
-            don't seem to be portable (every developer would have to set up toolchain 
+          <!-- Requires Java >= 9; Important: In case future Java versions
+            don't support this flag anymore, don't remove it unless CI also runs with
+            that Java version. Ideally would use toolchain to specify that this should
+            run with e.g. Java 11, but Maven toolchain requirements (unlike Gradle ones)
+            don't seem to be portable (every developer would have to set up toolchain
             configuration locally). -->
           <argLine>--illegal-access=deny</argLine>
         </configuration>
@@ -239,7 +239,7 @@
         </configuration>
       </plugin>
       <!-- Add module-info to JAR, see https://github.com/moditect/moditect#adding-module-descriptors-to-existing-jar-files -->
-      <!-- Uses ModiTect instead of separate maven-compiler-plugin executions 
+      <!-- Uses ModiTect instead of separate maven-compiler-plugin executions
         for better Eclipse IDE support, see https://github.com/eclipse-m2e/m2e-core/issues/393 -->
       <!-- Note: For some reason this has to be executed before javadoc plugin; otherwise `javadoc:jar` goal fails
         to find source files -->

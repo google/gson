@@ -40,7 +40,11 @@ public class LeniencyTest {
   public void testLenientFromJson() {
     List<String> json =
         gson.fromJson(
-            "" + "[ # One!\n" + "  'Hi' #Element!\n" + "] # Array!",
+            // spotless:off
+            "[ # One!\n"
+            + "  'Hi' #Element!\n"
+            + "] # Array!",
+            // spotless:on
             new TypeToken<List<String>>() {}.getType());
     assertThat(json).isEqualTo(singletonList("Hi"));
   }
