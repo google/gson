@@ -100,8 +100,8 @@ public class PrimitiveTest {
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
-            "java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column"
-                + " 11 path $");
+            "java.lang.NumberFormatException: Expected an int but was 2147483648"
+                + " at line 1 column 11 path $");
   }
 
   @Test
@@ -143,8 +143,8 @@ public class PrimitiveTest {
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
-            "java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column"
-                + " 11 path $");
+            "java.lang.NumberFormatException: Expected an int but was 2147483648"
+                + " at line 1 column 11 path $");
   }
 
   @Test

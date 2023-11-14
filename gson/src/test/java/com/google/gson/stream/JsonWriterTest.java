@@ -1045,7 +1045,12 @@ public final class JsonWriterTest {
     jsonWriter.endArray();
 
     String expected =
-        "[\r\n" + " \t true,\r\n" + " \t \"text\",\r\n" + " \t 5.0,\r\n" + " \t null\r\n" + "]";
+        "[\r\n" //
+            + " \t true,\r\n" //
+            + " \t \"text\",\r\n" //
+            + " \t 5.0,\r\n" //
+            + " \t null\r\n" //
+            + "]";
     assertThat(stringWriter.toString()).isEqualTo(expected);
 
     assertThat(jsonWriter.getFormattingStyle().getNewline()).isEqualTo(lineSeparator);
@@ -1067,7 +1072,13 @@ public final class JsonWriterTest {
     jsonWriter.endArray();
     jsonWriter.endObject();
 
-    String expected = "{\n" + "  \"a\": [\n" + "    1,\n" + "    2\n" + "  ]\n" + "}";
+    String expected =
+        "{\n" //
+            + "  \"a\": [\n" //
+            + "    1,\n" //
+            + "    2\n" //
+            + "  ]\n" //
+            + "}";
     assertThat(stringWriter.toString()).isEqualTo(expected);
   }
 }

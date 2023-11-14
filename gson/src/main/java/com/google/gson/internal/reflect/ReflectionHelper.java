@@ -159,10 +159,9 @@ public class ReflectionHelper {
     } catch (Exception exception) {
       return "Failed making constructor '"
           + constructorToString(constructor)
-          + "' accessible;"
-          + " either increase its visibility or write a custom InstanceCreator or TypeAdapter for"
+          + "' accessible; either increase its visibility or write a custom InstanceCreator or"
+          + " TypeAdapter for its declaring type: "
           // Include the message since it might contain more detailed information
-          + " its declaring type: "
           + exception.getMessage()
           + getInaccessibleTroubleshootingSuffix(exception);
     }

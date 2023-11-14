@@ -500,7 +500,7 @@ public class MapTest {
 
     String subTypeJson = new Gson().toJson(subType);
     String expected =
-        "{\"bases\":{\"Test\":" + subTypeJson + "}," + "\"subs\":{\"Test\":" + subTypeJson + "}}";
+        "{\"bases\":{\"Test\":" + subTypeJson + "},\"subs\":{\"Test\":" + subTypeJson + "}}";
 
     Gson gsonWithComplexKeys = new GsonBuilder().enableComplexMapKeySerialization().create();
     String json = gsonWithComplexKeys.toJson(element);
@@ -523,7 +523,7 @@ public class MapTest {
     final JsonElement baseTypeJsonElement = tempGson.toJsonTree(subType, TestTypes.Base.class);
     String baseTypeJson = tempGson.toJson(baseTypeJsonElement);
     String expected =
-        "{\"bases\":{\"Test\":" + baseTypeJson + "}," + "\"subs\":{\"Test\":" + subTypeJson + "}}";
+        "{\"bases\":{\"Test\":" + baseTypeJson + "},\"subs\":{\"Test\":" + subTypeJson + "}}";
 
     JsonSerializer<TestTypes.Base> baseTypeAdapter =
         new JsonSerializer<TestTypes.Base>() {

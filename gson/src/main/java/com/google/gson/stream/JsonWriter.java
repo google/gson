@@ -306,9 +306,9 @@ public class JsonWriter implements Closeable, Flushable {
    * @see #setStrictness(Strictness)
    */
   @Deprecated
-  @SuppressWarnings(
-      "InlineMeSuggester") // Don't specify @InlineMe, so caller with `setLenient(false)` becomes
-  // aware of new Strictness.STRICT
+  // Don't specify @InlineMe, so caller with `setLenient(false)` becomes aware of new
+  // Strictness.STRICT
+  @SuppressWarnings("InlineMeSuggester")
   public final void setLenient(boolean lenient) {
     setStrictness(lenient ? Strictness.LENIENT : Strictness.LEGACY_STRICT);
   }

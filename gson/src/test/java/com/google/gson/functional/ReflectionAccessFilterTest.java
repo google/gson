@@ -447,7 +447,7 @@ public class ReflectionAccessFilterTest {
   }
 
   /**
-   * Should not fail when deserializing collection interface (Even though this goes through {@link
+   * Should not fail when deserializing collection interface (even though this goes through {@link
    * ConstructorConstructor} as well)
    */
   @Test
@@ -467,7 +467,7 @@ public class ReflectionAccessFilterTest {
   }
 
   /**
-   * Should not fail when deserializing specific collection implementation (Even though this goes
+   * Should not fail when deserializing specific collection implementation (even though this goes
    * through {@link ConstructorConstructor} as well)
    */
   @Test
