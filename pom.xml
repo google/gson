@@ -168,7 +168,6 @@
               <exclude>src/test/java/com/google/gson/functional/Java17RecordTest.java</exclude>
               <exclude>src/test/java/com/google/gson/native_test/Java17RecordReflectionTest.java</exclude>
             </excludes>
-            <toggleOffOn/>
             <googleJavaFormat>
               <style>GOOGLE</style>
               <reflowLongStrings>true</reflowLongStrings>

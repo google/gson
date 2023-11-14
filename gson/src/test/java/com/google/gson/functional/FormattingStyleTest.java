@@ -115,14 +115,12 @@ public class FormattingStyleTest {
     // Sanity check to verify that `buildExpected` works correctly
     assertThat(json)
         .isEqualTo(
-            // spotless:off
-            "{\n"
-            + "  \"a\": [\n"
-            + "    1,\n"
-            + "    2\n"
-            + "  ]\n"
-            + "}");
-            // spotless:on
+            "{\n" //
+                + "  \"a\": [\n" //
+                + "    1,\n" //
+                + "    2\n" //
+                + "  ]\n" //
+                + "}");
   }
 
   @Test

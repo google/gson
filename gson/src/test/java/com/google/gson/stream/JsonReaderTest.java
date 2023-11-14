@@ -417,12 +417,10 @@ public final class JsonReaderTest {
   @Test
   public void testHelloWorld() throws IOException {
     String json =
-        // spotless:off
-        "{\n" +
-        "   \"hello\": true,\n" +
-        "   \"foo\": [\"world\"]\n" +
-        "}";
-        // spotless:on
+        "{\n" //
+            + "   \"hello\": true,\n" //
+            + "   \"foo\": [\"world\"]\n" //
+            + "}";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("hello");
@@ -438,12 +436,10 @@ public final class JsonReaderTest {
   @Test
   public void testInvalidJsonInput() throws IOException {
     String json =
-        // spotless:off
-        "{\n"
-        + "   \"h\\ello\": true,\n"
-        + "   \"foo\": [\"world\"]\n"
-        + "}";
-        // spotless:on
+        "{\n" //
+            + "   \"h\\ello\": true,\n" //
+            + "   \"foo\": [\"world\"]\n" //
+            + "}";
 
     JsonReader reader = new JsonReader(reader(json));
     reader.beginObject();
