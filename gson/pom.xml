@@ -34,6 +34,10 @@
   </licenses>
 
   <properties>
+    <!-- Make the build reproducible, see root `pom.xml` -->
+    <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
+    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+
     <excludeTestCompilation>**/Java17*</excludeTestCompilation>
   </properties>
 
