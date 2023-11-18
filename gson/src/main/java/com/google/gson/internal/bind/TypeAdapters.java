@@ -401,8 +401,8 @@ public final class TypeAdapters {
             out.nullValue();
           } else {
             // For backward compatibility don't call `JsonWriter.value(float)` because that method
-            // has
-            // been newly added and not all custom JsonWriter implementations might override it yet
+            // has been newly added and not all custom JsonWriter implementations might override
+            // it yet
             Number floatNumber = value instanceof Float ? value : value.floatValue();
             out.value(floatNumber);
           }
@@ -952,7 +952,8 @@ public final class TypeAdapters {
     public EnumTypeAdapter(final Class<T> classOfT) {
       try {
         // Uses reflection to find enum constants to work around name mismatches for obfuscated
-        // classes Reflection access might throw SecurityException, therefore run this in privileged
+        // classes
+        // Reflection access might throw SecurityException, therefore run this in privileged
         // context; should be acceptable because this only retrieves enum constants, but does not
         // expose anything else
         Field[] constantFields =

@@ -121,8 +121,8 @@ public abstract class UnsafeAllocator {
         throw new UnsupportedOperationException(
             "Cannot allocate "
                 + c
-                + ". Usage of JDK sun.misc.Unsafe is enabled, "
-                + "but it could not be used. Make sure your runtime is configured correctly.");
+                + ". Usage of JDK sun.misc.Unsafe is enabled, but it could not be used."
+                + " Make sure your runtime is configured correctly.");
       }
     };
   }

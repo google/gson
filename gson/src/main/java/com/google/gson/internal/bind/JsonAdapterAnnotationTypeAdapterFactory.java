@@ -71,7 +71,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     return rawType.getAnnotation(JsonAdapter.class);
   }
 
-  // this is not safe; requires that user has specified correct adapter class for  @JsonAdapter
+  // this is not safe; requires that user has specified correct adapter class for @JsonAdapter
   @SuppressWarnings("unchecked")
   @Override
   public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> targetType) {

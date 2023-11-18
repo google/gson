@@ -29,8 +29,8 @@ import org.junit.Test;
  * #440</a> and similar issues.
  *
  * <p>These tests originally caused {@link StackOverflowError} because of infinite recursion on
- * attempts to resolve generics on types, with an intermediate types like 'Foo2&lt;? extends ? super
- * ? extends ... ? extends A&gt;'
+ * attempts to resolve generics on types, with intermediate types like {@code Foo2<? extends ? super
+ * ? extends ... ? extends A>}
  */
 public class RecursiveTypesResolveTest {
 
@@ -52,7 +52,7 @@ public class RecursiveTypesResolveTest {
     assertThat(adapter).isNotNull();
   }
 
-  /** Tests belows check the behaviour of the methods changed for the fix. */
+  /** Tests below check the behavior of the methods changed for the fix. */
   @Test
   public void testDoubleSupertype() {
     assertThat($Gson$Types.supertypeOf($Gson$Types.supertypeOf(Number.class)))

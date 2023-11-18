@@ -37,7 +37,7 @@ public final class JavaVersion {
       version = extractBeginningInt(javaVersion);
     }
     if (version == -1) {
-      return 6; // Choose a minimum supported JDK version as default
+      return 6; // Choose minimum supported JDK version as default
     }
     return version;
   }

@@ -52,8 +52,8 @@ public class PostConstructAdapterFactoryTest {
     // Throws NullPointerException without the fix in https://github.com/google/gson/pull/1103
     String json = gson.toJson(sandwiches);
     assertEquals(
-        "{\"sandwiches\":[{\"bread\":\"white\",\"cheese\":\"cheddar\"},{\"bread\":\"whole"
-            + " wheat\",\"cheese\":\"swiss\"}]}",
+        "{\"sandwiches\":[{\"bread\":\"white\",\"cheese\":\"cheddar\"},"
+            + "{\"bread\":\"whole wheat\",\"cheese\":\"swiss\"}]}",
         json);
 
     MultipleSandwiches sandwichesFromJson = gson.fromJson(json, MultipleSandwiches.class);

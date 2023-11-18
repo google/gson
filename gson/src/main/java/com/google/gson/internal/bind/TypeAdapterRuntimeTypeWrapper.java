@@ -45,8 +45,8 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
     // Order of preference for choosing type adapters
     // First preference: a type adapter registered for the runtime type
     // Second preference: a type adapter registered for the declared type
-    // Third preference: reflective type adapter for the runtime type (if it is a subclass of the
-    // declared type)
+    // Third preference: reflective type adapter for the runtime type
+    //                   (if it is a subclass of the declared type)
     // Fourth preference: reflective type adapter for the declared type
 
     TypeAdapter<T> chosen = delegate;

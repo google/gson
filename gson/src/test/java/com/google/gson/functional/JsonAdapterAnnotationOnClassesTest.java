@@ -474,9 +474,8 @@ public final class JsonAdapterAnnotationOnClassesTest {
       @Override
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return new TypeAdapter<T>() {
-          @SuppressWarnings(
-              "SameNameButDifferent") // suppress Error Prone warning; should be clear that
-          // `Factory` refers to enclosing class
+          // suppress Error Prone warning; should be clear that `Factory` refers to enclosing class
+          @SuppressWarnings("SameNameButDifferent")
           private TypeAdapter<T> delegate() {
             return gson.getDelegateAdapter(Factory.this, type);
           }

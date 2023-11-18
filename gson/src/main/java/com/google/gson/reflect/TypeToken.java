@@ -109,8 +109,8 @@ public class TypeToken<T> {
     else if (superclass == TypeToken.class) {
       throw new IllegalStateException(
           "TypeToken must be created with a type argument: new TypeToken<...>() {}; When using code"
-              + " shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved.\n"
-              + "See "
+              + " shrinkers (ProGuard, R8, ...) make sure that generic signatures are preserved."
+              + "\nSee "
               + TroubleshootingGuide.createUrl("type-token-raw"));
     }
 
@@ -416,8 +416,7 @@ public class TypeToken<T> {
       throw new IllegalArgumentException(
           "Raw type "
               + rawClass.getName()
-              + " is not supported because"
-              + " it requires specifying an owner type");
+              + " is not supported because it requires specifying an owner type");
     }
 
     for (int i = 0; i < expectedArgsCount; i++) {
@@ -433,8 +432,7 @@ public class TypeToken<T> {
           throw new IllegalArgumentException(
               "Type argument "
                   + typeArgument
-                  + " does not satisfy bounds"
-                  + " for type variable "
+                  + " does not satisfy bounds for type variable "
                   + typeVariable
                   + " declared by "
                   + rawType);
