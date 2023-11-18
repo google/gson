@@ -295,7 +295,8 @@ public final class JsonPrimitive extends JsonElement {
       double thisAsDouble = this.getAsDouble();
       double otherAsDouble = other.getAsDouble();
       // Don't use Double.compare(double, double) because that considers -0.0 and +0.0 not equal
-      return (thisAsDouble == otherAsDouble) || (Double.isNaN(thisAsDouble) && Double.isNaN(otherAsDouble));
+      return (thisAsDouble == otherAsDouble)
+          || (Double.isNaN(thisAsDouble) && Double.isNaN(otherAsDouble));
     }
     return value.equals(other.value);
   }

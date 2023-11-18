@@ -336,16 +336,20 @@ public class JsonPrimitiveTest {
 
   @Test
   public void testBigDecimalEqualsZero() {
-    assertThat(new JsonPrimitive(new BigDecimal("0.0"))
-        .equals(new JsonPrimitive(new BigDecimal("0.00")))).isTrue();
+    assertThat(
+            new JsonPrimitive(new BigDecimal("0.0"))
+                .equals(new JsonPrimitive(new BigDecimal("0.00"))))
+        .isTrue();
 
-    assertThat(new JsonPrimitive(new BigDecimal("0.00"))
-        .equals(new JsonPrimitive(Double.valueOf("0.00")))).isTrue();
+    assertThat(
+            new JsonPrimitive(new BigDecimal("0.00"))
+                .equals(new JsonPrimitive(Double.valueOf("0.00"))))
+        .isTrue();
   }
 
   @Test
   public void testEqualsDoubleNaNAndBigDecimal() {
-    assertThat(new JsonPrimitive(Double.NaN)
-        .equals(new JsonPrimitive(new BigDecimal("1.0")))).isFalse();
+    assertThat(new JsonPrimitive(Double.NaN).equals(new JsonPrimitive(new BigDecimal("1.0"))))
+        .isFalse();
   }
 }
