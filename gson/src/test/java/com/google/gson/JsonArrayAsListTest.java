@@ -25,9 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 
-/**
- * Tests for {@link JsonArray#asList()}.
- */
+/** Tests for {@link JsonArray#asList()}. */
 public class JsonArrayAsListTest {
   @Test
   public void testGet() {
@@ -84,17 +82,18 @@ public class JsonArrayAsListTest {
     assertThat(list.add(new JsonPrimitive(4))).isTrue();
     assertThat(list.add(JsonNull.INSTANCE)).isTrue();
 
-    List<JsonElement> expectedList = Arrays.<JsonElement>asList(
-        new JsonPrimitive(2),
-        new JsonPrimitive(3),
-        new JsonPrimitive(1),
-        new JsonPrimitive(4),
-        JsonNull.INSTANCE
-    );
+    List<JsonElement> expectedList =
+        Arrays.<JsonElement>asList(
+            new JsonPrimitive(2),
+            new JsonPrimitive(3),
+            new JsonPrimitive(1),
+            new JsonPrimitive(4),
+            JsonNull.INSTANCE);
     assertThat(list).isEqualTo(expectedList);
 
     assertThrows(IndexOutOfBoundsException.class, () -> list.set(-1, new JsonPrimitive(1)));
-    assertThrows(IndexOutOfBoundsException.class, () -> list.set(list.size(), new JsonPrimitive(1)));
+    assertThrows(
+        IndexOutOfBoundsException.class, () -> list.set(list.size(), new JsonPrimitive(1)));
 
     NullPointerException e = assertThrows(NullPointerException.class, () -> list.add(0, null));
     assertThat(e).hasMessageThat().isEqualTo("Element must be non-null");
@@ -111,18 +110,22 @@ public class JsonArrayAsListTest {
     List<JsonElement> list = a.asList();
     list.addAll(Arrays.asList(new JsonPrimitive(2), new JsonPrimitive(3)));
 
-    List<JsonElement> expectedList = Arrays.<JsonElement>asList(
-        new JsonPrimitive(1),
-        new JsonPrimitive(2),
-        new JsonPrimitive(3)
-    );
+    List<JsonElement> expectedList =
+        Arrays.<JsonElement>asList(
+            new JsonPrimitive(1), new JsonPrimitive(2), new JsonPrimitive(3));
     assertThat(list).isEqualTo(expectedList);
     assertThat(list).isEqualTo(expectedList);
 
-    NullPointerException e = assertThrows(NullPointerException.class, () -> list.addAll(0, Collections.<JsonElement>singletonList(null)));
+    NullPointerException e =
+        assertThrows(
+            NullPointerException.class,
+            () -> list.addAll(0, Collections.<JsonElement>singletonList(null)));
     assertThat(e).hasMessageThat().isEqualTo("Element must be non-null");
 
-    e = assertThrows(NullPointerException.class, () -> list.addAll(Collections.<JsonElement>singletonList(null)));
+    e =
+        assertThrows(
+            NullPointerException.class,
+            () -> list.addAll(Collections.<JsonElement>singletonList(null)));
     assertThat(e).hasMessageThat().isEqualTo("Element must be non-null");
   }
 

@@ -47,7 +47,7 @@ public class EnumWithObfuscatedTest {
 
   @Test
   public void testEnumClassWithObfuscated() {
-    for (Gender enumConstant: Gender.class.getEnumConstants()) {
+    for (Gender enumConstant : Gender.class.getEnumConstants()) {
       try {
         Gender.class.getField(enumConstant.name());
         fail("Enum is not obfuscated");

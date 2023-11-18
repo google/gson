@@ -31,9 +31,7 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import org.junit.Test;
 
-/**
- * Test that the hierarchy adapter works when subtypes are used.
- */
+/** Test that the hierarchy adapter works when subtypes are used. */
 public final class TypeHierarchyAdapterTest {
 
   @Test
@@ -41,70 +39,71 @@ public final class TypeHierarchyAdapterTest {
     Manager andy = new Manager();
     andy.userid = "andy";
     andy.startDate = 2005;
-    andy.minions = new Employee[] {
-        new Employee("inder", 2007),
-        new Employee("joel", 2006),
-        new Employee("jesse", 2006),
-    };
+    andy.minions =
+        new Employee[] {
+          new Employee("inder", 2007), new Employee("joel", 2006), new Employee("jesse", 2006),
+        };
 
     CEO eric = new CEO();
     eric.userid = "eric";
     eric.startDate = 2001;
     eric.assistant = new Employee("jerome", 2006);
 
-    eric.minions = new Employee[] {
-        new Employee("larry", 1998),
-        new Employee("sergey", 1998),
-        andy,
-    };
+    eric.minions =
+        new Employee[] {
+          new Employee("larry", 1998), new Employee("sergey", 1998), andy,
+        };
 
-    Gson gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
-        .setPrettyPrinting()
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
+            .setPrettyPrinting()
+            .create();
 
     Company company = new Company();
     company.ceo = eric;
 
     String json = gson.toJson(company, Company.class);
-    assertThat(json).isEqualTo("{\n" +
-        "  \"ceo\": {\n" +
-        "    \"userid\": \"eric\",\n" +
-        "    \"startDate\": 2001,\n" +
-        "    \"minions\": [\n" +
-        "      {\n" +
-        "        \"userid\": \"larry\",\n" +
-        "        \"startDate\": 1998\n" +
-        "      },\n" +
-        "      {\n" +
-        "        \"userid\": \"sergey\",\n" +
-        "        \"startDate\": 1998\n" +
-        "      },\n" +
-        "      {\n" +
-        "        \"userid\": \"andy\",\n" +
-        "        \"startDate\": 2005,\n" +
-        "        \"minions\": [\n" +
-        "          {\n" +
-        "            \"userid\": \"inder\",\n" +
-        "            \"startDate\": 2007\n" +
-        "          },\n" +
-        "          {\n" +
-        "            \"userid\": \"joel\",\n" +
-        "            \"startDate\": 2006\n" +
-        "          },\n" +
-        "          {\n" +
-        "            \"userid\": \"jesse\",\n" +
-        "            \"startDate\": 2006\n" +
-        "          }\n" +
-        "        ]\n" +
-        "      }\n" +
-        "    ],\n" +
-        "    \"assistant\": {\n" +
-        "      \"userid\": \"jerome\",\n" +
-        "      \"startDate\": 2006\n" +
-        "    }\n" +
-        "  }\n" +
-        "}");
+    assertThat(json)
+        .isEqualTo(
+            "{\n"
+                + "  \"ceo\": {\n"
+                + "    \"userid\": \"eric\",\n"
+                + "    \"startDate\": 2001,\n"
+                + "    \"minions\": [\n"
+                + "      {\n"
+                + "        \"userid\": \"larry\",\n"
+                + "        \"startDate\": 1998\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"userid\": \"sergey\",\n"
+                + "        \"startDate\": 1998\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"userid\": \"andy\",\n"
+                + "        \"startDate\": 2005,\n"
+                + "        \"minions\": [\n"
+                + "          {\n"
+                + "            \"userid\": \"inder\",\n"
+                + "            \"startDate\": 2007\n"
+                + "          },\n"
+                + "          {\n"
+                + "            \"userid\": \"joel\",\n"
+                + "            \"startDate\": 2006\n"
+                + "          },\n"
+                + "          {\n"
+                + "            \"userid\": \"jesse\",\n"
+                + "            \"startDate\": 2006\n"
+                + "          }\n"
+                + "        ]\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"assistant\": {\n"
+                + "      \"userid\": \"jerome\",\n"
+                + "      \"startDate\": 2006\n"
+                + "    }\n"
+                + "  }\n"
+                + "}");
 
     Company copied = gson.fromJson(json, Company.class);
     assertThat(gson.toJson(copied, Company.class)).isEqualTo(json);
@@ -113,16 +112,19 @@ public final class TypeHierarchyAdapterTest {
     assertThat(company.ceo.minions[0].userid).isEqualTo(copied.ceo.minions[0].userid);
     assertThat(company.ceo.minions[1].userid).isEqualTo(copied.ceo.minions[1].userid);
     assertThat(company.ceo.minions[2].userid).isEqualTo(copied.ceo.minions[2].userid);
-    assertThat(((Manager) company.ceo.minions[2]).minions[0].userid).isEqualTo(((Manager) copied.ceo.minions[2]).minions[0].userid);
-    assertThat(((Manager) company.ceo.minions[2]).minions[1].userid).isEqualTo(((Manager) copied.ceo.minions[2]).minions[1].userid);
+    assertThat(((Manager) company.ceo.minions[2]).minions[0].userid)
+        .isEqualTo(((Manager) copied.ceo.minions[2]).minions[0].userid);
+    assertThat(((Manager) company.ceo.minions[2]).minions[1].userid)
+        .isEqualTo(((Manager) copied.ceo.minions[2]).minions[1].userid);
   }
 
   @Test
   public void testRegisterSuperTypeFirst() {
-    Gson gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
-        .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
+            .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
+            .create();
 
     Manager manager = new Manager();
     manager.userid = "inder";
@@ -136,26 +138,31 @@ public final class TypeHierarchyAdapterTest {
   /** This behaviour changed in Gson 2.1; it used to throw. */
   @Test
   public void testRegisterSubTypeFirstAllowed() {
-    Gson unused = new GsonBuilder()
-        .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
-        .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
-        .create();
+    Gson unused =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(Manager.class, new ManagerAdapter())
+            .registerTypeHierarchyAdapter(Employee.class, new EmployeeAdapter())
+            .create();
   }
 
   static class ManagerAdapter implements JsonSerializer<Manager>, JsonDeserializer<Manager> {
-    @Override public Manager deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+    @Override
+    public Manager deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
       Manager result = new Manager();
       result.userid = json.getAsString();
       return result;
     }
-    @Override public JsonElement serialize(Manager src, Type typeOfSrc, JsonSerializationContext context) {
+
+    @Override
+    public JsonElement serialize(Manager src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.userid);
     }
   }
 
   static class EmployeeAdapter implements JsonSerializer<Employee>, JsonDeserializer<Employee> {
-    @Override public JsonElement serialize(Employee employee, Type typeOfSrc,
-        JsonSerializationContext context) {
+    @Override
+    public JsonElement serialize(
+        Employee employee, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject result = new JsonObject();
       result.add("userid", context.serialize(employee.userid, String.class));
       result.add("startDate", context.serialize(employee.startDate, long.class));
@@ -168,8 +175,9 @@ public final class TypeHierarchyAdapterTest {
       return result;
     }
 
-    @Override public Employee deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
+    @Override
+    public Employee deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
       JsonObject object = json.getAsJsonObject();
       Employee result = null;
 

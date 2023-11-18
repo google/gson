@@ -73,21 +73,23 @@ public class ConcurrencyTest {
     final AtomicBoolean failed = new AtomicBoolean(false);
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
-      executor.execute(new Runnable() {
-        @Override public void run() {
-          MyObject myObj = new MyObject();
-          try {
-            startLatch.await();
-            for (int i = 0; i < 10; i++) {
-              String unused = gson.toJson(myObj);
+      executor.execute(
+          new Runnable() {
+            @Override
+            public void run() {
+              MyObject myObj = new MyObject();
+              try {
+                startLatch.await();
+                for (int i = 0; i < 10; i++) {
+                  String unused = gson.toJson(myObj);
+                }
+              } catch (Throwable t) {
+                failed.set(true);
+              } finally {
+                finishedLatch.countDown();
+              }
             }
-          } catch (Throwable t) {
-            failed.set(true);
-          } finally {
-            finishedLatch.countDown();
-          }
-        }
-      });
+          });
     }
     startLatch.countDown();
     finishedLatch.await();
@@ -105,20 +107,23 @@ public class ConcurrencyTest {
     final AtomicBoolean failed = new AtomicBoolean(false);
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
-      executor.execute(new Runnable() {
-        @Override public void run() {
-          try {
-            startLatch.await();
-            for (int i = 0; i < 10; i++) {
-              MyObject unused = gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+      executor.execute(
+          new Runnable() {
+            @Override
+            public void run() {
+              try {
+                startLatch.await();
+                for (int i = 0; i < 10; i++) {
+                  MyObject unused =
+                      gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+                }
+              } catch (Throwable t) {
+                failed.set(true);
+              } finally {
+                finishedLatch.countDown();
+              }
             }
-          } catch (Throwable t) {
-            failed.set(true);
-          } finally {
-            finishedLatch.countDown();
-          }
-        }
-      });
+          });
     }
     startLatch.countDown();
     finishedLatch.await();

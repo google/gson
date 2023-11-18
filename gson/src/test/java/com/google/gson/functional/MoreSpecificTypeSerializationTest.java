@@ -73,21 +73,19 @@ public class MoreSpecificTypeSerializationTest {
     assertThat(sub.get("s").getAsInt()).isEqualTo(3);
   }
 
-  /**
-   * For parameterized type, Gson ignores the more-specific type and sticks to the declared type
-   */
+  /** For parameterized type, Gson ignores the more-specific type and sticks to the declared type */
   @Test
   public void testParameterizedSubclassFields() {
-    ClassWithParameterizedBaseFields target = new ClassWithParameterizedBaseFields(
-        new ParameterizedSub<>("one", "two"));
+    ClassWithParameterizedBaseFields target =
+        new ClassWithParameterizedBaseFields(new ParameterizedSub<>("one", "two"));
     String json = gson.toJson(target);
     assertThat(json).contains("\"t\":\"one\"");
     assertThat(json).doesNotContain("\"s\"");
   }
 
   /**
-   * For parameterized type in a List, Gson ignores the more-specific type and sticks to
-   * the declared type
+   * For parameterized type in a List, Gson ignores the more-specific type and sticks to the
+   * declared type
    */
   @Test
   public void testListOfParameterizedSubclassFields() {
@@ -95,15 +93,15 @@ public class MoreSpecificTypeSerializationTest {
     list.add(new ParameterizedBase<>("one"));
     list.add(new ParameterizedSub<>("two", "three"));
     ClassWithContainersOfParameterizedBaseFields target =
-      new ClassWithContainersOfParameterizedBaseFields(list, null);
+        new ClassWithContainersOfParameterizedBaseFields(list, null);
     String json = gson.toJson(target);
     assertThat(json).contains("{\"t\":\"one\"}");
     assertThat(json).doesNotContain("\"s\":");
   }
 
   /**
-   * For parameterized type in a map, Gson ignores the more-specific type and sticks to the
-   * declared type
+   * For parameterized type in a map, Gson ignores the more-specific type and sticks to the declared
+   * type
    */
   @Test
   public void testMapOfParameterizedSubclassFields() {
@@ -111,7 +109,7 @@ public class MoreSpecificTypeSerializationTest {
     map.put("base", new ParameterizedBase<>("one"));
     map.put("sub", new ParameterizedSub<>("two", "three"));
     ClassWithContainersOfParameterizedBaseFields target =
-      new ClassWithContainersOfParameterizedBaseFields(null, map);
+        new ClassWithContainersOfParameterizedBaseFields(null, map);
     JsonObject json = gson.toJsonTree(target).getAsJsonObject().get("map").getAsJsonObject();
     assertThat(json.get("base").getAsJsonObject().get("t").getAsString()).isEqualTo("one");
     JsonObject sub = json.get("sub").getAsJsonObject();
@@ -121,6 +119,7 @@ public class MoreSpecificTypeSerializationTest {
 
   private static class Base {
     int b;
+
     Base(int b) {
       this.b = b;
     }
@@ -128,6 +127,7 @@ public class MoreSpecificTypeSerializationTest {
 
   private static class Sub extends Base {
     int s;
+
     Sub(int b, int s) {
       super(b);
       this.s = s;
@@ -136,6 +136,7 @@ public class MoreSpecificTypeSerializationTest {
 
   private static class ClassWithBaseFields {
     Base b;
+
     ClassWithBaseFields(Base b) {
       this.b = b;
     }
@@ -144,6 +145,7 @@ public class MoreSpecificTypeSerializationTest {
   private static class ClassWithContainersOfBaseFields {
     Collection<Base> collection;
     Map<String, Base> map;
+
     ClassWithContainersOfBaseFields(Collection<Base> collection, Map<String, Base> map) {
       this.collection = collection;
       this.map = map;
@@ -152,6 +154,7 @@ public class MoreSpecificTypeSerializationTest {
 
   private static class ParameterizedBase<T> {
     T t;
+
     ParameterizedBase(T t) {
       this.t = t;
     }
@@ -159,6 +162,7 @@ public class MoreSpecificTypeSerializationTest {
 
   private static class ParameterizedSub<T> extends ParameterizedBase<T> {
     T s;
+
     ParameterizedSub(T t, T s) {
       super(t);
       this.s = s;
@@ -167,6 +171,7 @@ public class MoreSpecificTypeSerializationTest {
 
   private static class ClassWithParameterizedBaseFields {
     ParameterizedBase<String> b;
+
     ClassWithParameterizedBaseFields(ParameterizedBase<String> b) {
       this.b = b;
     }
@@ -175,7 +180,9 @@ public class MoreSpecificTypeSerializationTest {
   private static class ClassWithContainersOfParameterizedBaseFields {
     Collection<ParameterizedBase<String>> collection;
     Map<String, ParameterizedBase<String>> map;
-    ClassWithContainersOfParameterizedBaseFields(Collection<ParameterizedBase<String>> collection,
+
+    ClassWithContainersOfParameterizedBaseFields(
+        Collection<ParameterizedBase<String>> collection,
         Map<String, ParameterizedBase<String>> map) {
       this.collection = collection;
       this.map = map;

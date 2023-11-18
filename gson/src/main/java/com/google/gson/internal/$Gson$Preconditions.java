@@ -37,8 +37,8 @@ public final class $Gson$Preconditions {
   }
 
   /**
-   * @deprecated
-   * This is an internal Gson method. Use {@link Objects#requireNonNull(Object)} instead.
+   * @deprecated This is an internal Gson method. Use {@link Objects#requireNonNull(Object)}
+   *     instead.
    */
   // Only deprecated for now because external projects might be using this by accident
   @Deprecated

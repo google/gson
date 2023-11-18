@@ -42,7 +42,7 @@ public class EscapingTest {
 
   @Test
   public void testEscapingQuotesInStringArray() {
-    String[] valueWithQuotes = { "beforeQuote\"afterQuote" };
+    String[] valueWithQuotes = {"beforeQuote\"afterQuote"};
     String jsonRepresentation = gson.toJson(valueWithQuotes);
     String[] target = gson.fromJson(jsonRepresentation, String[].class);
     assertThat(target.length).isEqualTo(1);
@@ -58,7 +58,8 @@ public class EscapingTest {
     strings.add("&");
     strings.add("'");
     strings.add("\"");
-    assertThat(gson.toJson(strings)).isEqualTo("[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"\\u0027\",\"\\\"\"]");
+    assertThat(gson.toJson(strings))
+        .isEqualTo("[\"\\u003c\",\"\\u003e\",\"\\u003d\",\"\\u0026\",\"\\u0027\",\"\\\"\"]");
   }
 
   @Test
@@ -72,19 +73,20 @@ public class EscapingTest {
     BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
     assertThat(objWithPrimitives.getExpectedJson()).isEqualTo(expectedObject.getExpectedJson());
   }
-  
+
   @Test
   public void testGsonAcceptsEscapedAndNonEscapedJsonDeserialization() {
     Gson escapeHtmlGson = new GsonBuilder().create();
     Gson noEscapeHtmlGson = new GsonBuilder().disableHtmlEscaping().create();
-    
+
     BagOfPrimitives target = new BagOfPrimitives(1L, 1, true, "test' / w'ith\" / \\ <script>");
     String escapedJsonForm = escapeHtmlGson.toJson(target);
     String nonEscapedJsonForm = noEscapeHtmlGson.toJson(target);
     assertThat(escapedJsonForm.equals(nonEscapedJsonForm)).isFalse();
-    
+
     assertThat(noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class)).isEqualTo(target);
-    assertThat(escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class)).isEqualTo(target);
+    assertThat(escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class))
+        .isEqualTo(target);
   }
 
   @Test

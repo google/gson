@@ -36,14 +36,18 @@ import org.junit.Test;
  * @author Inderjeet Singh
  */
 public class GsonBuilderTest {
-  private static final TypeAdapter<Object> NULL_TYPE_ADAPTER = new TypeAdapter<Object>() {
-    @Override public void write(JsonWriter out, Object value) {
-      throw new AssertionError();
-    }
-    @Override public Object read(JsonReader in) {
-      throw new AssertionError();
-    }
-  };
+  private static final TypeAdapter<Object> NULL_TYPE_ADAPTER =
+      new TypeAdapter<Object>() {
+        @Override
+        public void write(JsonWriter out, Object value) {
+          throw new AssertionError();
+        }
+
+        @Override
+        public Object read(JsonReader in) {
+          throw new AssertionError();
+        }
+      };
 
   @Test
   public void testCreatingMoreThanOnce() {
@@ -52,11 +56,13 @@ public class GsonBuilderTest {
     assertThat(gson).isNotNull();
     assertThat(builder.create()).isNotNull();
 
-    builder.setFieldNamingStrategy(new FieldNamingStrategy() {
-      @Override public String translateName(Field f) {
-        return "test";
-      }
-    });
+    builder.setFieldNamingStrategy(
+        new FieldNamingStrategy() {
+          @Override
+          public String translateName(Field f) {
+            return "test";
+          }
+        });
 
     Gson otherGson = builder.create();
     assertThat(otherGson).isNotNull();
@@ -65,8 +71,8 @@ public class GsonBuilderTest {
   }
 
   /**
-   * Gson instances should not be affected by subsequent modification of GsonBuilder
-   * which created them.
+   * Gson instances should not be affected by subsequent modification of GsonBuilder which created
+   * them.
    */
   @Test
   public void testModificationAfterCreate() {
@@ -74,26 +80,36 @@ public class GsonBuilderTest {
     Gson gson = gsonBuilder.create();
 
     // Modifications of `gsonBuilder` should not affect `gson` object
-    gsonBuilder.registerTypeAdapter(CustomClass1.class, new TypeAdapter<CustomClass1>() {
-      @Override public CustomClass1 read(JsonReader in) {
-        throw new UnsupportedOperationException();
-      }
+    gsonBuilder.registerTypeAdapter(
+        CustomClass1.class,
+        new TypeAdapter<CustomClass1>() {
+          @Override
+          public CustomClass1 read(JsonReader in) {
+            throw new UnsupportedOperationException();
+          }
 
-      @Override public void write(JsonWriter out, CustomClass1 value) throws IOException {
-        out.value("custom-adapter");
-      }
-    });
-    gsonBuilder.registerTypeHierarchyAdapter(CustomClass2.class, new JsonSerializer<CustomClass2>() {
-      @Override public JsonElement serialize(CustomClass2 src, Type typeOfSrc, JsonSerializationContext context) {
-        return new JsonPrimitive("custom-hierarchy-adapter");
-      }
-    });
-    gsonBuilder.registerTypeAdapter(CustomClass3.class, new InstanceCreator<CustomClass3>() {
-      @Override public CustomClass3 createInstance(Type type) {
-        return new CustomClass3("custom-instance");
-      }
-    });
-
+          @Override
+          public void write(JsonWriter out, CustomClass1 value) throws IOException {
+            out.value("custom-adapter");
+          }
+        });
+    gsonBuilder.registerTypeHierarchyAdapter(
+        CustomClass2.class,
+        new JsonSerializer<CustomClass2>() {
+          @Override
+          public JsonElement serialize(
+              CustomClass2 src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive("custom-hierarchy-adapter");
+          }
+        });
+    gsonBuilder.registerTypeAdapter(
+        CustomClass3.class,
+        new InstanceCreator<CustomClass3>() {
+          @Override
+          public CustomClass3 createInstance(Type type) {
+            return new CustomClass3("custom-instance");
+          }
+        });
 
     assertDefaultGson(gson);
     // New GsonBuilder created from `gson` should not have been affected by changes
@@ -129,8 +145,10 @@ public class GsonBuilderTest {
     assertThat(customClass3.s).isEqualTo("custom-instance");
   }
 
-  static class CustomClass1 { }
-  static class CustomClass2 { }
+  static class CustomClass1 {}
+
+  static class CustomClass2 {}
+
   static class CustomClass3 {
     static final String NO_ARG_CONSTRUCTOR_VALUE = "default instance";
 
@@ -147,9 +165,8 @@ public class GsonBuilderTest {
 
   @Test
   public void testExcludeFieldsWithModifiers() {
-    Gson gson = new GsonBuilder()
-        .excludeFieldsWithModifiers(Modifier.VOLATILE, Modifier.PRIVATE)
-        .create();
+    Gson gson =
+        new GsonBuilder().excludeFieldsWithModifiers(Modifier.VOLATILE, Modifier.PRIVATE).create();
     assertThat(gson.toJson(new HasModifiers())).isEqualTo("{\"d\":\"d\"}");
   }
 
@@ -163,9 +180,7 @@ public class GsonBuilderTest {
 
   @Test
   public void testTransientFieldExclusion() {
-    Gson gson = new GsonBuilder()
-        .excludeFieldsWithModifiers()
-        .create();
+    Gson gson = new GsonBuilder().excludeFieldsWithModifiers().create();
     assertThat(gson.toJson(new HasTransients())).isEqualTo("{\"a\":\"a\"}");
   }
 
@@ -176,12 +191,7 @@ public class GsonBuilderTest {
   @Test
   public void testRegisterTypeAdapterForCoreType() {
     Type[] types = {
-        byte.class,
-        int.class,
-        double.class,
-        Short.class,
-        Long.class,
-        String.class,
+      byte.class, int.class, double.class, Short.class, Long.class, String.class,
     };
     for (Type type : types) {
       new GsonBuilder().registerTypeAdapter(type, NULL_TYPE_ADAPTER);
@@ -190,24 +200,25 @@ public class GsonBuilderTest {
 
   @Test
   public void testDisableJdkUnsafe() {
-    Gson gson = new GsonBuilder()
-        .disableJdkUnsafe()
-        .create();
+    Gson gson = new GsonBuilder().disableJdkUnsafe().create();
     try {
       gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
       fail("Expected exception");
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo(
-          "Unable to create instance of class com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; "
-          + "usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this type, "
-          + "adding a no-args constructor, or enabling usage of JDK Unsafe may fix this problem.");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Unable to create instance of class"
+                  + " com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; usage of JDK"
+                  + " Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this"
+                  + " type, adding a no-args constructor, or enabling usage of JDK Unsafe may fix"
+                  + " this problem.");
     }
   }
 
   private static class ClassWithoutNoArgsConstructor {
     @SuppressWarnings("unused")
-    public ClassWithoutNoArgsConstructor(String s) {
-    }
+    public ClassWithoutNoArgsConstructor(String s) {}
   }
 
   @Test
@@ -232,8 +243,10 @@ public class GsonBuilderTest {
   public void testDefaultStrictness() throws IOException {
     GsonBuilder builder = new GsonBuilder();
     Gson gson = builder.create();
-    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
-    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
+    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness())
+        .isEqualTo(Strictness.LEGACY_STRICT);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness())
+        .isEqualTo(Strictness.LEGACY_STRICT);
   }
 
   @SuppressWarnings({"deprecation", "InlineMeInliner"}) // for GsonBuilder.setLenient
@@ -242,8 +255,10 @@ public class GsonBuilderTest {
     GsonBuilder builder = new GsonBuilder();
     builder.setLenient();
     Gson gson = builder.create();
-    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(Strictness.LENIENT);
-    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(Strictness.LENIENT);
+    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness())
+        .isEqualTo(Strictness.LENIENT);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness())
+        .isEqualTo(Strictness.LENIENT);
   }
 
   @Test
@@ -260,30 +275,30 @@ public class GsonBuilderTest {
   public void testRegisterTypeAdapterForObjectAndJsonElements() {
     final String ERROR_MESSAGE = "Cannot override built-in adapter for ";
     Type[] types = {
-        Object.class,
-        JsonElement.class,
-        JsonArray.class,
+      Object.class, JsonElement.class, JsonArray.class,
     };
     GsonBuilder gsonBuilder = new GsonBuilder();
     for (Type type : types) {
-      IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-          () -> gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER));
+      IllegalArgumentException e =
+          assertThrows(
+              IllegalArgumentException.class,
+              () -> gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER));
       assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
     }
   }
-
 
   @Test
   public void testRegisterTypeHierarchyAdapterJsonElements() {
     final String ERROR_MESSAGE = "Cannot override built-in adapter for ";
     Class<?>[] types = {
-        JsonElement.class,
-        JsonArray.class,
+      JsonElement.class, JsonArray.class,
     };
     GsonBuilder gsonBuilder = new GsonBuilder();
     for (Class<?> type : types) {
-      IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-          () -> gsonBuilder.registerTypeHierarchyAdapter(type, NULL_TYPE_ADAPTER));
+      IllegalArgumentException e =
+          assertThrows(
+              IllegalArgumentException.class,
+              () -> gsonBuilder.registerTypeHierarchyAdapter(type, NULL_TYPE_ADAPTER));
 
       assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
     }

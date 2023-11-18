@@ -44,10 +44,11 @@ public class ToNumberPolicyFunctionalTest {
 
   @Test
   public void testAsDoubles() {
-    Gson gson = new GsonBuilder()
-        .setObjectToNumberStrategy(ToNumberPolicy.DOUBLE)
-        .setNumberToNumberStrategy(ToNumberPolicy.DOUBLE)
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .setObjectToNumberStrategy(ToNumberPolicy.DOUBLE)
+            .setNumberToNumberStrategy(ToNumberPolicy.DOUBLE)
+            .create();
     assertThat(gson.fromJson("null", Object.class)).isEqualTo(null);
     assertThat(gson.fromJson("10", Object.class)).isEqualTo(10.0);
     assertThat(gson.fromJson("null", Number.class)).isEqualTo(null);
@@ -56,10 +57,11 @@ public class ToNumberPolicyFunctionalTest {
 
   @Test
   public void testAsLazilyParsedNumbers() {
-    Gson gson = new GsonBuilder()
-        .setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
-        .setNumberToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
+            .setNumberToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
+            .create();
     assertThat(gson.fromJson("null", Object.class)).isEqualTo(null);
     assertThat(gson.fromJson("10", Object.class)).isEqualTo(new LazilyParsedNumber("10"));
     assertThat(gson.fromJson("null", Number.class)).isEqualTo(null);
@@ -68,10 +70,11 @@ public class ToNumberPolicyFunctionalTest {
 
   @Test
   public void testAsLongsOrDoubles() {
-    Gson gson = new GsonBuilder()
-        .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-        .setNumberToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+            .setNumberToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+            .create();
     assertThat(gson.fromJson("null", Object.class)).isEqualTo(null);
     assertThat(gson.fromJson("10", Object.class)).isEqualTo(10L);
     assertThat(gson.fromJson("10.0", Object.class)).isEqualTo(10.0);
@@ -82,47 +85,50 @@ public class ToNumberPolicyFunctionalTest {
 
   @Test
   public void testAsBigDecimals() {
-    Gson gson = new GsonBuilder()
-        .setObjectToNumberStrategy(ToNumberPolicy.BIG_DECIMAL)
-        .setNumberToNumberStrategy(ToNumberPolicy.BIG_DECIMAL)
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .setObjectToNumberStrategy(ToNumberPolicy.BIG_DECIMAL)
+            .setNumberToNumberStrategy(ToNumberPolicy.BIG_DECIMAL)
+            .create();
     assertThat(gson.fromJson("null", Object.class)).isEqualTo(null);
     assertThat(gson.fromJson("10", Object.class)).isEqualTo(new BigDecimal("10"));
     assertThat(gson.fromJson("10.0", Object.class)).isEqualTo(new BigDecimal("10.0"));
     assertThat(gson.fromJson("null", Number.class)).isEqualTo(null);
     assertThat(gson.fromJson("10", Number.class)).isEqualTo(new BigDecimal("10"));
     assertThat(gson.fromJson("10.0", Number.class)).isEqualTo(new BigDecimal("10.0"));
-    assertThat(gson.fromJson("3.141592653589793238462643383279", BigDecimal.class)).isEqualTo(new BigDecimal("3.141592653589793238462643383279"));
+    assertThat(gson.fromJson("3.141592653589793238462643383279", BigDecimal.class))
+        .isEqualTo(new BigDecimal("3.141592653589793238462643383279"));
     assertThat(gson.fromJson("1e400", BigDecimal.class)).isEqualTo(new BigDecimal("1e400"));
   }
 
   @Test
   public void testAsListOfLongsOrDoubles() {
-    Gson gson = new GsonBuilder()
-        .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-        .setNumberToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-        .create();
-    Type objectCollectionType = new TypeToken<Collection<Object>>() { }.getType();
+    Gson gson =
+        new GsonBuilder()
+            .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+            .setNumberToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+            .create();
+    Type objectCollectionType = new TypeToken<Collection<Object>>() {}.getType();
     Collection<Object> objects = gson.fromJson("[null,10,10.0]", objectCollectionType);
     assertThat(objects).containsExactly(null, 10L, 10.0).inOrder();
-    Type numberCollectionType = new TypeToken<Collection<Number>>() { }.getType();
+    Type numberCollectionType = new TypeToken<Collection<Number>>() {}.getType();
     Collection<Object> numbers = gson.fromJson("[null,10,10.0]", numberCollectionType);
     assertThat(numbers).containsExactly(null, 10L, 10.0).inOrder();
   }
 
   @Test
   public void testCustomStrategiesCannotAffectConcreteDeclaredNumbers() {
-    ToNumberStrategy fail = new ToNumberStrategy() {
-      @Override
-      public Byte readNumber(JsonReader in) {
-        throw new UnsupportedOperationException();
-      }
-    };
-    Gson gson = new GsonBuilder()
-        .setObjectToNumberStrategy(fail)
-        .setNumberToNumberStrategy(fail)
-        .create();
-    List<Object> numbers = gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Byte>>() {}.getType());
+    ToNumberStrategy fail =
+        new ToNumberStrategy() {
+          @Override
+          public Byte readNumber(JsonReader in) {
+            throw new UnsupportedOperationException();
+          }
+        };
+    Gson gson =
+        new GsonBuilder().setObjectToNumberStrategy(fail).setNumberToNumberStrategy(fail).create();
+    List<Object> numbers =
+        gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Byte>>() {}.getType());
     assertThat(numbers).containsExactly(null, (byte) 10, (byte) 20, (byte) 30).inOrder();
     try {
       gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Object>>() {}.getType());

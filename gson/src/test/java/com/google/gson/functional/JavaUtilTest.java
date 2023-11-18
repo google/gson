@@ -24,9 +24,7 @@ import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Functional test for Json serialization and deserialization for classes in java.util
- */
+/** Functional test for Json serialization and deserialization for classes in java.util */
 public class JavaUtilTest {
   private Gson gson;
 

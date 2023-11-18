@@ -42,9 +42,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 
-/**
- * Functional tests for the {@link JsonAdapter} annotation on fields.
- */
+/** Functional tests for the {@link JsonAdapter} annotation on fields. */
 public final class JsonAdapterAnnotationOnFieldsTest {
   @Test
   public void testClassAnnotationAdapterTakesPrecedenceOverDefault() {
@@ -66,9 +64,8 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   @Test
   public void testRegisteredTypeAdapterTakesPrecedenceOverClassAnnotationAdapter() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(User.class, new RegisteredUserAdapter())
-        .create();
+    Gson gson =
+        new GsonBuilder().registerTypeAdapter(User.class, new RegisteredUserAdapter()).create();
     String json = gson.toJson(new Computer(new User("Inderjeet Singh")));
     assertThat(json).isEqualTo("{\"user\":\"RegisteredUserAdapter\"}");
     Computer computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer.class);
@@ -77,15 +74,22 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   @Test
   public void testFieldAnnotationTakesPrecedenceOverRegisteredTypeAdapter() {
-    Gson gson = new GsonBuilder()
-      .registerTypeAdapter(Part.class, new TypeAdapter<Part>() {
-        @Override public void write(JsonWriter out, Part part) {
-          throw new AssertionError();
-        }
-        @Override public Part read(JsonReader in) {
-          throw new AssertionError();
-        }
-      }).create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                Part.class,
+                new TypeAdapter<Part>() {
+                  @Override
+                  public void write(JsonWriter out, Part part) {
+                    throw new AssertionError();
+                  }
+
+                  @Override
+                  public Part read(JsonReader in) {
+                    throw new AssertionError();
+                  }
+                })
+            .create();
     String json = gson.toJson(new Gadget(new Part("screen")));
     assertThat(json).isEqualTo("{\"part\":\"PartJsonFieldAnnotationAdapter\"}");
     Gadget gadget = gson.fromJson("{'part':'screen'}", Gadget.class);
@@ -104,6 +108,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   private static final class Gadget {
     @JsonAdapter(PartJsonFieldAnnotationAdapter.class)
     final Part part;
+
     Gadget(Part part) {
       this.part = part;
     }
@@ -112,6 +117,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   private static final class Gizmo {
     @JsonAdapter(GizmoPartTypeAdapterFactory.class)
     final Part part;
+
     Gizmo(Part part) {
       this.part = part;
     }
@@ -119,29 +125,37 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static final class Part {
     final String name;
+
     public Part(String name) {
       this.name = name;
     }
   }
 
   private static class PartJsonFieldAnnotationAdapter extends TypeAdapter<Part> {
-    @Override public void write(JsonWriter out, Part part) throws IOException {
+    @Override
+    public void write(JsonWriter out, Part part) throws IOException {
       out.value("PartJsonFieldAnnotationAdapter");
     }
-    @Override public Part read(JsonReader in) throws IOException {
+
+    @Override
+    public Part read(JsonReader in) throws IOException {
       String unused = in.nextString();
       return new Part("PartJsonFieldAnnotationAdapter");
     }
   }
 
   private static class GizmoPartTypeAdapterFactory implements TypeAdapterFactory {
-    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
       return new TypeAdapter<T>() {
-        @Override public void write(JsonWriter out, T value) throws IOException {
+        @Override
+        public void write(JsonWriter out, T value) throws IOException {
           out.value("GizmoPartTypeAdapterFactory");
         }
+
         @SuppressWarnings("unchecked")
-        @Override public T read(JsonReader in) throws IOException {
+        @Override
+        public T read(JsonReader in) throws IOException {
           String unused = in.nextString();
           return (T) new Part("GizmoPartTypeAdapterFactory");
         }
@@ -151,6 +165,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static final class Computer {
     final User user;
+
     Computer(User user) {
       this.user = user;
     }
@@ -159,16 +174,20 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   @JsonAdapter(UserClassAnnotationAdapter.class)
   private static class User {
     public final String name;
+
     private User(String name) {
       this.name = name;
     }
   }
 
   private static class UserClassAnnotationAdapter extends TypeAdapter<User> {
-    @Override public void write(JsonWriter out, User user) throws IOException {
+    @Override
+    public void write(JsonWriter out, User user) throws IOException {
       out.value("UserClassAnnotationAdapter");
     }
-    @Override public User read(JsonReader in) throws IOException {
+
+    @Override
+    public User read(JsonReader in) throws IOException {
       String unused = in.nextString();
       return new User("UserClassAnnotationAdapter");
     }
@@ -178,26 +197,33 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     // overrides the JsonAdapter annotation of User with this
     @JsonAdapter(UserFieldAnnotationAdapter.class)
     final User user;
+
     Computer2(User user) {
       this.user = user;
     }
   }
 
   private static final class UserFieldAnnotationAdapter extends TypeAdapter<User> {
-    @Override public void write(JsonWriter out, User user) throws IOException {
+    @Override
+    public void write(JsonWriter out, User user) throws IOException {
       out.value("UserFieldAnnotationAdapter");
     }
-    @Override public User read(JsonReader in) throws IOException {
+
+    @Override
+    public User read(JsonReader in) throws IOException {
       String unused = in.nextString();
       return new User("UserFieldAnnotationAdapter");
     }
   }
 
   private static final class RegisteredUserAdapter extends TypeAdapter<User> {
-    @Override public void write(JsonWriter out, User user) throws IOException {
+    @Override
+    public void write(JsonWriter out, User user) throws IOException {
       out.value("RegisteredUserAdapter");
     }
-    @Override public User read(JsonReader in) throws IOException {
+
+    @Override
+    public User read(JsonReader in) throws IOException {
       String unused = in.nextString();
       return new User("RegisteredUserAdapter");
     }
@@ -213,9 +239,13 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   }
 
   private static final class GadgetWithTwoParts {
-    @JsonAdapter(PartJsonFieldAnnotationAdapter.class) final Part part1;
+    @JsonAdapter(PartJsonFieldAnnotationAdapter.class)
+    final Part part1;
+
     final Part part2; // Doesn't have the JsonAdapter annotation
-    @SuppressWarnings("unused") GadgetWithTwoParts(Part part1, Part part2) {
+
+    @SuppressWarnings("unused")
+    GadgetWithTwoParts(Part part1, Part part2) {
       this.part1 = part1;
       this.part2 = part2;
     }
@@ -272,24 +302,32 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   }
 
   private static final class LongToStringTypeAdapterFactory implements TypeAdapterFactory {
-    static final TypeAdapter<Long> ADAPTER = new TypeAdapter<Long>() {
-      @Override public void write(JsonWriter out, Long value) throws IOException {
-        out.value(value.toString());
-      }
-      @Override public Long read(JsonReader in) throws IOException {
-        return in.nextLong();
-      }
-    };
+    static final TypeAdapter<Long> ADAPTER =
+        new TypeAdapter<Long>() {
+          @Override
+          public void write(JsonWriter out, Long value) throws IOException {
+            out.value(value.toString());
+          }
+
+          @Override
+          public Long read(JsonReader in) throws IOException {
+            return in.nextLong();
+          }
+        };
+
     @SuppressWarnings("unchecked")
-    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
       Class<?> cls = type.getRawType();
       if (Long.class.isAssignableFrom(cls)) {
         return (TypeAdapter<T>) ADAPTER;
       } else if (long.class.isAssignableFrom(cls)) {
         return (TypeAdapter<T>) ADAPTER;
       }
-      throw new IllegalStateException("Non-long field of type " + type
-          + " annotated with @JsonAdapter(LongToStringTypeAdapterFactory.class)");
+      throw new IllegalStateException(
+          "Non-long field of type "
+              + type
+              + " annotated with @JsonAdapter(LongToStringTypeAdapterFactory.class)");
     }
   }
 
@@ -305,19 +343,24 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   private static final class Gizmo2 {
     @JsonAdapter(Gizmo2PartTypeAdapterFactory.class)
     List<Part> part;
+
     Gizmo2(List<Part> part) {
       this.part = part;
     }
   }
 
   private static class Gizmo2PartTypeAdapterFactory implements TypeAdapterFactory {
-    @Override public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
       return new TypeAdapter<T>() {
-        @Override public void write(JsonWriter out, T value) throws IOException {
+        @Override
+        public void write(JsonWriter out, T value) throws IOException {
           out.value("GizmoPartTypeAdapterFactory");
         }
+
         @SuppressWarnings("unchecked")
-        @Override public T read(JsonReader in) throws IOException {
+        @Override
+        public T read(JsonReader in) throws IOException {
           String unused = in.nextString();
           return (T) Arrays.asList(new Part("GizmoPartTypeAdapterFactory"));
         }
@@ -326,8 +369,8 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   }
 
   /**
-   * Verify that {@link JsonAdapter} annotation can overwrite adapters which
-   * can normally not be overwritten (in this case adapter for {@link JsonElement}).
+   * Verify that {@link JsonAdapter} annotation can overwrite adapters which can normally not be
+   * overwritten (in this case adapter for {@link JsonElement}).
    */
   @Test
   public void testOverwriteBuiltIn() {
@@ -347,33 +390,42 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static class JsonElementAdapter extends TypeAdapter<JsonElement> {
     static final JsonPrimitive DESERIALIZED = new JsonPrimitive("deserialized hardcoded");
-    @Override public JsonElement read(JsonReader in) throws IOException {
+
+    @Override
+    public JsonElement read(JsonReader in) throws IOException {
       in.skipValue();
       return DESERIALIZED;
     }
 
     static final String SERIALIZED = "serialized hardcoded";
-    @Override public void write(JsonWriter out, JsonElement value) throws IOException {
+
+    @Override
+    public void write(JsonWriter out, JsonElement value) throws IOException {
       out.value(SERIALIZED);
     }
   }
 
   /**
-   * Verify that exclusion strategy preventing serialization has higher precedence than
-   * {@link JsonAdapter} annotation.
+   * Verify that exclusion strategy preventing serialization has higher precedence than {@link
+   * JsonAdapter} annotation.
    */
   @Test
   public void testExcludeSerializePrecedence() {
-    Gson gson = new GsonBuilder()
-        .addSerializationExclusionStrategy(new ExclusionStrategy() {
-          @Override public boolean shouldSkipField(FieldAttributes f) {
-            return true;
-          }
-          @Override public boolean shouldSkipClass(Class<?> clazz) {
-            return false;
-          }
-        })
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .addSerializationExclusionStrategy(
+                new ExclusionStrategy() {
+                  @Override
+                  public boolean shouldSkipField(FieldAttributes f) {
+                    return true;
+                  }
+
+                  @Override
+                  public boolean shouldSkipClass(Class<?> clazz) {
+                    return false;
+                  }
+                })
+            .create();
 
     DelegatingAndOverwriting obj = new DelegatingAndOverwriting();
     obj.f = 1;
@@ -382,7 +434,8 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     String json = gson.toJson(obj);
     assertThat(json).isEqualTo("{}");
 
-    DelegatingAndOverwriting deserialized = gson.fromJson("{\"f\":1,\"f2\":2,\"f3\":3}", DelegatingAndOverwriting.class);
+    DelegatingAndOverwriting deserialized =
+        gson.fromJson("{\"f\":1,\"f2\":2,\"f3\":3}", DelegatingAndOverwriting.class);
     assertThat(deserialized.f).isEqualTo(Integer.valueOf(1));
     assertThat(deserialized.f2).isEqualTo(new JsonPrimitive(2));
     // Verify that for deserialization type adapter specified by @JsonAdapter is used
@@ -390,21 +443,26 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   }
 
   /**
-   * Verify that exclusion strategy preventing deserialization has higher precedence than
-   * {@link JsonAdapter} annotation.
+   * Verify that exclusion strategy preventing deserialization has higher precedence than {@link
+   * JsonAdapter} annotation.
    */
   @Test
   public void testExcludeDeserializePrecedence() {
-    Gson gson = new GsonBuilder()
-        .addDeserializationExclusionStrategy(new ExclusionStrategy() {
-          @Override public boolean shouldSkipField(FieldAttributes f) {
-            return true;
-          }
-          @Override public boolean shouldSkipClass(Class<?> clazz) {
-            return false;
-          }
-        })
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .addDeserializationExclusionStrategy(
+                new ExclusionStrategy() {
+                  @Override
+                  public boolean shouldSkipField(FieldAttributes f) {
+                    return true;
+                  }
+
+                  @Override
+                  public boolean shouldSkipClass(Class<?> clazz) {
+                    return false;
+                  }
+                })
+            .create();
 
     DelegatingAndOverwriting obj = new DelegatingAndOverwriting();
     obj.f = 1;
@@ -412,33 +470,40 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     obj.f3 = new JsonPrimitive(true);
     String json = gson.toJson(obj);
     // Verify that for serialization type adapters specified by @JsonAdapter are used
-    assertThat(json).isEqualTo("{\"f\":1,\"f2\":2,\"f3\":\"" + JsonElementAdapter.SERIALIZED + "\"}");
+    assertThat(json)
+        .isEqualTo("{\"f\":1,\"f2\":2,\"f3\":\"" + JsonElementAdapter.SERIALIZED + "\"}");
 
-    DelegatingAndOverwriting deserialized = gson.fromJson("{\"f\":1,\"f2\":2,\"f3\":3}", DelegatingAndOverwriting.class);
+    DelegatingAndOverwriting deserialized =
+        gson.fromJson("{\"f\":1,\"f2\":2,\"f3\":3}", DelegatingAndOverwriting.class);
     assertThat(deserialized.f).isNull();
     assertThat(deserialized.f2).isNull();
     assertThat(deserialized.f3).isNull();
   }
 
   /**
-   * Verify that exclusion strategy preventing serialization and deserialization has
-   * higher precedence than {@link JsonAdapter} annotation.
+   * Verify that exclusion strategy preventing serialization and deserialization has higher
+   * precedence than {@link JsonAdapter} annotation.
    *
-   * <p>This is a separate test method because {@link ReflectiveTypeAdapterFactory} handles
-   * this case differently.
+   * <p>This is a separate test method because {@link ReflectiveTypeAdapterFactory} handles this
+   * case differently.
    */
   @Test
   public void testExcludePrecedence() {
-    Gson gson = new GsonBuilder()
-        .setExclusionStrategies(new ExclusionStrategy() {
-          @Override public boolean shouldSkipField(FieldAttributes f) {
-            return true;
-          }
-          @Override public boolean shouldSkipClass(Class<?> clazz) {
-            return false;
-          }
-        })
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .setExclusionStrategies(
+                new ExclusionStrategy() {
+                  @Override
+                  public boolean shouldSkipField(FieldAttributes f) {
+                    return true;
+                  }
+
+                  @Override
+                  public boolean shouldSkipClass(Class<?> clazz) {
+                    return false;
+                  }
+                })
+            .create();
 
     DelegatingAndOverwriting obj = new DelegatingAndOverwriting();
     obj.f = 1;
@@ -447,7 +512,8 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     String json = gson.toJson(obj);
     assertThat(json).isEqualTo("{}");
 
-    DelegatingAndOverwriting deserialized = gson.fromJson("{\"f\":1,\"f2\":2,\"f3\":3}", DelegatingAndOverwriting.class);
+    DelegatingAndOverwriting deserialized =
+        gson.fromJson("{\"f\":1,\"f2\":2,\"f3\":3}", DelegatingAndOverwriting.class);
     assertThat(deserialized.f).isNull();
     assertThat(deserialized.f2).isNull();
     assertThat(deserialized.f3).isNull();
@@ -456,8 +522,10 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   private static class DelegatingAndOverwriting {
     @JsonAdapter(DelegatingAdapterFactory.class)
     Integer f;
+
     @JsonAdapter(DelegatingAdapterFactory.class)
     JsonElement f2;
+
     // Also have non-delegating adapter to make tests handle both cases
     @JsonAdapter(JsonElementAdapter.class)
     JsonElement f3;
@@ -471,25 +539,29 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   }
 
   /**
-   * Verifies that {@link TypeAdapterFactory} specified by {@code @JsonAdapter} can
-   * call {@link Gson#getDelegateAdapter} without any issues, despite the factory
-   * not being directly registered on Gson.
+   * Verifies that {@link TypeAdapterFactory} specified by {@code @JsonAdapter} can call {@link
+   * Gson#getDelegateAdapter} without any issues, despite the factory not being directly registered
+   * on Gson.
    */
   @Test
   public void testDelegatingAdapterFactory() {
     @SuppressWarnings("unchecked")
-    WithDelegatingFactory<String> deserialized = new Gson().fromJson("{\"f\":\"test\"}", WithDelegatingFactory.class);
+    WithDelegatingFactory<String> deserialized =
+        new Gson().fromJson("{\"f\":\"test\"}", WithDelegatingFactory.class);
     assertThat(deserialized.f).isEqualTo("test-custom");
 
-    deserialized = new Gson().fromJson("{\"f\":\"test\"}", new TypeToken<WithDelegatingFactory<String>>() {});
+    deserialized =
+        new Gson().fromJson("{\"f\":\"test\"}", new TypeToken<WithDelegatingFactory<String>>() {});
     assertThat(deserialized.f).isEqualTo("test-custom");
 
     WithDelegatingFactory<String> serialized = new WithDelegatingFactory<>();
     serialized.f = "value";
     assertThat(new Gson().toJson(serialized)).isEqualTo("{\"f\":\"value-custom\"}");
   }
+
   private static class WithDelegatingFactory<T> {
-    @SuppressWarnings("SameNameButDifferent") // suppress Error Prone warning; should be clear that `Factory` refers to nested class
+    // suppress Error Prone warning; should be clear that `Factory` refers to nested class
+    @SuppressWarnings("SameNameButDifferent")
     @JsonAdapter(Factory.class)
     T f;
 
@@ -499,37 +571,41 @@ public final class JsonAdapterAnnotationOnFieldsTest {
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         TypeAdapter<String> delegate = (TypeAdapter<String>) gson.getDelegateAdapter(this, type);
 
-        return (TypeAdapter<T>) new TypeAdapter<String>() {
-          @Override
-          public String read(JsonReader in) throws IOException {
-            // Perform custom deserialization
-            return delegate.read(in) + "-custom";
-          }
+        return (TypeAdapter<T>)
+            new TypeAdapter<String>() {
+              @Override
+              public String read(JsonReader in) throws IOException {
+                // Perform custom deserialization
+                return delegate.read(in) + "-custom";
+              }
 
-          @Override
-          public void write(JsonWriter out, String value) throws IOException {
-            // Perform custom serialization
-            delegate.write(out, value + "-custom");
-          }
-        };
+              @Override
+              public void write(JsonWriter out, String value) throws IOException {
+                // Perform custom serialization
+                delegate.write(out, value + "-custom");
+              }
+            };
       }
     }
   }
 
   /**
-   * Similar to {@link #testDelegatingAdapterFactory}, except that the delegate is not
-   * looked up in {@code create} but instead in the adapter methods.
+   * Similar to {@link #testDelegatingAdapterFactory}, except that the delegate is not looked up in
+   * {@code create} but instead in the adapter methods.
    */
   @Test
   public void testDelegatingAdapterFactory_Delayed() {
-    WithDelayedDelegatingFactory deserialized = new Gson().fromJson("{\"f\":\"test\"}", WithDelayedDelegatingFactory.class);
+    WithDelayedDelegatingFactory deserialized =
+        new Gson().fromJson("{\"f\":\"test\"}", WithDelayedDelegatingFactory.class);
     assertThat(deserialized.f).isEqualTo("test-custom");
 
     WithDelayedDelegatingFactory serialized = new WithDelayedDelegatingFactory();
     serialized.f = "value";
     assertThat(new Gson().toJson(serialized)).isEqualTo("{\"f\":\"value-custom\"}");
   }
-  @SuppressWarnings("SameNameButDifferent") // suppress Error Prone warning; should be clear that `Factory` refers to nested class
+
+  // suppress Error Prone warning; should be clear that `Factory` refers to nested class
+  @SuppressWarnings("SameNameButDifferent")
   private static class WithDelayedDelegatingFactory {
     @JsonAdapter(Factory.class)
     String f;
@@ -538,23 +614,24 @@ public final class JsonAdapterAnnotationOnFieldsTest {
       @SuppressWarnings("unchecked")
       @Override
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-        return (TypeAdapter<T>) new TypeAdapter<String>() {
-          private TypeAdapter<String> delegate() {
-            return (TypeAdapter<String>) gson.getDelegateAdapter(Factory.this, type);
-          }
+        return (TypeAdapter<T>)
+            new TypeAdapter<String>() {
+              private TypeAdapter<String> delegate() {
+                return (TypeAdapter<String>) gson.getDelegateAdapter(Factory.this, type);
+              }
 
-          @Override
-          public String read(JsonReader in) throws IOException {
-            // Perform custom deserialization
-            return delegate().read(in) + "-custom";
-          }
+              @Override
+              public String read(JsonReader in) throws IOException {
+                // Perform custom deserialization
+                return delegate().read(in) + "-custom";
+              }
 
-          @Override
-          public void write(JsonWriter out, String value) throws IOException {
-            // Perform custom serialization
-            delegate().write(out, value + "-custom");
-          }
-        };
+              @Override
+              public void write(JsonWriter out, String value) throws IOException {
+                // Perform custom serialization
+                delegate().write(out, value + "-custom");
+              }
+            };
       }
     }
   }
@@ -562,7 +639,8 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   /**
    * Tests usage of {@link Gson#getAdapter(TypeToken)} in the {@code create} method of the factory.
    * Existing code was using that as workaround because {@link Gson#getDelegateAdapter} previously
-   * did not work in combination with {@code @JsonAdapter}, see https://github.com/google/gson/issues/1028.
+   * did not work in combination with {@code @JsonAdapter}, see
+   * https://github.com/google/gson/issues/1028.
    */
   @Test
   public void testGetAdapterDelegation() {
@@ -573,8 +651,10 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     String json = gson.toJson(new GetAdapterDelegation("se"));
     assertThat(json).isEqualTo("{\"f\":\"se-custom\"}");
   }
+
   private static class GetAdapterDelegation {
-    @SuppressWarnings("SameNameButDifferent") // suppress Error Prone warning; should be clear that `Factory` refers to nested class
+    // suppress Error Prone warning; should be clear that `Factory` refers to nested class
+    @SuppressWarnings("SameNameButDifferent")
     @JsonAdapter(Factory.class)
     String f;
 
@@ -589,24 +669,23 @@ public final class JsonAdapterAnnotationOnFieldsTest {
         // Uses `Gson.getAdapter` instead of `Gson.getDelegateAdapter`
         TypeAdapter<String> delegate = (TypeAdapter<String>) gson.getAdapter(type);
 
-        return (TypeAdapter<T>) new TypeAdapter<String>() {
-          @Override
-          public String read(JsonReader in) throws IOException {
-            return delegate.read(in) + "-custom";
-          }
+        return (TypeAdapter<T>)
+            new TypeAdapter<String>() {
+              @Override
+              public String read(JsonReader in) throws IOException {
+                return delegate.read(in) + "-custom";
+              }
 
-          @Override
-          public void write(JsonWriter out, String value) throws IOException {
-            delegate.write(out, value + "-custom");
-          }
-        };
+              @Override
+              public void write(JsonWriter out, String value) throws IOException {
+                delegate.write(out, value + "-custom");
+              }
+            };
       }
     }
   }
 
-  /**
-   * Tests usage of {@link JsonSerializer} as {@link JsonAdapter} value on a field
-   */
+  /** Tests usage of {@link JsonSerializer} as {@link JsonAdapter} value on a field */
   @Test
   public void testJsonSerializer() {
     Gson gson = new Gson();
@@ -618,21 +697,21 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     // Uses custom serializer which always returns `true`
     assertThat(json).isEqualTo("{\"f\":true}");
   }
+
   private static class WithJsonSerializer {
     @JsonAdapter(Serializer.class)
     List<Integer> f = Collections.emptyList();
 
     static class Serializer implements JsonSerializer<List<Integer>> {
       @Override
-      public JsonElement serialize(List<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
+      public JsonElement serialize(
+          List<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(true);
       }
     }
   }
 
-  /**
-   * Tests usage of {@link JsonDeserializer} as {@link JsonAdapter} value on a field
-   */
+  /** Tests usage of {@link JsonDeserializer} as {@link JsonAdapter} value on a field */
   @Test
   public void testJsonDeserializer() {
     Gson gson = new Gson();
@@ -644,6 +723,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     String json = gson.toJson(new WithJsonDeserializer(Arrays.asList(4, 5, 6)));
     assertThat(json).isEqualTo("{\"f\":[4,5,6]}");
   }
+
   private static class WithJsonDeserializer {
     @JsonAdapter(Deserializer.class)
     List<Integer> f;
@@ -654,7 +734,8 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
     static class Deserializer implements JsonDeserializer<List<Integer>> {
       @Override
-      public List<Integer> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+      public List<Integer> deserialize(
+          JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         return Arrays.asList(3, 2, 1);
       }
     }

@@ -225,7 +225,8 @@ public final class JsonTreeWriterTest {
     writer.value(Double.NEGATIVE_INFINITY);
     writer.value(Double.POSITIVE_INFINITY);
     writer.endArray();
-    assertThat(writer.get().toString()).isEqualTo("[NaN,-Infinity,Infinity,NaN,-Infinity,Infinity]");
+    assertThat(writer.get().toString())
+        .isEqualTo("[NaN,-Infinity,Infinity,NaN,-Infinity,Infinity]");
   }
 
   @Test
@@ -315,18 +316,24 @@ public final class JsonTreeWriterTest {
 
   /**
    * {@link JsonTreeWriter} effectively replaces the complete writing logic of {@link JsonWriter} to
-   * create a {@link JsonElement} tree instead of writing to a {@link Writer}. Therefore all relevant
-   * methods of {@code JsonWriter} must be overridden.
+   * create a {@link JsonElement} tree instead of writing to a {@link Writer}. Therefore all
+   * relevant methods of {@code JsonWriter} must be overridden.
    */
   @Test
   public void testOverrides() {
-    List<String> ignoredMethods = Arrays.asList(
-        "setLenient(boolean)", "isLenient()",
-        "setStrictness(com.google.gson.Strictness)", "getStrictness()",
-        "setIndent(java.lang.String)",
-        "setHtmlSafe(boolean)", "isHtmlSafe()",
-        "setFormattingStyle(com.google.gson.FormattingStyle)", "getFormattingStyle()",
-        "setSerializeNulls(boolean)", "getSerializeNulls()");
+    List<String> ignoredMethods =
+        Arrays.asList(
+            "setLenient(boolean)",
+            "isLenient()",
+            "setStrictness(com.google.gson.Strictness)",
+            "getStrictness()",
+            "setIndent(java.lang.String)",
+            "setHtmlSafe(boolean)",
+            "isHtmlSafe()",
+            "setFormattingStyle(com.google.gson.FormattingStyle)",
+            "getFormattingStyle()",
+            "setSerializeNulls(boolean)",
+            "getSerializeNulls()");
     MoreAsserts.assertOverridesMethods(JsonWriter.class, JsonTreeWriter.class, ignoredMethods);
   }
 }

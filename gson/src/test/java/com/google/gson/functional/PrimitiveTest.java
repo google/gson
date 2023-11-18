@@ -89,22 +89,29 @@ public class PrimitiveTest {
 
   @Test
   public void testByteDeserializationLossy() {
-    JsonSyntaxException e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("-129", byte.class));
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("-129", byte.class));
     assertThat(e).hasMessageThat().isEqualTo("Lossy conversion from -129 to byte; at path $");
 
     e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("256", byte.class));
     assertThat(e).hasMessageThat().isEqualTo("Lossy conversion from 256 to byte; at path $");
 
     e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("2147483648", byte.class));
-    assertThat(e).hasMessageThat().isEqualTo("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $");
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "java.lang.NumberFormatException: Expected an int but was 2147483648"
+                + " at line 1 column 11 path $");
   }
 
   @Test
   public void testShortSerialization() {
     assertThat(gson.toJson(1, short.class)).isEqualTo("1");
     assertThat(gson.toJson(1, Short.class)).isEqualTo("1");
-    assertThat(gson.toJson(Short.MIN_VALUE, Short.class)).isEqualTo(Short.toString(Short.MIN_VALUE));
-    assertThat(gson.toJson(Short.MAX_VALUE, Short.class)).isEqualTo(Short.toString(Short.MAX_VALUE));
+    assertThat(gson.toJson(Short.MIN_VALUE, Short.class))
+        .isEqualTo(Short.toString(Short.MIN_VALUE));
+    assertThat(gson.toJson(Short.MAX_VALUE, Short.class))
+        .isEqualTo(Short.toString(Short.MAX_VALUE));
     // Should perform widening conversion
     assertThat(gson.toJson((byte) 1, Short.class)).isEqualTo("1");
     // Should perform narrowing conversion
@@ -125,22 +132,29 @@ public class PrimitiveTest {
 
   @Test
   public void testShortDeserializationLossy() {
-    JsonSyntaxException e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("-32769", short.class));
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("-32769", short.class));
     assertThat(e).hasMessageThat().isEqualTo("Lossy conversion from -32769 to short; at path $");
 
     e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("65536", short.class));
     assertThat(e).hasMessageThat().isEqualTo("Lossy conversion from 65536 to short; at path $");
 
     e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("2147483648", short.class));
-    assertThat(e).hasMessageThat().isEqualTo("java.lang.NumberFormatException: Expected an int but was 2147483648 at line 1 column 11 path $");
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "java.lang.NumberFormatException: Expected an int but was 2147483648"
+                + " at line 1 column 11 path $");
   }
 
   @Test
   public void testIntSerialization() {
     assertThat(gson.toJson(1, int.class)).isEqualTo("1");
     assertThat(gson.toJson(1, Integer.class)).isEqualTo("1");
-    assertThat(gson.toJson(Integer.MIN_VALUE, Integer.class)).isEqualTo(Integer.toString(Integer.MIN_VALUE));
-    assertThat(gson.toJson(Integer.MAX_VALUE, Integer.class)).isEqualTo(Integer.toString(Integer.MAX_VALUE));
+    assertThat(gson.toJson(Integer.MIN_VALUE, Integer.class))
+        .isEqualTo(Integer.toString(Integer.MIN_VALUE));
+    assertThat(gson.toJson(Integer.MAX_VALUE, Integer.class))
+        .isEqualTo(Integer.toString(Integer.MAX_VALUE));
     // Should perform widening conversion
     assertThat(gson.toJson((byte) 1, Integer.class)).isEqualTo("1");
     // Should perform narrowing conversion
@@ -164,12 +178,15 @@ public class PrimitiveTest {
   public void testFloatSerialization() {
     assertThat(gson.toJson(1.5f, float.class)).isEqualTo("1.5");
     assertThat(gson.toJson(1.5f, Float.class)).isEqualTo("1.5");
-    assertThat(gson.toJson(Float.MIN_VALUE, Float.class)).isEqualTo(Float.toString(Float.MIN_VALUE));
-    assertThat(gson.toJson(Float.MAX_VALUE, Float.class)).isEqualTo(Float.toString(Float.MAX_VALUE));
+    assertThat(gson.toJson(Float.MIN_VALUE, Float.class))
+        .isEqualTo(Float.toString(Float.MIN_VALUE));
+    assertThat(gson.toJson(Float.MAX_VALUE, Float.class))
+        .isEqualTo(Float.toString(Float.MAX_VALUE));
     // Should perform widening conversion
     assertThat(gson.toJson((byte) 1, Float.class)).isEqualTo("1.0");
     // (This widening conversion is actually lossy)
-    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Float.class)).isEqualTo(Float.toString((float) (Long.MAX_VALUE - 10L)));
+    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Float.class))
+        .isEqualTo(Float.toString((float) (Long.MAX_VALUE - 10L)));
     // Should perform narrowing conversion
     gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
     assertThat(gson.toJson(Double.MAX_VALUE, Float.class)).isEqualTo("Infinity");
@@ -179,12 +196,15 @@ public class PrimitiveTest {
   public void testDoubleSerialization() {
     assertThat(gson.toJson(1.5, double.class)).isEqualTo("1.5");
     assertThat(gson.toJson(1.5, Double.class)).isEqualTo("1.5");
-    assertThat(gson.toJson(Double.MIN_VALUE, Double.class)).isEqualTo(Double.toString(Double.MIN_VALUE));
-    assertThat(gson.toJson(Double.MAX_VALUE, Double.class)).isEqualTo(Double.toString(Double.MAX_VALUE));
+    assertThat(gson.toJson(Double.MIN_VALUE, Double.class))
+        .isEqualTo(Double.toString(Double.MIN_VALUE));
+    assertThat(gson.toJson(Double.MAX_VALUE, Double.class))
+        .isEqualTo(Double.toString(Double.MAX_VALUE));
     // Should perform widening conversion
     assertThat(gson.toJson((byte) 1, Double.class)).isEqualTo("1.0");
     // (This widening conversion is actually lossy)
-    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Double.class)).isEqualTo(Double.toString((double) (Long.MAX_VALUE - 10L)));
+    assertThat(gson.toJson(Long.MAX_VALUE - 10L, Double.class))
+        .isEqualTo(Double.toString((double) (Long.MAX_VALUE - 10L)));
   }
 
   @Test
@@ -334,17 +354,18 @@ public class PrimitiveTest {
 
   @Test
   public void testDoubleArrayDeserialization() {
-      String json = "[0.0, 0.004761904761904762, 3.4013606962703525E-4, 7.936508173034305E-4,"
-              + "0.0011904761904761906, 0.0]";
-      double[] values = gson.fromJson(json, double[].class);
+    String json =
+        "[0.0, 0.004761904761904762, 3.4013606962703525E-4, 7.936508173034305E-4,"
+            + "0.0011904761904761906, 0.0]";
+    double[] values = gson.fromJson(json, double[].class);
 
-      assertThat(values).hasLength(6);
-      assertThat(values[0]).isEqualTo(0.0);
-      assertThat(values[1]).isEqualTo(0.004761904761904762);
-      assertThat(values[2]).isEqualTo(3.4013606962703525E-4);
-      assertThat(values[3]).isEqualTo(7.936508173034305E-4);
-      assertThat(values[4]).isEqualTo(0.0011904761904761906);
-      assertThat(values[5]).isEqualTo(0.0);
+    assertThat(values).hasLength(6);
+    assertThat(values[0]).isEqualTo(0.0);
+    assertThat(values[1]).isEqualTo(0.004761904761904762);
+    assertThat(values[2]).isEqualTo(3.4013606962703525E-4);
+    assertThat(values[3]).isEqualTo(7.936508173034305E-4);
+    assertThat(values[4]).isEqualTo(0.0011904761904761906);
+    assertThat(values[5]).isEqualTo(0.0);
   }
 
   @Test
@@ -476,7 +497,8 @@ public class PrimitiveTest {
     try {
       gson.fromJson("15.099", BigInteger.class);
       fail("BigInteger can not be decimal values.");
-    } catch (JsonSyntaxException expected) { }
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   @Test
@@ -892,22 +914,34 @@ public class PrimitiveTest {
 
   @Test
   public void testDeserializingBigDecimalAsIntegerFails() {
-    JsonSyntaxException e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("-122.08e-213", Integer.class));
-    assertThat(e).hasCauseThat().hasMessageThat().isEqualTo("Expected an int but was -122.08e-213 at line 1 column 13 path $");
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("-122.08e-213", Integer.class));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .isEqualTo("Expected an int but was -122.08e-213 at line 1 column 13 path $");
   }
 
   @Test
   public void testDeserializingBigIntegerAsInteger() {
     String number = "12121211243123245845384534687435634558945453489543985435";
-    JsonSyntaxException e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson(number, Integer.class));
-    assertThat(e).hasCauseThat().hasMessageThat().isEqualTo("Expected an int but was " + number + " at line 1 column 57 path $");
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson(number, Integer.class));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .isEqualTo("Expected an int but was " + number + " at line 1 column 57 path $");
   }
 
   @Test
   public void testDeserializingBigIntegerAsLong() {
     String number = "12121211243123245845384534687435634558945453489543985435";
-    JsonSyntaxException e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson(number, Long.class));
-    assertThat(e).hasCauseThat().hasMessageThat().isEqualTo("Expected a long but was " + number + " at line 1 column 57 path $");
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson(number, Long.class));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .isEqualTo("Expected a long but was " + number + " at line 1 column 57 path $");
   }
 
   @Test
@@ -930,8 +964,9 @@ public class PrimitiveTest {
   @Test
   public void testDeserializingBigIntegerAsBigDecimal() {
     BigDecimal actual =
-      gson.fromJson("12121211243123245845384534687435634558945453489543985435", BigDecimal.class);
-    assertThat(actual.toPlainString()).isEqualTo("12121211243123245845384534687435634558945453489543985435");
+        gson.fromJson("12121211243123245845384534687435634558945453489543985435", BigDecimal.class);
+    assertThat(actual.toPlainString())
+        .isEqualTo("12121211243123245845384534687435634558945453489543985435");
   }
 
   @Test

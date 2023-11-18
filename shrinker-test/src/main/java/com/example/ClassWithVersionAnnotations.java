@@ -3,9 +3,7 @@ package com.example;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 
-/**
- * Uses {@link Since} and {@link Until} annotations.
- */
+/** Uses {@link Since} and {@link Until} annotations. */
 public class ClassWithVersionAnnotations {
   @Since(1)
   int i1;
