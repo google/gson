@@ -54,7 +54,7 @@ public class Java17ReflectionHelperTest {
             .newInstance(new PrincipalImpl("user"), new PrincipalImpl("group"));
 
     String[] componentNames = ReflectionHelper.getRecordComponentNames(unixDomainPrincipalClass);
-    assertThat(componentNames.length > 0).isTrue();
+    assertThat(componentNames).isNotEmpty();
 
     for (String componentName : componentNames) {
       Field componentField = unixDomainPrincipalClass.getDeclaredField(componentName);

@@ -237,8 +237,8 @@ public class CollectionTest {
     target.add(objB);
 
     String result = gson.toJson(target);
-    assertThat(result.startsWith("[")).isTrue();
-    assertThat(result.endsWith("]")).isTrue();
+    assertThat(result).startsWith("[");
+    assertThat(result).endsWith("]");
     for (BagOfPrimitives obj : target) {
       assertThat(result).contains(obj.getExpectedJson());
     }

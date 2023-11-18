@@ -41,13 +41,13 @@ public class GsonProguardExampleActivity extends Activity {
     Cart cart = buildCart();
     StringBuilder sb = new StringBuilder();
     sb.append("Gson.toJson() example: \n");
-    sb.append("  Cart Object: ").append(cart).append("\n");
-    sb.append("  Cart JSON: ").append(gson.toJson(cart)).append("\n");
+    sb.append("  Cart Object: ").append(cart).append('\n');
+    sb.append("  Cart JSON: ").append(gson.toJson(cart)).append('\n');
     sb.append("\n\nGson.fromJson() example: \n");
     String json = "{buyer:'Happy Camper',creditCard:'4111-1111-1111-1111',"
       + "lineItems:[{name:'nails',priceInMicros:100000,quantity:100,currencyCode:'USD'}]}";
-    sb.append("Cart JSON: ").append(json).append("\n");
-    sb.append("Cart Object: ").append(gson.fromJson(json, Cart.class)).append("\n");
+    sb.append("Cart JSON: ").append(json).append('\n');
+    sb.append("Cart Object: ").append(gson.fromJson(json, Cart.class)).append('\n');
     tv.setText(sb.toString());
     tv.invalidate();
   }

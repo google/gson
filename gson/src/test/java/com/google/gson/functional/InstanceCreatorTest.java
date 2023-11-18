@@ -74,10 +74,10 @@ public class InstanceCreatorTest {
 
     String json = "{baseName:'Base',subName:'SubRevised'}";
     Base base = gson.fromJson(json, Base.class);
-    assertThat(base instanceof Sub).isTrue();
+    assertThat(base).isInstanceOf(Sub.class);
 
     Sub sub = (Sub) base;
-    assertThat("SubRevised".equals(sub.subName)).isFalse();
+    assertThat(sub.subName).isNotEqualTo("SubRevised");
     assertThat(sub.subName).isEqualTo(Sub.SUB_NAME);
   }
 
@@ -96,7 +96,7 @@ public class InstanceCreatorTest {
             .create();
     String json = "{base:{baseName:'Base',subName:'SubRevised'}}";
     ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
-    assertThat(target.base instanceof Sub).isTrue();
+    assertThat(target.base).isInstanceOf(Sub.class);
     assertThat(((Sub) target.base).subName).isEqualTo(Sub.SUB_NAME);
   }
 

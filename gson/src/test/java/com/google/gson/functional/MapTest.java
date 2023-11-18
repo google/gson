@@ -589,8 +589,7 @@ public class MapTest {
     Map<String, String> map = new LinkedHashMap<>();
     map.put("2,3", "a");
     map.put("5,7", "b");
-    assertThat(map)
-        .isEqualTo(gson.fromJson(json, new TypeToken<Map<String, String>>() {}.getType()));
+    assertThat(gson.fromJson(json, new TypeToken<Map<String, String>>() {})).isEqualTo(map);
   }
 
   @Test
@@ -599,8 +598,7 @@ public class MapTest {
     Map<Double, String> map = new LinkedHashMap<>();
     map.put(2.3, "a");
     map.put(5.7, "b");
-    assertThat(map)
-        .isEqualTo(gson.fromJson(json, new TypeToken<Map<Double, String>>() {}.getType()));
+    assertThat(gson.fromJson(json, new TypeToken<Map<Double, String>>() {})).isEqualTo(map);
   }
 
   @Test
@@ -609,8 +607,7 @@ public class MapTest {
     Map<Boolean, String> map = new LinkedHashMap<>();
     map.put(true, "a");
     map.put(false, "b");
-    assertThat(map)
-        .isEqualTo(gson.fromJson(json, new TypeToken<Map<Boolean, String>>() {}.getType()));
+    assertThat(gson.fromJson(json, new TypeToken<Map<Boolean, String>>() {})).isEqualTo(map);
   }
 
   @Test
@@ -635,13 +632,13 @@ public class MapTest {
 
   @Test
   public void testDeerializeMapOfMaps() {
-    Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
+    TypeToken<Map<String, Map<String, String>>> type = new TypeToken<>() {};
     Map<String, Map<String, String>> map =
         newMap(
             "a", newMap("ka1", "va1", "ka2", "va2"),
             "b", newMap("kb1", "vb1", "kb2", "vb2"));
     String json = "{'a':{'ka1':'va1','ka2':'va2'},'b':{'kb1':'vb1','kb2':'vb2'}}";
-    assertThat(map).isEqualTo(gson.fromJson(json, type));
+    assertThat(gson.fromJson(json, type)).isEqualTo(map);
   }
 
   private <K, V> Map<K, V> newMap(K key1, V value1, K key2, V value2) {
@@ -657,8 +654,7 @@ public class MapTest {
     Map<Double, String> map = new LinkedHashMap<>();
     map.put(2.3, "a");
     JsonElement tree = JsonParser.parseString(json);
-    assertThat(map)
-        .isEqualTo(gson.fromJson(tree, new TypeToken<Map<Double, String>>() {}.getType()));
+    assertThat(gson.fromJson(tree, new TypeToken<Map<Double, String>>() {})).isEqualTo(map);
   }
 
   static class Point {

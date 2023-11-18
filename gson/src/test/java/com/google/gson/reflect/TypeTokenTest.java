@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +82,18 @@ public final class TypeTokenTest {
     listOfUnknown = listOfString; // compiles; must be true
     // The following assertion is too difficult to support reliably, so disabling
     // assertThat(TypeToken.get(b).isAssignableFrom(a)).isTrue();
+
+    WildcardType wildcardType = (WildcardType) ((ParameterizedType) b).getActualTypeArguments()[0];
+    TypeToken<?> wildcardTypeToken = TypeToken.get(wildcardType);
+    IllegalArgumentException e =
+        assertThrows(IllegalArgumentException.class, () -> wildcardTypeToken.isAssignableFrom(b));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Unsupported type, expected one of: java.lang.Class,"
+                + " java.lang.reflect.ParameterizedType, java.lang.reflect.GenericArrayType, but"
+                + " got: com.google.gson.internal.$Gson$Types$WildcardTypeImpl, for type token: "
+                + wildcardTypeToken);
   }
 
   @SuppressWarnings({"deprecation"})

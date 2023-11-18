@@ -226,8 +226,8 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configure Gson to serialize null fields. By default, Gson omits all fields that are null during
-   * serialization.
+   * Configures Gson to serialize null fields. By default, Gson omits all fields that are null
+   * during serialization.
    *
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.2
@@ -239,10 +239,11 @@ public final class GsonBuilder {
   }
 
   /**
-   * Enabling this feature will only change the serialized form if the map key is a complex type
-   * (i.e. non-primitive) in its <strong>serialized</strong> JSON form. The default implementation
-   * of map serialization uses {@code toString()} on the key; however, when this is called then one
-   * of the following cases apply:
+   * Configures Gson to serialize {@code Map} objects with complex keys as JSON arrays. Enabling
+   * this feature will only change the serialized form if the map key is a complex type (i.e.
+   * non-primitive) in its <strong>serialized</strong> JSON form. The default implementation of map
+   * serialization uses {@code toString()} on the key; however, when this is called then one of the
+   * following cases apply:
    *
    * <p><b>Maps as JSON objects</b>
    *
@@ -604,22 +605,23 @@ public final class GsonBuilder {
   }
 
   /**
-   * Configures Gson to serialize {@code Date} objects according to the style value provided. You
-   * can call this method or {@link #setDateFormat(String)} multiple times, but only the last
-   * invocation will be used to decide the serialization format.
+   * Configures Gson to serialize {@code Date} objects according to the date style value provided.
+   * You can call this method or {@link #setDateFormat(String)} multiple times, but only the last
+   * invocation will be used to decide the serialization format. This methods leaves the current
+   * 'time style' unchanged.
    *
-   * <p>Note that this style value should be one of the predefined constants in the {@code
-   * DateFormat} class. See the documentation in {@link java.text.DateFormat} for more information
-   * on the valid style constants.
+   * <p>Note that this style value should be one of the predefined constants in the {@link
+   * DateFormat} class, such as {@link DateFormat#MEDIUM}. See the documentation of the {@link
+   * DateFormat} class for more information on the valid style constants.
    *
-   * @param style the predefined date style that date objects will be serialized/deserialized
+   * @param dateStyle the predefined date style that date objects will be serialized/deserialized
    *     to/from
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @since 1.2
    */
   @CanIgnoreReturnValue
-  public GsonBuilder setDateFormat(int style) {
-    this.dateStyle = style;
+  public GsonBuilder setDateFormat(int dateStyle) {
+    this.dateStyle = dateStyle;
     this.datePattern = null;
     return this;
   }
@@ -629,9 +631,9 @@ public final class GsonBuilder {
    * can call this method or {@link #setDateFormat(String)} multiple times, but only the last
    * invocation will be used to decide the serialization format.
    *
-   * <p>Note that this style value should be one of the predefined constants in the {@code
-   * DateFormat} class. See the documentation in {@link java.text.DateFormat} for more information
-   * on the valid style constants.
+   * <p>Note that this style value should be one of the predefined constants in the {@link
+   * DateFormat} class, such as {@link DateFormat#MEDIUM}. See the documentation of the {@link
+   * DateFormat} class for more information on the valid style constants.
    *
    * @param dateStyle the predefined date style that date objects will be serialized/deserialized
    *     to/from

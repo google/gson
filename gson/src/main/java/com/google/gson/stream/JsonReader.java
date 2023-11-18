@@ -1056,7 +1056,6 @@ public class JsonReader implements Closeable {
    * consumes the closing quote, but does not include it in the returned string.
    *
    * @param quote either ' or ".
-   * @throws NumberFormatException if any unicode escape sequences are malformed.
    */
   private String nextQuotedValue(char quote) throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
@@ -1725,8 +1724,7 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Throws a new IO exception with the given message and a context snippet with this reader's
-   * content.
+   * Throws a new IO exception with the given message and information about the current location.
    */
   private IOException syntaxError(String message) throws IOException {
     throw new MalformedJsonException(
