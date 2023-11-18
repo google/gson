@@ -593,8 +593,10 @@ public final class GsonBuilder {
    * class. See the documentation in {@link java.text.SimpleDateFormat} for more information on
    * valid date and time patterns.
    *
-   * @param pattern the pattern that dates will be serialized/deserialized to/from
+   * @param pattern the pattern that dates will be serialized/deserialized to/from; can be {@code
+   *     null} to reset the pattern
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @throws IllegalArgumentException if the pattern is invalid
    * @since 1.2
    */
   @CanIgnoreReturnValue
@@ -611,6 +613,14 @@ public final class GsonBuilder {
     return this;
   }
 
+  private static int checkDateFormatStyle(int style) {
+    // Valid DateFormat styles are: 0, 1, 2, 3 (FULL, LONG, MEDIUM, SHORT)
+    if (style < 0 || style > 3) {
+      throw new IllegalArgumentException("Invalid style: " + style);
+    }
+    return style;
+  }
+
   /**
    * Configures Gson to serialize {@code Date} objects according to the style value provided. You
    * can call this method or {@link #setDateFormat(String)} multiple times, but only the last
@@ -623,11 +633,12 @@ public final class GsonBuilder {
    * @param style the predefined date style that date objects will be serialized/deserialized
    *     to/from
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @throws IllegalArgumentException if the style is invalid
    * @since 1.2
    */
   @CanIgnoreReturnValue
   public GsonBuilder setDateFormat(int style) {
-    this.dateStyle = style;
+    this.dateStyle = checkDateFormatStyle(style);
     this.datePattern = null;
     return this;
   }
@@ -645,12 +656,13 @@ public final class GsonBuilder {
    *     to/from
    * @param timeStyle the predefined style for the time portion of the date objects
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
+   * @throws IllegalArgumentException if the style values are invalid
    * @since 1.2
    */
   @CanIgnoreReturnValue
   public GsonBuilder setDateFormat(int dateStyle, int timeStyle) {
-    this.dateStyle = dateStyle;
-    this.timeStyle = timeStyle;
+    this.dateStyle = checkDateFormatStyle(dateStyle);
+    this.timeStyle = checkDateFormatStyle(timeStyle);
     this.datePattern = null;
     return this;
   }

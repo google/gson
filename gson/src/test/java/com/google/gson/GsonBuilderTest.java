@@ -28,6 +28,8 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.util.Date;
 import org.junit.Test;
 
 /**
@@ -304,5 +306,89 @@ public class GsonBuilderTest {
     }
     // But registering type hierarchy adapter for Object should be allowed
     gsonBuilder.registerTypeHierarchyAdapter(Object.class, NULL_TYPE_ADAPTER);
+  }
+
+  @Test
+  public void testSetDateFormatWithInvalidPattern() {
+    GsonBuilder builder = new GsonBuilder();
+    String invalidPattern = "This is an invalid Pattern";
+    IllegalArgumentException e =
+        assertThrows(IllegalArgumentException.class, () -> builder.setDateFormat(invalidPattern));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("The date pattern '" + invalidPattern + "' is not valid");
+  }
+
+  @Test
+  public void testSetDateFormatWithValidPattern() {
+    GsonBuilder builder = new GsonBuilder();
+    String validPattern = "yyyy-MM-dd";
+    // Should not throw an exception
+    builder.setDateFormat(validPattern);
+  }
+
+  @Test
+  public void testSetDateFormatNullPattern() {
+    GsonBuilder builder = new GsonBuilder();
+    @SuppressWarnings("JavaUtilDate")
+    Date date = new Date(0);
+    String originalFormatted = builder.create().toJson(date);
+
+    String customFormatted = builder.setDateFormat("yyyy-MM-dd").create().toJson(date);
+    assertThat(customFormatted).isNotEqualTo(originalFormatted);
+
+    // `null` should reset the format to the default
+    String resetFormatted = builder.setDateFormat(null).create().toJson(date);
+    assertThat(resetFormatted).isEqualTo(originalFormatted);
+  }
+
+  /**
+   * Tests behavior for an empty date pattern; this behavior is not publicly documented at the
+   * moment.
+   */
+  @Test
+  public void testSetDateFormatEmptyPattern() {
+    GsonBuilder builder = new GsonBuilder();
+    @SuppressWarnings("JavaUtilDate")
+    Date date = new Date(0);
+    String originalFormatted = builder.create().toJson(date);
+
+    String emptyFormatted = builder.setDateFormat("    ").create().toJson(date);
+    // Empty pattern was ignored
+    assertThat(emptyFormatted).isEqualTo(originalFormatted);
+  }
+
+  @Test
+  public void testSetDateFormatValidStyle() {
+    GsonBuilder builder = new GsonBuilder();
+    int[] validStyles = {DateFormat.FULL, DateFormat.LONG, DateFormat.MEDIUM, DateFormat.SHORT};
+
+    for (int style : validStyles) {
+      // Should not throw an exception
+      builder.setDateFormat(style);
+      builder.setDateFormat(style, style);
+    }
+  }
+
+  @Test
+  public void testSetDateFormatInvalidStyle() {
+    GsonBuilder builder = new GsonBuilder();
+
+    IllegalArgumentException e =
+        assertThrows(IllegalArgumentException.class, () -> builder.setDateFormat(-1));
+    assertThat(e).hasMessageThat().isEqualTo("Invalid style: -1");
+
+    e = assertThrows(IllegalArgumentException.class, () -> builder.setDateFormat(4));
+    assertThat(e).hasMessageThat().isEqualTo("Invalid style: 4");
+
+    e =
+        assertThrows(
+            IllegalArgumentException.class, () -> builder.setDateFormat(-1, DateFormat.FULL));
+    assertThat(e).hasMessageThat().isEqualTo("Invalid style: -1");
+
+    e =
+        assertThrows(
+            IllegalArgumentException.class, () -> builder.setDateFormat(DateFormat.FULL, -1));
+    assertThat(e).hasMessageThat().isEqualTo("Invalid style: -1");
   }
 }
