@@ -43,6 +43,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -598,7 +599,14 @@ public final class GsonBuilder {
    */
   @CanIgnoreReturnValue
   public GsonBuilder setDateFormat(String pattern) {
-    // TODO(Joel): Make this fail fast if it is an invalid date format
+    if (pattern != null) {
+      try {
+        new SimpleDateFormat(pattern);
+      } catch (IllegalArgumentException e) {
+        // Throw exception if it is an invalid date format
+        throw new IllegalArgumentException("The date pattern '" + pattern + "' is not valid", e);
+      }
+    }
     this.datePattern = pattern;
     return this;
   }
