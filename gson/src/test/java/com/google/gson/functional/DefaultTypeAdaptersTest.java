@@ -742,9 +742,11 @@ public class DefaultTypeAdaptersTest {
   public void testSetDateFormatWithInvalidPattern() {
     GsonBuilder builder = new GsonBuilder();
     String invalidPattern = "This is a invalid Pattern";
-    assertThrows(IllegalArgumentException.class, () -> {
-      builder.setDateFormat(invalidPattern);
-    });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          builder.setDateFormat(invalidPattern);
+        });
   }
 
   @Test
