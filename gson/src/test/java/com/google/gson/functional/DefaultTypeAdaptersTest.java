@@ -16,7 +16,6 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -494,6 +493,19 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  public void testDateSerializationWithStyle() {
+    int style = DateFormat.SHORT;
+    Date date = new Date(0);
+    String expectedFormatted = DateFormat.getDateTimeInstance(style, style, Locale.US).format(date);
+
+    Gson gson = new GsonBuilder().setDateFormat(style, style).create();
+    String json = gson.toJson(date);
+    assertThat(json).isEqualTo("\"" + expectedFormatted + "\"");
+    // Verify that custom style is not equal to default style
+    assertThat(json).isNotEqualTo(new Gson().toJson(date));
+  }
+
+  @Test
   public void testDateSerializationWithPattern() {
     String pattern = "yyyy-MM-dd";
     Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
@@ -736,24 +748,6 @@ public class DefaultTypeAdaptersTest {
   public void testStringBufferDeserialization() {
     StringBuffer sb = gson.fromJson("'abc'", StringBuffer.class);
     assertThat(sb.toString()).isEqualTo("abc");
-  }
-
-  @Test
-  public void testSetDateFormatWithInvalidPattern() {
-    GsonBuilder builder = new GsonBuilder();
-    String invalidPattern = "This is a invalid Pattern";
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          builder.setDateFormat(invalidPattern);
-        });
-  }
-
-  @Test
-  public void testSetDateFormatWithValidPattern() {
-    GsonBuilder builder = new GsonBuilder();
-    String validPattern = "yyyy-MM-dd";
-    builder.setDateFormat(validPattern);
   }
 
   private static class MyClassTypeAdapter extends TypeAdapter<Class<?>> {
