@@ -420,9 +420,12 @@ public class JsonReader implements Closeable {
    *
    * <p>The nesting limit defines how many JSON arrays or objects may be open at the same time. For
    * example a nesting limit of 0 means no arrays or objects may be opened at all, a nesting limit
-   * of 1 means one array or object may be open at the same time, and so on. The nesting limit can
-   * help to protect against a {@link StackOverflowError} when recursive {@link TypeAdapter}
-   * implementations process deeply nested JSON data.
+   * of 1 means one array or object may be open at the same time, and so on. So a nesting limit of 3
+   * allows reading the JSON data <code>[{"a":[true]}]</code>, but for a nesting limit of 2 it would
+   * fail at the inner {@code [true]}.
+   *
+   * <p>The nesting limit can help to protect against a {@link StackOverflowError} when recursive
+   * {@link TypeAdapter} implementations process deeply nested JSON data.
    *
    * <p>The default nesting limit is {@value #DEFAULT_NESTING_LIMIT}.
    *
