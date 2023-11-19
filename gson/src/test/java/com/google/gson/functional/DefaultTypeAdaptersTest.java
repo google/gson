@@ -493,6 +493,19 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  public void testDateSerializationWithStyle() {
+    int style = DateFormat.SHORT;
+    Date date = new Date(0);
+    String expectedFormatted = DateFormat.getDateTimeInstance(style, style, Locale.US).format(date);
+
+    Gson gson = new GsonBuilder().setDateFormat(style, style).create();
+    String json = gson.toJson(date);
+    assertThat(json).isEqualTo("\"" + expectedFormatted + "\"");
+    // Verify that custom style is not equal to default style
+    assertThat(json).isNotEqualTo(new Gson().toJson(date));
+  }
+
+  @Test
   public void testDateSerializationWithPattern() {
     String pattern = "yyyy-MM-dd";
     Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();

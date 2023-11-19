@@ -37,6 +37,72 @@ This section was borrowed heavily from [Doclava release process](https://code.go
 
 See [OSSRH Publish Guide](https://central.sonatype.org/publish/publish-guide/).
 
+## Testing Maven release workflow locally
+
+The following describes how to perform the steps of the release locally to verify that they work as desired.
+
+**Warning:** Be careful with this, these steps might be outdated or incomplete. Doublecheck that you are working on a copy of your local Gson Git repository and make sure you have followed all steps. To be safe you can also temporarily turn off your internet connection to avoid accidentally pushing changes to the real remote Git or Maven repository.\
+As an alternative to the steps described below you can instead [perform a dry run](https://maven.apache.org/maven-release/maven-release-plugin/usage.html#do-a-dry-run), though this might not behave identical to a real release.
+
+1. Make a copy of your local Gson Git repository and only work with that copy
+2. Make sure you are on the `main` branch
+3. Create a temp directory outside the Gson directory\
+   In the following steps this will be called `#gson-remote-temp#`; replace this with the actual absolute file path of the directory, using only forward slashes. For example under Windows `C:\my-dir` becomes `C:/my-dir`.
+4. Create the directory `#gson-remote-temp#/git-repo`
+5. In that directory run
+
+    ```sh
+    git init --bare --initial-branch=main .
+    ```
+
+6. Create the directory `#gson-remote-temp#/maven-repo`
+7. Edit the root `pom.xml` of Gson
+    1. Change the `<developerConnection>` to
+
+       ```txt
+       scm:git:file:///#gson-remote-temp#/git-repo
+       ```
+
+    2. Change the `<url>` of the `<distributionManagement>` to
+
+       ```txt
+       file:///#gson-remote-temp#/maven-repo
+       ```
+
+    3. If you don't want to use GPG, remove the `maven-gpg-plugin` entry from the 'release' profile.\
+       There is also an entry under `<pluginManagement>`; you can remove that as well.
+8. Commit the changes using Git
+9. Change the remote repository of the Git project
+
+    <!-- Uses `txt` instead of `sh` to avoid the `#` being highlighted in some way -->
+    ```txt
+    git remote set-url origin file:///#gson-remote-temp#/git-repo
+    ```
+
+10. Push the changes
+
+    ```sh
+    git push origin main
+    ```
+
+Now you can perform the steps of the release:
+
+1. ```sh
+   mvn release:clean
+   ```
+
+2. ```sh
+   mvn release:prepare
+   ```
+
+3. ```sh
+   mvn release:perform
+   ```
+
+4. Verify that `#gson-remote-temp#/git-repo` and `#gson-remote-temp#/maven-repo` contain all the desired changes
+5. Afterwards delete all Gson files under `${user.home}/.m2/repository/com/google/code/gson` which have been installed in your local Maven repository during the release.\
+   Otherwise Maven might not download the real Gson artifacts with these version numbers, once they are released.
+
 ## Running Benchmarks or Tests on Android
 
 * Download vogar
