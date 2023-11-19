@@ -2055,9 +2055,12 @@ public final class JsonReaderTest {
     for (int i = 0; i < defaultLimit; i++) {
       reader.beginArray();
     }
-    MalformedJsonException e = assertThrows(MalformedJsonException.class, () -> reader.beginArray());
-    assertThat(e).hasMessageThat()
-        .isEqualTo("Nesting limit 255 reached at line 1 column 257 path $" + "[0]".repeat(defaultLimit));
+    MalformedJsonException e =
+        assertThrows(MalformedJsonException.class, () -> reader.beginArray());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Nesting limit 255 reached at line 1 column 257 path $" + "[0]".repeat(defaultLimit));
   }
 
   @Test
@@ -2077,8 +2080,11 @@ public final class JsonReaderTest {
     reader2.beginArray();
     reader2.beginObject();
     assertThat(reader2.nextName()).isEqualTo("a");
-    MalformedJsonException e = assertThrows(MalformedJsonException.class, () -> reader2.beginArray());
-    assertThat(e).hasMessageThat().isEqualTo("Nesting limit 2 reached at line 1 column 8 path $[0].a");
+    MalformedJsonException e =
+        assertThrows(MalformedJsonException.class, () -> reader2.beginArray());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Nesting limit 2 reached at line 1 column 8 path $[0].a");
 
     JsonReader reader3 = new JsonReader(reader("[]"));
     reader3.setNestingLimit(0);
@@ -2104,10 +2110,13 @@ public final class JsonReaderTest {
     reader6.endArray();
     reader6.beginArray();
     e = assertThrows(MalformedJsonException.class, () -> reader6.beginArray());
-    assertThat(e).hasMessageThat().isEqualTo("Nesting limit 1 reached at line 1 column 6 path $[0]");
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Nesting limit 1 reached at line 1 column 6 path $[0]");
 
     JsonReader reader7 = new JsonReader(reader("[]"));
-    IllegalArgumentException argException = assertThrows(IllegalArgumentException.class, () -> reader7.setNestingLimit(-1));
+    IllegalArgumentException argException =
+        assertThrows(IllegalArgumentException.class, () -> reader7.setNestingLimit(-1));
     assertThat(argException).hasMessageThat().isEqualTo("Invalid nesting limit: -1");
   }
 

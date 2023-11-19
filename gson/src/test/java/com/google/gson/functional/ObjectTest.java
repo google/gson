@@ -727,10 +727,14 @@ public class ObjectTest {
 
     // json = {"r":{"r": ... {"r":null} ... }}
     String json2 = "{\"r\":".repeat(defaultLimit + 1) + "null" + "}".repeat(defaultLimit + 1);
-    JsonSyntaxException e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson(json2, RecursiveClass.class));
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson(json2, RecursiveClass.class));
     assertThat(e).hasCauseThat().isInstanceOf(MalformedJsonException.class);
-    assertThat(e).hasCauseThat().hasMessageThat()
-        .isEqualTo("Nesting limit 255 reached at line 1 column 1277 path $" + ".r".repeat(defaultLimit));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .isEqualTo(
+            "Nesting limit 255 reached at line 1 column 1277 path $" + ".r".repeat(defaultLimit));
   }
 
   private static class RecursiveClass {

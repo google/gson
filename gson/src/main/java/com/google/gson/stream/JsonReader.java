@@ -252,7 +252,8 @@ public class JsonReader implements Closeable {
   private final Reader in;
 
   private Strictness strictness = Strictness.LEGACY_STRICT;
-  // Default nesting limit is based on https://github.com/square/moshi/blob/parent-1.15.0/moshi/src/main/java/com/squareup/moshi/JsonReader.java#L228-L230
+  // Default nesting limit is based on
+  // https://github.com/square/moshi/blob/parent-1.15.0/moshi/src/main/java/com/squareup/moshi/JsonReader.java#L228-L230
   private static final int DEFAULT_NESTING_LIMIT = 255;
   private int nestingLimit = DEFAULT_NESTING_LIMIT;
 
@@ -291,10 +292,9 @@ public class JsonReader implements Closeable {
    */
   private String peekedString;
 
-  /**
-   * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
-   */
+  /** The nesting stack. Using a manual array rather than an ArrayList saves 20%. */
   private int[] stack = new int[32];
+
   private int stackSize = 0;
 
   {
@@ -418,11 +418,11 @@ public class JsonReader implements Closeable {
   /**
    * Sets the nesting limit of this reader.
    *
-   * <p>The nesting limit defines how many JSON arrays or objects may be open at the
-   * same time. For example a nesting limit of 0 means no arrays or objects may be opened
-   * at all, a nesting limit of 1 means one array or object may be open at the same time,
-   * and so on. The nesting limit can help to protect against a {@link StackOverflowError}
-   * when recursive {@link TypeAdapter} implementations process deeply nested JSON data.
+   * <p>The nesting limit defines how many JSON arrays or objects may be open at the same time. For
+   * example a nesting limit of 0 means no arrays or objects may be opened at all, a nesting limit
+   * of 1 means one array or object may be open at the same time, and so on. The nesting limit can
+   * help to protect against a {@link StackOverflowError} when recursive {@link TypeAdapter}
+   * implementations process deeply nested JSON data.
    *
    * <p>The default nesting limit is {@value #DEFAULT_NESTING_LIMIT}.
    *
@@ -1430,7 +1430,8 @@ public class JsonReader implements Closeable {
   private void push(int newTop) throws MalformedJsonException {
     // - 1 because stack contains as first element either EMPTY_DOCUMENT or NONEMPTY_DOCUMENT
     if (stackSize - 1 >= nestingLimit) {
-      throw new MalformedJsonException("Nesting limit " + nestingLimit + " reached" + locationString());
+      throw new MalformedJsonException(
+          "Nesting limit " + nestingLimit + " reached" + locationString());
     }
 
     if (stackSize == stack.length) {

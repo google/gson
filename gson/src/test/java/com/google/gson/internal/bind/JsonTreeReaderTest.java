@@ -144,16 +144,17 @@ public class JsonTreeReaderTest {
 
   /**
    * {@link JsonTreeReader} ignores nesting limit because:
+   *
    * <ul>
-   *   <li>It is an internal class and often created implicitly without the user having
-   *       access to it (as {@link JsonReader}), so they cannot easily adjust the limit
-   *   <li>{@link JsonTreeReader} may be created based on an existing {@link JsonReader};
-   *       in that case it would be necessary to propagate settings to account for a custom
-   *       nesting limit, see also related https://github.com/google/gson/pull/2151
-   *   <li>Nesting limit as protection against {@link StackOverflowError} is not that
-   *       relevant for {@link JsonTreeReader} because a deeply nested {@link JsonElement}
-   *       tree would first have to be constructed; and if it is constructed from a regular
-   *       {@link JsonReader}, then its nesting limit would already apply
+   *   <li>It is an internal class and often created implicitly without the user having access to it
+   *       (as {@link JsonReader}), so they cannot easily adjust the limit
+   *   <li>{@link JsonTreeReader} may be created based on an existing {@link JsonReader}; in that
+   *       case it would be necessary to propagate settings to account for a custom nesting limit,
+   *       see also related https://github.com/google/gson/pull/2151
+   *   <li>Nesting limit as protection against {@link StackOverflowError} is not that relevant for
+   *       {@link JsonTreeReader} because a deeply nested {@link JsonElement} tree would first have
+   *       to be constructed; and if it is constructed from a regular {@link JsonReader}, then its
+   *       nesting limit would already apply
    * </ul>
    */
   @Test
