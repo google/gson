@@ -127,12 +127,12 @@ public class EnumTest {
     assertThat(gson.toJson(EnumSet.allOf(Roshambo.class)))
         .isEqualTo("[\"ROCK\",\"PAPER\",\"SCISSORS\"]");
     assertThat(gson.fromJson("\"ROCK\"", Roshambo.class)).isEqualTo(Roshambo.ROCK);
-    assertThat(EnumSet.allOf(Roshambo.class))
-        .isEqualTo(
-            gson.fromJson(
-                "[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
+    Set<Roshambo> deserialized =
+        gson.fromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<>() {});
+    assertThat(deserialized).isEqualTo(EnumSet.allOf(Roshambo.class));
 
-    // A bit contrived, but should also work if explicitly deserializing using anonymous enum subclass
+    // A bit contrived, but should also work if explicitly deserializing using anonymous enum
+    // subclass
     assertThat(gson.fromJson("\"ROCK\"", Roshambo.ROCK.getClass())).isEqualTo(Roshambo.ROCK);
   }
 
@@ -148,7 +148,8 @@ public class EnumTest {
     assertThat(gson.toJson(EnumSet.allOf(Roshambo.class)))
         .isEqualTo("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]");
     assertThat(gson.fromJson("\"123ROCK\"", Roshambo.class)).isEqualTo(Roshambo.ROCK);
-    Set<Roshambo> deserialized = gson.fromJson("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType());
+    Set<Roshambo> deserialized =
+        gson.fromJson("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", new TypeToken<>() {});
     assertThat(deserialized).isEqualTo(EnumSet.allOf(Roshambo.class));
   }
 

@@ -151,9 +151,7 @@ public class ReflectionHelper {
     return (clazz.getModifiers() & Modifier.STATIC) != 0;
   }
 
-  /**
-   * Returns whether the class is anonymous or a non-static local class.
-   */
+  /** Returns whether the class is anonymous or a non-static local class. */
   public static boolean isAnonymousOrNonStaticLocal(Class<?> clazz) {
     return !isStatic(clazz) && (clazz.isAnonymousClass() || clazz.isLocalClass());
   }

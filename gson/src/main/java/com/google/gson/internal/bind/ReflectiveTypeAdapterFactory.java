@@ -114,7 +114,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     // captured enclosing values make this unreliable
     if (ReflectionHelper.isAnonymousOrNonStaticLocal(raw)) {
       // This adapter just serializes and deserializes null, ignoring the actual values
-      // This is done for backward compatibility; troubleshooting-wise it might be better to throw exceptions
+      // This is done for backward compatibility; troubleshooting-wise it might be better to throw
+      // exceptions
       return new TypeAdapter<T>() {
         @Override
         public T read(JsonReader in) throws IOException {

@@ -36,14 +36,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This class selects which fields and types to omit. It is configurable,
- * supporting version attributes {@link Since} and {@link Until}, modifiers,
- * synthetic fields, anonymous and local classes, inner classes, and fields with
- * the {@link Expose} annotation.
+ * This class selects which fields and types to omit. It is configurable, supporting version
+ * attributes {@link Since} and {@link Until}, modifiers, synthetic fields, anonymous and local
+ * classes, inner classes, and fields with the {@link Expose} annotation.
  *
- * <p>This class is a type adapter factory; types that are excluded will be
- * adapted to null. It may delegate to another type adapter if only one
- * direction is excluded.
+ * <p>This class is a type adapter factory; types that are excluded will be adapted to null. It may
+ * delegate to another type adapter if only one direction is excluded.
  *
  * @author Joel Leitch
  * @author Jesse Wilson
@@ -59,7 +57,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private List<ExclusionStrategy> serializationStrategies = Collections.emptyList();
   private List<ExclusionStrategy> deserializationStrategies = Collections.emptyList();
 
-  @Override protected Excluder clone() {
+  @Override
+  protected Excluder clone() {
     try {
       return (Excluder) super.clone();
     } catch (CloneNotSupportedException e) {
@@ -94,8 +93,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     return result;
   }
 
-  public Excluder withExclusionStrategy(ExclusionStrategy exclusionStrategy,
-      boolean serialization, boolean deserialization) {
+  public Excluder withExclusionStrategy(
+      ExclusionStrategy exclusionStrategy, boolean serialization, boolean deserialization) {
     Excluder result = clone();
     if (serialization) {
       result.serializationStrategies = new ArrayList<>(serializationStrategies);
@@ -108,7 +107,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     return result;
   }
 
-  @Override public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
+  @Override
+  public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
 
     final boolean skipSerialize = excludeClass(rawType, true);
@@ -125,7 +125,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
        */
       private volatile TypeAdapter<T> delegate;
 
-      @Override public T read(JsonReader in) throws IOException {
+      @Override
+      public T read(JsonReader in) throws IOException {
         if (skipDeserialize) {
           in.skipValue();
           return null;
@@ -133,7 +134,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
         return delegate().read(in);
       }
 
-      @Override public void write(JsonWriter out, T value) throws IOException {
+      @Override
+      public void write(JsonWriter out, T value) throws IOException {
         if (skipSerialize) {
           out.nullValue();
           return;
@@ -142,11 +144,10 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       }
 
       private TypeAdapter<T> delegate() {
-        // A race might lead to `delegate` being assigned by multiple threads but the last assignment will stick
+        // A race might lead to `delegate` being assigned by multiple threads but the last
+        // assignment will stick
         TypeAdapter<T> d = delegate;
-        return d != null
-            ? d
-            : (delegate = gson.getDelegateAdapter(Excluder.this, type));
+        return d != null ? d : (delegate = gson.getDelegateAdapter(Excluder.this, type));
       }
     };
   }
@@ -191,7 +192,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
 
   // public for unit tests; can otherwise be private
   public boolean excludeClass(Class<?> clazz, boolean serialize) {
-    if (version != Excluder.IGNORE_VERSIONS && !isValidVersion(clazz.getAnnotation(Since.class), clazz.getAnnotation(Until.class))) {
+    if (version != Excluder.IGNORE_VERSIONS
+        && !isValidVersion(clazz.getAnnotation(Since.class), clazz.getAnnotation(Until.class))) {
       return true;
     }
 
@@ -211,7 +213,9 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
      * fall back to creating instances using Unsafe, which would likely lead to runtime exceptions
      * for anonymous and local classes if they capture values.
      */
-    if (!serialize && !Enum.class.isAssignableFrom(clazz) && ReflectionHelper.isAnonymousOrNonStaticLocal(clazz)) {
+    if (!serialize
+        && !Enum.class.isAssignableFrom(clazz)
+        && ReflectionHelper.isAnonymousOrNonStaticLocal(clazz)) {
       return true;
     }
 

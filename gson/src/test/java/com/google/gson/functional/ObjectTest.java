@@ -391,41 +391,56 @@ public class ObjectTest {
 
   @Test
   public void testAnonymousLocalClassesCustomSerialization() {
-    Gson gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(ClassWithNoFields.class,
-            new JsonSerializer<ClassWithNoFields>() {
-              @Override
-              public JsonElement serialize(ClassWithNoFields src, Type typeOfSrc, JsonSerializationContext context) {
-                return new JsonPrimitive("custom-value");
-              }
-            }).create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(
+                ClassWithNoFields.class,
+                new JsonSerializer<ClassWithNoFields>() {
+                  @Override
+                  public JsonElement serialize(
+                      ClassWithNoFields src, Type typeOfSrc, JsonSerializationContext context) {
+                    return new JsonPrimitive("custom-value");
+                  }
+                })
+            .create();
 
-    assertThat(gson.toJson(new ClassWithNoFields() {
-      // empty anonymous class
-    })).isEqualTo("\"custom-value\"");
+    assertThat(
+            gson.toJson(
+                new ClassWithNoFields() {
+                  // empty anonymous class
+                }))
+        .isEqualTo("\"custom-value\"");
 
     class Local {}
-    gson = new GsonBuilder()
-        .registerTypeAdapter(Local.class,
-          new JsonSerializer<Local>() {
-            @Override
-            public JsonElement serialize(Local src, Type typeOfSrc, JsonSerializationContext context) {
-              return new JsonPrimitive("custom-value");
-            }
-          }).create();
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                Local.class,
+                new JsonSerializer<Local>() {
+                  @Override
+                  public JsonElement serialize(
+                      Local src, Type typeOfSrc, JsonSerializationContext context) {
+                    return new JsonPrimitive("custom-value");
+                  }
+                })
+            .create();
     assertThat(gson.toJson(new Local())).isEqualTo("\"custom-value\"");
   }
 
   @Test
   public void testAnonymousLocalClassesCustomDeserialization() {
-    Gson gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(ClassWithNoFields.class,
-            new JsonDeserializer<ClassWithNoFields>() {
-              @Override
-              public ClassWithNoFields deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-                return new ClassWithNoFields();
-              }
-            }).create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(
+                ClassWithNoFields.class,
+                new JsonDeserializer<ClassWithNoFields>() {
+                  @Override
+                  public ClassWithNoFields deserialize(
+                      JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+                    return new ClassWithNoFields();
+                  }
+                })
+            .create();
 
     assertThat(gson.fromJson("{}", ClassWithNoFields.class)).isNotNull();
     Class<?> anonymousClass = new ClassWithNoFields() {}.getClass();
@@ -433,14 +448,18 @@ public class ObjectTest {
     assertThat(gson.fromJson("{}", anonymousClass)).isNull();
 
     class Local {}
-    gson = new GsonBuilder()
-        .registerTypeAdapter(Local.class,
-            new JsonDeserializer<Local>() {
-              @Override
-              public Local deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-                throw new AssertionError("should not be called");
-              }
-            }).create();
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                Local.class,
+                new JsonDeserializer<Local>() {
+                  @Override
+                  public Local deserialize(
+                      JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+                    throw new AssertionError("should not be called");
+                  }
+                })
+            .create();
     // Custom deserializer is ignored
     assertThat(gson.fromJson("{}", Local.class)).isNull();
   }
