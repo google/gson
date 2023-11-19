@@ -86,7 +86,7 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
           return dateFormat.parse(s);
         } catch (ParseException ignored) {
           // OK: try the next format
-        }finally {
+        } finally {
           dateFormat.setTimeZone(originalTimeZone);
         }
       }
