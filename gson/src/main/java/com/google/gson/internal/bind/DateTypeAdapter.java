@@ -31,10 +31,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * Adapter for Date. Although this class appears stateless, it is not. DateFormat captures its time
@@ -84,10 +81,13 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
     String s = in.nextString();
     synchronized (dateFormats) {
       for (DateFormat dateFormat : dateFormats) {
+        TimeZone originalTimeZone = dateFormat.getTimeZone();
         try {
           return dateFormat.parse(s);
         } catch (ParseException ignored) {
           // OK: try the next format
+        }finally {
+          dateFormat.setTimeZone(originalTimeZone);
         }
       }
     }
