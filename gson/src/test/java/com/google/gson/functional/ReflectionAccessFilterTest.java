@@ -38,7 +38,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
@@ -512,6 +514,29 @@ public class ReflectionAccessFilterTest {
           .isEqualTo(
               "Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
                   + " this type. Interface name: java.lang.Runnable");
+    }
+  }
+
+  /**
+   * Verifies that the predefined filter constants have meaningful {@code toString()} output to make
+   * debugging easier.
+   */
+  @Test
+  public void testConstantsToString() throws Exception {
+    List<Field> constantFields = new ArrayList<>();
+
+    for (Field f : ReflectionAccessFilter.class.getFields()) {
+      // Only include ReflectionAccessFilter constants (in case any other fields are added in the
+      // future)
+      if (f.getType() == ReflectionAccessFilter.class) {
+        constantFields.add(f);
+      }
+    }
+
+    assertThat(constantFields).isNotEmpty();
+    for (Field f : constantFields) {
+      Object constant = f.get(null);
+      assertThat(constant.toString()).isEqualTo("ReflectionAccessFilter#" + f.getName());
     }
   }
 }
