@@ -33,7 +33,8 @@ import java.util.List;
  */
 public class CollectionsDeserializationBenchmark {
 
-  private static final TypeToken<List<BagOfPrimitives>> LIST_TYPE_TOKEN = new TypeToken<List<BagOfPrimitives>>(){};
+  private static final TypeToken<List<BagOfPrimitives>> LIST_TYPE_TOKEN =
+      new TypeToken<List<BagOfPrimitives>>() {};
   private static final Type LIST_TYPE = LIST_TYPE_TOKEN.getType();
   private Gson gson;
   private String json;
@@ -52,32 +53,28 @@ public class CollectionsDeserializationBenchmark {
     this.json = gson.toJson(bags, LIST_TYPE);
   }
 
-  /**
-   * Benchmark to measure Gson performance for deserializing an object
-   */
+  /** Benchmark to measure Gson performance for deserializing an object */
   public void timeCollectionsDefault(int reps) {
-    for (int i=0; i<reps; ++i) {
+    for (int i = 0; i < reps; ++i) {
       gson.fromJson(json, LIST_TYPE_TOKEN);
     }
   }
 
-  /**
-   * Benchmark to measure deserializing objects by hand
-   */
+  /** Benchmark to measure deserializing objects by hand */
   @SuppressWarnings("ModifiedButNotUsed")
   public void timeCollectionsStreaming(int reps) throws IOException {
-    for (int i=0; i<reps; ++i) {
+    for (int i = 0; i < reps; ++i) {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);
       jr.beginArray();
       List<BagOfPrimitives> bags = new ArrayList<>();
-      while(jr.hasNext()) {
+      while (jr.hasNext()) {
         jr.beginObject();
         long longValue = 0;
         int intValue = 0;
         boolean booleanValue = false;
         String stringValue = null;
-        while(jr.hasNext()) {
+        while (jr.hasNext()) {
           String name = jr.nextName();
           if (name.equals("longValue")) {
             longValue = jr.nextLong();
@@ -105,15 +102,15 @@ public class CollectionsDeserializationBenchmark {
    */
   @SuppressWarnings("ModifiedButNotUsed")
   public void timeCollectionsReflectionStreaming(int reps) throws Exception {
-    for (int i=0; i<reps; ++i) {
+    for (int i = 0; i < reps; ++i) {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);
       jr.beginArray();
       List<BagOfPrimitives> bags = new ArrayList<>();
-      while(jr.hasNext()) {
+      while (jr.hasNext()) {
         jr.beginObject();
         BagOfPrimitives bag = new BagOfPrimitives();
-        while(jr.hasNext()) {
+        while (jr.hasNext()) {
           String name = jr.nextName();
           for (Field field : BagOfPrimitives.class.getDeclaredFields()) {
             if (field.getName().equals(name)) {

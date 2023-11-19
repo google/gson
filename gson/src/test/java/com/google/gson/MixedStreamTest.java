@@ -35,20 +35,21 @@ public final class MixedStreamTest {
   private static final Car BLUE_MUSTANG = new Car("mustang", 0x0000FF);
   private static final Car BLACK_BMW = new Car("bmw", 0x000000);
   private static final Car RED_MIATA = new Car("miata", 0xFF0000);
-  private static final String CARS_JSON = "[\n"
-      + "  {\n"
-      + "    \"name\": \"mustang\",\n"
-      + "    \"color\": 255\n"
-      + "  },\n"
-      + "  {\n"
-      + "    \"name\": \"bmw\",\n"
-      + "    \"color\": 0\n"
-      + "  },\n"
-      + "  {\n"
-      + "    \"name\": \"miata\",\n"
-      + "    \"color\": 16711680\n"
-      + "  }\n"
-      + "]";
+  private static final String CARS_JSON =
+      "[\n"
+          + "  {\n"
+          + "    \"name\": \"mustang\",\n"
+          + "    \"color\": 255\n"
+          + "  },\n"
+          + "  {\n"
+          + "    \"name\": \"bmw\",\n"
+          + "    \"color\": 0\n"
+          + "  },\n"
+          + "  {\n"
+          + "    \"name\": \"miata\",\n"
+          + "    \"color\": 16711680\n"
+          + "  }\n"
+          + "]";
 
   @Test
   public void testWriteMixedStreamed() throws IOException {
@@ -208,21 +209,22 @@ public final class MixedStreamTest {
         .isEqualTo("[\"\\u003c\",\"\\u003e\",\"\\u0026\",\"\\u003d\",\"\\u0027\"]");
 
     writer = new StringWriter();
-    new GsonBuilder().disableHtmlEscaping().create()
-        .toJson(contents, type, new JsonWriter(writer));
-    assertThat(writer.toString())
-        .isEqualTo("[\"<\",\">\",\"&\",\"=\",\"'\"]");
+    new GsonBuilder().disableHtmlEscaping().create().toJson(contents, type, new JsonWriter(writer));
+    assertThat(writer.toString()).isEqualTo("[\"<\",\">\",\"&\",\"=\",\"'\"]");
   }
 
   @Test
   public void testWriteLenient() {
-    List<Double> doubles = Arrays.asList(Double.NaN, Double.NEGATIVE_INFINITY,
-        Double.POSITIVE_INFINITY, -0.0d, 0.5d, 0.0d);
+    List<Double> doubles =
+        Arrays.asList(
+            Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, -0.0d, 0.5d, 0.0d);
     Type type = new TypeToken<List<Double>>() {}.getType();
 
     StringWriter writer = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(writer);
-    new GsonBuilder().serializeSpecialFloatingPointValues().create()
+    new GsonBuilder()
+        .serializeSpecialFloatingPointValues()
+        .create()
         .toJson(doubles, type, jsonWriter);
     assertThat(writer.toString()).isEqualTo("[NaN,-Infinity,Infinity,-0.0,0.5,0.0]");
 
@@ -245,14 +247,14 @@ public final class MixedStreamTest {
     // used by Gson
     Car() {}
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
       return name.hashCode() ^ color;
     }
 
-    @Override public boolean equals(Object o) {
-      return o instanceof Car
-          && ((Car) o).name.equals(name)
-          && ((Car) o).color == color;
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof Car && ((Car) o).name.equals(name) && ((Car) o).color == color;
     }
   }
 }

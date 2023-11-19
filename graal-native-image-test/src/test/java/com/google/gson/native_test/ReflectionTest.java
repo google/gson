@@ -56,7 +56,8 @@ class ReflectionTest {
   void testCustomDefaultConstructor() {
     Gson gson = new Gson();
 
-    ClassWithCustomDefaultConstructor c = gson.fromJson("{\"i\":2}", ClassWithCustomDefaultConstructor.class);
+    ClassWithCustomDefaultConstructor c =
+        gson.fromJson("{\"i\":2}", ClassWithCustomDefaultConstructor.class);
     assertThat(c.i).isEqualTo(2);
 
     c = gson.fromJson("{}", ClassWithCustomDefaultConstructor.class);
@@ -75,34 +76,41 @@ class ReflectionTest {
   /**
    * Tests deserializing a class without default constructor.
    *
-   * <p>This should use JDK Unsafe, and would normally require specifying {@code "unsafeAllocated": true}
-   * in the reflection metadata for GraalVM, though for some reason it also seems to work without it? Possibly
-   * because GraalVM seems to have special support for Gson, see its class {@code com.oracle.svm.thirdparty.gson.GsonFeature}.
+   * <p>This should use JDK Unsafe, and would normally require specifying {@code "unsafeAllocated":
+   * true} in the reflection metadata for GraalVM, though for some reason it also seems to work
+   * without it? Possibly because GraalVM seems to have special support for Gson, see its class
+   * {@code com.oracle.svm.thirdparty.gson.GsonFeature}.
    */
   @Test
   void testClassWithoutDefaultConstructor() {
     Gson gson = new Gson();
 
-    ClassWithoutDefaultConstructor c = gson.fromJson("{\"i\":1}", ClassWithoutDefaultConstructor.class);
+    ClassWithoutDefaultConstructor c =
+        gson.fromJson("{\"i\":1}", ClassWithoutDefaultConstructor.class);
     assertThat(c.i).isEqualTo(1);
 
     c = gson.fromJson("{}", ClassWithoutDefaultConstructor.class);
-    // Class is instantiated with JDK Unsafe, so field keeps its default value instead of assigned -1
+    // Class is instantiated with JDK Unsafe, therefore field keeps its default value instead of
+    // assigned -1
     assertThat(c.i).isEqualTo(0);
   }
 
   @Test
   void testInstanceCreator() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(ClassWithoutDefaultConstructor.class, new InstanceCreator<ClassWithoutDefaultConstructor>() {
-          @Override
-          public ClassWithoutDefaultConstructor createInstance(Type type) {
-            return new ClassWithoutDefaultConstructor(-2);
-          }
-        })
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                ClassWithoutDefaultConstructor.class,
+                new InstanceCreator<ClassWithoutDefaultConstructor>() {
+                  @Override
+                  public ClassWithoutDefaultConstructor createInstance(Type type) {
+                    return new ClassWithoutDefaultConstructor(-2);
+                  }
+                })
+            .create();
 
-    ClassWithoutDefaultConstructor c = gson.fromJson("{\"i\":1}", ClassWithoutDefaultConstructor.class);
+    ClassWithoutDefaultConstructor c =
+        gson.fromJson("{\"i\":1}", ClassWithoutDefaultConstructor.class);
     assertThat(c.i).isEqualTo(1);
 
     c = gson.fromJson("{}", ClassWithoutDefaultConstructor.class);
@@ -220,19 +228,23 @@ class ReflectionTest {
 
   @Test
   void testCustomAdapter() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(ClassWithRegisteredAdapter.class, new TypeAdapter<ClassWithRegisteredAdapter>() {
-          @Override
-          public ClassWithRegisteredAdapter read(JsonReader in) throws IOException {
-            return new ClassWithRegisteredAdapter(in.nextInt() + 5);
-          }
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                ClassWithRegisteredAdapter.class,
+                new TypeAdapter<ClassWithRegisteredAdapter>() {
+                  @Override
+                  public ClassWithRegisteredAdapter read(JsonReader in) throws IOException {
+                    return new ClassWithRegisteredAdapter(in.nextInt() + 5);
+                  }
 
-          @Override
-          public void write(JsonWriter out, ClassWithRegisteredAdapter value) throws IOException {
-            out.value(value.i + 6);
-          }
-        })
-        .create();
+                  @Override
+                  public void write(JsonWriter out, ClassWithRegisteredAdapter value)
+                      throws IOException {
+                    out.value(value.i + 6);
+                  }
+                })
+            .create();
 
     ClassWithRegisteredAdapter c = gson.fromJson("1", ClassWithRegisteredAdapter.class);
     assertThat(c.i).isEqualTo(6);
@@ -244,12 +256,17 @@ class ReflectionTest {
   void testGenerics() {
     Gson gson = new Gson();
 
-    List<ClassWithDefaultConstructor> list = gson.fromJson("[{\"i\":1}]", new TypeToken<List<ClassWithDefaultConstructor>>() {});
+    List<ClassWithDefaultConstructor> list =
+        gson.fromJson("[{\"i\":1}]", new TypeToken<List<ClassWithDefaultConstructor>>() {});
     assertThat(list).hasSize(1);
     assertThat(list.get(0).i).isEqualTo(1);
 
     @SuppressWarnings("unchecked")
-    List<ClassWithDefaultConstructor> list2 = (List<ClassWithDefaultConstructor>) gson.fromJson("[{\"i\":1}]", TypeToken.getParameterized(List.class, ClassWithDefaultConstructor.class));
+    List<ClassWithDefaultConstructor> list2 =
+        (List<ClassWithDefaultConstructor>)
+            gson.fromJson(
+                "[{\"i\":1}]",
+                TypeToken.getParameterized(List.class, ClassWithDefaultConstructor.class));
     assertThat(list2).hasSize(1);
     assertThat(list2.get(0).i).isEqualTo(1);
   }

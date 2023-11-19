@@ -38,26 +38,28 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Queue;
 
-/**
- * Writes a graph of objects as a list of named nodes.
- */
+/** Writes a graph of objects as a list of named nodes. */
 // TODO: proper documentation
 public final class GraphAdapterBuilder {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
   private final ConstructorConstructor constructorConstructor;
 
   public GraphAdapterBuilder() {
-      this.instanceCreators = new HashMap<>();
-      this.constructorConstructor = new ConstructorConstructor(instanceCreators, true, Collections.<ReflectionAccessFilter>emptyList());
+    this.instanceCreators = new HashMap<>();
+    this.constructorConstructor =
+        new ConstructorConstructor(
+            instanceCreators, true, Collections.<ReflectionAccessFilter>emptyList());
   }
+
   public GraphAdapterBuilder addType(Type type) {
     final ObjectConstructor<?> objectConstructor = constructorConstructor.get(TypeToken.get(type));
-    InstanceCreator<Object> instanceCreator = new InstanceCreator<Object>() {
-      @Override
-      public Object createInstance(Type type) {
-        return objectConstructor.construct();
-      }
-    };
+    InstanceCreator<Object> instanceCreator =
+        new InstanceCreator<Object>() {
+          @Override
+          public Object createInstance(Type type) {
+            return objectConstructor.construct();
+          }
+        };
     return addType(type, instanceCreator);
   }
 
@@ -79,6 +81,7 @@ public final class GraphAdapterBuilder {
 
   static class Factory implements TypeAdapterFactory, InstanceCreator<Object> {
     private final Map<Type, InstanceCreator<?>> instanceCreators;
+
     @SuppressWarnings("ThreadLocalUsage")
     private final ThreadLocal<Graph> graphThreadLocal = new ThreadLocal<>();
 
@@ -95,7 +98,8 @@ public final class GraphAdapterBuilder {
       final TypeAdapter<T> typeAdapter = gson.getDelegateAdapter(this, type);
       final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
       return new TypeAdapter<T>() {
-        @Override public void write(JsonWriter out, T value) throws IOException {
+        @Override
+        public void write(JsonWriter out, T value) throws IOException {
           if (value == null) {
             out.nullValue();
             return;
@@ -144,7 +148,8 @@ public final class GraphAdapterBuilder {
           }
         }
 
-        @Override public T read(JsonReader in) throws IOException {
+        @Override
+        public T read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -207,13 +212,12 @@ public final class GraphAdapterBuilder {
     }
 
     /**
-     * Hook for the graph adapter to get a reference to a deserialized value
-     * before that value is fully populated. This is useful to deserialize
-     * values that directly or indirectly reference themselves: we can hand
-     * out an instance before read() returns.
+     * Hook for the graph adapter to get a reference to a deserialized value before that value is
+     * fully populated. This is useful to deserialize values that directly or indirectly reference
+     * themselves: we can hand out an instance before read() returns.
      *
-     * <p>Gson should only ever call this method when we're expecting it to;
-     * that is only when we've called back into Gson to deserialize a tree.
+     * <p>Gson should only ever call this method when we're expecting it to; that is only when we've
+     * called back into Gson to deserialize a tree.
      */
     @Override
     public Object createInstance(Type type) {
@@ -231,22 +235,17 @@ public final class GraphAdapterBuilder {
 
   static class Graph {
     /**
-     * The graph elements. On serialization keys are objects (using an identity
-     * hash map) and on deserialization keys are the string names (using a
-     * standard hash map).
+     * The graph elements. On serialization keys are objects (using an identity hash map) and on
+     * deserialization keys are the string names (using a standard hash map).
      */
     private final Map<Object, Element<?>> map;
 
-    /**
-     * The queue of elements to write during serialization. Unused during
-     * deserialization.
-     */
+    /** The queue of elements to write during serialization. Unused during deserialization. */
     private final Queue<Element<?>> queue = new ArrayDeque<>();
 
     /**
-     * The instance currently being deserialized. Used as a backdoor between
-     * the graph traversal (which needs to know instances) and instance creators
-     * which create them.
+     * The instance currently being deserialized. Used as a backdoor between the graph traversal
+     * (which needs to know instances) and instance creators which create them.
      */
     private Element<Object> nextCreate;
 
@@ -254,37 +253,24 @@ public final class GraphAdapterBuilder {
       this.map = map;
     }
 
-    /**
-     * Returns a unique name for an element to be inserted into the graph.
-     */
+    /** Returns a unique name for an element to be inserted into the graph. */
     public String nextName() {
       return "0x" + Integer.toHexString(map.size() + 1);
     }
   }
 
-  /**
-   * An element of the graph during serialization or deserialization.
-   */
+  /** An element of the graph during serialization or deserialization. */
   static class Element<T> {
-    /**
-     * This element's name in the top level graph object.
-     */
+    /** This element's name in the top level graph object. */
     private final String id;
 
-    /**
-     * The value if known. During deserialization this is lazily populated.
-     */
+    /** The value if known. During deserialization this is lazily populated. */
     private T value;
 
-    /**
-     * This element's type adapter if known. During deserialization this is
-     * lazily populated.
-     */
+    /** This element's type adapter if known. During deserialization this is lazily populated. */
     private TypeAdapter<T> typeAdapter;
 
-    /**
-     * The element to deserialize. Unused in serialization.
-     */
+    /** The element to deserialize. Unused in serialization. */
     private final JsonElement element;
 
     Element(T value, String id, TypeAdapter<T> typeAdapter, JsonElement element) {

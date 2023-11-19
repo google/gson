@@ -77,9 +77,7 @@ public class InnerClassExclusionStrategyTest {
   }
 
   @SuppressWarnings("ClassCanBeStatic")
-  class InnerClass {
-  }
+  class InnerClass {}
 
-  static class StaticNestedClass {
-  }
+  static class StaticNestedClass {}
 }

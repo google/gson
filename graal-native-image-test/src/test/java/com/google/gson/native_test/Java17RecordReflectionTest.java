@@ -28,8 +28,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 class Java17RecordReflectionTest {
-  public record PublicRecord(int i) {
-  }
+  public record PublicRecord(int i) {}
 
   @Test
   void testPublicRecord() {
@@ -39,8 +38,7 @@ class Java17RecordReflectionTest {
   }
 
   // Private record has implicit private canonical constructor
-  private record PrivateRecord(int i) {
-  }
+  private record PrivateRecord(int i) {}
 
   @Test
   void testPrivateRecord() {
@@ -51,8 +49,7 @@ class Java17RecordReflectionTest {
 
   @Test
   void testLocalRecord() {
-    record LocalRecordDeserialization(int i) {
-    }
+    record LocalRecordDeserialization(int i) {}
 
     Gson gson = new Gson();
     LocalRecordDeserialization r = gson.fromJson("{\"i\":1}", LocalRecordDeserialization.class);
@@ -61,20 +58,19 @@ class Java17RecordReflectionTest {
 
   @Test
   void testLocalRecordSerialization() {
-    record LocalRecordSerialization(int i) {
-    }
+    record LocalRecordSerialization(int i) {}
 
     Gson gson = new Gson();
     assertThat(gson.toJson(new LocalRecordSerialization(1))).isEqualTo("{\"i\":1}");
   }
 
-  private record RecordWithSerializedName(@SerializedName("custom-name") int i) {
-  }
+  private record RecordWithSerializedName(@SerializedName("custom-name") int i) {}
 
   @Test
   void testSerializedName() {
     Gson gson = new Gson();
-    RecordWithSerializedName r = gson.fromJson("{\"custom-name\":1}", RecordWithSerializedName.class);
+    RecordWithSerializedName r =
+        gson.fromJson("{\"custom-name\":1}", RecordWithSerializedName.class);
     assertThat(r.i).isEqualTo(1);
 
     assertThat(gson.toJson(new RecordWithSerializedName(2))).isEqualTo("{\"custom-name\":2}");
@@ -133,9 +129,7 @@ class Java17RecordReflectionTest {
   }
 
   private record RecordWithCustomFieldAdapter(
-      @JsonAdapter(RecordWithCustomFieldAdapter.CustomAdapter.class)
-      int i
-  ) {
+      @JsonAdapter(RecordWithCustomFieldAdapter.CustomAdapter.class) int i) {
     private static class CustomAdapter extends TypeAdapter<Integer> {
       @Override
       public Integer read(JsonReader in) throws IOException {
@@ -158,24 +152,27 @@ class Java17RecordReflectionTest {
     assertThat(gson.toJson(new RecordWithCustomFieldAdapter(1))).isEqualTo("{\"i\":7}");
   }
 
-  private record RecordWithRegisteredAdapter(int i) {
-  }
+  private record RecordWithRegisteredAdapter(int i) {}
 
   @Test
   void testCustomAdapter() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(RecordWithRegisteredAdapter.class, new TypeAdapter<RecordWithRegisteredAdapter>() {
-          @Override
-          public RecordWithRegisteredAdapter read(JsonReader in) throws IOException {
-            return new RecordWithRegisteredAdapter(in.nextInt() + 5);
-          }
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                RecordWithRegisteredAdapter.class,
+                new TypeAdapter<RecordWithRegisteredAdapter>() {
+                  @Override
+                  public RecordWithRegisteredAdapter read(JsonReader in) throws IOException {
+                    return new RecordWithRegisteredAdapter(in.nextInt() + 5);
+                  }
 
-          @Override
-          public void write(JsonWriter out, RecordWithRegisteredAdapter value) throws IOException {
-            out.value(value.i + 6);
-          }
-        })
-        .create();
+                  @Override
+                  public void write(JsonWriter out, RecordWithRegisteredAdapter value)
+                      throws IOException {
+                    out.value(value.i + 6);
+                  }
+                })
+            .create();
 
     RecordWithRegisteredAdapter r = gson.fromJson("1", RecordWithRegisteredAdapter.class);
     assertThat(r.i).isEqualTo(6);

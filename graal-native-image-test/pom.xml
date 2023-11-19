@@ -13,9 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -27,6 +25,10 @@
   <artifactId>graal-native-image-test</artifactId>
 
   <properties>
+    <!-- Make the build reproducible, see root `pom.xml` -->
+    <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
+    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+
     <!-- GraalVM is JDK >= 17, however for build with regular JDK these tests
       are also executed with JDK 11, so for them exclude JDK 17 specific tests -->
     <maven.compiler.testRelease>11</maven.compiler.testRelease>
@@ -47,7 +49,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.10.0</version>
+      <version>5.10.1</version>
       <scope>test</scope>
     </dependency>
 
@@ -150,7 +152,7 @@
           <plugin>
             <groupId>org.graalvm.buildtools</groupId>
             <artifactId>native-maven-plugin</artifactId>
-            <version>0.9.27</version>
+            <version>0.9.28</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -163,16 +165,6 @@
                 </configuration>
               </execution>
             </executions>
-            <dependencies>
-              <!-- Workaround for https://github.com/graalvm/native-build-tools/issues/418 -->
-              <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-utils</artifactId>
-                <!-- Don't upgrade version to >= 4 because that seems to contain potentially backward
-                  incompatible changes -->
-                <version>3.5.1</version>
-              </dependency>
-            </dependencies>
           </plugin>
         </plugins>
       </build>

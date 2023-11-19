@@ -27,6 +27,12 @@
   <name>Gson Protobuf Support</name>
   <description>Gson support for Protobufs</description>
 
+  <properties>
+    <!-- Make the build reproducible, see root `pom.xml` -->
+    <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
+    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+  </properties>
+
   <licenses>
     <license>
       <name>Apache-2.0</name>
@@ -50,7 +56,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>32.1.2-jre</version>
+      <version>32.1.3-jre</version>
     </dependency>
 
     <dependency>

@@ -30,9 +30,15 @@ import java.math.BigDecimal;
 public final class LazilyParsedNumber extends Number {
   private final String value;
 
-  /** @param value must not be null */
+  /**
+   * @param value must not be null
+   */
   public LazilyParsedNumber(String value) {
     this.value = value;
+  }
+
+  private BigDecimal asBigDecimal() {
+    return NumberLimits.parseBigDecimal(value);
   }
 
   @Override
@@ -43,7 +49,7 @@ public final class LazilyParsedNumber extends Number {
       try {
         return (int) Long.parseLong(value);
       } catch (NumberFormatException nfe) {
-        return new BigDecimal(value).intValue();
+        return asBigDecimal().intValue();
       }
     }
   }
@@ -53,7 +59,7 @@ public final class LazilyParsedNumber extends Number {
     try {
       return Long.parseLong(value);
     } catch (NumberFormatException e) {
-      return new BigDecimal(value).longValue();
+      return asBigDecimal().longValue();
     }
   }
 
@@ -73,16 +79,16 @@ public final class LazilyParsedNumber extends Number {
   }
 
   /**
-   * If somebody is unlucky enough to have to serialize one of these, serialize
-   * it as a BigDecimal so that they won't need Gson on the other side to
-   * deserialize it.
+   * If somebody is unlucky enough to have to serialize one of these, serialize it as a BigDecimal
+   * so that they won't need Gson on the other side to deserialize it.
    */
   private Object writeReplace() throws ObjectStreamException {
-    return new BigDecimal(value);
+    return asBigDecimal();
   }
 
   private void readObject(ObjectInputStream in) throws IOException {
-    // Don't permit directly deserializing this class; writeReplace() should have written a replacement
+    // Don't permit directly deserializing this class; writeReplace() should have written a
+    // replacement
     throw new InvalidObjectException("Deserialization is unsupported");
   }
 

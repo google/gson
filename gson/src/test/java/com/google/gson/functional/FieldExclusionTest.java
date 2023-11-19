@@ -82,11 +82,11 @@ public class FieldExclusionTest {
         super(value);
       }
     }
-
   }
 
   private static class NestedClass {
     private final String value;
+
     public NestedClass(String value) {
       this.value = value;
     }

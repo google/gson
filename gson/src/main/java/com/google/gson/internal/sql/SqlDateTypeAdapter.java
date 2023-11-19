@@ -31,25 +31,26 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Adapter for java.sql.Date. Although this class appears stateless, it is not.
- * DateFormat captures its time zone and locale when it is created, which gives
- * this class state. DateFormat isn't thread safe either, so this class has
- * to synchronize its read and write methods.
+ * Adapter for java.sql.Date. Although this class appears stateless, it is not. DateFormat captures
+ * its time zone and locale when it is created, which gives this class state. DateFormat isn't
+ * thread safe either, so this class has to synchronize its read and write methods.
  */
 @SuppressWarnings("JavaUtilDate")
 final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
-  static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
-    @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
-    @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-      return typeToken.getRawType() == java.sql.Date.class
-          ? (TypeAdapter<T>) new SqlDateTypeAdapter() : null;
-    }
-  };
+  static final TypeAdapterFactory FACTORY =
+      new TypeAdapterFactory() {
+        @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+          return typeToken.getRawType() == java.sql.Date.class
+              ? (TypeAdapter<T>) new SqlDateTypeAdapter()
+              : null;
+        }
+      };
 
   private final DateFormat format = new SimpleDateFormat("MMM d, yyyy");
 
-  private SqlDateTypeAdapter() {
-  }
+  private SqlDateTypeAdapter() {}
 
   @Override
   public java.sql.Date read(JsonReader in) throws IOException {
@@ -65,7 +66,8 @@ final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
       }
       return new java.sql.Date(utilDate.getTime());
     } catch (ParseException e) {
-      throw new JsonSyntaxException("Failed parsing '" + s + "' as SQL Date; at path " + in.getPreviousPath(), e);
+      throw new JsonSyntaxException(
+          "Failed parsing '" + s + "' as SQL Date; at path " + in.getPreviousPath(), e);
     }
   }
 
