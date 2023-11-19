@@ -22,46 +22,40 @@ import org.junit.Test;
 
 /**
  * Test unsafe allocator instantiation
+ *
  * @author Ugljesa Jovanovic
  */
 public final class UnsafeAllocatorInstantiationTest {
 
-  public interface Interface {
-  }
+  public interface Interface {}
 
-  public static abstract class AbstractClass {
-  }
+  public abstract static class AbstractClass {}
 
-  public static class ConcreteClass {
-  }
+  public static class ConcreteClass {}
 
-  /**
-   * Ensure that an {@link AssertionError} is thrown when trying
-   * to instantiate an interface
-   */
+  /** Ensure that an {@link AssertionError} is thrown when trying to instantiate an interface */
   @Test
   public void testInterfaceInstantiation() {
-    AssertionError e = assertThrows(AssertionError.class,
-        () -> UnsafeAllocator.INSTANCE.newInstance(Interface.class));
+    AssertionError e =
+        assertThrows(
+            AssertionError.class, () -> UnsafeAllocator.INSTANCE.newInstance(Interface.class));
 
     assertThat(e).hasMessageThat().startsWith("UnsafeAllocator is used for non-instantiable type");
   }
 
   /**
-   * Ensure that an {@link AssertionError} is thrown when trying
-   * to instantiate an abstract class
+   * Ensure that an {@link AssertionError} is thrown when trying to instantiate an abstract class
    */
   @Test
   public void testAbstractClassInstantiation() {
-    AssertionError e = assertThrows(AssertionError.class,
-        () -> UnsafeAllocator.INSTANCE.newInstance(AbstractClass.class));
+    AssertionError e =
+        assertThrows(
+            AssertionError.class, () -> UnsafeAllocator.INSTANCE.newInstance(AbstractClass.class));
 
     assertThat(e).hasMessageThat().startsWith("UnsafeAllocator is used for non-instantiable type");
   }
 
-  /**
-   * Ensure that no exception is thrown when trying to instantiate a concrete class
-   */
+  /** Ensure that no exception is thrown when trying to instantiate a concrete class */
   @Test
   public void testConcreteClassInstantiation() throws Exception {
     ConcreteClass instance = UnsafeAllocator.INSTANCE.newInstance(ConcreteClass.class);

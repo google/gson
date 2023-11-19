@@ -51,17 +51,13 @@ public final class JsonNull extends JsonElement {
     return INSTANCE;
   }
 
-  /**
-   * All instances of {@code JsonNull} have the same hash code since they are indistinguishable.
-   */
+  /** All instances of {@code JsonNull} have the same hash code since they are indistinguishable. */
   @Override
   public int hashCode() {
     return JsonNull.class.hashCode();
   }
 
-  /**
-   * All instances of {@code JsonNull} are considered equal.
-   */
+  /** All instances of {@code JsonNull} are considered equal. */
   @Override
   public boolean equals(Object other) {
     return other instanceof JsonNull;

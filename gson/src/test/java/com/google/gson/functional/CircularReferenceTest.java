@@ -70,7 +70,7 @@ public class CircularReferenceTest {
   @Test
   public void testSelfReferenceArrayFieldSerialization() {
     ClassWithSelfReferenceArray objA = new ClassWithSelfReferenceArray();
-    objA.children = new ClassWithSelfReferenceArray[]{objA};
+    objA.children = new ClassWithSelfReferenceArray[] {objA};
 
     try {
       gson.toJson(objA);
@@ -83,15 +83,23 @@ public class CircularReferenceTest {
   public void testSelfReferenceCustomHandlerSerialization() {
     ClassWithSelfReference obj = new ClassWithSelfReference();
     obj.child = obj;
-    Gson gson = new GsonBuilder().registerTypeAdapter(ClassWithSelfReference.class, new JsonSerializer<ClassWithSelfReference>() {
-      @Override public JsonElement serialize(ClassWithSelfReference src, Type typeOfSrc,
-          JsonSerializationContext context) {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("property", "value");
-        obj.add("child", context.serialize(src.child));
-        return obj;
-      }
-    }).create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                ClassWithSelfReference.class,
+                new JsonSerializer<ClassWithSelfReference>() {
+                  @Override
+                  public JsonElement serialize(
+                      ClassWithSelfReference src,
+                      Type typeOfSrc,
+                      JsonSerializationContext context) {
+                    JsonObject obj = new JsonObject();
+                    obj.addProperty("property", "value");
+                    obj.add("child", context.serialize(src.child));
+                    return obj;
+                  }
+                })
+            .create();
     try {
       gson.toJson(obj);
       fail("Circular reference to self can not be serialized!");

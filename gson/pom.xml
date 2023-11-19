@@ -34,6 +34,10 @@
   </licenses>
 
   <properties>
+    <!-- Make the build reproducible, see root `pom.xml` -->
+    <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
+    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+
     <excludeTestCompilation>**/Java17*</excludeTestCompilation>
   </properties>
 
@@ -75,7 +79,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>templating-maven-plugin</artifactId>
-        <version>1.0.0</version>
+        <version>3.0.0</version>
         <executions>
           <execution>
             <id>filtering-java-templates</id>
@@ -139,11 +143,11 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <!-- Deny illegal access, this is required for ReflectionAccessTest -->
-          <!-- Requires Java >= 9; Important: In case future Java versions 
-            don't support this flag anymore, don't remove it unless CI also runs with 
-            that Java version. Ideally would use toolchain to specify that this should 
-            run with e.g. Java 11, but Maven toolchain requirements (unlike Gradle ones) 
-            don't seem to be portable (every developer would have to set up toolchain 
+          <!-- Requires Java >= 9; Important: In case future Java versions
+            don't support this flag anymore, don't remove it unless CI also runs with
+            that Java version. Ideally would use toolchain to specify that this should
+            run with e.g. Java 11, but Maven toolchain requirements (unlike Gradle ones)
+            don't seem to be portable (every developer would have to set up toolchain
             configuration locally). -->
           <argLine>--illegal-access=deny</argLine>
         </configuration>
@@ -239,14 +243,14 @@
         </configuration>
       </plugin>
       <!-- Add module-info to JAR, see https://github.com/moditect/moditect#adding-module-descriptors-to-existing-jar-files -->
-      <!-- Uses ModiTect instead of separate maven-compiler-plugin executions 
+      <!-- Uses ModiTect instead of separate maven-compiler-plugin executions
         for better Eclipse IDE support, see https://github.com/eclipse-m2e/m2e-core/issues/393 -->
       <!-- Note: For some reason this has to be executed before javadoc plugin; otherwise `javadoc:jar` goal fails
         to find source files -->
       <plugin>
         <groupId>org.moditect</groupId>
         <artifactId>moditect-maven-plugin</artifactId>
-        <version>1.0.0.Final</version>
+        <version>1.1.0</version>
         <executions>
           <execution>
             <id>add-module-info</id>

@@ -78,16 +78,15 @@ public class ExposeAnnotationExclusionStrategyTest {
 
   @SuppressWarnings("unused")
   private static class MockObject {
-    @Expose
-    public final int exposedField = 0;
+    @Expose public final int exposedField = 0;
 
-    @Expose(serialize=true, deserialize=true)
+    @Expose(serialize = true, deserialize = true)
     public final int explicitlyExposedField = 0;
 
-    @Expose(serialize=false, deserialize=false)
+    @Expose(serialize = false, deserialize = false)
     public final int explicitlyHiddenField = 0;
 
-    @Expose(serialize=true, deserialize=false)
+    @Expose(serialize = true, deserialize = false)
     public final int explicitlyDifferentModeField = 0;
 
     public final int hiddenField = 0;

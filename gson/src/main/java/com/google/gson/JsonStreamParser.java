@@ -27,8 +27,8 @@ import java.util.NoSuchElementException;
 
 /**
  * A streaming parser that allows reading of multiple {@link JsonElement}s from the specified reader
- * asynchronously. The JSON data is parsed in lenient mode, see also
- * {@link JsonReader#setStrictness(Strictness)}.
+ * asynchronously. The JSON data is parsed in lenient mode, see also {@link
+ * JsonReader#setStrictness(Strictness)}.
  *
  * <p>This class is conditionally thread-safe (see Item 70, Effective Java second edition). To
  * properly use this class across multiple threads, you will need to add some external
@@ -71,8 +71,8 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
   }
 
   /**
-   * Returns the next available {@link JsonElement} on the reader. Throws a
-   * {@link NoSuchElementException} if no element is available.
+   * Returns the next available {@link JsonElement} on the reader. Throws a {@link
+   * NoSuchElementException} if no element is available.
    *
    * @return the next available {@code JsonElement} on the reader.
    * @throws JsonParseException if the incoming stream is malformed JSON.
@@ -96,6 +96,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
 
   /**
    * Returns true if a {@link JsonElement} is available on the input for consumption
+   *
    * @return true if a {@link JsonElement} is available on the input, false otherwise
    * @throws JsonParseException if the incoming stream is malformed JSON.
    * @since 1.4
@@ -116,6 +117,7 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
   /**
    * This optional {@link Iterator} method is not relevant for stream parsing and hence is not
    * implemented.
+   *
    * @since 1.4
    */
   @Override

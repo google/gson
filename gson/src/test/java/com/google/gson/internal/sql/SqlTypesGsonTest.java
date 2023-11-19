@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.functional.DefaultTypeAdaptersTest;
-import com.google.gson.internal.JavaVersion;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;

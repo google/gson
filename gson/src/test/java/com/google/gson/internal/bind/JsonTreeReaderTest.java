@@ -133,7 +133,12 @@ public class JsonTreeReaderTest {
       reader.peek();
       fail();
     } catch (MalformedJsonException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Custom JsonElement subclass " + CustomSubclass.class.getName() + " is not supported");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Custom JsonElement subclass "
+                  + CustomSubclass.class.getName()
+                  + " is not supported");
     }
   }
 
@@ -188,11 +193,14 @@ public class JsonTreeReaderTest {
    */
   @Test
   public void testOverrides() {
-    List<String> ignoredMethods = Arrays.asList(
-        "setLenient(boolean)", "isLenient()",
-        "setStrictness(com.google.gson.Strictness)", "getStrictness()",
-        "setNestingLimit(int)", "getNestingLimit()"
-    );
+    List<String> ignoredMethods =
+        Arrays.asList(
+            "setLenient(boolean)",
+            "isLenient()",
+            "setStrictness(com.google.gson.Strictness)",
+            "getStrictness()",
+            "setNestingLimit(int)",
+            "getNestingLimit()");
     MoreAsserts.assertOverridesMethods(JsonReader.class, JsonTreeReader.class, ignoredMethods);
   }
 }

@@ -18,13 +18,11 @@ package com.google.gson;
 
 import com.google.common.base.Objects;
 import com.google.gson.internal.$Gson$Types;
-
 import com.google.gson.internal.Primitives;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
 
 /**
  * This class contains some test fixtures for Parameterized types. These classes should ideally
@@ -38,9 +36,11 @@ public class ParameterizedTypeFixtures {
 
   public static final class MyParameterizedType<T> {
     public final T value;
+
     public MyParameterizedType(T value) {
       this.value = value;
     }
+
     public T getValue() {
       return value;
     }
@@ -95,26 +95,28 @@ public class ParameterizedTypeFixtures {
   }
 
   public static class MyParameterizedTypeInstanceCreator<T>
-      implements InstanceCreator<MyParameterizedType<T>>{
+      implements InstanceCreator<MyParameterizedType<T>> {
     private final T instanceOfT;
+
     /**
-     * Caution the specified instance is reused by the instance creator for each call.
-     * This means that the fields of the same objects will be overwritten by Gson.
-     * This is usually fine in tests since there we deserialize just once, but quite
-     * dangerous in practice.
+     * Caution the specified instance is reused by the instance creator for each call. This means
+     * that the fields of the same objects will be overwritten by Gson. This is usually fine in
+     * tests since there we deserialize just once, but quite dangerous in practice.
      */
     public MyParameterizedTypeInstanceCreator(T instanceOfT) {
       this.instanceOfT = instanceOfT;
     }
-    @Override public MyParameterizedType<T> createInstance(Type type) {
+
+    @Override
+    public MyParameterizedType<T> createInstance(Type type) {
       return new MyParameterizedType<>(instanceOfT);
     }
   }
 
   public static final class MyParameterizedTypeAdapter<T>
-  implements JsonSerializer<MyParameterizedType<T>>, JsonDeserializer<MyParameterizedType<T>> {
+      implements JsonSerializer<MyParameterizedType<T>>, JsonDeserializer<MyParameterizedType<T>> {
     @SuppressWarnings("unchecked")
-    public static<T> String getExpectedJson(MyParameterizedType<T> obj) {
+    public static <T> String getExpectedJson(MyParameterizedType<T> obj) {
       Class<T> clazz = (Class<T>) obj.value.getClass();
       boolean addQuotes = !clazz.isArray() && !Primitives.unwrap(clazz).isPrimitive();
       StringBuilder sb = new StringBuilder("{\"");
@@ -130,8 +132,9 @@ public class ParameterizedTypeFixtures {
       return sb.toString();
     }
 
-    @Override public JsonElement serialize(MyParameterizedType<T> src, Type classOfSrc,
-        JsonSerializationContext context) {
+    @Override
+    public JsonElement serialize(
+        MyParameterizedType<T> src, Type classOfSrc, JsonSerializationContext context) {
       JsonObject json = new JsonObject();
       T value = src.getValue();
       json.add(value.getClass().getSimpleName(), context.serialize(value));
@@ -139,8 +142,10 @@ public class ParameterizedTypeFixtures {
     }
 
     @SuppressWarnings("unchecked")
-    @Override public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
-        JsonDeserializationContext context) throws JsonParseException {
+    @Override
+    public MyParameterizedType<T> deserialize(
+        JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
       Type genericClass = ((ParameterizedType) typeOfT).getActualTypeArguments()[0];
       Class<?> rawType = $Gson$Types.getRawType(genericClass);
       String className = rawType.getSimpleName();

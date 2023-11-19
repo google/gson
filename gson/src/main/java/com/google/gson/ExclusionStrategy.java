@@ -17,12 +17,13 @@
 package com.google.gson;
 
 /**
- * A strategy (or policy) definition that is used to decide whether or not a field or
- * class should be serialized or deserialized as part of the JSON output/input.
+ * A strategy (or policy) definition that is used to decide whether or not a field or class should
+ * be serialized or deserialized as part of the JSON output/input.
  *
  * <p>The following are a few examples that shows how you can use this exclusion mechanism.
  *
  * <p><strong>Exclude fields and objects based on a particular class type:</strong>
+ *
  * <pre class="code">
  * private static class SpecificClassExclusionStrategy implements ExclusionStrategy {
  *   private final Class&lt;?&gt; excludedThisClass;
@@ -42,6 +43,7 @@ package com.google.gson;
  * </pre>
  *
  * <p><strong>Excludes fields and objects based on a particular annotation:</strong>
+ *
  * <pre class="code">
  * public &#64;interface FooAnnotation {
  *   // some implementation here
@@ -59,9 +61,10 @@ package com.google.gson;
  * }
  * </pre>
  *
- * <p>Now if you want to configure {@code Gson} to use a user defined exclusion strategy, then
- * the {@code GsonBuilder} is required. The following is an example of how you can use the
- * {@code GsonBuilder} to configure Gson to use one of the above samples:
+ * <p>Now if you want to configure {@code Gson} to use a user defined exclusion strategy, then the
+ * {@code GsonBuilder} is required. The following is an example of how you can use the {@code
+ * GsonBuilder} to configure Gson to use one of the above samples:
+ *
  * <pre class="code">
  * ExclusionStrategy excludeStrings = new UserDefinedExclusionStrategy(String.class);
  * Gson gson = new GsonBuilder()
@@ -70,10 +73,10 @@ package com.google.gson;
  * </pre>
  *
  * <p>For certain model classes, you may only want to serialize a field, but exclude it for
- * deserialization. To do that, you can write an {@code ExclusionStrategy} as per normal;
- * however, you would register it with the
- * {@link GsonBuilder#addDeserializationExclusionStrategy(ExclusionStrategy)} method.
- * For example:
+ * deserialization. To do that, you can write an {@code ExclusionStrategy} as per normal; however,
+ * you would register it with the {@link
+ * GsonBuilder#addDeserializationExclusionStrategy(ExclusionStrategy)} method. For example:
+ *
  * <pre class="code">
  * ExclusionStrategy excludeStrings = new UserDefinedExclusionStrategy(String.class);
  * Gson gson = new GsonBuilder()
@@ -83,11 +86,9 @@ package com.google.gson;
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
- *
  * @see GsonBuilder#setExclusionStrategies(ExclusionStrategy...)
  * @see GsonBuilder#addDeserializationExclusionStrategy(ExclusionStrategy)
  * @see GsonBuilder#addSerializationExclusionStrategy(ExclusionStrategy)
- *
  * @since 1.4
  */
 public interface ExclusionStrategy {

@@ -33,12 +33,14 @@ public class Java17ReflectionHelperTest {
     // UnixDomainPrincipal is a record
     assertThat(ReflectionHelper.isRecord(unixDomainPrincipalClass)).isTrue();
     // with 2 components
-    assertThat(ReflectionHelper.getRecordComponentNames(unixDomainPrincipalClass)).isEqualTo(new String[] {"user", "group"});
+    assertThat(ReflectionHelper.getRecordComponentNames(unixDomainPrincipalClass))
+        .isEqualTo(new String[] {"user", "group"});
     // Check canonical constructor
     Constructor<?> constructor =
         ReflectionHelper.getCanonicalRecordConstructor(unixDomainPrincipalClass);
     assertThat(constructor).isNotNull();
-    assertThat(constructor.getParameterTypes()).isEqualTo(new Class<?>[] {UserPrincipal.class, GroupPrincipal.class});
+    assertThat(constructor.getParameterTypes())
+        .isEqualTo(new Class<?>[] {UserPrincipal.class, GroupPrincipal.class});
   }
 
   @Test
