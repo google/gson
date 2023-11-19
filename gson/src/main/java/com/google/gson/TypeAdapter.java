@@ -68,11 +68,11 @@ import java.io.Writer;
  * #write(JsonWriter,Object) write()} must write exactly one value. For primitive types this is
  * means readers should make exactly one call to {@code nextBoolean()}, {@code nextDouble()}, {@code
  * nextInt()}, {@code nextLong()}, {@code nextString()} or {@code nextNull()}. Writers should make
- * exactly one call to one of <code>value()</code> or <code>nullValue()</code>. For arrays, type
- * adapters should start with a call to {@code beginArray()}, convert all elements, and finish with
- * a call to {@code endArray()}. For objects, they should start with {@code beginObject()}, convert
- * the object, and finish with {@code endObject()}. Failing to convert a value or converting too
- * many values may cause the application to crash.
+ * exactly one call to one of {@code value()} or {@code nullValue()}. For arrays, type adapters
+ * should start with a call to {@code beginArray()}, convert all elements, and finish with a call to
+ * {@code endArray()}. For objects, they should start with {@code beginObject()}, convert the
+ * object, and finish with {@code endObject()}. Failing to convert a value or converting too many
+ * values may cause the application to crash.
  *
  * <p>Type adapters should be prepared to read null from the stream and write it to the stream.
  * Alternatively, they should use {@link #nullSafe()} method while registering the type adapter with

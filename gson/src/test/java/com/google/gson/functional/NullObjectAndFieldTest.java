@@ -243,7 +243,7 @@ public class NullObjectAndFieldTest {
   }
 
   @Test
-  public void testCustomTypeAdapterPassesNullDesrialization() {
+  public void testCustomTypeAdapterPassesNullDeserialization() {
     Gson gson =
         new GsonBuilder()
             .registerTypeAdapter(

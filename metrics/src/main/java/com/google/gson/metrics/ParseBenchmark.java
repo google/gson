@@ -392,13 +392,13 @@ public final class ParseBenchmark {
       StringBuilder result =
           new StringBuilder()
               .append(id)
-              .append("\n")
+              .append('\n')
               .append(title)
-              .append("\n")
+              .append('\n')
               .append(description)
-              .append("\n")
+              .append('\n')
               .append(alternates)
-              .append("\n")
+              .append('\n')
               .append(updated);
       int i = 1;
       for (Item item : items) {

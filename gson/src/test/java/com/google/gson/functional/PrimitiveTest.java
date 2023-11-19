@@ -555,8 +555,8 @@ public class PrimitiveTest {
 
   @Test
   public void testDoubleNaNDeserialization() {
-    assertThat(Double.isNaN(gson.fromJson("NaN", Double.class))).isTrue();
-    assertThat(Double.isNaN(gson.fromJson("NaN", double.class))).isTrue();
+    assertThat(gson.fromJson("NaN", Double.class)).isNaN();
+    assertThat(gson.fromJson("NaN", double.class)).isNaN();
   }
 
   @Test
@@ -584,8 +584,8 @@ public class PrimitiveTest {
 
   @Test
   public void testFloatNaNDeserialization() {
-    assertThat(Float.isNaN(gson.fromJson("NaN", Float.class))).isTrue();
-    assertThat(Float.isNaN(gson.fromJson("NaN", float.class))).isTrue();
+    assertThat(gson.fromJson("NaN", Float.class)).isNaN();
+    assertThat(gson.fromJson("NaN", float.class)).isNaN();
   }
 
   @Test
@@ -622,8 +622,8 @@ public class PrimitiveTest {
 
   @Test
   public void testDoubleInfinityDeserialization() {
-    assertThat(Double.isInfinite(gson.fromJson("Infinity", Double.class))).isTrue();
-    assertThat(Double.isInfinite(gson.fromJson("Infinity", double.class))).isTrue();
+    assertThat(gson.fromJson("Infinity", Double.class)).isPositiveInfinity();
+    assertThat(gson.fromJson("Infinity", double.class)).isPositiveInfinity();
   }
 
   @Test
@@ -651,8 +651,8 @@ public class PrimitiveTest {
 
   @Test
   public void testFloatInfinityDeserialization() {
-    assertThat(Float.isInfinite(gson.fromJson("Infinity", Float.class))).isTrue();
-    assertThat(Float.isInfinite(gson.fromJson("Infinity", float.class))).isTrue();
+    assertThat(gson.fromJson("Infinity", Float.class)).isPositiveInfinity();
+    assertThat(gson.fromJson("Infinity", float.class)).isPositiveInfinity();
   }
 
   @Test
@@ -689,8 +689,8 @@ public class PrimitiveTest {
 
   @Test
   public void testNegativeInfinityDeserialization() {
-    assertThat(Double.isInfinite(gson.fromJson("-Infinity", double.class))).isTrue();
-    assertThat(Double.isInfinite(gson.fromJson("-Infinity", Double.class))).isTrue();
+    assertThat(gson.fromJson("-Infinity", double.class)).isNegativeInfinity();
+    assertThat(gson.fromJson("-Infinity", Double.class)).isNegativeInfinity();
   }
 
   @Test
@@ -718,8 +718,8 @@ public class PrimitiveTest {
 
   @Test
   public void testNegativeInfinityFloatDeserialization() {
-    assertThat(Float.isInfinite(gson.fromJson("-Infinity", float.class))).isTrue();
-    assertThat(Float.isInfinite(gson.fromJson("-Infinity", Float.class))).isTrue();
+    assertThat(gson.fromJson("-Infinity", float.class)).isNegativeInfinity();
+    assertThat(gson.fromJson("-Infinity", Float.class)).isNegativeInfinity();
   }
 
   @Test
