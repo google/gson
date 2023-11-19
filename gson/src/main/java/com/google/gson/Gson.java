@@ -25,7 +25,7 @@ import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
-import com.google.gson.internal.bind.DateTypeAdapter;
+import com.google.gson.internal.bind.DefaultDateTypeAdapter;
 import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
@@ -369,7 +369,7 @@ public final class Gson {
     factories.add(TypeAdapters.LOCALE_FACTORY);
     factories.add(TypeAdapters.INET_ADDRESS_FACTORY);
     factories.add(TypeAdapters.BIT_SET_FACTORY);
-    factories.add(DateTypeAdapter.FACTORY);
+    factories.add(DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
     factories.add(TypeAdapters.CALENDAR_FACTORY);
 
     if (SqlTypesSupport.SUPPORTS_SQL_TYPES) {
