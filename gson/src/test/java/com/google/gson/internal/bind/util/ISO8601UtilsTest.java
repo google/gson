@@ -28,7 +28,6 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 
 public class ISO8601UtilsTest {
 
@@ -130,13 +129,6 @@ public class ISO8601UtilsTest {
   @Test
   public void testDateParseInvalidTime() {
     final String dateStr = "2018-06-25T61:60:62-03:00";
-    assertThrows(
-        ParseException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            ISO8601Utils.parse(dateStr, new ParsePosition(0));
-          }
-        });
+    assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
   }
 }

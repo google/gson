@@ -141,9 +141,9 @@ public class ObjectTest {
 
   @Test
   public void testClassWithTransientFieldsDeserializationTransientFieldsPassedInJsonAreIgnored() {
-    String json = "{\"transientLongValue\":1,\"longValue\":[1]}";
+    String json = "{\"transientLongValue\":5,\"longValue\":[1]}";
     ClassWithTransientFields<?> target = gson.fromJson(json, ClassWithTransientFields.class);
-    assertThat(target.transientLongValue != 1).isFalse();
+    assertThat(target.transientLongValue).isEqualTo(1);
   }
 
   @Test

@@ -83,7 +83,7 @@ public final class GsonTypesTest {
   private final class NonStaticInner<T> {}
 
   /**
-   * Given a parameterized type A&lt;B,C&gt;, returns B. If the specified type is not a generic
+   * Given a parameterized type {@code A<B, C>}, returns B. If the specified type is not a generic
    * type, returns null.
    */
   public static Type getFirstTypeArgument(Type type) throws Exception {
