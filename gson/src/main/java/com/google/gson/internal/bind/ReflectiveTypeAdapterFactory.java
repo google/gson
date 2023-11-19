@@ -127,6 +127,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         public void write(JsonWriter out, T value) throws IOException {
           out.nullValue();
         }
+
+        @Override
+        public String toString() {
+          return "AnonymousOrNonStaticLocalClassAdapter";
+        }
       };
     }
 

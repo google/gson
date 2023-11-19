@@ -148,7 +148,7 @@ public class ReflectionHelper {
   }
 
   public static boolean isStatic(Class<?> clazz) {
-    return (clazz.getModifiers() & Modifier.STATIC) != 0;
+    return Modifier.isStatic(clazz.getModifiers());
   }
 
   /** Returns whether the class is anonymous or a non-static local class. */
