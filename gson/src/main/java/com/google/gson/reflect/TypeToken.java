@@ -200,7 +200,7 @@ public class TypeToken<T> {
       return rawType.isAssignableFrom($Gson$Types.getRawType(from))
           && isAssignableFrom(from, (GenericArrayType) type);
     } else {
-      throw buildUnsupportedTypeError(
+      throw buildUnsupportedTypeException(
           type, Class.class, ParameterizedType.class, GenericArrayType.class);
     }
   }
@@ -309,7 +309,7 @@ public class TypeToken<T> {
     return false;
   }
 
-  private static IllegalArgumentException buildUnsupportedTypeError(
+  private static IllegalArgumentException buildUnsupportedTypeException(
       Type token, Class<?>... expected) {
 
     // Build exception message

@@ -631,7 +631,7 @@ public class MapTest {
   }
 
   @Test
-  public void testDeerializeMapOfMaps() {
+  public void testDeserializeMapOfMaps() {
     TypeToken<Map<String, Map<String, String>>> type = new TypeToken<>() {};
     Map<String, Map<String, String>> map =
         newMap(

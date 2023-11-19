@@ -1526,7 +1526,7 @@ public class JsonReader implements Closeable {
     }
   }
 
-  private void checkLenient() throws IOException {
+  private void checkLenient() throws MalformedJsonException {
     if (strictness != Strictness.LENIENT) {
       throw syntaxError(
           "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON");
@@ -1654,7 +1654,7 @@ public class JsonReader implements Closeable {
    * backslash. The backslash '\' should have already been read. This supports both Unicode escapes
    * "u000A" and two-character escapes "\n".
    *
-   * @throws MalformedJsonException if any Unicode escape sequences are malformed.
+   * @throws MalformedJsonException if the escape sequence is malformed
    */
   @SuppressWarnings("fallthrough")
   private char readEscapeCharacter() throws IOException {
@@ -1724,9 +1724,10 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Throws a new IO exception with the given message and information about the current location.
+   * Throws a new {@link MalformedJsonException} with the given message and information about the
+   * current location.
    */
-  private IOException syntaxError(String message) throws IOException {
+  private MalformedJsonException syntaxError(String message) throws MalformedJsonException {
     throw new MalformedJsonException(
         message + locationString() + "\nSee " + TroubleshootingGuide.createUrl("malformed-json"));
   }

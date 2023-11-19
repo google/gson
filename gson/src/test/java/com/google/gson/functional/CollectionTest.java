@@ -290,10 +290,8 @@ public class CollectionTest {
     for (Object bag1 : target) {
       // Gson 2.0 converts raw objects into maps
       @SuppressWarnings("unchecked")
-      Map<String, Object> values = (Map<String, Object>) bag1;
-      assertThat(values.containsValue(10.0)).isTrue();
-      assertThat(values.containsValue(20.0)).isTrue();
-      assertThat(values.containsValue("stringValue")).isTrue();
+      Map<String, Object> map = (Map<String, Object>) bag1;
+      assertThat(map.values()).containsExactly(10.0, 20.0, false, "stringValue");
     }
   }
 
