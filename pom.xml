@@ -196,6 +196,9 @@
         <executions>
           <execution>
             <goals>
+              <!-- This logs a warning about `source.scm.tag=HEAD`, but this can be ignored;
+                during release Maven Release Plugin temporarily changes the `source.scm.tag`
+                value to the actual Git tag, which will then not cause a warning -->
               <goal>buildinfo</goal>
             </goals>
           </execution>
