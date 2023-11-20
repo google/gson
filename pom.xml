@@ -172,6 +172,7 @@
               <exclude>src/test/java/com/google/gson/functional/Java17RecordTest.java</exclude>
               <exclude>src/test/java/com/google/gson/native_test/Java17RecordReflectionTest.java</exclude>
             </excludes>
+
             <googleJavaFormat>
               <style>GOOGLE</style>
               <reflowLongStrings>true</reflowLongStrings>
@@ -179,6 +180,21 @@
               <formatJavadoc>true</formatJavadoc>
             </googleJavaFormat>
             <formatAnnotations />     <!-- Puts type annotations immediately before types. -->
+
+            <!-- Manually detect wildcard imports
+              Neither Spotless nor google-java-format can detect or fix wildcard imports currently
+              (see https://github.com/diffplug/spotless/issues/649
+              and https://github.com/google/google-java-format/issues/956) -->
+            <replaceRegex>
+              <name>Disallow wildcard imports</name>
+              <searchRegex>^(import\s.+)\.\*\s*;\s*$</searchRegex>
+              <!-- Replacing seems to be performed before google-java-format is run, so the replacement
+                must be syntactically valid Java code -->
+              <!-- Instead of just removing the import, add a comment so that users understand why the
+                import was modified, but at the same time make the import invalid to cause a compiler
+                error and force the user to fix it -->
+              <replacement>$1.DISALLOWED.*; // wildcard imports are not allowed</replacement>
+            </replaceRegex>
           </java>
         </configuration>
       </plugin>
