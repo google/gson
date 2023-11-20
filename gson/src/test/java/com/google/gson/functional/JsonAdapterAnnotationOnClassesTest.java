@@ -17,6 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.google.common.base.Splitter;
@@ -39,8 +40,10 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import org.junit.Test;
 
 /** Functional tests for the {@link JsonAdapter} annotation on classes. */
@@ -792,6 +795,27 @@ public final class JsonAdapterAnnotationOnClassesTest {
   public void testAdapterCreatedByJdkUnsafe() {
     String json = new Gson().toJson(new CreatedByJdkUnsafe());
     assertThat(json).isEqualTo("false");
+  }
+
+  @Test
+  public void testGsonDateFormat() {
+    // Set the default timezone to UTC
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm z").create();
+    Date originalDate = new Date(0);
+
+    // Serialize the date object
+    String json = gson.toJson(originalDate);
+    assertEquals("\"1970-01-01 00:00 UTC\"", json);
+
+    // Deserialize a date string with the PST timezone
+    Date deserializedDate = gson.fromJson("\"1970-01-01 00:00 PST\"", Date.class);
+
+    // Serialize the deserialized date object again
+    String jsonAfterDeserialization = gson.toJson(deserializedDate);
+    // The expectation is that the date, after deserialization, when serialized again should still
+    // be in the UTC timezone
+    assertEquals("\"1970-01-01 08:00 UTC\"", jsonAfterDeserialization);
   }
 
   @JsonAdapter(CreatedByJdkUnsafe.Serializer.class)
