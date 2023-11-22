@@ -219,7 +219,7 @@
             <groupId>com.android.tools</groupId>
             <artifactId>r8</artifactId>
             <!-- TODO: When updating to a version which supports JDK 21, remove 'shrinker-test' exclusion from build.yml workflow -->
-            <version>8.1.56</version>
+            <version>8.1.72</version>
           </dependency>
         </dependencies>
       </plugin>
