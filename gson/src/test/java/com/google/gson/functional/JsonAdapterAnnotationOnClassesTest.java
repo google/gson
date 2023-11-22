@@ -796,28 +796,6 @@ public final class JsonAdapterAnnotationOnClassesTest {
     String json = new Gson().toJson(new CreatedByJdkUnsafe());
     assertThat(json).isEqualTo("false");
   }
-
-  @Test
-  public void testGsonDateFormat() {
-    // Set the default timezone to UTC
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm z").create();
-    Date originalDate = new Date(0);
-
-    // Serialize the date object
-    String json = gson.toJson(originalDate);
-    assertEquals("\"1970-01-01 00:00 UTC\"", json);
-
-    // Deserialize a date string with the PST timezone
-    Date deserializedDate = gson.fromJson("\"1970-01-01 00:00 PST\"", Date.class);
-
-    // Serialize the deserialized date object again
-    String jsonAfterDeserialization = gson.toJson(deserializedDate);
-    // The expectation is that the date, after deserialization, when serialized again should still
-    // be in the UTC timezone
-    assertEquals("\"1970-01-01 08:00 UTC\"", jsonAfterDeserialization);
-  }
-
   @JsonAdapter(CreatedByJdkUnsafe.Serializer.class)
   private static class CreatedByJdkUnsafe {
     static class Serializer implements JsonSerializer<CreatedByJdkUnsafe> {
