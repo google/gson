@@ -29,6 +29,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Adapter for java.sql.Date. Although this class appears stateless, it is not. DateFormat captures
@@ -62,7 +63,9 @@ final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
     try {
       Date utilDate;
       synchronized (this) {
+        TimeZone originalTimeZone = format.getTimeZone(); // Save the original time zone
         utilDate = format.parse(s);
+        format.setTimeZone(originalTimeZone); // Restore the original time zone after parsing
       }
       return new java.sql.Date(utilDate.getTime());
     } catch (ParseException e) {
