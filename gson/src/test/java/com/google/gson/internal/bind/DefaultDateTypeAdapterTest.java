@@ -227,23 +227,28 @@ public class DefaultDateTypeAdapterTest {
 
   @Test
   public void testGsonDateFormat() {
+    TimeZone originalTimeZone = TimeZone.getDefault();
     // Set the default timezone to UTC
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm z").create();
-    Date originalDate = new Date(0);
+    try {
+      Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm z").create();
+      Date originalDate = new Date(0);
 
-    // Serialize the date object
-    String json = gson.toJson(originalDate);
-    assertEquals("\"1970-01-01 00:00 UTC\"", json);
+      // Serialize the date object
+      String json = gson.toJson(originalDate);
+      assertEquals("\"1970-01-01 00:00 UTC\"", json);
 
-    // Deserialize a date string with the PST timezone
-    Date deserializedDate = gson.fromJson("\"1970-01-01 00:00 PST\"", Date.class);
+      // Deserialize a date string with the PST timezone
+      Date deserializedDate = gson.fromJson("\"1970-01-01 00:00 PST\"", Date.class);
 
-    // Serialize the deserialized date object again
-    String jsonAfterDeserialization = gson.toJson(deserializedDate);
-    // The expectation is that the date, after deserialization, when serialized again should still
-    // be in the UTC timezone
-    assertEquals("\"1970-01-01 08:00 UTC\"", jsonAfterDeserialization);
+      // Serialize the deserialized date object again
+      String jsonAfterDeserialization = gson.toJson(deserializedDate);
+      // The expectation is that the date, after deserialization, when serialized again should still
+      // be in the UTC timezone
+      assertEquals("\"1970-01-01 08:00 UTC\"", jsonAfterDeserialization);
+    }finally {
+      TimeZone.setDefault(originalTimeZone);
+    }
   }
 
   private static TypeAdapter<Date> dateAdapter(TypeAdapterFactory adapterFactory) {

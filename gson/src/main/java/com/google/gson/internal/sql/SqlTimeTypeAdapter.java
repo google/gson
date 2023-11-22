@@ -61,16 +61,17 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
       return null;
     }
     String s = in.nextString();
+    TimeZone originalTimeZone = format.getTimeZone(); // Save the original time zone
     try {
       synchronized (this) {
-        TimeZone originalTimeZone = format.getTimeZone(); // Save the original time zone
         Date date = format.parse(s);
-        format.setTimeZone(originalTimeZone); // Restore the original time zone
         return new Time(date.getTime());
       }
     } catch (ParseException e) {
       throw new JsonSyntaxException(
           "Failed parsing '" + s + "' as SQL Time; at path " + in.getPreviousPath(), e);
+    } finally {
+      format.setTimeZone(originalTimeZone); // Restore the original time zone
     }
   }
 
