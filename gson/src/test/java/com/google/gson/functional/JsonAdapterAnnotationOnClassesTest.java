@@ -17,7 +17,6 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.google.common.base.Splitter;
@@ -40,10 +39,8 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 import org.junit.Test;
 
 /** Functional tests for the {@link JsonAdapter} annotation on classes. */
@@ -796,6 +793,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     String json = new Gson().toJson(new CreatedByJdkUnsafe());
     assertThat(json).isEqualTo("false");
   }
+
   @JsonAdapter(CreatedByJdkUnsafe.Serializer.class)
   private static class CreatedByJdkUnsafe {
     static class Serializer implements JsonSerializer<CreatedByJdkUnsafe> {
