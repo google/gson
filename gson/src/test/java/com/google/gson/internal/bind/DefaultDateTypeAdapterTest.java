@@ -18,7 +18,7 @@ package com.google.gson.internal.bind;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -246,7 +246,7 @@ public class DefaultDateTypeAdapterTest {
       // The expectation is that the date, after deserialization, when serialized again should still
       // be in the UTC timezone
       assertEquals("\"1970-01-01 08:00 UTC\"", jsonAfterDeserialization);
-    }finally {
+    } finally {
       TimeZone.setDefault(originalTimeZone);
     }
   }
