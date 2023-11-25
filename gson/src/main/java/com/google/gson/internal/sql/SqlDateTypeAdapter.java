@@ -60,18 +60,17 @@ final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
       return null;
     }
     String s = in.nextString();
-    TimeZone originalTimeZone = format.getTimeZone(); // Save the original time zone
-    try {
-      Date utilDate;
-      synchronized (this) {
-        utilDate = format.parse(s);
+    synchronized (this) {
+      TimeZone originalTimeZone = format.getTimeZone(); // Save the original time zone
+      try {
+        Date utilDate = format.parse(s);
+        return new java.sql.Date(utilDate.getTime());
+      } catch (ParseException e) {
+        throw new JsonSyntaxException(
+            "Failed parsing '" + s + "' as SQL Date; at path " + in.getPreviousPath(), e);
+      } finally {
+        format.setTimeZone(originalTimeZone); // Restore the original time zone after parsing
       }
-      return new java.sql.Date(utilDate.getTime());
-    } catch (ParseException e) {
-      throw new JsonSyntaxException(
-          "Failed parsing '" + s + "' as SQL Date; at path " + in.getPreviousPath(), e);
-    } finally {
-      format.setTimeZone(originalTimeZone); // Restore the original time zone after parsing
     }
   }
 
