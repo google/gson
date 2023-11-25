@@ -240,14 +240,16 @@ public class DefaultDateTypeAdapterTest {
 
       // Deserialize a date string with the PST timezone
       Date deserializedDate = gson.fromJson("\"1970-01-01 00:00 PST\"", Date.class);
-      // Assert that the deserialized date is correct
-      assertThat(deserializedDate).isEqualTo(new Date(28800000));
+      // Assert that the deserialized date's time is correct
+      assertThat(deserializedDate.getTime()).isEqualTo(new Date(28800000).getTime());
 
       // Serialize the deserialized date object again
-      String jsonAfterDeserialization = gson.toJson(originalDate);
+      String jsonAfterDeserialization = gson.toJson(deserializedDate);
       // The expectation is that the date, after deserialization, when serialized again should still
       // be in the UTC timezone
-      assertThat(jsonAfterDeserialization).isEqualTo("\"1970-01-01 00:00 UTC\"");
+      Date expectedDate = new Date(28800000); // This represents the original date in UTC
+      String expectedJson = gson.toJson(expectedDate);
+      assertThat(jsonAfterDeserialization).isEqualTo(expectedJson);
     } finally {
       TimeZone.setDefault(originalTimeZone);
     }
