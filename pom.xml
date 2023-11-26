@@ -475,18 +475,6 @@
         <!-- JDK 21 does not support Java 7 as release, must use at least Java 8 -->
         <maven.compiler.release>8</maven.compiler.release>
       </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <!-- Don't fail on warning because javac reports lint warnings for generated code of 'proto' module -->
-              <failOnWarning>false</failOnWarning>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
 
     <!-- Profile defining additional plugins to be executed for release -->
