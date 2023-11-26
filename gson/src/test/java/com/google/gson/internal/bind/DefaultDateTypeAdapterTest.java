@@ -18,7 +18,6 @@ package com.google.gson.internal.bind;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
@@ -236,7 +235,7 @@ public class DefaultDateTypeAdapterTest {
 
       // Serialize the date object
       String json = gson.toJson(originalDate);
-      assertEquals("\"1970-01-01 00:00 UTC\"", json);
+      assertThat(json).isEqualTo("\"1970-01-01 00:00 UTC\"");
 
       // Deserialize a date string with the PST timezone
       Date deserializedDate = gson.fromJson("\"1970-01-01 00:00 PST\"", Date.class);
@@ -247,9 +246,7 @@ public class DefaultDateTypeAdapterTest {
       String jsonAfterDeserialization = gson.toJson(deserializedDate);
       // The expectation is that the date, after deserialization, when serialized again should still
       // be in the UTC timezone
-      Date expectedDate = new Date(28800000); // This represents the original date in UTC
-      String expectedJson = gson.toJson(expectedDate);
-      assertThat(jsonAfterDeserialization).isEqualTo(expectedJson);
+      assertThat(jsonAfterDeserialization).isEqualTo("\"1970-01-01 08:00 UTC\"");
     } finally {
       TimeZone.setDefault(originalTimeZone);
     }
