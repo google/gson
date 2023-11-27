@@ -120,7 +120,9 @@
                 <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
                 <requireJavaVersion>
                   <!-- Other plugins of this build require at least JDK 11 -->
-                  <version>[11,)</version>
+                  <!-- Fail fast when building with JDK > 17 because it causes build failures,
+                    see https://github.com/google/gson/issues/2501 -->
+                  <version>[11,18)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
