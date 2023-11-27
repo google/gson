@@ -104,6 +104,19 @@
             </goals>
           </execution>
         </executions>
+        <!-- Upgrades ProGuard to version newer than the one included by plugin by default -->
+        <dependencies>
+          <dependency>
+            <groupId>com.guardsquare</groupId>
+            <artifactId>proguard-base</artifactId>
+            <version>7.4.1</version>
+          </dependency>
+          <dependency>
+            <groupId>com.guardsquare</groupId>
+            <artifactId>proguard-core</artifactId>
+            <version>9.1.0</version>
+          </dependency>
+        </dependencies>
         <configuration>
           <obfuscate>true</obfuscate>
           <proguardInclude>${project.basedir}/proguard.pro</proguardInclude>
@@ -205,6 +218,7 @@
               but it appears that can be ignored -->
             <groupId>com.android.tools</groupId>
             <artifactId>r8</artifactId>
+            <!-- TODO: When updating to a version which supports JDK 21, remove 'shrinker-test' exclusion from build.yml workflow -->
             <version>8.1.72</version>
           </dependency>
         </dependencies>
