@@ -168,11 +168,13 @@
           </formats>
 
           <java>
-            <!-- Exclude classes which need Java 17 for compilation; Google Java Format internally relies on javac,
-              so formatting will fail if build is executed with JDK 11 -->
             <excludes>
+              <!-- Exclude classes which need Java 17 for compilation; Google Java Format internally relies on javac,
+                so formatting will fail if build is executed with JDK 11 -->
               <exclude>src/test/java/com/google/gson/functional/Java17RecordTest.java</exclude>
               <exclude>src/test/java/com/google/gson/native_test/Java17RecordReflectionTest.java</exclude>
+              <!-- Exclude protobuf generated code. -->
+              <exclude>target/generated-test-sources/protobuf/**/*.java</exclude>
             </excludes>
             <googleJavaFormat>
               <style>GOOGLE</style>
