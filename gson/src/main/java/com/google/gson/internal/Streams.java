@@ -81,6 +81,7 @@ public final class Streams {
       this.appendable = appendable;
     }
 
+    @SuppressWarnings("UngroupedOverloads") // this is intentionally ungrouped, see comment below
     @Override
     public void write(char[] chars, int offset, int length) throws IOException {
       currentWrite.setChars(chars);

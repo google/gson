@@ -70,8 +70,8 @@ public class EscapingTest {
     assertThat(jsonRepresentation).doesNotContain(">");
     assertThat(jsonRepresentation).contains("\\\"");
 
-    BagOfPrimitives expectedObject = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
-    assertThat(objWithPrimitives.getExpectedJson()).isEqualTo(expectedObject.getExpectedJson());
+    BagOfPrimitives deserialized = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
+    assertThat(deserialized.getExpectedJson()).isEqualTo(objWithPrimitives.getExpectedJson());
   }
 
   @Test

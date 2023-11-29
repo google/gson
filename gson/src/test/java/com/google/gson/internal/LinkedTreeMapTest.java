@@ -237,7 +237,7 @@ public final class LinkedTreeMapTest {
 
   @SuppressWarnings("varargs")
   @SafeVarargs
-  private final <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
+  private static final <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
     ArrayList<T> actualList = new ArrayList<>();
     for (T t : actual) {
       actualList.add(t);

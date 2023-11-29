@@ -447,7 +447,7 @@ public final class Gson {
     return htmlSafe;
   }
 
-  private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
+  private static TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.DOUBLE;
     }
@@ -474,7 +474,7 @@ public final class Gson {
     };
   }
 
-  private TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
+  private static TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.FLOAT;
     }
@@ -657,6 +657,16 @@ public final class Gson {
   }
 
   /**
+   * Returns the type adapter for {@code type}.
+   *
+   * @throws IllegalArgumentException if this Gson instance cannot serialize and deserialize {@code
+   *     type}.
+   */
+  public <T> TypeAdapter<T> getAdapter(Class<T> type) {
+    return getAdapter(TypeToken.get(type));
+  }
+
+  /**
    * This method is used to get an alternate type adapter for the specified type. This is used to
    * access a type adapter that is overridden by a {@link TypeAdapterFactory} that you may have
    * registered. This feature is typically used when you want to register a type adapter that does a
@@ -746,16 +756,6 @@ public final class Gson {
       // Probably a factory from @JsonAdapter on a field
       return getAdapter(type);
     }
-  }
-
-  /**
-   * Returns the type adapter for {@code type}.
-   *
-   * @throws IllegalArgumentException if this Gson instance cannot serialize and deserialize {@code
-   *     type}.
-   */
-  public <T> TypeAdapter<T> getAdapter(Class<T> type) {
-    return getAdapter(TypeToken.get(type));
   }
 
   /**
@@ -984,53 +984,6 @@ public final class Gson {
   }
 
   /**
-   * Returns a new JSON writer configured for the settings on this Gson instance.
-   *
-   * <p>The following settings are considered:
-   *
-   * <ul>
-   *   <li>{@link GsonBuilder#disableHtmlEscaping()}
-   *   <li>{@link GsonBuilder#generateNonExecutableJson()}
-   *   <li>{@link GsonBuilder#serializeNulls()}
-   *   <li>{@link GsonBuilder#setStrictness(Strictness)}. If no {@linkplain
-   *       GsonBuilder#setStrictness(Strictness) explicit strictness has been set} the created
-   *       writer will have a strictness of {@link Strictness#LEGACY_STRICT}. Otherwise, the
-   *       strictness of the {@code Gson} instance will be used for the created writer.
-   *   <li>{@link GsonBuilder#setPrettyPrinting()}
-   *   <li>{@link GsonBuilder#setFormattingStyle(FormattingStyle)}
-   * </ul>
-   */
-  public JsonWriter newJsonWriter(Writer writer) throws IOException {
-    if (generateNonExecutableJson) {
-      writer.write(JSON_NON_EXECUTABLE_PREFIX);
-    }
-    JsonWriter jsonWriter = new JsonWriter(writer);
-    jsonWriter.setFormattingStyle(formattingStyle);
-    jsonWriter.setHtmlSafe(htmlSafe);
-    jsonWriter.setStrictness(strictness == null ? Strictness.LEGACY_STRICT : strictness);
-    jsonWriter.setSerializeNulls(serializeNulls);
-    return jsonWriter;
-  }
-
-  /**
-   * Returns a new JSON reader configured for the settings on this Gson instance.
-   *
-   * <p>The following settings are considered:
-   *
-   * <ul>
-   *   <li>{@link GsonBuilder#setStrictness(Strictness)}. If no {@linkplain
-   *       GsonBuilder#setStrictness(Strictness) explicit strictness has been set} the created
-   *       reader will have a strictness of {@link Strictness#LEGACY_STRICT}. Otherwise, the
-   *       strictness of the {@code Gson} instance will be used for the created reader.
-   * </ul>
-   */
-  public JsonReader newJsonReader(Reader reader) {
-    JsonReader jsonReader = new JsonReader(reader);
-    jsonReader.setStrictness(strictness == null ? Strictness.LEGACY_STRICT : strictness);
-    return jsonReader;
-  }
-
-  /**
    * Writes the JSON for {@code jsonElement} to {@code writer}.
    *
    * <p>If the {@code Gson} instance has an {@linkplain GsonBuilder#setStrictness(Strictness)
@@ -1076,6 +1029,53 @@ public final class Gson {
       writer.setHtmlSafe(oldHtmlSafe);
       writer.setSerializeNulls(oldSerializeNulls);
     }
+  }
+
+  /**
+   * Returns a new JSON writer configured for the settings on this Gson instance.
+   *
+   * <p>The following settings are considered:
+   *
+   * <ul>
+   *   <li>{@link GsonBuilder#disableHtmlEscaping()}
+   *   <li>{@link GsonBuilder#generateNonExecutableJson()}
+   *   <li>{@link GsonBuilder#serializeNulls()}
+   *   <li>{@link GsonBuilder#setStrictness(Strictness)}. If no {@linkplain
+   *       GsonBuilder#setStrictness(Strictness) explicit strictness has been set} the created
+   *       writer will have a strictness of {@link Strictness#LEGACY_STRICT}. Otherwise, the
+   *       strictness of the {@code Gson} instance will be used for the created writer.
+   *   <li>{@link GsonBuilder#setPrettyPrinting()}
+   *   <li>{@link GsonBuilder#setFormattingStyle(FormattingStyle)}
+   * </ul>
+   */
+  public JsonWriter newJsonWriter(Writer writer) throws IOException {
+    if (generateNonExecutableJson) {
+      writer.write(JSON_NON_EXECUTABLE_PREFIX);
+    }
+    JsonWriter jsonWriter = new JsonWriter(writer);
+    jsonWriter.setFormattingStyle(formattingStyle);
+    jsonWriter.setHtmlSafe(htmlSafe);
+    jsonWriter.setStrictness(strictness == null ? Strictness.LEGACY_STRICT : strictness);
+    jsonWriter.setSerializeNulls(serializeNulls);
+    return jsonWriter;
+  }
+
+  /**
+   * Returns a new JSON reader configured for the settings on this Gson instance.
+   *
+   * <p>The following settings are considered:
+   *
+   * <ul>
+   *   <li>{@link GsonBuilder#setStrictness(Strictness)}. If no {@linkplain
+   *       GsonBuilder#setStrictness(Strictness) explicit strictness has been set} the created
+   *       reader will have a strictness of {@link Strictness#LEGACY_STRICT}. Otherwise, the
+   *       strictness of the {@code Gson} instance will be used for the created reader.
+   * </ul>
+   */
+  public JsonReader newJsonReader(Reader reader) {
+    JsonReader jsonReader = new JsonReader(reader);
+    jsonReader.setStrictness(strictness == null ? Strictness.LEGACY_STRICT : strictness);
+    return jsonReader;
   }
 
   /**
@@ -1260,18 +1260,6 @@ public final class Gson {
     T object = fromJson(jsonReader, typeOfT);
     assertFullConsumption(object, jsonReader);
     return object;
-  }
-
-  private static void assertFullConsumption(Object obj, JsonReader reader) {
-    try {
-      if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonSyntaxException("JSON document was not fully consumed.");
-      }
-    } catch (MalformedJsonException e) {
-      throw new JsonSyntaxException(e);
-    } catch (IOException e) {
-      throw new JsonIOException(e);
-    }
   }
 
   // fromJson(JsonReader, Class) is unfortunately missing and cannot be added now without breaking
@@ -1470,6 +1458,18 @@ public final class Gson {
       return null;
     }
     return fromJson(new JsonTreeReader(json), typeOfT);
+  }
+
+  private static void assertFullConsumption(Object obj, JsonReader reader) {
+    try {
+      if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
+        throw new JsonSyntaxException("JSON document was not fully consumed.");
+      }
+    } catch (MalformedJsonException e) {
+      throw new JsonSyntaxException(e);
+    } catch (IOException e) {
+      throw new JsonIOException(e);
+    }
   }
 
   /**

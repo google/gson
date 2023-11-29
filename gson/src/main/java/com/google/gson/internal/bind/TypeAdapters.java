@@ -594,7 +594,7 @@ public final class TypeAdapters {
             return null;
           }
           String nextString = in.nextString();
-          return "null".equals(nextString) ? null : new URL(nextString);
+          return nextString.equals("null") ? null : new URL(nextString);
         }
 
         @Override
@@ -615,7 +615,7 @@ public final class TypeAdapters {
           }
           try {
             String nextString = in.nextString();
-            return "null".equals(nextString) ? null : new URI(nextString);
+            return nextString.equals("null") ? null : new URI(nextString);
           } catch (URISyntaxException e) {
             throw new JsonIOException(e);
           }
@@ -724,17 +724,17 @@ public final class TypeAdapters {
           while (in.peek() != JsonToken.END_OBJECT) {
             String name = in.nextName();
             int value = in.nextInt();
-            if (YEAR.equals(name)) {
+            if (name.equals(YEAR)) {
               year = value;
-            } else if (MONTH.equals(name)) {
+            } else if (name.equals(MONTH)) {
               month = value;
-            } else if (DAY_OF_MONTH.equals(name)) {
+            } else if (name.equals(DAY_OF_MONTH)) {
               dayOfMonth = value;
-            } else if (HOUR_OF_DAY.equals(name)) {
+            } else if (name.equals(HOUR_OF_DAY)) {
               hourOfDay = value;
-            } else if (MINUTE.equals(name)) {
+            } else if (name.equals(MINUTE)) {
               minute = value;
-            } else if (SECOND.equals(name)) {
+            } else if (name.equals(SECOND)) {
               second = value;
             }
           }
@@ -1030,6 +1030,7 @@ public final class TypeAdapters {
         }
       };
 
+  @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
       final TypeToken<TT> type, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapterFactory() {
@@ -1041,6 +1042,7 @@ public final class TypeAdapters {
     };
   }
 
+  @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
       final Class<TT> type, final TypeAdapter<TT> typeAdapter) {
     return new TypeAdapterFactory() {
@@ -1057,6 +1059,7 @@ public final class TypeAdapters {
     };
   }
 
+  @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
       final Class<TT> unboxed, final Class<TT> boxed, final TypeAdapter<? super TT> typeAdapter) {
     return new TypeAdapterFactory() {
@@ -1080,6 +1083,7 @@ public final class TypeAdapters {
     };
   }
 
+  @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactoryForMultipleTypes(
       final Class<TT> base,
       final Class<? extends TT> sub,

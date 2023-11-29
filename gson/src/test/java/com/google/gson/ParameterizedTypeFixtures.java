@@ -33,6 +33,7 @@ import java.lang.reflect.Type;
  * @author Joel Leitch
  */
 public class ParameterizedTypeFixtures {
+  private ParameterizedTypeFixtures() {}
 
   public static final class MyParameterizedType<T> {
     public final T value;
@@ -50,7 +51,7 @@ public class ParameterizedTypeFixtures {
       return String.format("{\"value\":%s}", valueAsJson);
     }
 
-    private String getExpectedJson(Object obj) {
+    private static String getExpectedJson(Object obj) {
       Class<?> clazz = obj.getClass();
       if (Primitives.isWrapperType(Primitives.wrap(clazz))) {
         return obj.toString();

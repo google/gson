@@ -21,6 +21,7 @@ import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@SuppressWarnings({"PrivateConstructorForUtilityClass", "SystemOut"})
 public class RawCollectionsExample {
   static class Event {
     private String name;

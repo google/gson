@@ -145,7 +145,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   /** Returns a type adapter that writes the value as a string. */
-  private TypeAdapter<?> getKeyAdapter(Gson context, Type keyType) {
+  private static TypeAdapter<?> getKeyAdapter(Gson context, Type keyType) {
     return (keyType == boolean.class || keyType == Boolean.class)
         ? TypeAdapters.BOOLEAN_AS_STRING
         : context.getAdapter(TypeToken.get(keyType));

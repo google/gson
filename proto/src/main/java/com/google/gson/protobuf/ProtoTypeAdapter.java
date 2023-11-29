@@ -194,8 +194,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
     return new Builder(EnumSerialization.NAME, CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_CAMEL);
   }
 
-  private static final com.google.protobuf.Descriptors.FieldDescriptor.Type ENUM_TYPE =
-      com.google.protobuf.Descriptors.FieldDescriptor.Type.ENUM;
+  private static final FieldDescriptor.Type ENUM_TYPE = FieldDescriptor.Type.ENUM;
 
   private static final ConcurrentMap<String, ConcurrentMap<Class<?>, Method>> mapOfMapOfMethods =
       new MapMaker().makeMap();

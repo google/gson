@@ -167,18 +167,6 @@ public final class JsonTreeWriter extends JsonWriter {
     return this;
   }
 
-  @Override
-  public JsonWriter jsonValue(String value) throws IOException {
-    throw new UnsupportedOperationException();
-  }
-
-  @CanIgnoreReturnValue
-  @Override
-  public JsonWriter nullValue() throws IOException {
-    put(JsonNull.INSTANCE);
-    return this;
-  }
-
   @CanIgnoreReturnValue
   @Override
   public JsonWriter value(boolean value) throws IOException {
@@ -239,6 +227,18 @@ public final class JsonTreeWriter extends JsonWriter {
 
     put(new JsonPrimitive(value));
     return this;
+  }
+
+  @CanIgnoreReturnValue
+  @Override
+  public JsonWriter nullValue() throws IOException {
+    put(JsonNull.INSTANCE);
+    return this;
+  }
+
+  @Override
+  public JsonWriter jsonValue(String value) throws IOException {
+    throw new UnsupportedOperationException();
   }
 
   @Override

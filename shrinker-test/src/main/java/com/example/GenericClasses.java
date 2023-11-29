@@ -8,6 +8,8 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 
 public class GenericClasses {
+  private GenericClasses() {}
+
   static class GenericClass<T> {
     @SerializedName("t")
     T t;

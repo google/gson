@@ -224,7 +224,7 @@ public class CustomTypeAdaptersTest {
     int derivedValue = 3;
   }
 
-  private Gson createGsonObjectWithFooTypeAdapter() {
+  private static Gson createGsonObjectWithFooTypeAdapter() {
     return new GsonBuilder().registerTypeAdapter(Foo.class, new FooTypeAdapter()).create();
   }
 
