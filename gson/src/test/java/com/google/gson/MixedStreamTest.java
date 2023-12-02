@@ -74,11 +74,9 @@ public final class MixedStreamTest {
     JsonReader jsonReader = new JsonReader(stringReader);
 
     jsonReader.beginArray();
-    // actual and expected object are inverted in the test.
-    // gson.fromJson(jsonReader, Car.class) as arg of assertThat() cause an ambiguous method call
-    assertThat(BLUE_MUSTANG).isEqualTo(gson.fromJson(jsonReader, Car.class));
-    assertThat(BLACK_BMW).isEqualTo(gson.fromJson(jsonReader, Car.class));
-    assertThat(RED_MIATA).isEqualTo(gson.fromJson(jsonReader, Car.class));
+    assertThat(gson.<Car>fromJson(jsonReader, Car.class)).isEqualTo(BLUE_MUSTANG);
+    assertThat(gson.<Car>fromJson(jsonReader, Car.class)).isEqualTo(BLACK_BMW);
+    assertThat(gson.<Car>fromJson(jsonReader, Car.class)).isEqualTo(RED_MIATA);
     jsonReader.endArray();
   }
 

@@ -31,6 +31,8 @@
     <!-- Make the build reproducible, see root `pom.xml` -->
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+
+    <protobufVersion>3.25.1</protobufVersion>
   </properties>
 
   <licenses>
@@ -50,7 +52,7 @@
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
-      <version>4.0.0-rc-2</version>
+      <version>${protobufVersion}</version>
     </dependency>
 
     <dependency>
@@ -89,7 +91,7 @@
         <artifactId>protobuf-maven-plugin</artifactId>
         <version>0.6.1</version>
         <configuration>
-          <protocArtifact>com.google.protobuf:protoc:3.17.3:exe:${os.detected.classifier}</protocArtifact>
+          <protocArtifact>com.google.protobuf:protoc:${protobufVersion}:exe:${os.detected.classifier}</protocArtifact>
         </configuration>
         <executions>
           <execution>

@@ -134,11 +134,11 @@ public class JsonParserTest {
 
   @Test
   public void testExtraCommasInArrays() {
-    Type type = new TypeToken<List<String>>() {}.getType();
-    assertThat(Arrays.asList("a", null, "b", null, null))
-        .isEqualTo(gson.fromJson("[a,,b,,]", type));
-    assertThat(Arrays.asList(null, null)).isEqualTo(gson.fromJson("[,]", type));
-    assertThat(Arrays.asList("a", null)).isEqualTo(gson.fromJson("[a,]", type));
+    TypeToken<List<String>> type = new TypeToken<>() {};
+    assertThat(gson.fromJson("[a,,b,,]", type))
+        .isEqualTo(Arrays.asList("a", null, "b", null, null));
+    assertThat(gson.fromJson("[,]", type)).isEqualTo(Arrays.asList(null, null));
+    assertThat(gson.fromJson("[a,]", type)).isEqualTo(Arrays.asList("a", null));
   }
 
   @Test

@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -52,6 +53,9 @@ public class ReflectionAccessTest {
   @SuppressWarnings("removal") // java.lang.SecurityManager deprecation in Java 17
   @Test
   public void testRestrictiveSecurityManager() throws Exception {
+    // Skip for newer Java versions where `System.setSecurityManager` is unsupported
+    assumeTrue(Runtime.version().feature() <= 17);
+
     // Must use separate class loader, otherwise permission is not checked, see
     // Class.getDeclaredFields()
     Class<?> clazz = loadClassWithDifferentClassLoader(ClassWithPrivateMembers.class);

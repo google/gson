@@ -114,8 +114,8 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
     }
 
     /**
-     * Creates a new runtime type adapter using for {@code baseType} using {@code typeFieldName} as
-     * the type field name. Type field names are case sensitive.
+     * Creates a new runtime type adapter for {@code baseType} using {@code typeFieldName} as the
+     * type field name. Type field names are case sensitive.
      */
     public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName) {
       return new RuntimeTypeAdapterFactory<>(baseType, typeFieldName);
