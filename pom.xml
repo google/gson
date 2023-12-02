@@ -120,7 +120,9 @@
                 <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
                 <requireJavaVersion>
                   <!-- Other plugins of this build require at least JDK 11 -->
-                  <version>[11,)</version>
+                  <!-- Fail fast when building with JDK > 17 because it causes build failures,
+                    see https://github.com/google/gson/issues/2501 -->
+                  <version>[11,18)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -132,7 +134,7 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-        <version>2.40.0</version>
+        <version>2.41.0</version>
         <executions>
           <execution>
             <goals>
@@ -166,11 +168,13 @@
           </formats>
 
           <java>
-            <!-- Exclude classes which need Java 17 for compilation; Google Java Format internally relies on javac,
-              so formatting will fail if build is executed with JDK 11 -->
             <excludes>
+              <!-- Exclude classes which need Java 17 for compilation; Google Java Format internally relies on javac,
+                so formatting will fail if build is executed with JDK 11 -->
               <exclude>src/test/java/com/google/gson/functional/Java17RecordTest.java</exclude>
               <exclude>src/test/java/com/google/gson/native_test/Java17RecordReflectionTest.java</exclude>
+              <!-- Exclude protobuf generated code. -->
+              <exclude>target/generated-test-sources/protobuf/**/*.java</exclude>
             </excludes>
             <googleJavaFormat>
               <style>GOOGLE</style>
@@ -459,6 +463,20 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <!-- Slightly adjust build to support building with JDK >= 21
+      However, by default this will intentionally be blocked by the Maven Enforcer Plugin defined above
+      and must be explicitly circumvented to avoid building non-release Gson artifacts by accident -->
+    <profile>
+      <id>jdk21+</id>
+      <activation>
+        <jdk>[21,)</jdk>
+      </activation>
+      <properties>
+        <!-- JDK 21 does not support Java 7 as release, must use at least Java 8 -->
+        <maven.compiler.release>8</maven.compiler.release>
+      </properties>
     </profile>
 
     <!-- Profile defining additional plugins to be executed for release -->
