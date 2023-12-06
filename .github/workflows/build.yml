@@ -15,8 +15,7 @@ jobs:
         include:
           - java: 21
             # Disable Enforcer check which (intentionally) prevents using JDK 21 for building
-            # Exclude 'shrinker-test' module because R8 does not support JDK 21 yet
-            extra-mvn-args: -Denforcer.fail=false --projects '!:shrinker-test'
+            extra-mvn-args: -Denforcer.fail=false
     runs-on: ubuntu-latest
 
     steps:
