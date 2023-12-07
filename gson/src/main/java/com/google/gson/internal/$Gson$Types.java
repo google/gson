@@ -145,11 +145,14 @@ public final class $Gson$Types {
       Type componentType = ((GenericArrayType) type).getGenericComponentType();
       return Array.newInstance(getRawType(componentType), 0).getClass();
 
-    } else if (type instanceof TypeVariable) {
-      // we could use the variable's bounds, but that won't work if there are multiple.
-      // having a raw type that's more general than necessary is okay
-      return Object.class;
-
+    } else if (type instanceof TypeVariable<?>) {
+      TypeVariable<?> typeVariable = (TypeVariable<?>) type;
+      // approximate the raw type with the bound of type type variable, if there are
+      // multiple bounds, all we can do is picking the first one
+      Type[] bounds = typeVariable.getBounds();
+      // Javadoc specifies some bound is always returned, Object if not specified
+      assert bounds.length > 0;
+      return getRawType(bounds[0]);
     } else if (type instanceof WildcardType) {
       Type[] bounds = ((WildcardType) type).getUpperBounds();
       // Currently the JLS only permits one bound for wildcards so using first bound is safe
