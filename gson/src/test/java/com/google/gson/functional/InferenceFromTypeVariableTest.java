@@ -44,7 +44,7 @@ public class InferenceFromTypeVariableTest {
   }
 
   @Test
-  public void testSubClassSerialization() {
+  public void testGenericWrapperWithBoundDeserialization() {
     BarDynamic<Foo> bar = new BarDynamic<>(new Foo("foo!"));
     assertThat(gson.toJson(bar)).isEqualTo("{\"foo\":{\"text\":\"foo!\"}}");
     // without #2563 fix, this would deserialize foo as Object and fails to assign it to foo field
