@@ -54,7 +54,13 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
       @SuppressWarnings("unchecked")
       @Override
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-        if (type.getRawType() == Object.class) {
+        // ObjectTypeAdapter now handles also raw enums. This is fine for serialization, as
+        // TypeAdapterRuntimeTypeWrapper would be used.
+        // Prior #2563, ObjectTypeAdapter was sometimes used implicitly by the rule
+        // that bound of type variable was ignored and interpreted as Object type;
+        // by rectifying this rule, we need to explicitly define that ObjectTypeAdapter handles
+        // raw enums.
+        if (type.getRawType() == Object.class || type.getRawType() == Enum.class) {
           return (TypeAdapter<T>) new ObjectTypeAdapter(gson, toNumberStrategy);
         }
         return null;
