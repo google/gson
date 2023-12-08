@@ -44,7 +44,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   private final Gson gson;
   private final ToNumberStrategy toNumberStrategy;
 
-  private ObjectTypeAdapter(Gson gson, ToNumberStrategy toNumberStrategy) {
+  ObjectTypeAdapter(Gson gson, ToNumberStrategy toNumberStrategy) {
     this.gson = gson;
     this.toNumberStrategy = toNumberStrategy;
   }
@@ -60,7 +60,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
         // that bound of type variable was ignored and interpreted as Object type;
         // by rectifying this rule, we need to explicitly define that ObjectTypeAdapter handles
         // raw enums.
-        if (type.getRawType() == Object.class || type.getRawType() == Enum.class) {
+        if (type.getRawType() == Object.class) {
           return (TypeAdapter<T>) new ObjectTypeAdapter(gson, toNumberStrategy);
         }
         return null;

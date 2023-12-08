@@ -24,6 +24,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.ToNumberPolicy;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.SerializedName;
@@ -1027,6 +1028,20 @@ public final class TypeAdapters {
           @SuppressWarnings({"rawtypes", "unchecked"})
           TypeAdapter<T> adapter = (TypeAdapter<T>) new EnumTypeAdapter(rawType);
           return adapter;
+        }
+      };
+
+  public static final TypeAdapterFactory RAW_ENUM_FACTORY =
+      new TypeAdapterFactory() {
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+          Class<? super T> rawType = typeToken.getRawType();
+          if (rawType == Enum.class) {
+            return (TypeAdapter<T>)
+                new ObjectTypeAdapter(gson, ToNumberPolicy.DOUBLE);
+          } else {
+            return null;
+          }
         }
       };
 
