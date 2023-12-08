@@ -1037,8 +1037,10 @@ public final class TypeAdapters {
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
           Class<? super T> rawType = typeToken.getRawType();
           if (rawType == Enum.class) {
-            return (TypeAdapter<T>)
-                new ObjectTypeAdapter(gson, ToNumberPolicy.DOUBLE);
+            @SuppressWarnings("unchecked")
+            TypeAdapter<T> adapter =
+                (TypeAdapter<T>) new ObjectTypeAdapter(gson, ToNumberPolicy.DOUBLE);
+            return adapter;
           } else {
             return null;
           }
