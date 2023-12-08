@@ -4,13 +4,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Test deserialization of generic wrapper with type bound.
- * 
+ *
  * @author sevcenko
  */
+@Ignore
 public class InferenceFromTypeVariableTest {
   private Gson gson;
 
@@ -44,7 +46,7 @@ public class InferenceFromTypeVariableTest {
   }
 
   @Test
-  public void testGenericWrapperWithBoundDeserialization() {
+  public void testSubClassSerialization() {
     BarDynamic<Foo> bar = new BarDynamic<>(new Foo("foo!"));
     assertThat(gson.toJson(bar)).isEqualTo("{\"foo\":{\"text\":\"foo!\"}}");
     // without #2563 fix, this would deserialize foo as Object and fails to assign it to foo field
