@@ -187,10 +187,13 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
     // Needs to be synchronized since JDK DateFormat classes are not thread-safe
     synchronized (dateFormats) {
       for (DateFormat dateFormat : dateFormats) {
+        TimeZone originalTimeZone = dateFormat.getTimeZone();
         try {
           return dateFormat.parse(s);
         } catch (ParseException ignored) {
           // OK: try the next format
+        } finally {
+          dateFormat.setTimeZone(originalTimeZone);
         }
       }
     }
