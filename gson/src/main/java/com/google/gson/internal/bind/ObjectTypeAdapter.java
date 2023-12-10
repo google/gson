@@ -74,7 +74,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
    * Tries to begin reading a JSON array or JSON object, returning {@code null} if the next element
    * is neither of those.
    */
-  private static Object tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
+  private Object tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
     switch (peeked) {
       case BEGIN_ARRAY:
         in.beginArray();

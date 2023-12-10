@@ -447,7 +447,7 @@ public final class Gson {
     return htmlSafe;
   }
 
-  private static TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
+  private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.DOUBLE;
     }
@@ -474,7 +474,7 @@ public final class Gson {
     };
   }
 
-  private static TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
+  private TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
     if (serializeSpecialFloatingPointValues) {
       return TypeAdapters.FLOAT;
     }

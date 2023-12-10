@@ -249,7 +249,6 @@
                 -Xep:LambdaFunctionalInterface:WARN <!-- only relevant for test code at the moment, which uses Java 11 -->
                 -Xep:LongLiteralLowerCaseSuffix <!-- required by style guide -->
                 -Xep:MemberName <!-- required by style guide -->
-                -Xep:MethodCanBeStatic:WARN
                 -Xep:MissingBraces:WARN
                 -Xep:MissingDefault <!-- required by style guide -->
                 -Xep:MixedArrayDimensions:WARN <!-- required by style guide -->

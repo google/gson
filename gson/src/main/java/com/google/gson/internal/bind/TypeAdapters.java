@@ -724,18 +724,27 @@ public final class TypeAdapters {
           while (in.peek() != JsonToken.END_OBJECT) {
             String name = in.nextName();
             int value = in.nextInt();
-            if (name.equals(YEAR)) {
-              year = value;
-            } else if (name.equals(MONTH)) {
-              month = value;
-            } else if (name.equals(DAY_OF_MONTH)) {
-              dayOfMonth = value;
-            } else if (name.equals(HOUR_OF_DAY)) {
-              hourOfDay = value;
-            } else if (name.equals(MINUTE)) {
-              minute = value;
-            } else if (name.equals(SECOND)) {
-              second = value;
+            switch (name) {
+              case YEAR:
+                year = value;
+                break;
+              case MONTH:
+                month = value;
+                break;
+              case DAY_OF_MONTH:
+                dayOfMonth = value;
+                break;
+              case HOUR_OF_DAY:
+                hourOfDay = value;
+                break;
+              case MINUTE:
+                minute = value;
+                break;
+              case SECOND:
+                second = value;
+                break;
+              default:
+                // Ignore unknown JSON property
             }
           }
           in.endObject();

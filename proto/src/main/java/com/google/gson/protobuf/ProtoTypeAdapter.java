@@ -39,7 +39,6 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Extension;
 import com.google.protobuf.Message;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -262,69 +261,56 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
         throw new IllegalStateException("only generated messages are supported");
       }
 
-      try {
-        // Invoke the ProtoClass.newBuilder() method
-        Message.Builder protoBuilder =
-            (Message.Builder) getCachedMethod(protoClass, "newBuilder").invoke(null);
+      // Invoke the ProtoClass.newBuilder() method
+      Message.Builder protoBuilder =
+          (Message.Builder) getCachedMethod(protoClass, "newBuilder").invoke(null);
 
-        Message defaultInstance =
-            (Message) getCachedMethod(protoClass, "getDefaultInstance").invoke(null);
+      Message defaultInstance =
+          (Message) getCachedMethod(protoClass, "getDefaultInstance").invoke(null);
 
-        Descriptor protoDescriptor =
-            (Descriptor) getCachedMethod(protoClass, "getDescriptor").invoke(null);
-        // Call setters on all of the available fields
-        for (FieldDescriptor fieldDescriptor : protoDescriptor.getFields()) {
-          String jsonFieldName =
-              getCustSerializedName(fieldDescriptor.getOptions(), fieldDescriptor.getName());
+      Descriptor protoDescriptor =
+          (Descriptor) getCachedMethod(protoClass, "getDescriptor").invoke(null);
+      // Call setters on all of the available fields
+      for (FieldDescriptor fieldDescriptor : protoDescriptor.getFields()) {
+        String jsonFieldName =
+            getCustSerializedName(fieldDescriptor.getOptions(), fieldDescriptor.getName());
 
-          JsonElement jsonElement = jsonObject.get(jsonFieldName);
-          if (jsonElement != null && !jsonElement.isJsonNull()) {
-            // Do not reuse jsonFieldName here, it might have a custom value
-            Object fieldValue;
-            if (fieldDescriptor.getType() == ENUM_TYPE) {
-              if (jsonElement.isJsonArray()) {
-                // Handling array
-                Collection<EnumValueDescriptor> enumCollection =
-                    new ArrayList<>(jsonElement.getAsJsonArray().size());
-                for (JsonElement element : jsonElement.getAsJsonArray()) {
-                  enumCollection.add(
-                      findValueByNameAndExtension(fieldDescriptor.getEnumType(), element));
-                }
-                fieldValue = enumCollection;
-              } else {
-                // No array, just a plain value
-                fieldValue =
-                    findValueByNameAndExtension(fieldDescriptor.getEnumType(), jsonElement);
+        JsonElement jsonElement = jsonObject.get(jsonFieldName);
+        if (jsonElement != null && !jsonElement.isJsonNull()) {
+          // Do not reuse jsonFieldName here, it might have a custom value
+          Object fieldValue;
+          if (fieldDescriptor.getType() == ENUM_TYPE) {
+            if (jsonElement.isJsonArray()) {
+              // Handling array
+              Collection<EnumValueDescriptor> enumCollection =
+                  new ArrayList<>(jsonElement.getAsJsonArray().size());
+              for (JsonElement element : jsonElement.getAsJsonArray()) {
+                enumCollection.add(
+                    findValueByNameAndExtension(fieldDescriptor.getEnumType(), element));
               }
-              protoBuilder.setField(fieldDescriptor, fieldValue);
-            } else if (fieldDescriptor.isRepeated()) {
-              // If the type is an array, then we have to grab the type from the class.
-              // protobuf java field names are always lower camel case
-              String protoArrayFieldName =
-                  protoFormat.to(CaseFormat.LOWER_CAMEL, fieldDescriptor.getName()) + "_";
-              Field protoArrayField = protoClass.getDeclaredField(protoArrayFieldName);
-              Type protoArrayFieldType = protoArrayField.getGenericType();
-              fieldValue = context.deserialize(jsonElement, protoArrayFieldType);
-              protoBuilder.setField(fieldDescriptor, fieldValue);
+              fieldValue = enumCollection;
             } else {
-              Object field = defaultInstance.getField(fieldDescriptor);
-              fieldValue = context.deserialize(jsonElement, field.getClass());
-              protoBuilder.setField(fieldDescriptor, fieldValue);
+              // No array, just a plain value
+              fieldValue = findValueByNameAndExtension(fieldDescriptor.getEnumType(), jsonElement);
             }
+            protoBuilder.setField(fieldDescriptor, fieldValue);
+          } else if (fieldDescriptor.isRepeated()) {
+            // If the type is an array, then we have to grab the type from the class.
+            // protobuf java field names are always lower camel case
+            String protoArrayFieldName =
+                protoFormat.to(CaseFormat.LOWER_CAMEL, fieldDescriptor.getName()) + "_";
+            Field protoArrayField = protoClass.getDeclaredField(protoArrayFieldName);
+            Type protoArrayFieldType = protoArrayField.getGenericType();
+            fieldValue = context.deserialize(jsonElement, protoArrayFieldType);
+            protoBuilder.setField(fieldDescriptor, fieldValue);
+          } else {
+            Object field = defaultInstance.getField(fieldDescriptor);
+            fieldValue = context.deserialize(jsonElement, field.getClass());
+            protoBuilder.setField(fieldDescriptor, fieldValue);
           }
         }
-        return protoBuilder.build();
-      } catch (SecurityException e) {
-        throw new JsonParseException(e);
-      } catch (NoSuchMethodException e) {
-        throw new JsonParseException(e);
-      } catch (IllegalArgumentException e) {
-        throw new JsonParseException(e);
-      } catch (IllegalAccessException e) {
-        throw new JsonParseException(e);
-      } catch (InvocationTargetException e) {
-        throw new JsonParseException(e);
       }
+      return protoBuilder.build();
     } catch (Exception e) {
       throw new JsonParseException("Error while parsing proto", e);
     }
