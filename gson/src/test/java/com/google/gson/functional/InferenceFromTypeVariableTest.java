@@ -74,4 +74,4 @@ public class InferenceFromTypeVariableTest {
     BarDynamic<?> deserialized = gson.fromJson(gson.toJson(bar), BarDynamic.class);
     assertThat(deserialized.getFoo().getText()).isEqualTo("foo!");
   }
-}
+} 
