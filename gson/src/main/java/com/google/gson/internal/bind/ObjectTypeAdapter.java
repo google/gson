@@ -76,6 +76,10 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     };
   }
 
+  public static TypeAdapterFactory getFactory(ToNumberStrategy toNumberStrategy) {
+    return getFactory(toNumberStrategy, false);
+  }
+
   public static TypeAdapterFactory getFactory(
       ToNumberStrategy toNumberStrategy, boolean skipTypeVariable) {
     if (toNumberStrategy == ToNumberPolicy.DOUBLE) {
