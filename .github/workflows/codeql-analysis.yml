@@ -34,6 +34,8 @@ jobs:
         languages: ${{ matrix.language }}
         # Run all security queries and maintainability and reliability queries
         queries: +security-and-quality
+        config: |
+          threat-models: local
 
     - name: Cache local Maven repository
       uses: actions/cache@v3
