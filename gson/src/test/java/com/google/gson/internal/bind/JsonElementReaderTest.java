@@ -48,7 +48,7 @@ public final class JsonElementReaderTest {
     JsonTreeReader reader = new JsonTreeReader(element);
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
-    assertThat(Double.isNaN(reader.nextDouble())).isTrue();
+    assertThat(reader.nextDouble()).isNaN();
     assertThat(reader.nextDouble()).isEqualTo(Double.NEGATIVE_INFINITY);
     assertThat(reader.nextDouble()).isEqualTo(Double.POSITIVE_INFINITY);
     reader.endArray();

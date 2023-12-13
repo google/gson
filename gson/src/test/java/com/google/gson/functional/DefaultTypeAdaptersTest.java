@@ -30,7 +30,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
-import com.google.gson.internal.JavaVersion;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -95,8 +94,12 @@ public class DefaultTypeAdaptersTest {
       gson.toJson(String.class);
       fail();
     } catch (UnsupportedOperationException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Attempted to serialize java.lang.Class: java.lang.String. Forgot to register a type adapter?"
-          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Attempted to serialize java.lang.Class: java.lang.String. Forgot to register a type"
+                  + " adapter?\n"
+                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
     }
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
@@ -109,8 +112,11 @@ public class DefaultTypeAdaptersTest {
       gson.fromJson("String.class", Class.class);
       fail();
     } catch (UnsupportedOperationException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?"
-          + "\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?\n"
+                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
     }
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
@@ -286,7 +292,8 @@ public class DefaultTypeAdaptersTest {
     try {
       gson.fromJson("{\"value\"=1.5e-1.0031}", ClassWithBigDecimal.class);
       fail("Exponent of a BigDecimal must be an integer value.");
-    } catch (JsonParseException expected) { }
+    } catch (JsonParseException expected) {
+    }
   }
 
   @Test
@@ -306,18 +313,20 @@ public class DefaultTypeAdaptersTest {
 
   @Test
   public void testOverrideBigIntegerTypeAdapter() throws Exception {
-    gson = new GsonBuilder()
-        .registerTypeAdapter(BigInteger.class, new NumberAsStringAdapter(BigInteger.class))
-        .create();
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(BigInteger.class, new NumberAsStringAdapter(BigInteger.class))
+            .create();
     assertThat(gson.toJson(new BigInteger("123"), BigInteger.class)).isEqualTo("\"123\"");
     assertThat(gson.fromJson("\"123\"", BigInteger.class)).isEqualTo(new BigInteger("123"));
   }
 
   @Test
   public void testOverrideBigDecimalTypeAdapter() throws Exception {
-    gson = new GsonBuilder()
-        .registerTypeAdapter(BigDecimal.class, new NumberAsStringAdapter(BigDecimal.class))
-        .create();
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(BigDecimal.class, new NumberAsStringAdapter(BigDecimal.class))
+            .create();
     assertThat(gson.toJson(new BigDecimal("1.1"), BigDecimal.class)).isEqualTo("\"1.1\"");
     assertThat(gson.fromJson("\"1.1\"", BigDecimal.class)).isEqualTo(new BigDecimal("1.1"));
   }
@@ -369,14 +378,18 @@ public class DefaultTypeAdaptersTest {
       gson.fromJson("[1, []]", BitSet.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Invalid bitset value type: BEGIN_ARRAY; at path $[1]");
+      assertThat(e)
+          .hasMessageThat()
+          .isEqualTo("Invalid bitset value type: BEGIN_ARRAY; at path $[1]");
     }
 
     try {
       gson.fromJson("[1, 2]", BitSet.class);
       fail();
     } catch (JsonSyntaxException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Invalid bitset value 2, expected 0 or 1; at path $[1]");
+      assertThat(e)
+          .hasMessageThat()
+          .isEqualTo("Invalid bitset value 2, expected 0 or 1; at path $[1]");
     }
   }
 
@@ -399,7 +412,7 @@ public class DefaultTypeAdaptersTest {
   // millisecond portion.
   @SuppressWarnings("deprecation")
   public static void assertEqualsDate(Date date, int year, int month, int day) {
-    assertThat(date.getYear()).isEqualTo(year-1900);
+    assertThat(date.getYear()).isEqualTo(year - 1900);
     assertThat(date.getMonth()).isEqualTo(month);
     assertThat(date.getDate()).isEqualTo(day);
   }
@@ -480,6 +493,19 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  public void testDateSerializationWithStyle() {
+    int style = DateFormat.SHORT;
+    Date date = new Date(0);
+    String expectedFormatted = DateFormat.getDateTimeInstance(style, style, Locale.US).format(date);
+
+    Gson gson = new GsonBuilder().setDateFormat(style, style).create();
+    String json = gson.toJson(date);
+    assertThat(json).isEqualTo("\"" + expectedFormatted + "\"");
+    // Verify that custom style is not equal to default style
+    assertThat(json).isNotEqualTo(new Gson().toJson(date));
+  }
+
+  @Test
   public void testDateSerializationWithPattern() {
     String pattern = "yyyy-MM-dd";
     Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
@@ -504,16 +530,20 @@ public class DefaultTypeAdaptersTest {
   @Test
   public void testDateSerializationWithPatternNotOverridenByTypeAdapter() {
     String pattern = "yyyy-MM-dd";
-    Gson gson = new GsonBuilder()
-        .setDateFormat(pattern)
-        .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-          @Override public Date deserialize(JsonElement json, Type typeOfT,
-              JsonDeserializationContext context)
-              throws JsonParseException {
-            return new Date(1315806903103L);
-          }
-        })
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .setDateFormat(pattern)
+            .registerTypeAdapter(
+                Date.class,
+                new JsonDeserializer<Date>() {
+                  @Override
+                  public Date deserialize(
+                      JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                      throws JsonParseException {
+                    return new Date(1315806903103L);
+                  }
+                })
+            .create();
 
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
@@ -533,7 +563,8 @@ public class DefaultTypeAdaptersTest {
       List<Date> dates = Arrays.asList(new Date(0));
       String json = gson.toJson(dates, listOfDates);
       assertThat(json).isEqualTo("[\"1970-01-01\"]");
-      assertThat(gson.<List<Date>>fromJson("[\"1970-01-01\"]", listOfDates).get(0).getTime()).isEqualTo(0L);
+      assertThat(gson.<List<Date>>fromJson("[\"1970-01-01\"]", listOfDates).get(0).getTime())
+          .isEqualTo(0L);
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
@@ -627,15 +658,21 @@ public class DefaultTypeAdaptersTest {
       gson.fromJson("\"abc\"", JsonObject.class);
       fail();
     } catch (JsonSyntaxException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive; at path $");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive;"
+                  + " at path $");
     }
   }
 
   private static class ClassWithBigDecimal {
     BigDecimal value;
+
     ClassWithBigDecimal(String value) {
       this.value = new BigDecimal(value);
     }
+
     String getExpectedJson() {
       return "{\"value\":" + value.toEngineeringString() + "}";
     }
@@ -643,9 +680,11 @@ public class DefaultTypeAdaptersTest {
 
   private static class ClassWithBigInteger {
     BigInteger value;
+
     ClassWithBigInteger(String value) {
       this.value = new BigInteger(value);
     }
+
     String getExpectedJson() {
       return "{\"value\":" + value + "}";
     }
@@ -716,6 +755,7 @@ public class DefaultTypeAdaptersTest {
     public void write(JsonWriter out, Class<?> value) throws IOException {
       out.value(value.getName());
     }
+
     @Override
     public Class<?> read(JsonReader in) throws IOException {
       String className = in.nextString();
@@ -729,13 +769,18 @@ public class DefaultTypeAdaptersTest {
 
   static class NumberAsStringAdapter extends TypeAdapter<Number> {
     private final Constructor<? extends Number> constructor;
+
     NumberAsStringAdapter(Class<? extends Number> type) throws Exception {
       this.constructor = type.getConstructor(String.class);
     }
-    @Override public void write(JsonWriter out, Number value) throws IOException {
+
+    @Override
+    public void write(JsonWriter out, Number value) throws IOException {
       out.value(value.toString());
     }
-    @Override public Number read(JsonReader in) throws IOException {
+
+    @Override
+    public Number read(JsonReader in) throws IOException {
       try {
         return constructor.newInstance(in.nextString());
       } catch (Exception e) {

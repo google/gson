@@ -22,8 +22,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Handles type conversion from some object to some primitive (or primitive
- * wrapper instance).
+ * Handles type conversion from some object to some primitive (or primitive wrapper instance).
+ *
+ * <p>Used by {@link ParameterizedTypeFixtures.MyParameterizedTypeAdapter}.
  *
  * @author Joel Leitch
  */

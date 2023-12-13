@@ -18,6 +18,7 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,36 +41,40 @@ public class ReflectionAccessTest {
   private static class ClassWithPrivateMembers {
     private String s;
 
-    private ClassWithPrivateMembers() {
-    }
+    private ClassWithPrivateMembers() {}
   }
 
   private static Class<?> loadClassWithDifferentClassLoader(Class<?> c) throws Exception {
     URL url = c.getProtectionDomain().getCodeSource().getLocation();
-    URLClassLoader classLoader = new URLClassLoader(new URL[] { url }, null);
+    URLClassLoader classLoader = new URLClassLoader(new URL[] {url}, null);
     return classLoader.loadClass(c.getName());
   }
 
   @SuppressWarnings("removal") // java.lang.SecurityManager deprecation in Java 17
   @Test
   public void testRestrictiveSecurityManager() throws Exception {
-    // Must use separate class loader, otherwise permission is not checked, see Class.getDeclaredFields()
+    // Skip for newer Java versions where `System.setSecurityManager` is unsupported
+    assumeTrue(Runtime.version().feature() <= 17);
+
+    // Must use separate class loader, otherwise permission is not checked, see
+    // Class.getDeclaredFields()
     Class<?> clazz = loadClassWithDifferentClassLoader(ClassWithPrivateMembers.class);
 
     final Permission accessDeclaredMembers = new RuntimePermission("accessDeclaredMembers");
     final Permission suppressAccessChecks = new ReflectPermission("suppressAccessChecks");
     SecurityManager original = System.getSecurityManager();
-    SecurityManager restrictiveManager = new SecurityManager() {
-      @Override
-      public void checkPermission(Permission perm) {
-        if (accessDeclaredMembers.equals(perm)) {
-          throw new SecurityException("Gson: no-member-access");
-        }
-        if (suppressAccessChecks.equals(perm)) {
-          throw new SecurityException("Gson: no-suppress-access-check");
-        }
-      }
-    };
+    SecurityManager restrictiveManager =
+        new SecurityManager() {
+          @Override
+          public void checkPermission(Permission perm) {
+            if (accessDeclaredMembers.equals(perm)) {
+              throw new SecurityException("Gson: no-member-access");
+            }
+            if (suppressAccessChecks.equals(perm)) {
+              throw new SecurityException("Gson: no-suppress-access-check");
+            }
+          }
+        };
     System.setSecurityManager(restrictiveManager);
 
     try {
@@ -83,21 +88,24 @@ public class ReflectionAccessTest {
       }
 
       final AtomicBoolean wasReadCalled = new AtomicBoolean(false);
-      gson = new GsonBuilder()
-        .registerTypeAdapter(clazz, new TypeAdapter<Object>() {
-          @Override
-          public void write(JsonWriter out, Object value) throws IOException {
-            out.value("custom-write");
-          }
+      gson =
+          new GsonBuilder()
+              .registerTypeAdapter(
+                  clazz,
+                  new TypeAdapter<Object>() {
+                    @Override
+                    public void write(JsonWriter out, Object value) throws IOException {
+                      out.value("custom-write");
+                    }
 
-          @Override
-          public Object read(JsonReader in) throws IOException {
-            in.skipValue();
-            wasReadCalled.set(true);
-            return null;
-          }}
-        )
-        .create();
+                    @Override
+                    public Object read(JsonReader in) throws IOException {
+                      in.skipValue();
+                      wasReadCalled.set(true);
+                      return null;
+                    }
+                  })
+              .create();
 
       assertThat(gson.toJson(null, clazz)).isEqualTo("\"custom-write\"");
       assertThat(gson.fromJson("{}", clazz)).isNull();
@@ -111,24 +119,29 @@ public class ReflectionAccessTest {
     Gson gson = new Gson();
     try {
       gson.fromJson(json, toDeserialize);
-      throw new AssertionError("Missing exception; test has to be run with `--illegal-access=deny`");
+      throw new AssertionError(
+          "Missing exception; test has to be run with `--illegal-access=deny`");
     } catch (JsonSyntaxException e) {
-      throw new AssertionError("Unexpected exception; test has to be run with `--illegal-access=deny`", e);
+      throw new AssertionError(
+          "Unexpected exception; test has to be run with `--illegal-access=deny`", e);
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat().endsWith("\nSee https://github.com/google/gson/blob/main/Troubleshooting.md#reflection-inaccessible");
+      assertThat(expected)
+          .hasMessageThat()
+          .endsWith(
+              "\n"
+                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#reflection-inaccessible");
       // Return exception for further assertions
       return expected;
     }
   }
 
   /**
-   * Test serializing an instance of a non-accessible internal class, but where
-   * Gson supports serializing one of its superinterfaces.
+   * Test serializing an instance of a non-accessible internal class, but where Gson supports
+   * serializing one of its superinterfaces.
    *
-   * <p>Here {@link Collections#emptyList()} is used which returns an instance
-   * of the internal class {@code java.util.Collections.EmptyList}. Gson should
-   * serialize the object as {@code List} despite the internal class not being
-   * accessible.
+   * <p>Here {@link Collections#emptyList()} is used which returns an instance of the internal class
+   * {@code java.util.Collections.EmptyList}. Gson should serialize the object as {@code List}
+   * despite the internal class not being accessible.
    *
    * <p>See https://github.com/google/gson/issues/1875
    */
@@ -143,8 +156,11 @@ public class ReflectionAccessTest {
     JsonIOException exception = assertInaccessibleException("[]", internalClass);
     // Don't check exact class name because it is a JDK implementation detail
     assertThat(exception).hasMessageThat().startsWith("Failed making constructor '");
-    assertThat(exception).hasMessageThat().contains("' accessible; either increase its visibility or"
-        + " write a custom InstanceCreator or TypeAdapter for its declaring type: ");
+    assertThat(exception)
+        .hasMessageThat()
+        .contains(
+            "' accessible; either increase its visibility or"
+                + " write a custom InstanceCreator or TypeAdapter for its declaring type: ");
   }
 
   @Test
@@ -152,7 +168,10 @@ public class ReflectionAccessTest {
     JsonIOException exception = assertInaccessibleException("{}", Throwable.class);
     // Don't check exact field name because it is a JDK implementation detail
     assertThat(exception).hasMessageThat().startsWith("Failed making field 'java.lang.Throwable#");
-    assertThat(exception).hasMessageThat().contains("' accessible; either increase its visibility or"
-        + " write a custom TypeAdapter for its declaring type.");
+    assertThat(exception)
+        .hasMessageThat()
+        .contains(
+            "' accessible; either increase its visibility or"
+                + " write a custom TypeAdapter for its declaring type.");
   }
 }

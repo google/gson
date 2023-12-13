@@ -31,13 +31,12 @@ public class SerializationBenchmark {
 
   private Gson gson;
   private BagOfPrimitives bag;
-  @Param
-  private boolean pretty;
+  @Param private boolean pretty;
 
   public static void main(String[] args) {
     NonUploadingCaliperRunner.run(SerializationBenchmark.class, args);
   }
-  
+
   @BeforeExperiment
   void setUp() throws Exception {
     this.gson = pretty ? new GsonBuilder().setPrettyPrinting().create() : new Gson();
@@ -45,7 +44,7 @@ public class SerializationBenchmark {
   }
 
   public void timeObjectSerialization(int reps) {
-    for (int i=0; i<reps; ++i) {
+    for (int i = 0; i < reps; ++i) {
       gson.toJson(bag);
     }
   }

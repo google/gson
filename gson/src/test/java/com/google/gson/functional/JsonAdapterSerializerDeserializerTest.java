@@ -37,17 +37,20 @@ import java.lang.reflect.Type;
 import org.junit.Test;
 
 /**
- * Functional tests for the {@link JsonAdapter} annotation on fields where the value is of
- * type {@link JsonSerializer} or {@link JsonDeserializer}.
+ * Functional tests for the {@link JsonAdapter} annotation on fields where the value is of type
+ * {@link JsonSerializer} or {@link JsonDeserializer}.
  */
 public final class JsonAdapterSerializerDeserializerTest {
 
   @Test
   public void testJsonSerializerDeserializerBasedJsonAdapterOnFields() {
     Gson gson = new Gson();
-    String json = gson.toJson(new Computer(new User("Inderjeet Singh"), null, new User("Jesse Wilson")));
-    assertThat(json).isEqualTo("{\"user1\":\"UserSerializer\",\"user3\":\"UserSerializerDeserializer\"}");
-    Computer computer = gson.fromJson("{'user2':'Jesse Wilson','user3':'Jake Wharton'}", Computer.class);
+    String json =
+        gson.toJson(new Computer(new User("Inderjeet Singh"), null, new User("Jesse Wilson")));
+    assertThat(json)
+        .isEqualTo("{\"user1\":\"UserSerializer\",\"user3\":\"UserSerializerDeserializer\"}");
+    Computer computer =
+        gson.fromJson("{'user2':'Jesse Wilson','user3':'Jake Wharton'}", Computer.class);
     assertThat(computer.user2.name).isEqualTo("UserDeserializer");
     assertThat(computer.user3.name).isEqualTo("UserSerializerDeserializer");
   }
@@ -56,12 +59,15 @@ public final class JsonAdapterSerializerDeserializerTest {
     @JsonAdapter(UserSerializer.class)
     @Keep
     final User user1;
+
     @JsonAdapter(UserDeserializer.class)
     @Keep
     final User user2;
+
     @JsonAdapter(UserSerializerDeserializer.class)
     @Keep
     final User user3;
+
     Computer(User user1, User user2, User user3) {
       this.user1 = user1;
       this.user2 = user2;
@@ -71,6 +77,7 @@ public final class JsonAdapterSerializerDeserializerTest {
 
   private static final class User {
     public final String name;
+
     private User(String name) {
       this.name = name;
     }
@@ -91,11 +98,13 @@ public final class JsonAdapterSerializerDeserializerTest {
     }
   }
 
-  private static final class UserSerializerDeserializer implements JsonSerializer<User>, JsonDeserializer<User> {
+  private static final class UserSerializerDeserializer
+      implements JsonSerializer<User>, JsonDeserializer<User> {
     @Override
     public JsonElement serialize(User src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("UserSerializerDeserializer");
     }
+
     @Override
     public User deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
@@ -114,6 +123,7 @@ public final class JsonAdapterSerializerDeserializerTest {
 
   private static final class Computer2 {
     final User2 user;
+
     Computer2(User2 user) {
       this.user = user;
     }
@@ -122,16 +132,19 @@ public final class JsonAdapterSerializerDeserializerTest {
   @JsonAdapter(UserSerializerDeserializer2.class)
   private static final class User2 {
     public final String name;
+
     private User2(String name) {
       this.name = name;
     }
   }
 
-  private static final class UserSerializerDeserializer2 implements JsonSerializer<User2>, JsonDeserializer<User2> {
+  private static final class UserSerializerDeserializer2
+      implements JsonSerializer<User2>, JsonDeserializer<User2> {
     @Override
     public JsonElement serialize(User2 src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("UserSerializerDeserializer2");
     }
+
     @Override
     public User2 deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
@@ -152,9 +165,11 @@ public final class JsonAdapterSerializerDeserializerTest {
     @JsonAdapter(BaseStringAdapter.class)
     @Keep
     Base<String> a;
+
     @JsonAdapter(BaseIntegerAdapter.class)
     @Keep
     Base<Integer> b;
+
     Container(String a, int b) {
       this.a = new Base<>(a);
       this.b = new Base<>(b);
@@ -164,46 +179,60 @@ public final class JsonAdapterSerializerDeserializerTest {
   private static final class Base<T> {
     @SuppressWarnings("unused")
     T value;
+
     Base(T value) {
       this.value = value;
     }
   }
 
   private static final class BaseStringAdapter implements JsonSerializer<Base<String>> {
-    @Override public JsonElement serialize(Base<String> src, Type typeOfSrc, JsonSerializationContext context) {
+    @Override
+    public JsonElement serialize(
+        Base<String> src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("BaseStringAdapter");
     }
   }
 
   private static final class BaseIntegerAdapter implements JsonSerializer<Base<Integer>> {
-    @Override public JsonElement serialize(Base<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
+    @Override
+    public JsonElement serialize(
+        Base<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("BaseIntegerAdapter");
     }
   }
 
   @Test
   public void testJsonAdapterNullSafe() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(User.class, new TypeAdapter<User>() {
-          @Override
-          public User read(JsonReader in) throws IOException {
-            in.nextNull();
-            return new User("fallback-read");
-          }
-          @Override
-          public void write(JsonWriter out, User value) throws IOException {
-            assertThat(value).isNull();
-            out.value("fallback-write");
-          }
-        })
-        .serializeNulls()
-        .create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                User.class,
+                new TypeAdapter<User>() {
+                  @Override
+                  public User read(JsonReader in) throws IOException {
+                    in.nextNull();
+                    return new User("fallback-read");
+                  }
+
+                  @Override
+                  public void write(JsonWriter out, User value) throws IOException {
+                    assertThat(value).isNull();
+                    out.value("fallback-write");
+                  }
+                })
+            .serializeNulls()
+            .create();
 
     String json = gson.toJson(new WithNullSafe(null, null, null, null));
-    // Only nullSafe=true serializer writes null; for @JsonAdapter with deserializer nullSafe is ignored when serializing
-    assertThat(json).isEqualTo("{\"userS\":\"UserSerializer\",\"userSN\":null,\"userD\":\"fallback-write\",\"userDN\":\"fallback-write\"}");
+    // Only nullSafe=true serializer writes null; for @JsonAdapter with deserializer nullSafe is
+    // ignored when serializing
+    assertThat(json)
+        .isEqualTo(
+            "{\"userS\":\"UserSerializer\",\"userSN\":null,\"userD\":\"fallback-write\",\"userDN\":\"fallback-write\"}");
 
-    WithNullSafe deserialized = gson.fromJson("{\"userS\":null,\"userSN\":null,\"userD\":null,\"userDN\":null}", WithNullSafe.class);
+    WithNullSafe deserialized =
+        gson.fromJson(
+            "{\"userS\":null,\"userSN\":null,\"userD\":null,\"userDN\":null}", WithNullSafe.class);
     // For @JsonAdapter with serializer nullSafe is ignored when deserializing
     assertThat(deserialized.userS.name).isEqualTo("fallback-read");
     assertThat(deserialized.userSN.name).isEqualTo("fallback-read");
@@ -213,12 +242,18 @@ public final class JsonAdapterSerializerDeserializerTest {
 
   private static final class WithNullSafe {
     // "userS..." uses JsonSerializer
-    @JsonAdapter(value = UserSerializer.class, nullSafe = false) final User userS;
-    @JsonAdapter(value = UserSerializer.class, nullSafe = true) final User userSN;
+    @JsonAdapter(value = UserSerializer.class, nullSafe = false)
+    final User userS;
+
+    @JsonAdapter(value = UserSerializer.class, nullSafe = true)
+    final User userSN;
 
     // "userD..." uses JsonDeserializer
-    @JsonAdapter(value = UserDeserializer.class, nullSafe = false) final User userD;
-    @JsonAdapter(value = UserDeserializer.class, nullSafe = true) final User userDN;
+    @JsonAdapter(value = UserDeserializer.class, nullSafe = false)
+    final User userD;
+
+    @JsonAdapter(value = UserDeserializer.class, nullSafe = true)
+    final User userDN;
 
     WithNullSafe(User userS, User userSN, User userD, User userDN) {
       this.userS = userS;

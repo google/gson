@@ -105,45 +105,51 @@ public class EnumTest {
   }
 
   private static enum MyEnum {
-    VALUE1, VALUE2
+    VALUE1,
+    VALUE2
   }
 
   private static class ClassWithEnumFields {
     private final MyEnum value1 = MyEnum.VALUE1;
     private final MyEnum value2 = MyEnum.VALUE2;
+
     public String getExpectedJson() {
       return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
     }
   }
 
-  /**
-   * Test for issue 226.
-   */
+  /** Test for issue 226. */
   @Test
   @SuppressWarnings("GetClassOnEnum")
   public void testEnumSubclass() {
     assertThat(Roshambo.ROCK.getClass()).isNotEqualTo(Roshambo.class);
     assertThat(gson.toJson(Roshambo.ROCK)).isEqualTo("\"ROCK\"");
-    assertThat(gson.toJson(EnumSet.allOf(Roshambo.class))).isEqualTo("[\"ROCK\",\"PAPER\",\"SCISSORS\"]");
+    assertThat(gson.toJson(EnumSet.allOf(Roshambo.class)))
+        .isEqualTo("[\"ROCK\",\"PAPER\",\"SCISSORS\"]");
     assertThat(gson.fromJson("\"ROCK\"", Roshambo.class)).isEqualTo(Roshambo.ROCK);
-    assertThat(EnumSet.allOf(Roshambo.class)).isEqualTo(
-        gson.fromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType())
-    );
+    assertThat(EnumSet.allOf(Roshambo.class))
+        .isEqualTo(
+            gson.fromJson(
+                "[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType()));
   }
 
   @Test
   @SuppressWarnings("GetClassOnEnum")
   public void testEnumSubclassWithRegisteredTypeAdapter() {
-    gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
-        .create();
+    gson =
+        new GsonBuilder()
+            .registerTypeHierarchyAdapter(Roshambo.class, new MyEnumTypeAdapter())
+            .create();
     assertThat(Roshambo.ROCK.getClass()).isNotEqualTo(Roshambo.class);
     assertThat(gson.toJson(Roshambo.ROCK)).isEqualTo("\"123ROCK\"");
-    assertThat(gson.toJson(EnumSet.allOf(Roshambo.class))).isEqualTo("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]");
+    assertThat(gson.toJson(EnumSet.allOf(Roshambo.class)))
+        .isEqualTo("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]");
     assertThat(gson.fromJson("\"123ROCK\"", Roshambo.class)).isEqualTo(Roshambo.ROCK);
-    assertThat(EnumSet.allOf(Roshambo.class)).isEqualTo(
-        gson.fromJson("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", new TypeToken<Set<Roshambo>>() {}.getType())
-    );
+    assertThat(EnumSet.allOf(Roshambo.class))
+        .isEqualTo(
+            gson.fromJson(
+                "[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]",
+                new TypeToken<Set<Roshambo>>() {}.getType()));
   }
 
   @Test
@@ -176,7 +182,7 @@ public class EnumTest {
     Type type = new TypeToken<EnumSet<Roshambo>>() {}.getType();
     EnumSet<Roshambo> bar = gson.fromJson(json, type);
     assertThat(bar).containsExactly(Roshambo.ROCK, Roshambo.PAPER).inOrder();
-    assertThat(bar).doesNotContain(Roshambo.SCISSORS);;
+    assertThat(bar).doesNotContain(Roshambo.SCISSORS);
   }
 
   @Test
@@ -194,17 +200,20 @@ public class EnumTest {
 
   private enum Roshambo {
     ROCK {
-      @Override Roshambo defeats() {
+      @Override
+      Roshambo defeats() {
         return SCISSORS;
       }
     },
     PAPER {
-      @Override Roshambo defeats() {
+      @Override
+      Roshambo defeats() {
         return ROCK;
       }
     },
     SCISSORS {
-      @Override Roshambo defeats() {
+      @Override
+      Roshambo defeats() {
         return PAPER;
       }
     };
@@ -215,11 +224,13 @@ public class EnumTest {
 
   private static class MyEnumTypeAdapter
       implements JsonSerializer<Roshambo>, JsonDeserializer<Roshambo> {
-    @Override public JsonElement serialize(Roshambo src, Type typeOfSrc, JsonSerializationContext context) {
+    @Override
+    public JsonElement serialize(Roshambo src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("123" + src.name());
     }
 
-    @Override public Roshambo deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
+    @Override
+    public Roshambo deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return Roshambo.valueOf(json.getAsString().substring(3));
     }
@@ -241,9 +252,12 @@ public class EnumTest {
   }
 
   private enum Color {
-    RED("red", 1), BLUE("blue", 2), GREEN("green", 3);
+    RED("red", 1),
+    BLUE("blue", 2),
+    GREEN("green", 3);
     final String value;
     final int index;
+
     private Color(String value, int index) {
       this.value = value;
       this.index = index;
@@ -269,14 +283,13 @@ public class EnumTest {
     }
   }
 
-  /**
-   * Test that enum constant names have higher precedence than {@code toString()}
-   * result.
-   */
+  /** Test that enum constant names have higher precedence than {@code toString()} result. */
   @Test
   public void testEnumToStringReadInterchanged() {
-    assertThat(gson.fromJson("\"A\"", InterchangedToString.class)).isEqualTo(InterchangedToString.A);
-    assertThat(gson.fromJson("\"B\"", InterchangedToString.class)).isEqualTo(InterchangedToString.B);
+    assertThat(gson.fromJson("\"A\"", InterchangedToString.class))
+        .isEqualTo(InterchangedToString.A);
+    assertThat(gson.fromJson("\"B\"", InterchangedToString.class))
+        .isEqualTo(InterchangedToString.B);
   }
 
   private enum InterchangedToString {

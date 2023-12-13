@@ -151,7 +151,8 @@ public class JsonPrimitiveTest {
     try {
       json.getAsInt();
       fail("Integers can not handle exponents like this.");
-    } catch (NumberFormatException expected) { }
+    } catch (NumberFormatException expected) {
+    }
   }
 
   @Test
@@ -274,15 +275,16 @@ public class JsonPrimitiveTest {
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(5L), new JsonPrimitive(5L));
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive('a'), new JsonPrimitive('a'));
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.NaN), new JsonPrimitive(Float.NaN));
-    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.NEGATIVE_INFINITY),
-        new JsonPrimitive(Float.NEGATIVE_INFINITY));
-    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.POSITIVE_INFINITY),
-        new JsonPrimitive(Float.POSITIVE_INFINITY));
-    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Double.NaN), new JsonPrimitive(Double.NaN));
-    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Double.NEGATIVE_INFINITY),
-        new JsonPrimitive(Double.NEGATIVE_INFINITY));
-    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Double.POSITIVE_INFINITY),
-        new JsonPrimitive(Double.POSITIVE_INFINITY));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(Float.NEGATIVE_INFINITY), new JsonPrimitive(Float.NEGATIVE_INFINITY));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(Float.POSITIVE_INFINITY), new JsonPrimitive(Float.POSITIVE_INFINITY));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(Double.NaN), new JsonPrimitive(Double.NaN));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(Double.NEGATIVE_INFINITY), new JsonPrimitive(Double.NEGATIVE_INFINITY));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(Double.POSITIVE_INFINITY), new JsonPrimitive(Double.POSITIVE_INFINITY));
     assertThat(new JsonPrimitive("a").equals(new JsonPrimitive("b"))).isFalse();
     assertThat(new JsonPrimitive(true).equals(new JsonPrimitive(false))).isFalse();
     assertThat(new JsonPrimitive(0).equals(new JsonPrimitive(1))).isFalse();
@@ -291,10 +293,13 @@ public class JsonPrimitiveTest {
   @Test
   public void testEqualsAcrossTypes() {
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive("a"), new JsonPrimitive('a'));
-    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(new BigInteger("0")), new JsonPrimitive(0));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new BigInteger("0")), new JsonPrimitive(0));
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(0), new JsonPrimitive(0L));
-    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(new BigInteger("0")), new JsonPrimitive(0));
-    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(Float.NaN), new JsonPrimitive(Double.NaN));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new BigDecimal("0")), new JsonPrimitive(0));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(Float.NaN), new JsonPrimitive(Double.NaN));
   }
 
   @Test

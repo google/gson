@@ -147,8 +147,8 @@ public class ReadersWritersTest {
   }
 
   /**
-   * Verifies that passing an {@link Appendable} which is not an instance of {@link Writer}
-   * to {@code Gson.toJson} works correctly.
+   * Verifies that passing an {@link Appendable} which is not an instance of {@link Writer} to
+   * {@code Gson.toJson} works correctly.
    */
   @Test
   public void testToJsonAppendable() {
@@ -192,7 +192,7 @@ public class ReadersWritersTest {
     gson.toJson(Arrays.asList("test", 123, true), appendable);
     // Make sure CharSequence.toString() was called at least two times to verify that
     // CurrentWrite.cachedString is properly overwritten when char array changes
-    assertThat(appendable.toStringCallCount >= 2).isTrue();
+    assertThat(appendable.toStringCallCount).isAtLeast(2);
     assertThat(appendable.stringBuilder.toString()).isEqualTo("[\"test\",123,true]");
   }
 }

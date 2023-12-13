@@ -25,11 +25,11 @@ import java.util.Set;
  * A class representing an object type in Json. An object consists of name-value pairs where names
  * are strings, and values are any other type of {@link JsonElement}. This allows for a creating a
  * tree of JsonElements. The member elements of this object are maintained in order they were added.
- * This class does not support {@code null} values. If {@code null} is provided as value argument
- * to any of the methods, it is converted to a {@link JsonNull}.
+ * This class does not support {@code null} values. If {@code null} is provided as value argument to
+ * any of the methods, it is converted to a {@link JsonNull}.
  *
- * <p>{@code JsonObject} does not implement the {@link Map} interface, but a {@code Map} view
- * of it can be obtained with {@link #asMap()}.
+ * <p>{@code JsonObject} does not implement the {@link Map} interface, but a {@code Map} view of it
+ * can be obtained with {@link #asMap()}.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -37,12 +37,9 @@ import java.util.Set;
 public final class JsonObject extends JsonElement {
   private final LinkedTreeMap<String, JsonElement> members = new LinkedTreeMap<>(false);
 
-  /**
-   * Creates an empty JsonObject.
-   */
+  /** Creates an empty JsonObject. */
   @SuppressWarnings("deprecation") // superclass constructor
-  public JsonObject() {
-  }
+  public JsonObject() {}
 
   /**
    * Creates a deep copy of this element and all its children.
@@ -60,8 +57,8 @@ public final class JsonObject extends JsonElement {
 
   /**
    * Adds a member, which is a name-value pair, to self. The name must be a String, but the value
-   * can be an arbitrary {@link JsonElement}, thereby allowing you to build a full tree of JsonElements
-   * rooted at this node.
+   * can be an arbitrary {@link JsonElement}, thereby allowing you to build a full tree of
+   * JsonElements rooted at this node.
    *
    * @param property name of the member.
    * @param value the member object.
@@ -74,8 +71,8 @@ public final class JsonObject extends JsonElement {
    * Removes the {@code property} from this object.
    *
    * @param property name of the member that should be removed.
-   * @return the {@link JsonElement} object that is being removed, or {@code null} if no
-   *   member with this name exists.
+   * @return the {@link JsonElement} object that is being removed, or {@code null} if no member with
+   *     this name exists.
    * @since 1.3
    */
   @CanIgnoreReturnValue
@@ -84,8 +81,8 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Convenience method to add a string member. The specified value is converted to a
-   * {@link JsonPrimitive} of String.
+   * Convenience method to add a string member. The specified value is converted to a {@link
+   * JsonPrimitive} of String.
    *
    * @param property name of the member.
    * @param value the string value associated with the member.
@@ -95,8 +92,8 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Convenience method to add a number member. The specified value is converted to a
-   * {@link JsonPrimitive} of Number.
+   * Convenience method to add a number member. The specified value is converted to a {@link
+   * JsonPrimitive} of Number.
    *
    * @param property name of the member.
    * @param value the number value associated with the member.
@@ -106,8 +103,8 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Convenience method to add a boolean member. The specified value is converted to a
-   * {@link JsonPrimitive} of Boolean.
+   * Convenience method to add a boolean member. The specified value is converted to a {@link
+   * JsonPrimitive} of Boolean.
    *
    * @param property name of the member.
    * @param value the boolean value associated with the member.
@@ -117,8 +114,8 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Convenience method to add a char member. The specified value is converted to a
-   * {@link JsonPrimitive} of Character.
+   * Convenience method to add a char member. The specified value is converted to a {@link
+   * JsonPrimitive} of Character.
    *
    * @param property name of the member.
    * @param value the char value associated with the member.
@@ -192,7 +189,7 @@ public final class JsonObject extends JsonElement {
    *
    * @param memberName name of the member being requested.
    * @return the {@code JsonPrimitive} corresponding to the specified member, or {@code null} if no
-   *   member with this name exists.
+   *     member with this name exists.
    * @throws ClassCastException if the member is not of type {@code JsonPrimitive}.
    */
   public JsonPrimitive getAsJsonPrimitive(String memberName) {
@@ -204,7 +201,7 @@ public final class JsonObject extends JsonElement {
    *
    * @param memberName name of the member being requested.
    * @return the {@code JsonArray} corresponding to the specified member, or {@code null} if no
-   *   member with this name exists.
+   *     member with this name exists.
    * @throws ClassCastException if the member is not of type {@code JsonArray}.
    */
   public JsonArray getAsJsonArray(String memberName) {
@@ -216,7 +213,7 @@ public final class JsonObject extends JsonElement {
    *
    * @param memberName name of the member being requested.
    * @return the {@code JsonObject} corresponding to the specified member, or {@code null} if no
-   *   member with this name exists.
+   *     member with this name exists.
    * @throws ClassCastException if the member is not of type {@code JsonObject}.
    */
   public JsonObject getAsJsonObject(String memberName) {
@@ -224,12 +221,12 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Returns a mutable {@link Map} view of this {@code JsonObject}. Changes to the {@code Map}
-   * are visible in this {@code JsonObject} and the other way around.
+   * Returns a mutable {@link Map} view of this {@code JsonObject}. Changes to the {@code Map} are
+   * visible in this {@code JsonObject} and the other way around.
    *
    * <p>The {@code Map} does not permit {@code null} keys or values. Unlike {@code JsonObject}'s
-   * {@code null} handling, a {@link NullPointerException} is thrown when trying to add {@code null}.
-   * Use {@link JsonNull} for JSON null values.
+   * {@code null} handling, a {@link NullPointerException} is thrown when trying to add {@code
+   * null}. Use {@link JsonNull} for JSON null values.
    *
    * @return mutable {@code Map} view
    * @since 2.10
@@ -240,19 +237,17 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Returns whether the other object is equal to this. This method only considers
-   * the other object to be equal if it is an instance of {@code JsonObject} and has
-   * equal members, ignoring order.
+   * Returns whether the other object is equal to this. This method only considers the other object
+   * to be equal if it is an instance of {@code JsonObject} and has equal members, ignoring order.
    */
   @Override
   public boolean equals(Object o) {
-    return (o == this) || (o instanceof JsonObject
-        && ((JsonObject) o).members.equals(members));
+    return (o == this) || (o instanceof JsonObject && ((JsonObject) o).members.equals(members));
   }
 
   /**
-   * Returns the hash code of this object. This method calculates the hash code based
-   * on the members of this object, ignoring order.
+   * Returns the hash code of this object. This method calculates the hash code based on the members
+   * of this object, ignoring order.
    */
   @Override
   public int hashCode() {

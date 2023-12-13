@@ -31,9 +31,8 @@ import org.junit.Test;
 
 @SuppressWarnings("JavaUtilDate")
 public final class UtcDateTypeAdapterTest {
-  private final Gson gson = new GsonBuilder()
-    .registerTypeAdapter(Date.class, new UtcDateTypeAdapter())
-    .create();
+  private final Gson gson =
+      new GsonBuilder().registerTypeAdapter(Date.class, new UtcDateTypeAdapter()).create();
 
   @Test
   public void testLocalTimeZone() {
@@ -56,21 +55,21 @@ public final class UtcDateTypeAdapterTest {
   }
 
   /**
-   * JDK 1.7 introduced support for XXX format to indicate UTC date. But Android is older JDK.
-   * We want to make sure that this date is parseable in Android.
+   * JDK 1.7 introduced support for XXX format to indicate UTC date. But Android is older JDK. We
+   * want to make sure that this date is parseable in Android.
    */
   @Test
   public void testUtcDatesOnJdkBefore1_7() {
-    Gson gson = new GsonBuilder()
-      .registerTypeAdapter(Date.class, new UtcDateTypeAdapter())
-      .create();
+    Gson gson =
+        new GsonBuilder().registerTypeAdapter(Date.class, new UtcDateTypeAdapter()).create();
     Date unused = gson.fromJson("'2014-12-05T04:00:00.000Z'", Date.class);
   }
 
   @Test
   public void testUtcWithJdk7Default() {
     Date expected = new Date();
-    SimpleDateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
+    SimpleDateFormat iso8601Format =
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US);
     iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
     String expectedJson = "\"" + iso8601Format.format(expected) + "\"";
     String actualJson = gson.toJson(expected);
@@ -91,7 +90,9 @@ public final class UtcDateTypeAdapterTest {
       gson.fromJson("2017-06-20T14:32:30", Date.class);
       fail("No exception");
     } catch (JsonParseException exe) {
-      assertEquals("java.text.ParseException: Failed to parse date ['2017-06-20T14']: 2017-06-20T14", exe.getMessage());
+      assertEquals(
+          "java.text.ParseException: Failed to parse date ['2017-06-20T14']: 2017-06-20T14",
+          exe.getMessage());
     }
   }
 }
