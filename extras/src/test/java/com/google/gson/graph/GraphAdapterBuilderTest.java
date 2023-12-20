@@ -84,9 +84,41 @@ public final class GraphAdapterBuilderTest {
 
   @Test
   public void testSerializeListOfLists() {
+    /*
+    Self-Referencing Issue:
+
+Elements in listOfLists that reference themselves do not create a meaningful structure. Reevaluate this situation and organize your data structure.
+Data Structure and Elements:
+
+If you choose to continue using the data structure of List<List<?>>, make sure to populate it with meaningful and realistic data.
+JSON Transformation and Assertion:
+
+The JSON transformation and assertion operations will work correctly, but the example used here is not meaningful. Adjust your data to make these operations meaningful.
+Circular References:
+
+The GraphAdapterBuilder is added to handle circular references, but in this scenario, it doesn't seem to have a meaningful purpose. Evaluate whether there is a need to handle circular references in a real-world scenario.
+Below is a modified version using a non-self-referencing structure with more meaningful data:
+          // Example data structure
+        List<List<String>> listOfLists = new ArrayList<>();
+        listOfLists.add(Arrays.asList("A", "B"));
+        listOfLists.add(new ArrayList<>());
+
+        // Creating type information
+        Type listOfListsType = new TypeToken<List<List<String>>>() {}.getType();
+
+        // Using GsonBuilder and GraphAdapterBuilder
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapterFactory(new GraphAdapterBuilder().create());
+        Gson gson = gsonBuilder.create();
+
+        // JSON transformation
+        String json = gson.toJson(listOfLists, listOfListsType);
+        System.out.println(json);
+    */
     Type listOfListsType = new TypeToken<List<List<?>>>() {}.getType();
     Type listOfAnyType = new TypeToken<List<?>>() {}.getType();
 
+    //
     List<List<?>> listOfLists = new ArrayList<>();
     listOfLists.add(listOfLists);
     listOfLists.add(new ArrayList<>());
