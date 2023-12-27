@@ -2063,6 +2063,8 @@ public final class JsonReaderTest {
             "Nesting limit 255 reached at line 1 column 257 path $" + "[0]".repeat(defaultLimit));
   }
 
+  // Note: The column number reported in the expected exception messages is slightly off and points
+  // behind instead of directly at the '[' or '{'
   @Test
   public void testNestingLimit() throws IOException {
     JsonReader reader = new JsonReader(reader("[{\"a\":1}]"));
