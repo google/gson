@@ -44,7 +44,7 @@ public class SecurityTest {
   public void testNonExecutableJsonSerialization() {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = gson.toJson(new BagOfPrimitives());
-    assertThat(json.startsWith(JSON_NON_EXECUTABLE_PREFIX)).isTrue();
+    assertThat(json).startsWith(JSON_NON_EXECUTABLE_PREFIX);
   }
 
   @Test

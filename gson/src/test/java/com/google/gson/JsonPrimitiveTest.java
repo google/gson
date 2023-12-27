@@ -297,7 +297,7 @@ public class JsonPrimitiveTest {
         new JsonPrimitive(new BigInteger("0")), new JsonPrimitive(0));
     MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(0), new JsonPrimitive(0L));
     MoreAsserts.assertEqualsAndHashCode(
-        new JsonPrimitive(new BigInteger("0")), new JsonPrimitive(0));
+        new JsonPrimitive(new BigDecimal("0")), new JsonPrimitive(0));
     MoreAsserts.assertEqualsAndHashCode(
         new JsonPrimitive(Float.NaN), new JsonPrimitive(Double.NaN));
   }

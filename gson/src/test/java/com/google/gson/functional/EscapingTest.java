@@ -82,7 +82,7 @@ public class EscapingTest {
     BagOfPrimitives target = new BagOfPrimitives(1L, 1, true, "test' / w'ith\" / \\ <script>");
     String escapedJsonForm = escapeHtmlGson.toJson(target);
     String nonEscapedJsonForm = noEscapeHtmlGson.toJson(target);
-    assertThat(escapedJsonForm.equals(nonEscapedJsonForm)).isFalse();
+    assertThat(escapedJsonForm).isNotEqualTo(nonEscapedJsonForm);
 
     assertThat(noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class)).isEqualTo(target);
     assertThat(escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class))

@@ -286,10 +286,7 @@ public final class JsonWriterTest {
     assertThat(stringWriter.toString()).isEqualTo("{\"a\":{\"b\":true},\"c\":1}");
   }
 
-  @Test
-  public void testNonFiniteFloats() throws IOException {
-    StringWriter stringWriter = new StringWriter();
-    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+  private static void assertNonFiniteFloatsExceptions(JsonWriter jsonWriter) throws IOException {
     jsonWriter.beginArray();
 
     IllegalArgumentException expected =
@@ -312,26 +309,37 @@ public final class JsonWriterTest {
   }
 
   @Test
+  public void testNonFiniteFloats() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    assertNonFiniteFloatsExceptions(jsonWriter);
+  }
+
+  @Test
   public void testNonFiniteFloatsWhenStrict() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.setStrictness(Strictness.STRICT);
+    assertNonFiniteFloatsExceptions(jsonWriter);
+  }
+
+  private static void assertNonFiniteDoublesExceptions(JsonWriter jsonWriter) throws IOException {
     jsonWriter.beginArray();
 
     IllegalArgumentException expected =
-        assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Float.NaN));
+        assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.NaN));
     assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
 
     expected =
         assertThrows(
-            IllegalArgumentException.class, () -> jsonWriter.value(Float.NEGATIVE_INFINITY));
+            IllegalArgumentException.class, () -> jsonWriter.value(Double.NEGATIVE_INFINITY));
     assertThat(expected)
         .hasMessageThat()
         .isEqualTo("Numeric values must be finite, but was -Infinity");
 
     expected =
         assertThrows(
-            IllegalArgumentException.class, () -> jsonWriter.value(Float.POSITIVE_INFINITY));
+            IllegalArgumentException.class, () -> jsonWriter.value(Double.POSITIVE_INFINITY));
     assertThat(expected)
         .hasMessageThat()
         .isEqualTo("Numeric values must be finite, but was Infinity");
@@ -341,25 +349,7 @@ public final class JsonWriterTest {
   public void testNonFiniteDoubles() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.beginArray();
-
-    IllegalArgumentException expected =
-        assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.NaN));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
-
-    expected =
-        assertThrows(
-            IllegalArgumentException.class, () -> jsonWriter.value(Double.NEGATIVE_INFINITY));
-    assertThat(expected)
-        .hasMessageThat()
-        .isEqualTo("Numeric values must be finite, but was -Infinity");
-
-    expected =
-        assertThrows(
-            IllegalArgumentException.class, () -> jsonWriter.value(Double.POSITIVE_INFINITY));
-    assertThat(expected)
-        .hasMessageThat()
-        .isEqualTo("Numeric values must be finite, but was Infinity");
+    assertNonFiniteDoublesExceptions(jsonWriter);
   }
 
   @Test
@@ -367,22 +357,37 @@ public final class JsonWriterTest {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.setStrictness(Strictness.STRICT);
+    assertNonFiniteDoublesExceptions(jsonWriter);
+  }
+
+  private static void assertNonFiniteNumbersExceptions(JsonWriter jsonWriter) throws IOException {
     jsonWriter.beginArray();
 
     IllegalArgumentException expected =
-        assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.NaN));
+        assertThrows(
+            IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NaN)));
     assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
 
     expected =
         assertThrows(
-            IllegalArgumentException.class, () -> jsonWriter.value(Double.NEGATIVE_INFINITY));
+            IllegalArgumentException.class,
+            () -> jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY)));
     assertThat(expected)
         .hasMessageThat()
         .isEqualTo("Numeric values must be finite, but was -Infinity");
 
     expected =
         assertThrows(
-            IllegalArgumentException.class, () -> jsonWriter.value(Double.POSITIVE_INFINITY));
+            IllegalArgumentException.class,
+            () -> jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY)));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Numeric values must be finite, but was Infinity");
+
+    expected =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> jsonWriter.value(new LazilyParsedNumber("Infinity")));
     assertThat(expected)
         .hasMessageThat()
         .isEqualTo("Numeric values must be finite, but was Infinity");
@@ -392,36 +397,7 @@ public final class JsonWriterTest {
   public void testNonFiniteNumbers() throws IOException {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
-    jsonWriter.beginArray();
-
-    IllegalArgumentException expected =
-        assertThrows(
-            IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NaN)));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
-
-    expected =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY)));
-    assertThat(expected)
-        .hasMessageThat()
-        .isEqualTo("Numeric values must be finite, but was -Infinity");
-
-    expected =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY)));
-    assertThat(expected)
-        .hasMessageThat()
-        .isEqualTo("Numeric values must be finite, but was Infinity");
-
-    expected =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> jsonWriter.value(new LazilyParsedNumber("Infinity")));
-    assertThat(expected)
-        .hasMessageThat()
-        .isEqualTo("Numeric values must be finite, but was Infinity");
+    assertNonFiniteNumbersExceptions(jsonWriter);
   }
 
   @Test
@@ -429,36 +405,7 @@ public final class JsonWriterTest {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.setStrictness(Strictness.STRICT);
-    jsonWriter.beginArray();
-
-    IllegalArgumentException expected =
-        assertThrows(
-            IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NaN)));
-    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
-
-    expected =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY)));
-    assertThat(expected)
-        .hasMessageThat()
-        .isEqualTo("Numeric values must be finite, but was -Infinity");
-
-    expected =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY)));
-    assertThat(expected)
-        .hasMessageThat()
-        .isEqualTo("Numeric values must be finite, but was Infinity");
-
-    expected =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> jsonWriter.value(new LazilyParsedNumber("Infinity")));
-    assertThat(expected)
-        .hasMessageThat()
-        .isEqualTo("Numeric values must be finite, but was Infinity");
+    assertNonFiniteNumbersExceptions(jsonWriter);
   }
 
   @Test

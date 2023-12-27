@@ -39,7 +39,8 @@ public class NumberLimitsTest {
    *       large or small numbers (it rounds to 0 or Infinity) (to be verified?; if it had
    *       performance problems with certain numbers, then it would affect other parts of Gson which
    *       parse as float or double as well)
-   *   <li>Enforcing limits only when a JSON number is encountered would be ineffective unless users
+   *   <li>Enforcing limits only when a JSON number is encountered would be ineffective when users
+   *       want to consume a JSON number as string using {@link JsonReader#nextString()} unless they
    *       explicitly call {@link JsonReader#peek()} and check if the value is a JSON number.
    *       Otherwise the limits could be circumvented because {@link JsonReader#nextString()} reads
    *       both strings and numbers, and for JSON strings no restrictions are enforced.
