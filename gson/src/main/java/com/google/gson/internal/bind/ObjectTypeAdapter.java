@@ -44,7 +44,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   private final Gson gson;
   private final ToNumberStrategy toNumberStrategy;
 
-  private ObjectTypeAdapter(Gson gson, ToNumberStrategy toNumberStrategy) {
+  ObjectTypeAdapter(Gson gson, ToNumberStrategy toNumberStrategy) {
     this.gson = gson;
     this.toNumberStrategy = toNumberStrategy;
   }
