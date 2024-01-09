@@ -19,6 +19,8 @@ package com.google.gson.metrics;
 import com.google.caliper.runner.CaliperMain;
 
 class NonUploadingCaliperRunner {
+  private NonUploadingCaliperRunner() {}
+
   private static String[] concat(String first, String... others) {
     if (others.length == 0) {
       return new String[] {first};

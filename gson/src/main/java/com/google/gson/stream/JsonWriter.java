@@ -396,7 +396,7 @@ public class JsonWriter implements Closeable, Flushable {
   @CanIgnoreReturnValue
   public JsonWriter beginArray() throws IOException {
     writeDeferredName();
-    return open(EMPTY_ARRAY, '[');
+    return openScope(EMPTY_ARRAY, '[');
   }
 
   /**
@@ -406,7 +406,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   @CanIgnoreReturnValue
   public JsonWriter endArray() throws IOException {
-    return close(EMPTY_ARRAY, NONEMPTY_ARRAY, ']');
+    return closeScope(EMPTY_ARRAY, NONEMPTY_ARRAY, ']');
   }
 
   /**
@@ -418,7 +418,7 @@ public class JsonWriter implements Closeable, Flushable {
   @CanIgnoreReturnValue
   public JsonWriter beginObject() throws IOException {
     writeDeferredName();
-    return open(EMPTY_OBJECT, '{');
+    return openScope(EMPTY_OBJECT, '{');
   }
 
   /**
@@ -428,12 +428,12 @@ public class JsonWriter implements Closeable, Flushable {
    */
   @CanIgnoreReturnValue
   public JsonWriter endObject() throws IOException {
-    return close(EMPTY_OBJECT, NONEMPTY_OBJECT, '}');
+    return closeScope(EMPTY_OBJECT, NONEMPTY_OBJECT, '}');
   }
 
   /** Enters a new scope by appending any necessary whitespace and the given bracket. */
   @CanIgnoreReturnValue
-  private JsonWriter open(int empty, char openBracket) throws IOException {
+  private JsonWriter openScope(int empty, char openBracket) throws IOException {
     beforeValue();
     push(empty);
     out.write(openBracket);
@@ -442,7 +442,7 @@ public class JsonWriter implements Closeable, Flushable {
 
   /** Closes the current scope by appending any necessary whitespace and the given bracket. */
   @CanIgnoreReturnValue
-  private JsonWriter close(int empty, int nonempty, char closeBracket) throws IOException {
+  private JsonWriter closeScope(int empty, int nonempty, char closeBracket) throws IOException {
     int context = peek();
     if (context != nonempty && context != empty) {
       throw new IllegalStateException("Nesting problem.");
@@ -521,47 +521,6 @@ public class JsonWriter implements Closeable, Flushable {
     writeDeferredName();
     beforeValue();
     string(value);
-    return this;
-  }
-
-  /**
-   * Writes {@code value} directly to the writer without quoting or escaping. This might not be
-   * supported by all implementations, if not supported an {@code UnsupportedOperationException} is
-   * thrown.
-   *
-   * @param value the literal string value, or null to encode a null literal.
-   * @return this writer.
-   * @throws UnsupportedOperationException if this writer does not support writing raw JSON values.
-   * @since 2.4
-   */
-  @CanIgnoreReturnValue
-  public JsonWriter jsonValue(String value) throws IOException {
-    if (value == null) {
-      return nullValue();
-    }
-    writeDeferredName();
-    beforeValue();
-    out.append(value);
-    return this;
-  }
-
-  /**
-   * Encodes {@code null}.
-   *
-   * @return this writer.
-   */
-  @CanIgnoreReturnValue
-  public JsonWriter nullValue() throws IOException {
-    if (deferredName != null) {
-      if (serializeNulls) {
-        writeDeferredName();
-      } else {
-        deferredName = null;
-        return this; // skip the name and the value
-      }
-    }
-    beforeValue();
-    out.write("null");
     return this;
   }
 
@@ -650,25 +609,6 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Returns whether the {@code toString()} of {@code c} can be trusted to return a valid JSON
-   * number.
-   */
-  private static boolean isTrustedNumberType(Class<? extends Number> c) {
-    // Note: Don't consider LazilyParsedNumber trusted because it could contain
-    // an arbitrary malformed string
-    return c == Integer.class
-        || c == Long.class
-        || c == Double.class
-        || c == Float.class
-        || c == Byte.class
-        || c == Short.class
-        || c == BigDecimal.class
-        || c == BigInteger.class
-        || c == AtomicInteger.class
-        || c == AtomicLong.class;
-  }
-
-  /**
    * Encodes {@code value}. The value is written by directly writing the {@link Number#toString()}
    * result to JSON. Implementations must make sure that the result represents a valid JSON number.
    *
@@ -707,6 +647,47 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
+   * Encodes {@code null}.
+   *
+   * @return this writer.
+   */
+  @CanIgnoreReturnValue
+  public JsonWriter nullValue() throws IOException {
+    if (deferredName != null) {
+      if (serializeNulls) {
+        writeDeferredName();
+      } else {
+        deferredName = null;
+        return this; // skip the name and the value
+      }
+    }
+    beforeValue();
+    out.write("null");
+    return this;
+  }
+
+  /**
+   * Writes {@code value} directly to the writer without quoting or escaping. This might not be
+   * supported by all implementations, if not supported an {@code UnsupportedOperationException} is
+   * thrown.
+   *
+   * @param value the literal string value, or null to encode a null literal.
+   * @return this writer.
+   * @throws UnsupportedOperationException if this writer does not support writing raw JSON values.
+   * @since 2.4
+   */
+  @CanIgnoreReturnValue
+  public JsonWriter jsonValue(String value) throws IOException {
+    if (value == null) {
+      return nullValue();
+    }
+    writeDeferredName();
+    beforeValue();
+    out.append(value);
+    return this;
+  }
+
+  /**
    * Ensures all buffered data is written to the underlying {@link Writer} and flushes that writer.
    */
   @Override
@@ -731,6 +712,25 @@ public class JsonWriter implements Closeable, Flushable {
       throw new IOException("Incomplete document");
     }
     stackSize = 0;
+  }
+
+  /**
+   * Returns whether the {@code toString()} of {@code c} can be trusted to return a valid JSON
+   * number.
+   */
+  private static boolean isTrustedNumberType(Class<? extends Number> c) {
+    // Note: Don't consider LazilyParsedNumber trusted because it could contain
+    // an arbitrary malformed string
+    return c == Integer.class
+        || c == Long.class
+        || c == Double.class
+        || c == Float.class
+        || c == Byte.class
+        || c == Short.class
+        || c == BigDecimal.class
+        || c == BigInteger.class
+        || c == AtomicInteger.class
+        || c == AtomicLong.class;
   }
 
   private void string(String value) throws IOException {

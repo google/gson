@@ -52,7 +52,7 @@ public class DefaultDateTypeAdapterTest {
     assertFormattingAlwaysEmitsUsLocale(Locale.FRANCE);
   }
 
-  private void assertFormattingAlwaysEmitsUsLocale(Locale locale) {
+  private static void assertFormattingAlwaysEmitsUsLocale(Locale locale) {
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();

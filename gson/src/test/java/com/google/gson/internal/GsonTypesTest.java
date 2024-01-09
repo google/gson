@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import org.junit.Test;
 
+@SuppressWarnings("ClassNamedLikeTypeParameter") // for dummy classes A, B, ...
 public final class GsonTypesTest {
 
   @Test
@@ -87,10 +88,14 @@ public final class GsonTypesTest {
    * type, returns null.
    */
   public static Type getFirstTypeArgument(Type type) throws Exception {
-    if (!(type instanceof ParameterizedType)) return null;
+    if (!(type instanceof ParameterizedType)) {
+      return null;
+    }
     ParameterizedType ptype = (ParameterizedType) type;
     Type[] actualTypeArguments = ptype.getActualTypeArguments();
-    if (actualTypeArguments.length == 0) return null;
+    if (actualTypeArguments.length == 0) {
+      return null;
+    }
     return $Gson$Types.canonicalize(actualTypeArguments[0]);
   }
 }

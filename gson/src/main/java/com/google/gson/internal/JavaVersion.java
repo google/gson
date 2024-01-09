@@ -27,11 +27,11 @@ public final class JavaVersion {
 
   private static int determineMajorJavaVersion() {
     String javaVersion = System.getProperty("java.version");
-    return getMajorJavaVersion(javaVersion);
+    return parseMajorJavaVersion(javaVersion);
   }
 
   // Visible for testing only
-  static int getMajorJavaVersion(String javaVersion) {
+  static int parseMajorJavaVersion(String javaVersion) {
     int version = parseDotted(javaVersion);
     if (version == -1) {
       version = extractBeginningInt(javaVersion);

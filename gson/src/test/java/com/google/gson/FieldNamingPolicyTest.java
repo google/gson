@@ -115,7 +115,7 @@ public class FieldNamingPolicyTest {
   @Test
   public void testLowerCasingLocaleIndependent() throws Exception {
     class Dummy {
-      @SuppressWarnings("unused")
+      @SuppressWarnings({"unused", "ConstantField"})
       int I;
     }
 

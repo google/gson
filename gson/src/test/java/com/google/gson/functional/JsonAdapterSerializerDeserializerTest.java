@@ -240,6 +240,7 @@ public final class JsonAdapterSerializerDeserializerTest {
     assertThat(deserialized.userDN).isNull();
   }
 
+  @SuppressWarnings("MemberName")
   private static final class WithNullSafe {
     // "userS..." uses JsonSerializer
     @JsonAdapter(value = UserSerializer.class, nullSafe = false)

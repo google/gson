@@ -172,7 +172,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
               constructorConstructor, context, fieldType, annotation, false);
     }
     final boolean jsonAdapterPresent = mapped != null;
-    if (mapped == null) mapped = context.getAdapter(fieldType);
+    if (mapped == null) {
+      mapped = context.getAdapter(fieldType);
+    }
 
     @SuppressWarnings("unchecked")
     final TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) mapped;

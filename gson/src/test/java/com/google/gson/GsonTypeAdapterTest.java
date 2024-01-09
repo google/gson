@@ -151,7 +151,7 @@ public class GsonTypeAdapterTest {
     assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, false, false, instance);
   }
 
-  private void assertSerialized(
+  private static void assertSerialized(
       String expected,
       Class<?> instanceType,
       boolean registerAbstractDeserializer,

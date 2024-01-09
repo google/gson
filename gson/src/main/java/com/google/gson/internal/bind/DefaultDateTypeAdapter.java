@@ -141,7 +141,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
       dateFormats.add(DateFormat.getDateInstance(style));
     }
     if (JavaVersion.isJava9OrLater()) {
-      dateFormats.add(PreJava9DateFormatProvider.getUSDateFormat(style));
+      dateFormats.add(PreJava9DateFormatProvider.getUsDateFormat(style));
     }
   }
 
@@ -152,7 +152,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
       dateFormats.add(DateFormat.getDateTimeInstance(dateStyle, timeStyle));
     }
     if (JavaVersion.isJava9OrLater()) {
-      dateFormats.add(PreJava9DateFormatProvider.getUSDateTimeFormat(dateStyle, timeStyle));
+      dateFormats.add(PreJava9DateFormatProvider.getUsDateTimeFormat(dateStyle, timeStyle));
     }
   }
 

@@ -18,7 +18,6 @@ package com.google.gson;
 
 import com.google.gson.internal.Primitives;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -45,13 +44,7 @@ final class PrimitiveTypeAdapter {
       try {
         Constructor<?> constructor = aClass.getConstructor(String.class);
         return (T) constructor.newInstance(from.toString());
-      } catch (NoSuchMethodException e) {
-        throw new JsonParseException(e);
-      } catch (IllegalAccessException e) {
-        throw new JsonParseException(e);
-      } catch (InvocationTargetException e) {
-        throw new JsonParseException(e);
-      } catch (InstantiationException e) {
+      } catch (ReflectiveOperationException e) {
         throw new JsonParseException(e);
       }
     } else if (Enum.class.isAssignableFrom(to)) {
@@ -60,11 +53,7 @@ final class PrimitiveTypeAdapter {
       try {
         Method valuesMethod = to.getMethod("valueOf", String.class);
         return (T) valuesMethod.invoke(null, from.toString());
-      } catch (NoSuchMethodException e) {
-        throw new RuntimeException(e);
-      } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
-      } catch (InvocationTargetException e) {
+      } catch (ReflectiveOperationException e) {
         throw new RuntimeException(e);
       }
     } else {

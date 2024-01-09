@@ -641,7 +641,7 @@ public class MapTest {
     assertThat(gson.fromJson(json, type)).isEqualTo(map);
   }
 
-  private <K, V> Map<K, V> newMap(K key1, V value1, K key2, V value2) {
+  private static <K, V> Map<K, V> newMap(K key1, V value1, K key2, V value2) {
     Map<K, V> result = new LinkedHashMap<>();
     result.put(key1, value1);
     result.put(key2, value2);

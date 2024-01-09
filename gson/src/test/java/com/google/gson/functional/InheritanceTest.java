@@ -275,7 +275,7 @@ public class InheritanceTest {
     }
 
     @CanIgnoreReturnValue
-    private StringBuilder append(StringBuilder sb, Collection<?> c) {
+    private static StringBuilder append(StringBuilder sb, Collection<?> c) {
       sb.append("[");
       boolean first = true;
       for (Object o : c) {
