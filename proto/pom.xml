@@ -32,7 +32,7 @@
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
 
-    <protobufVersion>3.25.1</protobufVersion>
+    <protobufVersion>3.25.2</protobufVersion>
   </properties>
 
   <licenses>
