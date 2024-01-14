@@ -217,7 +217,7 @@ public final class $Gson$Types {
       }
       TypeVariable<?> va = (TypeVariable<?>) a;
       TypeVariable<?> vb = (TypeVariable<?>) b;
-      return va.getGenericDeclaration() == vb.getGenericDeclaration()
+      return Objects.equals(va.getGenericDeclaration(), vb.getGenericDeclaration())
           && va.getName().equals(vb.getName());
 
     } else {
