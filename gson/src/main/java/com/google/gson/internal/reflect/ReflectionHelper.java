@@ -23,6 +23,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 public class ReflectionHelper {
 
@@ -144,6 +145,15 @@ public class ReflectionHelper {
     }
 
     stringBuilder.append(')');
+  }
+
+  public static boolean isStatic(Class<?> clazz) {
+    return Modifier.isStatic(clazz.getModifiers());
+  }
+
+  /** Returns whether the class is anonymous or a non-static local class. */
+  public static boolean isAnonymousOrNonStaticLocal(Class<?> clazz) {
+    return !isStatic(clazz) && (clazz.isAnonymousClass() || clazz.isLocalClass());
   }
 
   /**
