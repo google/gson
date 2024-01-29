@@ -526,7 +526,7 @@ public class PrimitiveTest {
     assertThat(actualJson).isNotEqualTo(expectedJson);
   }
 
-  private String extractElementFromArray(String json) {
+  private static String extractElementFromArray(String json) {
     return json.substring(json.indexOf('[') + 1, json.indexOf(']'));
   }
 

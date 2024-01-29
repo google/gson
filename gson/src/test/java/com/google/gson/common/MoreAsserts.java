@@ -30,6 +30,7 @@ import org.junit.Assert;
  * @author Inderjeet Singh
  */
 public class MoreAsserts {
+  private MoreAsserts() {}
 
   /**
    * Asserts that the specified {@code value} is not present in {@code collection}

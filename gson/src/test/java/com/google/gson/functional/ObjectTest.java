@@ -736,10 +736,12 @@ public class ObjectTest {
     }
   }
 
+  @SuppressWarnings({"PrivateConstructorForUtilityClass", "NonFinalStaticField"})
   static class ClassWithStaticField {
     static String s = "initial";
   }
 
+  @SuppressWarnings("PrivateConstructorForUtilityClass")
   static class ClassWithStaticFinalField {
     static final String s = "initial";
   }

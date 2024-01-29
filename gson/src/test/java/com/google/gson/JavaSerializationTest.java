@@ -66,7 +66,7 @@ public final class JavaSerializationTest {
   }
 
   @SuppressWarnings("unchecked") // Serialization promises to return the same type.
-  private <T> T serializedCopy(T object) throws IOException, ClassNotFoundException {
+  private static <T> T serializedCopy(T object) throws IOException, ClassNotFoundException {
     ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
     ObjectOutputStream out = new ObjectOutputStream(bytesOut);
     out.writeObject(object);

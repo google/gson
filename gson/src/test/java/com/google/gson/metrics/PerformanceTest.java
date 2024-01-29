@@ -39,6 +39,7 @@ import org.junit.Test;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@SuppressWarnings("SystemOut") // allow System.out because test is for manual execution anyway
 public class PerformanceTest {
   private static final int COLLECTION_SIZE = 5000;
 
@@ -292,7 +293,7 @@ public class PerformanceTest {
     Map<Long, Long> unused = gson.fromJson(json, longToLong);
   }
 
-  private String buildJsonForClassWithList() {
+  private static String buildJsonForClassWithList() {
     StringBuilder sb = new StringBuilder("{");
     sb.append("field:").append("'str',");
     sb.append("list:[");
@@ -301,12 +302,12 @@ public class PerformanceTest {
       if (first) {
         first = false;
       } else {
-        sb.append(",");
+        sb.append(',');
       }
       sb.append("{field:'element-" + i + "'}");
     }
-    sb.append("]");
-    sb.append("}");
+    sb.append(']');
+    sb.append('}');
     String json = sb.toString();
     return json;
   }

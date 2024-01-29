@@ -61,9 +61,11 @@ public class PostConstructAdapterFactory implements TypeAdapterFactory {
         try {
           method.invoke(result);
         } catch (IllegalAccessException e) {
-          throw new AssertionError();
+          throw new AssertionError(e);
         } catch (InvocationTargetException e) {
-          if (e.getCause() instanceof RuntimeException) throw (RuntimeException) e.getCause();
+          if (e.getCause() instanceof RuntimeException) {
+            throw (RuntimeException) e.getCause();
+          }
           throw new RuntimeException(e.getCause());
         }
       }

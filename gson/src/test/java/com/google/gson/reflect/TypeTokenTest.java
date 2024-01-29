@@ -37,6 +37,9 @@ import org.junit.Test;
  *
  * @author Jesse Wilson
  */
+// Suppress because these classes are only needed for this test, but must be top-level classes
+// to not have an enclosing type
+@SuppressWarnings("MultipleTopLevelClasses")
 public final class TypeTokenTest {
   // These fields are accessed using reflection by the tests below
   List<Integer> listOfInteger = null;

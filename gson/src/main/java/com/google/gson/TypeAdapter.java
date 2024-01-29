@@ -145,69 +145,6 @@ public abstract class TypeAdapter<T> {
   }
 
   /**
-   * This wrapper method is used to make a type adapter null tolerant. In general, a type adapter is
-   * required to handle nulls in write and read methods. Here is how this is typically done:<br>
-   *
-   * <pre>{@code
-   * Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
-   *   new TypeAdapter<Foo>() {
-   *     public Foo read(JsonReader in) throws IOException {
-   *       if (in.peek() == JsonToken.NULL) {
-   *         in.nextNull();
-   *         return null;
-   *       }
-   *       // read a Foo from in and return it
-   *     }
-   *     public void write(JsonWriter out, Foo src) throws IOException {
-   *       if (src == null) {
-   *         out.nullValue();
-   *         return;
-   *       }
-   *       // write src as JSON to out
-   *     }
-   *   }).create();
-   * }</pre>
-   *
-   * You can avoid this boilerplate handling of nulls by wrapping your type adapter with this
-   * method. Here is how we will rewrite the above example:
-   *
-   * <pre>{@code
-   * Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
-   *   new TypeAdapter<Foo>() {
-   *     public Foo read(JsonReader in) throws IOException {
-   *       // read a Foo from in and return it
-   *     }
-   *     public void write(JsonWriter out, Foo src) throws IOException {
-   *       // write src as JSON to out
-   *     }
-   *   }.nullSafe()).create();
-   * }</pre>
-   *
-   * Note that we didn't need to check for nulls in our type adapter after we used nullSafe.
-   */
-  public final TypeAdapter<T> nullSafe() {
-    return new TypeAdapter<T>() {
-      @Override
-      public void write(JsonWriter out, T value) throws IOException {
-        if (value == null) {
-          out.nullValue();
-        } else {
-          TypeAdapter.this.write(out, value);
-        }
-      }
-
-      @Override
-      public T read(JsonReader reader) throws IOException {
-        if (reader.peek() == JsonToken.NULL) {
-          reader.nextNull();
-          return null;
-        }
-        return TypeAdapter.this.read(reader);
-      }
-    };
-  }
-
-  /**
    * Converts {@code value} to a JSON document.
    *
    * <p>A {@link JsonWriter} with default configuration is used for writing the JSON data. To
@@ -308,5 +245,68 @@ public abstract class TypeAdapter<T> {
     } catch (IOException e) {
       throw new JsonIOException(e);
     }
+  }
+
+  /**
+   * This wrapper method is used to make a type adapter null tolerant. In general, a type adapter is
+   * required to handle nulls in write and read methods. Here is how this is typically done:<br>
+   *
+   * <pre>{@code
+   * Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
+   *   new TypeAdapter<Foo>() {
+   *     public Foo read(JsonReader in) throws IOException {
+   *       if (in.peek() == JsonToken.NULL) {
+   *         in.nextNull();
+   *         return null;
+   *       }
+   *       // read a Foo from in and return it
+   *     }
+   *     public void write(JsonWriter out, Foo src) throws IOException {
+   *       if (src == null) {
+   *         out.nullValue();
+   *         return;
+   *       }
+   *       // write src as JSON to out
+   *     }
+   *   }).create();
+   * }</pre>
+   *
+   * You can avoid this boilerplate handling of nulls by wrapping your type adapter with this
+   * method. Here is how we will rewrite the above example:
+   *
+   * <pre>{@code
+   * Gson gson = new GsonBuilder().registerTypeAdapter(Foo.class,
+   *   new TypeAdapter<Foo>() {
+   *     public Foo read(JsonReader in) throws IOException {
+   *       // read a Foo from in and return it
+   *     }
+   *     public void write(JsonWriter out, Foo src) throws IOException {
+   *       // write src as JSON to out
+   *     }
+   *   }.nullSafe()).create();
+   * }</pre>
+   *
+   * Note that we didn't need to check for nulls in our type adapter after we used nullSafe.
+   */
+  public final TypeAdapter<T> nullSafe() {
+    return new TypeAdapter<T>() {
+      @Override
+      public void write(JsonWriter out, T value) throws IOException {
+        if (value == null) {
+          out.nullValue();
+        } else {
+          TypeAdapter.this.write(out, value);
+        }
+      }
+
+      @Override
+      public T read(JsonReader reader) throws IOException {
+        if (reader.peek() == JsonToken.NULL) {
+          reader.nextNull();
+          return null;
+        }
+        return TypeAdapter.this.read(reader);
+      }
+    };
   }
 }

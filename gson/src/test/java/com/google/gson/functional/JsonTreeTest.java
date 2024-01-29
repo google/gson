@@ -89,7 +89,7 @@ public class JsonTreeTest {
     assertThat(jsonElement.has("stringValue")).isFalse();
   }
 
-  private void assertContains(JsonObject json, JsonPrimitive child) {
+  private static void assertContains(JsonObject json, JsonPrimitive child) {
     for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
       JsonElement node = entry.getValue();
       if (node.isJsonPrimitive()) {

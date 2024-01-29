@@ -177,12 +177,13 @@ public class NullObjectAndFieldTest {
 
   public static class ClassWithInitializedMembers {
     // Using a mix of no-args constructor and field initializers
-    // Also, some fields are intialized and some are not (so initialized per JVM spec)
+    // Also, some fields are initialized and some are not (so initialized per JVM spec)
     public static final String MY_STRING_DEFAULT = "string";
     private static final int MY_INT_DEFAULT = 2;
     private static final boolean MY_BOOLEAN_DEFAULT = true;
     int[] array;
-    String str1, str2;
+    String str1;
+    String str2;
     int int1 = MY_INT_DEFAULT;
     int int2;
     boolean bool1 = MY_BOOLEAN_DEFAULT;

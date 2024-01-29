@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +52,7 @@ public class MoreSpecificTypeSerializationTest {
 
   @Test
   public void testListOfSubclassFields() {
-    Collection<Base> list = new ArrayList<>();
+    List<Base> list = new ArrayList<>();
     list.add(new Base(1));
     list.add(new Sub(2, 3));
     ClassWithContainersOfBaseFields target = new ClassWithContainersOfBaseFields(list, null);
@@ -89,7 +90,7 @@ public class MoreSpecificTypeSerializationTest {
    */
   @Test
   public void testListOfParameterizedSubclassFields() {
-    Collection<ParameterizedBase<String>> list = new ArrayList<>();
+    List<ParameterizedBase<String>> list = new ArrayList<>();
     list.add(new ParameterizedBase<>("one"));
     list.add(new ParameterizedSub<>("two", "three"));
     ClassWithContainersOfParameterizedBaseFields target =

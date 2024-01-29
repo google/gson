@@ -23,6 +23,7 @@ package com.google.gson.stream;
  * @since 1.6
  */
 final class JsonScope {
+  private JsonScope() {}
 
   /** An array with no elements requires no separator before the next element. */
   static final int EMPTY_ARRAY = 1;

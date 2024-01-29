@@ -76,6 +76,7 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
     delegate.clear();
   }
 
+  @SuppressWarnings("UngroupedOverloads") // this is intentionally ungrouped, see comment above
   @Override
   public boolean remove(Object o) {
     return delegate.remove(o);
