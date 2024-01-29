@@ -125,12 +125,12 @@ public final class GsonTypesTest {
 
   private static final class TypeVariableTest {
 
+    @SuppressWarnings({"UnusedMethod", "UnusedVariable", "TypeParameterUnusedInFormals"})
     public <T> TypeVariableTest(T parameter) {}
 
+    @SuppressWarnings({"UnusedMethod", "UnusedVariable", "TypeParameterUnusedInFormals"})
     public <T> T method() {
       return null;
     }
-
   }
-
 }
