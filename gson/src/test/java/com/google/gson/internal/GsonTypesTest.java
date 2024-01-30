@@ -19,6 +19,8 @@ package com.google.gson.internal;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -97,5 +99,38 @@ public final class GsonTypesTest {
       return null;
     }
     return $Gson$Types.canonicalize(actualTypeArguments[0]);
+  }
+
+  @Test
+  public void testEqualsOnMethodTypeVariables() throws Exception {
+    Method m1 = TypeVariableTest.class.getMethod("method");
+    Method m2 = TypeVariableTest.class.getMethod("method");
+
+    Type rt1 = m1.getGenericReturnType();
+    Type rt2 = m2.getGenericReturnType();
+
+    assertThat($Gson$Types.equals(rt1, rt2)).isTrue();
+  }
+
+  @Test
+  public void testEqualsOnConstructorParameterTypeVariables() throws Exception {
+    Constructor<TypeVariableTest> c1 = TypeVariableTest.class.getConstructor(Object.class);
+    Constructor<TypeVariableTest> c2 = TypeVariableTest.class.getConstructor(Object.class);
+
+    Type rt1 = c1.getGenericParameterTypes()[0];
+    Type rt2 = c2.getGenericParameterTypes()[0];
+
+    assertThat($Gson$Types.equals(rt1, rt2)).isTrue();
+  }
+
+  private static final class TypeVariableTest {
+
+    @SuppressWarnings({"UnusedMethod", "UnusedVariable", "TypeParameterUnusedInFormals"})
+    public <T> TypeVariableTest(T parameter) {}
+
+    @SuppressWarnings({"UnusedMethod", "UnusedVariable", "TypeParameterUnusedInFormals"})
+    public <T> T method() {
+      return null;
+    }
   }
 }
