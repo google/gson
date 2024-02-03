@@ -17,6 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,7 +28,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -249,5 +253,38 @@ public class CustomDeserializerTest {
 
   private static final class ClassWithBaseArray {
     Base[] bases;
+  }
+
+  @Test
+  public void testExceptionInDeserializer() {
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                DataHolder.class,
+                new JsonDeserializer<DataHolder>() {
+                  @Override
+                  public DataHolder deserialize(
+                      JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+                    context.deserialize(
+                        json, new TypeToken<Map<String, List<Integer>>>() {}.getType());
+                    throw new AssertionError("should not be reached");
+                  }
+                })
+            .create();
+
+    var exception =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.fromJson("{\"wrappedData\": {\"a\": [1, true]}}", DataHolderWrapper.class));
+    assertThat(exception)
+        .hasMessageThat()
+        .isEqualTo("Deserialization failed at path $.wrappedData");
+    assertThat(exception)
+        .hasCauseThat()
+        .hasMessageThat()
+        .isEqualTo(
+            // TODO: The path here is missing the member name `a` due to
+            // https://github.com/google/gson/issues/1768
+            "java.lang.IllegalStateException: Expected NUMBER but was BOOLEAN at path $.[1]");
   }
 }

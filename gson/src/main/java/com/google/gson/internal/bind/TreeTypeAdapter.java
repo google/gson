@@ -92,7 +92,15 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
     if (nullSafe && value.isJsonNull()) {
       return null;
     }
-    return deserializer.deserialize(value, typeToken.getType(), context);
+
+    try {
+      return deserializer.deserialize(value, typeToken.getType(), context);
+    } catch (Exception e) {
+      // Wrap and include path of `value`; otherwise exception would only include path relative
+      // to `value`, making troubleshooting difficult
+      String valuePath = in.getPreviousPath();
+      throw new JsonParseException("Deserialization failed at path " + valuePath, e);
+    }
   }
 
   @Override
