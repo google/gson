@@ -25,15 +25,16 @@ import java.util.Set;
 import org.junit.Assert;
 
 /**
- * Handy asserts that we wish were present in {@link Assert}
- * so that we didn't have to write them.
+ * Handy asserts that we wish were present in {@link Assert} so that we didn't have to write them.
  *
  * @author Inderjeet Singh
  */
 public class MoreAsserts {
+  private MoreAsserts() {}
 
   /**
    * Asserts that the specified {@code value} is not present in {@code collection}
+   *
    * @param collection the collection to look into
    * @param value the value that needs to be checked for presence
    */
@@ -74,14 +75,15 @@ public class MoreAsserts {
   }
 
   /**
-   * Asserts that {@code subClass} overrides all protected and public methods declared by
-   * {@code baseClass} except for the ones whose signatures are in {@code ignoredMethods}.
+   * Asserts that {@code subClass} overrides all protected and public methods declared by {@code
+   * baseClass} except for the ones whose signatures are in {@code ignoredMethods}.
    */
-  public static void assertOverridesMethods(Class<?> baseClass, Class<?> subClass, List<String> ignoredMethods) {
+  public static void assertOverridesMethods(
+      Class<?> baseClass, Class<?> subClass, List<String> ignoredMethods) {
     Set<String> requiredOverriddenMethods = new LinkedHashSet<>();
     for (Method method : baseClass.getDeclaredMethods()) {
-      // Note: Do not filter out `final` methods; maybe they should not be `final` and subclass needs
-      // to override them
+      // Note: Do not filter out `final` methods; maybe they should not be `final` and subclass
+      // needs to override them
       if (isProtectedOrPublic(method)) {
         requiredOverriddenMethods.add(getMethodSignature(method));
       }
@@ -94,12 +96,14 @@ public class MoreAsserts {
     for (String ignoredMethod : ignoredMethods) {
       boolean foundIgnored = requiredOverriddenMethods.remove(ignoredMethod);
       if (!foundIgnored) {
-        throw new IllegalArgumentException("Method '" + ignoredMethod + "' does not exist or is already overridden");
+        throw new IllegalArgumentException(
+            "Method '" + ignoredMethod + "' does not exist or is already overridden");
       }
     }
 
     if (!requiredOverriddenMethods.isEmpty()) {
-      Assert.fail(subClass.getSimpleName() + " must override these methods: " + requiredOverriddenMethods);
+      Assert.fail(
+          subClass.getSimpleName() + " must override these methods: " + requiredOverriddenMethods);
     }
   }
 }

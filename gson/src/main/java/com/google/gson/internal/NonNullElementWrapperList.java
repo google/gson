@@ -24,24 +24,26 @@ import java.util.Objects;
 import java.util.RandomAccess;
 
 /**
- * {@link List} which wraps another {@code List} but prevents insertion of
- * {@code null} elements. Methods which only perform checks with the element
- * argument (e.g. {@link #contains(Object)}) do not throw exceptions for
- * {@code null} arguments.
+ * {@link List} which wraps another {@code List} but prevents insertion of {@code null} elements.
+ * Methods which only perform checks with the element argument (e.g. {@link #contains(Object)}) do
+ * not throw exceptions for {@code null} arguments.
  */
 public class NonNullElementWrapperList<E> extends AbstractList<E> implements RandomAccess {
   // Explicitly specify ArrayList as type to guarantee that delegate implements RandomAccess
   private final ArrayList<E> delegate;
 
+  @SuppressWarnings("NonApiType")
   public NonNullElementWrapperList(ArrayList<E> delegate) {
     this.delegate = Objects.requireNonNull(delegate);
   }
 
-  @Override public E get(int index) {
+  @Override
+  public E get(int index) {
     return delegate.get(index);
   }
 
-  @Override public int size() {
+  @Override
+  public int size() {
     return delegate.size();
   }
 
@@ -52,61 +54,76 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
     return element;
   }
 
-  @Override public E set(int index, E element) {
+  @Override
+  public E set(int index, E element) {
     return delegate.set(index, nonNull(element));
   }
 
-  @Override public void add(int index, E element) {
+  @Override
+  public void add(int index, E element) {
     delegate.add(index, nonNull(element));
   }
 
-  @Override public E remove(int index) {
+  @Override
+  public E remove(int index) {
     return delegate.remove(index);
   }
 
   /* The following methods are overridden because their default implementation is inefficient */
 
-  @Override public void clear() {
+  @Override
+  public void clear() {
     delegate.clear();
   }
 
-  @Override public boolean remove(Object o) {
+  @SuppressWarnings("UngroupedOverloads") // this is intentionally ungrouped, see comment above
+  @Override
+  public boolean remove(Object o) {
     return delegate.remove(o);
   }
 
-  @Override public boolean removeAll(Collection<?> c) {
+  @Override
+  public boolean removeAll(Collection<?> c) {
     return delegate.removeAll(c);
   }
 
-  @Override public boolean retainAll(Collection<?> c) {
+  @Override
+  public boolean retainAll(Collection<?> c) {
     return delegate.retainAll(c);
   }
 
-  @Override public boolean contains(Object o) {
+  @Override
+  public boolean contains(Object o) {
     return delegate.contains(o);
   }
 
-  @Override public int indexOf(Object o) {
+  @Override
+  public int indexOf(Object o) {
     return delegate.indexOf(o);
   }
 
-  @Override public int lastIndexOf(Object o) {
+  @Override
+  public int lastIndexOf(Object o) {
     return delegate.lastIndexOf(o);
   }
 
-  @Override public Object[] toArray() {
+  @Override
+  public Object[] toArray() {
     return delegate.toArray();
   }
 
-  @Override public <T> T[] toArray(T[] a) {
+  @Override
+  public <T> T[] toArray(T[] a) {
     return delegate.toArray(a);
   }
 
-  @Override public boolean equals(Object o) {
+  @Override
+  public boolean equals(Object o) {
     return delegate.equals(o);
   }
 
-  @Override public int hashCode() {
+  @Override
+  public int hashCode() {
     return delegate.hashCode();
   }
 

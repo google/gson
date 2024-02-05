@@ -17,10 +17,12 @@
 package com.google.gson.internal.bind;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.Strictness;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -86,7 +88,7 @@ public final class JsonTreeWriterTest {
   @Test
   public void testWriteAfterClose() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
-    writer.setLenient(true);
+    writer.setStrictness(Strictness.LENIENT);
     writer.beginArray();
     writer.value("A");
     writer.endArray();
@@ -101,13 +103,53 @@ public final class JsonTreeWriterTest {
   @Test
   public void testPrematureClose() throws Exception {
     JsonTreeWriter writer = new JsonTreeWriter();
-    writer.setLenient(true);
+    writer.setStrictness(Strictness.LENIENT);
     writer.beginArray();
     try {
       writer.close();
       fail();
     } catch (IOException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("Incomplete document");
     }
+  }
+
+  @Test
+  public void testNameAsTopLevelValue() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    IllegalStateException e = assertThrows(IllegalStateException.class, () -> writer.name("hello"));
+    assertThat(e).hasMessageThat().isEqualTo("Did not expect a name");
+
+    writer.value(12);
+    writer.close();
+
+    e = assertThrows(IllegalStateException.class, () -> writer.name("hello"));
+    assertThat(e).hasMessageThat().isEqualTo("Please begin an object before writing a name.");
+  }
+
+  @Test
+  public void testNameInArray() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+
+    writer.beginArray();
+    IllegalStateException e = assertThrows(IllegalStateException.class, () -> writer.name("hello"));
+    assertThat(e).hasMessageThat().isEqualTo("Please begin an object before writing a name.");
+
+    writer.value(12);
+    e = assertThrows(IllegalStateException.class, () -> writer.name("hello"));
+    assertThat(e).hasMessageThat().isEqualTo("Please begin an object before writing a name.");
+
+    writer.endArray();
+
+    assertThat(writer.get().toString()).isEqualTo("[12]");
+  }
+
+  @Test
+  public void testTwoNames() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    writer.name("a");
+    IllegalStateException e = assertThrows(IllegalStateException.class, () -> writer.name("a"));
+    assertThat(e).hasMessageThat().isEqualTo("Did not expect a name");
   }
 
   @Test
@@ -174,7 +216,7 @@ public final class JsonTreeWriterTest {
   @Test
   public void testLenientNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
-    writer.setLenient(true);
+    writer.setStrictness(Strictness.LENIENT);
     writer.beginArray();
     writer.value(Float.NaN);
     writer.value(Float.NEGATIVE_INFINITY);
@@ -183,13 +225,14 @@ public final class JsonTreeWriterTest {
     writer.value(Double.NEGATIVE_INFINITY);
     writer.value(Double.POSITIVE_INFINITY);
     writer.endArray();
-    assertThat(writer.get().toString()).isEqualTo("[NaN,-Infinity,Infinity,NaN,-Infinity,Infinity]");
+    assertThat(writer.get().toString())
+        .isEqualTo("[NaN,-Infinity,Infinity,NaN,-Infinity,Infinity]");
   }
 
   @Test
   public void testStrictNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
-    writer.setLenient(false);
+    writer.setStrictness(Strictness.LEGACY_STRICT);
     writer.beginArray();
     try {
       writer.value(Float.NaN);
@@ -226,7 +269,7 @@ public final class JsonTreeWriterTest {
   @Test
   public void testStrictBoxedNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
-    writer.setLenient(false);
+    writer.setStrictness(Strictness.LEGACY_STRICT);
     writer.beginArray();
     try {
       writer.value(Float.valueOf(Float.NaN));
@@ -273,17 +316,24 @@ public final class JsonTreeWriterTest {
 
   /**
    * {@link JsonTreeWriter} effectively replaces the complete writing logic of {@link JsonWriter} to
-   * create a {@link JsonElement} tree instead of writing to a {@link Writer}. Therefore all relevant
-   * methods of {@code JsonWriter} must be overridden.
+   * create a {@link JsonElement} tree instead of writing to a {@link Writer}. Therefore all
+   * relevant methods of {@code JsonWriter} must be overridden.
    */
   @Test
   public void testOverrides() {
-    List<String> ignoredMethods = Arrays.asList(
-        "setLenient(boolean)", "isLenient()",
-        "setIndent(java.lang.String)",
-        "setHtmlSafe(boolean)", "isHtmlSafe()",
-        "setFormattingStyle(com.google.gson.FormattingStyle)", "getFormattingStyle()",
-        "setSerializeNulls(boolean)", "getSerializeNulls()");
+    List<String> ignoredMethods =
+        Arrays.asList(
+            "setLenient(boolean)",
+            "isLenient()",
+            "setStrictness(com.google.gson.Strictness)",
+            "getStrictness()",
+            "setIndent(java.lang.String)",
+            "setHtmlSafe(boolean)",
+            "isHtmlSafe()",
+            "setFormattingStyle(com.google.gson.FormattingStyle)",
+            "getFormattingStyle()",
+            "setSerializeNulls(boolean)",
+            "getSerializeNulls()");
     MoreAsserts.assertOverridesMethods(JsonWriter.class, JsonTreeWriter.class, ignoredMethods);
   }
 }

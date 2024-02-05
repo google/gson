@@ -80,7 +80,7 @@ public class NullObjectAndFieldTest {
     ClassWithObjects target = gson.fromJson("{\"bag\":null}", ClassWithObjects.class);
     assertThat(target.bag).isNull();
   }
-  
+
   @Test
   public void testExplicitSerializationOfNullArrayMembers() {
     Gson gson = gsonBuilder.create();
@@ -88,10 +88,8 @@ public class NullObjectAndFieldTest {
     String json = gson.toJson(target);
     assertThat(json).contains("\"array\":null");
   }
-  
-  /** 
-   * Added to verify http://code.google.com/p/google-gson/issues/detail?id=68
-   */
+
+  /** Added to verify http://code.google.com/p/google-gson/issues/detail?id=68 */
   @Test
   public void testNullWrappedPrimitiveMemberSerialization() {
     Gson gson = gsonBuilder.serializeNulls().create();
@@ -99,10 +97,8 @@ public class NullObjectAndFieldTest {
     String json = gson.toJson(target);
     assertThat(json).contains("\"value\":null");
   }
-  
-  /** 
-   * Added to verify http://code.google.com/p/google-gson/issues/detail?id=68
-   */
+
+  /** Added to verify http://code.google.com/p/google-gson/issues/detail?id=68 */
   @Test
   public void testNullWrappedPrimitiveMemberDeserialization() {
     Gson gson = gsonBuilder.create();
@@ -110,7 +106,7 @@ public class NullObjectAndFieldTest {
     ClassWithNullWrappedPrimitive target = gson.fromJson(json, ClassWithNullWrappedPrimitive.class);
     assertThat(target.value).isNull();
   }
-  
+
   @Test
   public void testExplicitSerializationOfNullCollectionMembers() {
     Gson gson = gsonBuilder.create();
@@ -118,7 +114,7 @@ public class NullObjectAndFieldTest {
     String json = gson.toJson(target);
     assertThat(json).contains("\"col\":null");
   }
-  
+
   @Test
   public void testExplicitSerializationOfNullStringMembers() {
     Gson gson = gsonBuilder.create();
@@ -136,7 +132,7 @@ public class NullObjectAndFieldTest {
     String expected = "{\"bag\":null}";
     assertThat(actual).isEqualTo(expected);
   }
-  
+
   @Test
   public void testPrintPrintingObjectWithNulls() {
     gsonBuilder = new GsonBuilder();
@@ -148,16 +144,16 @@ public class NullObjectAndFieldTest {
     result = gson.toJson(new ClassWithMembers());
     assertThat(result).contains("\"str\":null");
   }
-  
+
   @Test
   public void testPrintPrintingArraysWithNulls() {
     gsonBuilder = new GsonBuilder();
     Gson gson = gsonBuilder.create();
-    String result = gson.toJson(new String[] { "1", null, "3" });
+    String result = gson.toJson(new String[] {"1", null, "3"});
     assertThat(result).isEqualTo("[\"1\",null,\"3\"]");
 
     gson = gsonBuilder.serializeNulls().create();
-    result = gson.toJson(new String[] { "1", null, "3" });
+    result = gson.toJson(new String[] {"1", null, "3"});
     assertThat(result).isEqualTo("[\"1\",null,\"3\"]");
   }
 
@@ -172,23 +168,27 @@ public class NullObjectAndFieldTest {
     assertThat(target.str1).isEqualTo(ClassWithInitializedMembers.MY_STRING_DEFAULT);
     assertThat(target.str2).isNull();
     assertThat(target.int1).isEqualTo(ClassWithInitializedMembers.MY_INT_DEFAULT);
-    assertThat(target.int2).isEqualTo(0); // test the default value of a primitive int field per JVM spec
+    // test the default value of a primitive int field per JVM spec
+    assertThat(target.int2).isEqualTo(0);
     assertThat(target.bool1).isEqualTo(ClassWithInitializedMembers.MY_BOOLEAN_DEFAULT);
-    assertThat(target.bool2).isFalse(); // test the default value of a primitive boolean field per JVM spec
+    // test the default value of a primitive boolean field per JVM spec
+    assertThat(target.bool2).isFalse();
   }
 
   public static class ClassWithInitializedMembers {
     // Using a mix of no-args constructor and field initializers
-    // Also, some fields are intialized and some are not (so initialized per JVM spec)
+    // Also, some fields are initialized and some are not (so initialized per JVM spec)
     public static final String MY_STRING_DEFAULT = "string";
     private static final int MY_INT_DEFAULT = 2;
     private static final boolean MY_BOOLEAN_DEFAULT = true;
     int[] array;
-    String str1, str2;
+    String str1;
+    String str2;
     int int1 = MY_INT_DEFAULT;
     int int2;
     boolean bool1 = MY_BOOLEAN_DEFAULT;
     boolean bool2;
+
     public ClassWithInitializedMembers() {
       str1 = MY_STRING_DEFAULT;
     }
@@ -204,10 +204,11 @@ public class NullObjectAndFieldTest {
     int[] array;
     Collection<String> col;
   }
-  
+
   private static class ClassWithObjectsSerializer implements JsonSerializer<ClassWithObjects> {
-    @Override public JsonElement serialize(ClassWithObjects src, Type typeOfSrc,
-        JsonSerializationContext context) {
+    @Override
+    public JsonElement serialize(
+        ClassWithObjects src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
       obj.add("bag", JsonNull.INSTANCE);
       return obj;
@@ -224,13 +225,18 @@ public class NullObjectAndFieldTest {
 
   @Test
   public void testCustomTypeAdapterPassesNullSerialization() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(ObjectWithField.class, new JsonSerializer<ObjectWithField>() {
-          @Override public JsonElement serialize(ObjectWithField src, Type typeOfSrc,
-              JsonSerializationContext context) {
-            return context.serialize(null);
-          }
-        }).create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                ObjectWithField.class,
+                new JsonSerializer<ObjectWithField>() {
+                  @Override
+                  public JsonElement serialize(
+                      ObjectWithField src, Type typeOfSrc, JsonSerializationContext context) {
+                    return context.serialize(null);
+                  }
+                })
+            .create();
     ObjectWithField target = new ObjectWithField();
     target.value = "value1";
     String json = gson.toJson(target);
@@ -238,14 +244,19 @@ public class NullObjectAndFieldTest {
   }
 
   @Test
-  public void testCustomTypeAdapterPassesNullDesrialization() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(ObjectWithField.class, new JsonDeserializer<ObjectWithField>() {
-          @Override public ObjectWithField deserialize(JsonElement json, Type type,
-              JsonDeserializationContext context) {
-            return context.deserialize(null, type);
-          }
-        }).create();
+  public void testCustomTypeAdapterPassesNullDeserialization() {
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                ObjectWithField.class,
+                new JsonDeserializer<ObjectWithField>() {
+                  @Override
+                  public ObjectWithField deserialize(
+                      JsonElement json, Type type, JsonDeserializationContext context) {
+                    return context.deserialize(null, type);
+                  }
+                })
+            .create();
     String json = "{value:'value1'}";
     ObjectWithField target = gson.fromJson(json, ObjectWithField.class);
     assertThat(target).isNull();

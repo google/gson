@@ -25,15 +25,15 @@ import java.lang.annotation.Target;
 
 /**
  * An annotation that indicates the version number until a member or a type should be present.
- * Basically, if Gson is created with a version number that is equal to or exceeds the value
- * stored in the {@code Until} annotation then the field will be ignored from the JSON output.
- * This annotation is useful to manage versioning of your JSON classes for a web-service.
+ * Basically, if Gson is created with a version number that is equal to or exceeds the value stored
+ * in the {@code Until} annotation then the field will be ignored from the JSON output. This
+ * annotation is useful to manage versioning of your JSON classes for a web-service.
  *
- * <p>
- * This annotation has no effect unless you build {@link com.google.gson.Gson} with a
- * {@code GsonBuilder} and invoke the {@link GsonBuilder#setVersion(double)} method.
+ * <p>This annotation has no effect unless you build {@link com.google.gson.Gson} with a {@code
+ * GsonBuilder} and invoke the {@link GsonBuilder#setVersion(double)} method.
  *
- * <p>Here is an example of how this annotation is meant to be used:</p>
+ * <p>Here is an example of how this annotation is meant to be used:
+ *
  * <pre>
  * public class User {
  *   private String firstName;
@@ -45,11 +45,11 @@ import java.lang.annotation.Target;
  *
  * <p>If you created Gson with {@code new Gson()}, the {@code toJson()} and {@code fromJson()}
  * methods will use all the fields for serialization and deserialization. However, if you created
- * Gson with {@code Gson gson = new GsonBuilder().setVersion(1.2).create()} then the
- * {@code toJson()} and {@code fromJson()} methods of Gson will exclude the {@code emailAddress}
- * and {@code password} fields from the example above, because the version number passed to the
- * GsonBuilder, {@code 1.2}, exceeds the version number set on the {@code Until} annotation,
- * {@code 1.1}, for those fields.
+ * Gson with {@code Gson gson = new GsonBuilder().setVersion(1.2).create()} then the {@code
+ * toJson()} and {@code fromJson()} methods of Gson will exclude the {@code emailAddress} and {@code
+ * password} fields from the example above, because the version number passed to the GsonBuilder,
+ * {@code 1.2}, exceeds the version number set on the {@code Until} annotation, {@code 1.1}, for
+ * those fields.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -63,8 +63,8 @@ import java.lang.annotation.Target;
 public @interface Until {
 
   /**
-   * The value indicating a version number until this member or type should be be included.
-   * The number is exclusive; annotated elements will be included if {@code gsonVersion < value}.
+   * The value indicating a version number until this member or type should be included. The number
+   * is exclusive; annotated elements will be included if {@code gsonVersion < value}.
    */
   double value();
 }

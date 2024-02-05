@@ -26,13 +26,11 @@ import org.junit.Test;
 
 /**
  * Tests for security-related aspects of Gson
- * 
+ *
  * @author Inderjeet Singh
  */
 public class SecurityTest {
-  /**
-   * Keep this in sync with Gson.JSON_NON_EXECUTABLE_PREFIX
-   */
+  /** Keep this in sync with Gson.JSON_NON_EXECUTABLE_PREFIX */
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
   private GsonBuilder gsonBuilder;
@@ -46,9 +44,9 @@ public class SecurityTest {
   public void testNonExecutableJsonSerialization() {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = gson.toJson(new BagOfPrimitives());
-    assertThat(json.startsWith(JSON_NON_EXECUTABLE_PREFIX)).isTrue();
+    assertThat(json).startsWith(JSON_NON_EXECUTABLE_PREFIX);
   }
-  
+
   @Test
   public void testNonExecutableJsonDeserialization() {
     String json = JSON_NON_EXECUTABLE_PREFIX + "{longValue:1}";
@@ -56,17 +54,17 @@ public class SecurityTest {
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
     assertThat(target.longValue).isEqualTo(1);
   }
-  
+
   @Test
   public void testJsonWithNonExectuableTokenSerialization() {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = gson.toJson(JSON_NON_EXECUTABLE_PREFIX);
     assertThat(json).contains(")]}'\n");
   }
-  
+
   /**
-   *  Gson should be able to deserialize a stream with non-exectuable token even if it is created
-   *  without {@link GsonBuilder#generateNonExecutableJson()}.
+   * Gson should be able to deserialize a stream with non-exectuable token even if it is created
+   * without {@link GsonBuilder#generateNonExecutableJson()}.
    */
   @Test
   public void testJsonWithNonExectuableTokenWithRegularGsonDeserialization() {
@@ -74,19 +72,19 @@ public class SecurityTest {
     String json = JSON_NON_EXECUTABLE_PREFIX + "{stringValue:')]}\\u0027\\n'}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
     assertThat(target.stringValue).isEqualTo(")]}'\n");
-  }  
-  
+  }
+
   /**
-   *  Gson should be able to deserialize a stream with non-exectuable token if it is created
-   *  with {@link GsonBuilder#generateNonExecutableJson()}.
+   * Gson should be able to deserialize a stream with non-exectuable token if it is created with
+   * {@link GsonBuilder#generateNonExecutableJson()}.
    */
   @Test
   public void testJsonWithNonExectuableTokenWithConfiguredGsonDeserialization() {
-    // Gson should be able to deserialize a stream with non-exectuable token even if it is created 
+    // Gson should be able to deserialize a stream with non-exectuable token even if it is created
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = JSON_NON_EXECUTABLE_PREFIX + "{intValue:2,stringValue:')]}\\u0027\\n'}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
     assertThat(target.stringValue).isEqualTo(")]}'\n");
     assertThat(target.intValue).isEqualTo(2);
-  }  
+  }
 }

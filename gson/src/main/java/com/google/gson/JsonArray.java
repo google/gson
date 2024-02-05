@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.internal.NonNullElementWrapperList;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -38,9 +39,7 @@ import java.util.List;
 public final class JsonArray extends JsonElement implements Iterable<JsonElement> {
   private final ArrayList<JsonElement> elements;
 
-  /**
-   * Creates an empty JsonArray.
-   */
+  /** Creates an empty JsonArray. */
   @SuppressWarnings("deprecation") // superclass constructor
   public JsonArray() {
     elements = new ArrayList<>();
@@ -50,8 +49,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * Creates an empty JsonArray with the desired initial capacity.
    *
    * @param capacity initial capacity.
-   * @throws IllegalArgumentException if the {@code capacity} is
-   *   negative
+   * @throws IllegalArgumentException if the {@code capacity} is negative
    * @since 2.8.1
    */
   @SuppressWarnings("deprecation") // superclass constructor
@@ -145,32 +143,35 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @return the element previously at the specified position
    * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
    */
+  @CanIgnoreReturnValue
   public JsonElement set(int index, JsonElement element) {
     return elements.set(index, element == null ? JsonNull.INSTANCE : element);
   }
 
   /**
-   * Removes the first occurrence of the specified element from this array, if it is present.
-   * If the array does not contain the element, it is unchanged.
+   * Removes the first occurrence of the specified element from this array, if it is present. If the
+   * array does not contain the element, it is unchanged.
    *
    * @param element element to be removed from this array, if present
    * @return true if this array contained the specified element, false otherwise
    * @since 2.3
    */
+  @CanIgnoreReturnValue
   public boolean remove(JsonElement element) {
     return elements.remove(element);
   }
 
   /**
-   * Removes the element at the specified position in this array. Shifts any subsequent elements
-   * to the left (subtracts one from their indices). Returns the element that was removed from
-   * the array.
+   * Removes the element at the specified position in this array. Shifts any subsequent elements to
+   * the left (subtracts one from their indices). Returns the element that was removed from the
+   * array.
    *
    * @param index index the index of the element to be removed
    * @return the element previously at the specified position
    * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
    * @since 2.3
    */
+  @CanIgnoreReturnValue
   public JsonElement remove(int index) {
     return elements.remove(index);
   }
@@ -221,8 +222,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param i the index of the element that is being sought.
    * @return the element present at the i-th index.
-   * @throws IndexOutOfBoundsException if i is negative or greater than or equal to the
-   * {@link #size()} of the array.
+   * @throws IndexOutOfBoundsException if {@code i} is negative or greater than or equal to the
+   *     {@link #size()} of the array.
    */
   public JsonElement get(int i) {
     return elements.get(i);
@@ -237,9 +238,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Convenience method to get this array as a {@link Number} if it contains a single element.
-   * This method calls {@link JsonElement#getAsNumber()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * Convenience method to get this array as a {@link Number} if it contains a single element. This
+   * method calls {@link JsonElement#getAsNumber()} on the element, therefore any of the exceptions
+   * declared by that method can occur.
    *
    * @return this element as a number if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -250,9 +251,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Convenience method to get this array as a {@link String} if it contains a single element.
-   * This method calls {@link JsonElement#getAsString()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * Convenience method to get this array as a {@link String} if it contains a single element. This
+   * method calls {@link JsonElement#getAsString()} on the element, therefore any of the exceptions
+   * declared by that method can occur.
    *
    * @return this element as a String if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -263,9 +264,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Convenience method to get this array as a double if it contains a single element.
-   * This method calls {@link JsonElement#getAsDouble()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * Convenience method to get this array as a double if it contains a single element. This method
+   * calls {@link JsonElement#getAsDouble()} on the element, therefore any of the exceptions
+   * declared by that method can occur.
    *
    * @return this element as a double if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -277,8 +278,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
 
   /**
    * Convenience method to get this array as a {@link BigDecimal} if it contains a single element.
-   * This method calls {@link JsonElement#getAsBigDecimal()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * This method calls {@link JsonElement#getAsBigDecimal()} on the element, therefore any of the
+   * exceptions declared by that method can occur.
    *
    * @return this element as a {@link BigDecimal} if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -291,8 +292,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
 
   /**
    * Convenience method to get this array as a {@link BigInteger} if it contains a single element.
-   * This method calls {@link JsonElement#getAsBigInteger()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * This method calls {@link JsonElement#getAsBigInteger()} on the element, therefore any of the
+   * exceptions declared by that method can occur.
    *
    * @return this element as a {@link BigInteger} if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -304,9 +305,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Convenience method to get this array as a float if it contains a single element.
-   * This method calls {@link JsonElement#getAsFloat()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * Convenience method to get this array as a float if it contains a single element. This method
+   * calls {@link JsonElement#getAsFloat()} on the element, therefore any of the exceptions declared
+   * by that method can occur.
    *
    * @return this element as a float if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -317,9 +318,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Convenience method to get this array as a long if it contains a single element.
-   * This method calls {@link JsonElement#getAsLong()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * Convenience method to get this array as a long if it contains a single element. This method
+   * calls {@link JsonElement#getAsLong()} on the element, therefore any of the exceptions declared
+   * by that method can occur.
    *
    * @return this element as a long if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -330,9 +331,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Convenience method to get this array as an integer if it contains a single element.
-   * This method calls {@link JsonElement#getAsInt()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * Convenience method to get this array as an integer if it contains a single element. This method
+   * calls {@link JsonElement#getAsInt()} on the element, therefore any of the exceptions declared
+   * by that method can occur.
    *
    * @return this element as an integer if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -343,9 +344,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Convenience method to get this array as a primitive byte if it contains a single element.
-   * This method calls {@link JsonElement#getAsByte()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * Convenience method to get this array as a primitive byte if it contains a single element. This
+   * method calls {@link JsonElement#getAsByte()} on the element, therefore any of the exceptions
+   * declared by that method can occur.
    *
    * @return this element as a primitive byte if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -356,14 +357,14 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Convenience method to get this array as a character if it contains a single element.
-   * This method calls {@link JsonElement#getAsCharacter()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * Convenience method to get this array as a character if it contains a single element. This
+   * method calls {@link JsonElement#getAsCharacter()} on the element, therefore any of the
+   * exceptions declared by that method can occur.
    *
    * @return this element as a primitive short if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
    * @deprecated This method is misleading, as it does not get this element as a char but rather as
-   * a string's first character.
+   *     a string's first character.
    */
   @Deprecated
   @Override
@@ -372,9 +373,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Convenience method to get this array as a primitive short if it contains a single element.
-   * This method calls {@link JsonElement#getAsShort()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * Convenience method to get this array as a primitive short if it contains a single element. This
+   * method calls {@link JsonElement#getAsShort()} on the element, therefore any of the exceptions
+   * declared by that method can occur.
    *
    * @return this element as a primitive short if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -385,9 +386,9 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Convenience method to get this array as a boolean if it contains a single element.
-   * This method calls {@link JsonElement#getAsBoolean()} on the element, therefore any
-   * of the exceptions declared by that method can occur.
+   * Convenience method to get this array as a boolean if it contains a single element. This method
+   * calls {@link JsonElement#getAsBoolean()} on the element, therefore any of the exceptions
+   * declared by that method can occur.
    *
    * @return this element as a boolean if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
@@ -398,12 +399,12 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Returns a mutable {@link List} view of this {@code JsonArray}. Changes to the {@code List}
-   * are visible in this {@code JsonArray} and the other way around.
+   * Returns a mutable {@link List} view of this {@code JsonArray}. Changes to the {@code List} are
+   * visible in this {@code JsonArray} and the other way around.
    *
-   * <p>The {@code List} does not permit {@code null} elements. Unlike {@code JsonArray}'s
-   * {@code null} handling, a {@link NullPointerException} is thrown when trying to add {@code null}.
-   * Use {@link JsonNull} for JSON null values.
+   * <p>The {@code List} does not permit {@code null} elements. Unlike {@code JsonArray}'s {@code
+   * null} handling, a {@link NullPointerException} is thrown when trying to add {@code null}. Use
+   * {@link JsonNull} for JSON null values.
    *
    * @return mutable {@code List} view
    * @since 2.10
@@ -413,9 +414,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Returns whether the other object is equal to this. This method only considers
-   * the other object to be equal if it is an instance of {@code JsonArray} and has
-   * equal elements in the same order.
+   * Returns whether the other object is equal to this. This method only considers the other object
+   * to be equal if it is an instance of {@code JsonArray} and has equal elements in the same order.
    */
   @Override
   public boolean equals(Object o) {
@@ -423,8 +423,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Returns the hash code of this array. This method calculates the hash code based
-   * on the elements of this array.
+   * Returns the hash code of this array. This method calculates the hash code based on the elements
+   * of this array.
    */
   @Override
   public int hashCode() {

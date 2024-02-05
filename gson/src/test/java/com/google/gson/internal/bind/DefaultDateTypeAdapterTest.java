@@ -21,9 +21,9 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.JavaVersion;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter.DateType;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
@@ -52,27 +52,32 @@ public class DefaultDateTypeAdapterTest {
     assertFormattingAlwaysEmitsUsLocale(Locale.FRANCE);
   }
 
-  private void assertFormattingAlwaysEmitsUsLocale(Locale locale) {
+  private static void assertFormattingAlwaysEmitsUsLocale(Locale locale) {
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
     Locale.setDefault(locale);
     try {
-      String afterYearSep = JavaVersion.isJava9OrLater() ? ", " : " ";
-      String afterYearLongSep = JavaVersion.isJava9OrLater() ? " at " : " ";
-      String utcFull = JavaVersion.isJava9OrLater() ? "Coordinated Universal Time" : "UTC";
-      assertFormatted(String.format("Jan 1, 1970%s12:00:00 AM", afterYearSep),
-          DateType.DATE.createDefaultsAdapterFactory());
+      // The patterns here attempt to accommodate minor date-time formatting differences between JDK
+      // versions. Ideally Gson would serialize in a way that is independent of the JDK version.
+      // Note: \h means "horizontal space", because some JDK versions use Narrow No Break Space
+      // (U+202F) before the AM or PM indication.
+      String utcFull = "(Coordinated Universal Time|UTC)";
+      assertFormatted("Jan 1, 1970,? 12:00:00\\hAM", DateType.DATE.createDefaultsAdapterFactory());
       assertFormatted("1/1/70", DateType.DATE.createAdapterFactory(DateFormat.SHORT));
       assertFormatted("Jan 1, 1970", DateType.DATE.createAdapterFactory(DateFormat.MEDIUM));
       assertFormatted("January 1, 1970", DateType.DATE.createAdapterFactory(DateFormat.LONG));
-      assertFormatted(String.format("1/1/70%s12:00 AM", afterYearSep),
+      assertFormatted(
+          "1/1/70,? 12:00\\hAM",
           DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
-      assertFormatted(String.format("Jan 1, 1970%s12:00:00 AM", afterYearSep),
+      assertFormatted(
+          "Jan 1, 1970,? 12:00:00\\hAM",
           DateType.DATE.createAdapterFactory(DateFormat.MEDIUM, DateFormat.MEDIUM));
-      assertFormatted(String.format("January 1, 1970%s12:00:00 AM UTC", afterYearLongSep),
+      assertFormatted(
+          "January 1, 1970(,| at)? 12:00:00\\hAM UTC",
           DateType.DATE.createAdapterFactory(DateFormat.LONG, DateFormat.LONG));
-      assertFormatted(String.format("Thursday, January 1, 1970%s12:00:00 AM %s", afterYearLongSep, utcFull),
+      assertFormatted(
+          "Thursday, January 1, 1970(,| at)? 12:00:00\\hAM " + utcFull,
           DateType.DATE.createAdapterFactory(DateFormat.FULL, DateFormat.FULL));
     } finally {
       TimeZone.setDefault(defaultTimeZone);
@@ -129,13 +134,16 @@ public class DefaultDateTypeAdapterTest {
       assertParsed("1/1/70", DateType.DATE.createAdapterFactory(DateFormat.SHORT));
       assertParsed("Jan 1, 1970", DateType.DATE.createAdapterFactory(DateFormat.MEDIUM));
       assertParsed("January 1, 1970", DateType.DATE.createAdapterFactory(DateFormat.LONG));
-      assertParsed("1/1/70 0:00 AM",
-          DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
-      assertParsed("Jan 1, 1970 0:00:00 AM",
+      assertParsed(
+          "1/1/70 0:00 AM", DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
+      assertParsed(
+          "Jan 1, 1970 0:00:00 AM",
           DateType.DATE.createAdapterFactory(DateFormat.MEDIUM, DateFormat.MEDIUM));
-      assertParsed("January 1, 1970 0:00:00 AM UTC",
+      assertParsed(
+          "January 1, 1970 0:00:00 AM UTC",
           DateType.DATE.createAdapterFactory(DateFormat.LONG, DateFormat.LONG));
-      assertParsed("Thursday, January 1, 1970 0:00:00 AM UTC",
+      assertParsed(
+          "Thursday, January 1, 1970 0:00:00 AM UTC",
           DateType.DATE.createAdapterFactory(DateFormat.FULL, DateFormat.FULL));
     } finally {
       TimeZone.setDefault(defaultTimeZone);
@@ -150,9 +158,7 @@ public class DefaultDateTypeAdapterTest {
     Locale defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
     try {
-      String afterYearSep = JavaVersion.isJava9OrLater() ? ", " : " ";
-      assertFormatted(String.format("Dec 31, 1969%s4:00:00 PM", afterYearSep),
-          DateType.DATE.createDefaultsAdapterFactory());
+      assertFormatted("Dec 31, 1969,? 4:00:00\\hPM", DateType.DATE.createDefaultsAdapterFactory());
       assertParsed("Dec 31, 1969 4:00:00 PM", DateType.DATE.createDefaultsAdapterFactory());
     } finally {
       TimeZone.setDefault(defaultTimeZone);
@@ -197,7 +203,8 @@ public class DefaultDateTypeAdapterTest {
     try {
       DateType.DATE.createAdapterFactory("I am a bad Date pattern....");
       fail("Invalid date pattern should fail.");
-    } catch (IllegalArgumentException expected) { }
+    } catch (IllegalArgumentException expected) {
+    }
   }
 
   @Test
@@ -213,7 +220,36 @@ public class DefaultDateTypeAdapterTest {
       TypeAdapter<Date> adapter = dateAdapter(DateType.DATE.createDefaultsAdapterFactory());
       adapter.fromJson("{}");
       fail("Unexpected token should fail.");
-    } catch (IllegalStateException expected) { }
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  @Test
+  public void testGsonDateFormat() {
+    TimeZone originalTimeZone = TimeZone.getDefault();
+    // Set the default timezone to UTC
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    try {
+      Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm z").create();
+      Date originalDate = new Date(0);
+
+      // Serialize the date object
+      String json = gson.toJson(originalDate);
+      assertThat(json).isEqualTo("\"1970-01-01 00:00 UTC\"");
+
+      // Deserialize a date string with the PST timezone
+      Date deserializedDate = gson.fromJson("\"1970-01-01 00:00 PST\"", Date.class);
+      // Assert that the deserialized date's time is correct
+      assertThat(deserializedDate.getTime()).isEqualTo(new Date(28800000).getTime());
+
+      // Serialize the deserialized date object again
+      String jsonAfterDeserialization = gson.toJson(deserializedDate);
+      // The expectation is that the date, after deserialization, when serialized again should still
+      // be in the UTC timezone
+      assertThat(jsonAfterDeserialization).isEqualTo("\"1970-01-01 08:00 UTC\"");
+    } finally {
+      TimeZone.setDefault(originalTimeZone);
+    }
   }
 
   private static TypeAdapter<Date> dateAdapter(TypeAdapterFactory adapterFactory) {
@@ -222,16 +258,20 @@ public class DefaultDateTypeAdapterTest {
     return adapter;
   }
 
-  private static void assertFormatted(String formatted, TypeAdapterFactory adapterFactory) {
+  private static void assertFormatted(String formattedPattern, TypeAdapterFactory adapterFactory) {
     TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
-    assertThat(adapter.toJson(new Date(0))).isEqualTo(toLiteral(formatted));
+    String json = adapter.toJson(new Date(0));
+    assertThat(json).matches(toLiteral(formattedPattern));
   }
 
   @SuppressWarnings("UndefinedEquals")
-  private static void assertParsed(String date, TypeAdapterFactory adapterFactory) throws IOException {
+  private static void assertParsed(String date, TypeAdapterFactory adapterFactory)
+      throws IOException {
     TypeAdapter<Date> adapter = dateAdapter(adapterFactory);
     assertWithMessage(date).that(adapter.fromJson(toLiteral(date))).isEqualTo(new Date(0));
-    assertWithMessage("ISO 8601").that(adapter.fromJson(toLiteral("1970-01-01T00:00:00Z"))).isEqualTo(new Date(0));
+    assertWithMessage("ISO 8601")
+        .that(adapter.fromJson(toLiteral("1970-01-01T00:00:00Z")))
+        .isEqualTo(new Date(0));
   }
 
   private static String toLiteral(String s) {

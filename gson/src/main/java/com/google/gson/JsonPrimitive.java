@@ -17,14 +17,14 @@
 package com.google.gson;
 
 import com.google.gson.internal.LazilyParsedNumber;
+import com.google.gson.internal.NumberLimits;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
 
 /**
- * A class representing a JSON primitive value. A primitive value
- * is either a String, a Java primitive, or a Java primitive
- * wrapper type.
+ * A class representing a JSON primitive value. A primitive value is either a String, a Java
+ * primitive, or a Java primitive wrapper type.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -38,7 +38,10 @@ public final class JsonPrimitive extends JsonElement {
    *
    * @param bool the value to create the primitive with.
    */
-  @SuppressWarnings("deprecation") // superclass constructor
+  // "deprecation" suppression for superclass constructor
+  // "UnnecessaryBoxedVariable" Error Prone warning is correct since method does not accept
+  // null, but cannot be changed anymore since this is public API
+  @SuppressWarnings({"deprecation", "UnnecessaryBoxedVariable"})
   public JsonPrimitive(Boolean bool) {
     value = Objects.requireNonNull(bool);
   }
@@ -69,7 +72,10 @@ public final class JsonPrimitive extends JsonElement {
    *
    * @param c the value to create the primitive with.
    */
-  @SuppressWarnings("deprecation") // superclass constructor
+  // "deprecation" suppression for superclass constructor
+  // "UnnecessaryBoxedVariable" Error Prone warning is correct since method does not accept
+  // null, but cannot be changed anymore since this is public API
+  @SuppressWarnings({"deprecation", "UnnecessaryBoxedVariable"})
   public JsonPrimitive(Character c) {
     // convert characters to strings since in JSON, characters are represented as a single
     // character string
@@ -96,10 +102,10 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   /**
-   * Convenience method to get this element as a boolean value.
-   * If this primitive {@linkplain #isBoolean() is not a boolean}, the string value
-   * is parsed using {@link Boolean#parseBoolean(String)}. This means {@code "true"} (ignoring
-   * case) is considered {@code true} and any other value is considered {@code false}.
+   * Convenience method to get this element as a boolean value. If this primitive {@linkplain
+   * #isBoolean() is not a boolean}, the string value is parsed using {@link
+   * Boolean#parseBoolean(String)}. This means {@code "true"} (ignoring case) is considered {@code
+   * true} and any other value is considered {@code false}.
    */
   @Override
   public boolean getAsBoolean() {
@@ -120,10 +126,9 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   /**
-   * Convenience method to get this element as a {@link Number}.
-   * If this primitive {@linkplain #isString() is a string}, a lazily parsed {@code Number}
-   * is constructed which parses the string when any of its methods are called (which can
-   * lead to a {@link NumberFormatException}).
+   * Convenience method to get this element as a {@link Number}. If this primitive {@linkplain
+   * #isString() is a string}, a lazily parsed {@code Number} is constructed which parses the string
+   * when any of its methods are called (which can lead to a {@link NumberFormatException}).
    *
    * @throws UnsupportedOperationException if this primitive is neither a number nor a string.
    */
@@ -172,7 +177,9 @@ public final class JsonPrimitive extends JsonElement {
    */
   @Override
   public BigDecimal getAsBigDecimal() {
-    return value instanceof BigDecimal ? (BigDecimal) value : new BigDecimal(getAsString());
+    return value instanceof BigDecimal
+        ? (BigDecimal) value
+        : NumberLimits.parseBigDecimal(getAsString());
   }
 
   /**
@@ -184,7 +191,7 @@ public final class JsonPrimitive extends JsonElement {
         ? (BigInteger) value
         : isIntegral(this)
             ? BigInteger.valueOf(this.getAsNumber().longValue())
-            : new BigInteger(this.getAsString());
+            : NumberLimits.parseBigInteger(this.getAsString());
   }
 
   /**
@@ -214,9 +221,9 @@ public final class JsonPrimitive extends JsonElement {
     return isNumber() ? getAsNumber().shortValue() : Short.parseShort(getAsString());
   }
 
- /**
-  * @throws NumberFormatException {@inheritDoc}
-  */
+  /**
+   * @throws NumberFormatException {@inheritDoc}
+   */
   @Override
   public int getAsInt() {
     return isNumber() ? getAsNumber().intValue() : Integer.parseInt(getAsString());
@@ -231,10 +238,9 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   /**
-   * @throws UnsupportedOperationException if the string value of this
-   * primitive is empty.
+   * @throws UnsupportedOperationException if the string value of this primitive is empty.
    * @deprecated This method is misleading, as it does not get this element as a char but rather as
-   * a string's first character.
+   *     a string's first character.
    */
   @Deprecated
   @Override
@@ -247,9 +253,7 @@ public final class JsonPrimitive extends JsonElement {
     }
   }
 
-  /**
-   * Returns the hash code of this object.
-   */
+  /** Returns the hash code of this object. */
   @Override
   public int hashCode() {
     if (value == null) {
@@ -268,9 +272,8 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   /**
-   * Returns whether the other object is equal to this. This method only considers
-   * the other object to be equal if it is an instance of {@code JsonPrimitive} and
-   * has an equal value.
+   * Returns whether the other object is equal to this. This method only considers the other object
+   * to be equal if it is an instance of {@code JsonPrimitive} and has an equal value.
    */
   @Override
   public boolean equals(Object obj) {
@@ -280,12 +283,12 @@ public final class JsonPrimitive extends JsonElement {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    JsonPrimitive other = (JsonPrimitive)obj;
+    JsonPrimitive other = (JsonPrimitive) obj;
     if (value == null) {
       return other.value == null;
     }
     if (isIntegral(this) && isIntegral(other)) {
-      return this.value instanceof BigInteger || other.value instanceof BigInteger
+      return (this.value instanceof BigInteger || other.value instanceof BigInteger)
           ? this.getAsBigInteger().equals(other.getAsBigInteger())
           : this.getAsNumber().longValue() == other.getAsNumber().longValue();
     }
@@ -300,14 +303,17 @@ public final class JsonPrimitive extends JsonElement {
   }
 
   /**
-   * Returns true if the specified number is an integral type
-   * (Long, Integer, Short, Byte, BigInteger)
+   * Returns true if the specified number is an integral type (Long, Integer, Short, Byte,
+   * BigInteger)
    */
   private static boolean isIntegral(JsonPrimitive primitive) {
     if (primitive.value instanceof Number) {
       Number number = (Number) primitive.value;
-      return number instanceof BigInteger || number instanceof Long || number instanceof Integer
-          || number instanceof Short || number instanceof Byte;
+      return number instanceof BigInteger
+          || number instanceof Long
+          || number instanceof Integer
+          || number instanceof Short
+          || number instanceof Byte;
     }
     return false;
   }

@@ -28,7 +28,6 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassOverridingEquals;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,12 +52,14 @@ public class UncategorizedTest {
     try {
       gson.fromJson("adfasdf1112,,,\":", BagOfPrimitives.class);
       fail("Bad JSON should throw a ParseException");
-    } catch (JsonParseException expected) { }
+    } catch (JsonParseException expected) {
+    }
 
     try {
       gson.fromJson("{adfasdf1112,,,\":}", BagOfPrimitives.class);
       fail("Bad JSON should throw a ParseException");
-    } catch (JsonParseException expected) { }
+    } catch (JsonParseException expected) {
+    }
   }
 
   @Test
@@ -109,31 +110,43 @@ public class UncategorizedTest {
    */
   @Test
   public void testTrailingWhitespace() throws Exception {
-    List<Integer> integers = gson.fromJson("[1,2,3]  \n\n  ",
-        new TypeToken<List<Integer>>() {}.getType());
+    List<Integer> integers =
+        gson.fromJson("[1,2,3]  \n\n  ", new TypeToken<List<Integer>>() {}.getType());
     assertThat(integers).containsExactly(1, 2, 3).inOrder();
   }
 
-  private enum OperationType { OP1, OP2 }
+  private enum OperationType {
+    OP1,
+    OP2
+  }
+
   private static class Base {
     OperationType opType;
   }
+
   private static class Derived1 extends Base {
-    Derived1() { opType = OperationType.OP1; }
+    Derived1() {
+      opType = OperationType.OP1;
+    }
   }
+
   private static class Derived2 extends Base {
-    Derived2() { opType = OperationType.OP2; }
+    Derived2() {
+      opType = OperationType.OP2;
+    }
   }
+
   private static class BaseTypeAdapter implements JsonDeserializer<Base> {
-    @Override public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    @Override
+    public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       String opTypeStr = json.getAsJsonObject().get("opType").getAsString();
       OperationType opType = OperationType.valueOf(opTypeStr);
       switch (opType) {
-      case OP1:
-        return new Derived1();
-      case OP2:
-        return new Derived2();
+        case OP1:
+          return new Derived1();
+        case OP2:
+          return new Derived2();
       }
       throw new JsonParseException("unknown type: " + json);
     }

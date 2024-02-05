@@ -18,6 +18,7 @@ package com.google.gson.functional;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonStreamParser;
@@ -146,8 +147,8 @@ public class ReadersWritersTest {
   }
 
   /**
-   * Verifies that passing an {@link Appendable} which is not an instance of {@link Writer}
-   * to {@code Gson.toJson} works correctly.
+   * Verifies that passing an {@link Appendable} which is not an instance of {@link Writer} to
+   * {@code Gson.toJson} works correctly.
    */
   @Test
   public void testToJsonAppendable() {
@@ -155,12 +156,14 @@ public class ReadersWritersTest {
       final StringBuilder stringBuilder = new StringBuilder();
       int toStringCallCount = 0;
 
+      @CanIgnoreReturnValue
       @Override
       public Appendable append(char c) throws IOException {
         stringBuilder.append(c);
         return this;
       }
 
+      @CanIgnoreReturnValue
       @Override
       public Appendable append(CharSequence csq) throws IOException {
         if (csq == null) {
@@ -170,6 +173,7 @@ public class ReadersWritersTest {
         return this;
       }
 
+      @CanIgnoreReturnValue
       @Override
       public Appendable append(CharSequence csq, int start, int end) throws IOException {
         if (csq == null) {
@@ -188,7 +192,7 @@ public class ReadersWritersTest {
     gson.toJson(Arrays.asList("test", 123, true), appendable);
     // Make sure CharSequence.toString() was called at least two times to verify that
     // CurrentWrite.cachedString is properly overwritten when char array changes
-    assertThat(appendable.toStringCallCount >= 2).isTrue();
+    assertThat(appendable.toStringCallCount).isAtLeast(2);
     assertThat(appendable.stringBuilder.toString()).isEqualTo("[\"test\",123,true]");
   }
 }

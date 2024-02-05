@@ -16,33 +16,33 @@
 
 package com.google.gson.internal;
 
-/**
- * Utility to check the major Java version of the current JVM.
- */
+/** Utility to check the major Java version of the current JVM. */
 public final class JavaVersion {
-  // Oracle defines naming conventions at http://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html
-  // However, many alternate implementations differ. For example, Debian used 9-debian as the version string
+  // Oracle defines naming conventions at
+  // http://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html
+  // However, many alternate implementations differ. For example, Debian used 9-debian as the
+  // version string
 
   private static final int majorJavaVersion = determineMajorJavaVersion();
 
   private static int determineMajorJavaVersion() {
     String javaVersion = System.getProperty("java.version");
-    return getMajorJavaVersion(javaVersion);
+    return parseMajorJavaVersion(javaVersion);
   }
 
   // Visible for testing only
-  static int getMajorJavaVersion(String javaVersion) {
+  static int parseMajorJavaVersion(String javaVersion) {
     int version = parseDotted(javaVersion);
     if (version == -1) {
       version = extractBeginningInt(javaVersion);
     }
     if (version == -1) {
-      return 6;  // Choose minimum supported JDK version as default
+      return 6; // Choose minimum supported JDK version as default
     }
     return version;
   }
 
-  // Parses both legacy 1.8 style and newer 9.0.4 style 
+  // Parses both legacy 1.8 style and newer 9.0.4 style
   private static int parseDotted(String javaVersion) {
     try {
       String[] parts = javaVersion.split("[._]", 3);
@@ -86,11 +86,12 @@ public final class JavaVersion {
   /**
    * Gets a boolean value depending if the application is running on Java 9 or later
    *
-   * @return {@code true} if the application is running on Java 9 or later; and {@code false} otherwise.
+   * @return {@code true} if the application is running on Java 9 or later; and {@code false}
+   *     otherwise.
    */
   public static boolean isJava9OrLater() {
     return majorJavaVersion >= 9;
   }
 
-  private JavaVersion() { }
+  private JavaVersion() {}
 }

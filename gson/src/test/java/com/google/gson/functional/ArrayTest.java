@@ -28,10 +28,10 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
+
 /**
  * Functional tests for Json serialization and deserialization of arrays.
  *
@@ -141,7 +141,7 @@ public class ArrayTest {
 
   @Test
   public void testSingleStringArraySerialization() {
-    String[] s = { "hello" };
+    String[] s = {"hello"};
     String output = gson.toJson(s);
     assertThat(output).isEqualTo("[\"hello\"]");
   }
@@ -203,11 +203,11 @@ public class ArrayTest {
   public void testArrayOfPrimitivesAsObjectsDeserialization() {
     String json = "[1,'abc',0.3,1.1,5]";
     Object[] objs = gson.fromJson(json, Object[].class);
-    assertThat(((Number)objs[0]).intValue()).isEqualTo(1);
+    assertThat(((Number) objs[0]).intValue()).isEqualTo(1);
     assertThat(objs[1]).isEqualTo("abc");
-    assertThat(((Number)objs[2]).doubleValue()).isEqualTo(0.3);
+    assertThat(((Number) objs[2]).doubleValue()).isEqualTo(0.3);
     assertThat(new BigDecimal(objs[3].toString())).isEqualTo(new BigDecimal("1.1"));
-    assertThat(((Number)objs[4]).shortValue()).isEqualTo(5);
+    assertThat(((Number) objs[4]).shortValue()).isEqualTo(5);
   }
 
   @Test
@@ -237,14 +237,12 @@ public class ArrayTest {
     assertThat(values[0]).isNull();
   }
 
-  /**
-   * Regression tests for Issue 272
-   */
+  /** Regression tests for Issue 272 */
   @Test
   public void testMultidimensionalArraysSerialization() {
     String[][] items = {
-        {"3m Co", "71.72", "0.02", "0.03", "4/2 12:00am", "Manufacturing"},
-        {"Alcoa Inc", "29.01", "0.42", "1.47", "4/1 12:00am", "Manufacturing"}
+      {"3m Co", "71.72", "0.02", "0.03", "4/2 12:00am", "Manufacturing"},
+      {"Alcoa Inc", "29.01", "0.42", "1.47", "4/1 12:00am", "Manufacturing"}
     };
     String json = gson.toJson(items);
     assertThat(json).contains("[[\"3m Co");
@@ -253,7 +251,7 @@ public class ArrayTest {
 
   @Test
   public void testMultidimensionalObjectArraysSerialization() {
-    Object[][] array = {new Object[] { 1, 2 }};
+    Object[][] array = {new Object[] {1, 2}};
     assertThat(gson.toJson(array)).isEqualTo("[[1,2]]");
   }
 
@@ -263,22 +261,19 @@ public class ArrayTest {
     assertThat(gson.toJson(array)).isEqualTo("[[1,2],[3,4]]");
   }
 
-  /**
-   * Regression test for Issue 205
-   */
+  /** Regression test for Issue 205 */
   @Test
   public void testMixingTypesInObjectArraySerialization() {
     Object[] array = {1, 2, new Object[] {"one", "two", 3}};
     assertThat(gson.toJson(array)).isEqualTo("[1,2,[\"one\",\"two\",3]]");
   }
 
-  /**
-   * Regression tests for Issue 272
-   */
+  /** Regression tests for Issue 272 */
   @Test
   public void testMultidimensionalArraysDeserialization() {
-    String json = "[['3m Co','71.72','0.02','0.03','4/2 12:00am','Manufacturing'],"
-      + "['Alcoa Inc','29.01','0.42','1.47','4/1 12:00am','Manufacturing']]";
+    String json =
+        "[['3m Co','71.72','0.02','0.03','4/2 12:00am','Manufacturing'],"
+            + "['Alcoa Inc','29.01','0.42','1.47','4/1 12:00am','Manufacturing']]";
     String[][] items = gson.fromJson(json, String[][].class);
     assertThat(items[0][0]).isEqualTo("3m Co");
     assertThat(items[1][5]).isEqualTo("Manufacturing");
@@ -295,9 +290,10 @@ public class ArrayTest {
   @Test
   public void testArrayElementsAreArrays() {
     Object[] stringArrays = {
-        new String[] {"test1", "test2"},
-        new String[] {"test3", "test4"}
+      new String[] {"test1", "test2"},
+      new String[] {"test3", "test4"}
     };
-    assertThat(new Gson().toJson(stringArrays)).isEqualTo("[[\"test1\",\"test2\"],[\"test3\",\"test4\"]]");
+    assertThat(new Gson().toJson(stringArrays))
+        .isEqualTo("[[\"test1\",\"test2\"],[\"test3\",\"test4\"]]");
   }
 }

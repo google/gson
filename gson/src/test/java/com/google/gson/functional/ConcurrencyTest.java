@@ -27,7 +27,7 @@ import org.junit.Test;
 
 /**
  * Tests for ensuring Gson thread-safety.
- * 
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
@@ -44,23 +44,23 @@ public class ConcurrencyTest {
    * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
    */
   @Test
-  public void testSingleThreadSerialization() { 
-    MyObject myObj = new MyObject(); 
-    for (int i = 0; i < 10; i++) { 
-      gson.toJson(myObj); 
-    } 
-  } 
+  public void testSingleThreadSerialization() {
+    MyObject myObj = new MyObject();
+    for (int i = 0; i < 10; i++) {
+      String unused = gson.toJson(myObj);
+    }
+  }
 
   /**
    * Source-code based on
    * http://groups.google.com/group/google-gson/browse_thread/thread/563bb51ee2495081
    */
   @Test
-  public void testSingleThreadDeserialization() { 
-    for (int i = 0; i < 10; i++) { 
-      gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class); 
-    } 
-  } 
+  public void testSingleThreadDeserialization() {
+    for (int i = 0; i < 10; i++) {
+      MyObject unused = gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+    }
+  }
 
   /**
    * Source-code based on
@@ -73,21 +73,23 @@ public class ConcurrencyTest {
     final AtomicBoolean failed = new AtomicBoolean(false);
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
-      executor.execute(new Runnable() {
-        @Override public void run() {
-          MyObject myObj = new MyObject();
-          try {
-            startLatch.await();
-            for (int i = 0; i < 10; i++) {
-              gson.toJson(myObj);
+      executor.execute(
+          new Runnable() {
+            @Override
+            public void run() {
+              MyObject myObj = new MyObject();
+              try {
+                startLatch.await();
+                for (int i = 0; i < 10; i++) {
+                  String unused = gson.toJson(myObj);
+                }
+              } catch (Throwable t) {
+                failed.set(true);
+              } finally {
+                finishedLatch.countDown();
+              }
             }
-          } catch (Throwable t) {
-            failed.set(true);
-          } finally {
-            finishedLatch.countDown();
-          }
-        }
-      });
+          });
     }
     startLatch.countDown();
     finishedLatch.await();
@@ -105,26 +107,29 @@ public class ConcurrencyTest {
     final AtomicBoolean failed = new AtomicBoolean(false);
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
-      executor.execute(new Runnable() {
-        @Override public void run() {
-          try {
-            startLatch.await();
-            for (int i = 0; i < 10; i++) {
-              gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class); 
+      executor.execute(
+          new Runnable() {
+            @Override
+            public void run() {
+              try {
+                startLatch.await();
+                for (int i = 0; i < 10; i++) {
+                  MyObject unused =
+                      gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+                }
+              } catch (Throwable t) {
+                failed.set(true);
+              } finally {
+                finishedLatch.countDown();
+              }
             }
-          } catch (Throwable t) {
-            failed.set(true);
-          } finally {
-            finishedLatch.countDown();
-          }
-        }
-      });
+          });
     }
     startLatch.countDown();
     finishedLatch.await();
     assertThat(failed.get()).isFalse();
   }
-  
+
   @SuppressWarnings("unused")
   private static class MyObject {
     String a;

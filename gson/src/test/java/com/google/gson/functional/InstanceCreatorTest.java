@@ -33,8 +33,8 @@ import java.util.TreeSet;
 import org.junit.Test;
 
 /**
- * Functional Test exercising custom serialization only. When test applies to both
- * serialization and deserialization then add it to CustomTypeAdapterTest.
+ * Functional Test exercising custom deserialization only. When test applies to both serialization
+ * and deserialization then add it to CustomTypeAdapterTest.
  *
  * @author Inderjeet Singh
  */
@@ -42,13 +42,17 @@ public class InstanceCreatorTest {
 
   @Test
   public void testInstanceCreatorReturnsBaseType() {
-    Gson gson = new GsonBuilder()
-      .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
-        @Override public Base createInstance(Type type) {
-         return new Base();
-       }
-      })
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                Base.class,
+                new InstanceCreator<Base>() {
+                  @Override
+                  public Base createInstance(Type type) {
+                    return new Base();
+                  }
+                })
+            .create();
     String json = "{baseName:'BaseRevised',subName:'Sub'}";
     Base base = gson.fromJson(json, Base.class);
     assertThat(base.baseName).isEqualTo("BaseRevised");
@@ -56,36 +60,44 @@ public class InstanceCreatorTest {
 
   @Test
   public void testInstanceCreatorReturnsSubTypeForTopLevelObject() {
-    Gson gson = new GsonBuilder()
-    .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
-      @Override public Base createInstance(Type type) {
-        return new Sub();
-      }
-    })
-    .create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                Base.class,
+                new InstanceCreator<Base>() {
+                  @Override
+                  public Base createInstance(Type type) {
+                    return new Sub();
+                  }
+                })
+            .create();
 
     String json = "{baseName:'Base',subName:'SubRevised'}";
     Base base = gson.fromJson(json, Base.class);
-    assertThat(base instanceof Sub).isTrue();
+    assertThat(base).isInstanceOf(Sub.class);
 
     Sub sub = (Sub) base;
-    assertThat("SubRevised".equals(sub.subName)).isFalse();
+    assertThat(sub.subName).isNotEqualTo("SubRevised");
     assertThat(sub.subName).isEqualTo(Sub.SUB_NAME);
   }
 
   @Test
   public void testInstanceCreatorReturnsSubTypeForField() {
-    Gson gson = new GsonBuilder()
-    .registerTypeAdapter(Base.class, new InstanceCreator<Base>() {
-      @Override public Base createInstance(Type type) {
-        return new Sub();
-      }
-    })
-    .create();
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                Base.class,
+                new InstanceCreator<Base>() {
+                  @Override
+                  public Base createInstance(Type type) {
+                    return new Sub();
+                  }
+                })
+            .create();
     String json = "{base:{baseName:'Base',subName:'SubRevised'}}";
     ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
-    assertThat(target.base instanceof Sub).isTrue();
-    assertThat(((Sub)target.base).subName).isEqualTo(Sub.SUB_NAME);
+    assertThat(target.base).isInstanceOf(Sub.class);
+    assertThat(((Sub) target.base).subName).isEqualTo(Sub.SUB_NAME);
   }
 
   // This regressed in Gson 2.0 and 2.1
@@ -93,15 +105,15 @@ public class InstanceCreatorTest {
   public void testInstanceCreatorForCollectionType() {
     @SuppressWarnings("serial")
     class SubArrayList<T> extends ArrayList<T> {}
-    InstanceCreator<List<String>> listCreator = new InstanceCreator<List<String>>() {
-      @Override public List<String> createInstance(Type type) {
-        return new SubArrayList<>();
-      }
-    };
+    InstanceCreator<List<String>> listCreator =
+        new InstanceCreator<List<String>>() {
+          @Override
+          public List<String> createInstance(Type type) {
+            return new SubArrayList<>();
+          }
+        };
     Type listOfStringType = new TypeToken<List<String>>() {}.getType();
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(listOfStringType, listCreator)
-        .create();
+    Gson gson = new GsonBuilder().registerTypeAdapter(listOfStringType, listCreator).create();
     List<String> list = gson.fromJson("[\"a\"]", listOfStringType);
     assertThat(list.getClass()).isEqualTo(SubArrayList.class);
   }
@@ -111,14 +123,14 @@ public class InstanceCreatorTest {
   public void testInstanceCreatorForParametrizedType() {
     @SuppressWarnings("serial")
     class SubTreeSet<T> extends TreeSet<T> {}
-    InstanceCreator<SortedSet<?>> sortedSetCreator = new InstanceCreator<SortedSet<?>>() {
-      @Override public SortedSet<?> createInstance(Type type) {
-        return new SubTreeSet<>();
-      }
-    };
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(SortedSet.class, sortedSetCreator)
-        .create();
+    InstanceCreator<SortedSet<?>> sortedSetCreator =
+        new InstanceCreator<SortedSet<?>>() {
+          @Override
+          public SortedSet<?> createInstance(Type type) {
+            return new SubTreeSet<>();
+          }
+        };
+    Gson gson = new GsonBuilder().registerTypeAdapter(SortedSet.class, sortedSetCreator).create();
 
     Type sortedSetType = new TypeToken<SortedSet<String>>() {}.getType();
     SortedSet<String> set = gson.fromJson("[\"a\"]", sortedSetType);

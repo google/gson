@@ -26,7 +26,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
@@ -40,8 +39,6 @@ import org.junit.Test;
  */
 public class PrettyPrintingTest {
 
-  private static final boolean DEBUG = false;
-
   private Gson gson;
 
   @Before
@@ -53,46 +50,93 @@ public class PrettyPrintingTest {
   public void testPrettyPrintList() {
     BagOfPrimitives b = new BagOfPrimitives();
     List<BagOfPrimitives> listOfB = new ArrayList<>();
-    for (int i = 0; i < 15; ++i) {
+    for (int i = 0; i < 3; ++i) {
       listOfB.add(b);
     }
     Type typeOfSrc = new TypeToken<List<BagOfPrimitives>>() {}.getType();
     String json = gson.toJson(listOfB, typeOfSrc);
-    print(json);
+    assertThat(json)
+        .isEqualTo(
+            "[\n"
+                + "  {\n"
+                + "    \"longValue\": 0,\n"
+                + "    \"intValue\": 0,\n"
+                + "    \"booleanValue\": false,\n"
+                + "    \"stringValue\": \"\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"longValue\": 0,\n"
+                + "    \"intValue\": 0,\n"
+                + "    \"booleanValue\": false,\n"
+                + "    \"stringValue\": \"\"\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"longValue\": 0,\n"
+                + "    \"intValue\": 0,\n"
+                + "    \"booleanValue\": false,\n"
+                + "    \"stringValue\": \"\"\n"
+                + "  }\n"
+                + "]");
   }
 
   @Test
   public void testPrettyPrintArrayOfObjects() {
     ArrayOfObjects target = new ArrayOfObjects();
     String json = gson.toJson(target);
-    print(json);
+    assertThat(json)
+        .isEqualTo(
+            "{\n"
+                + "  \"elements\": [\n"
+                + "    {\n"
+                + "      \"longValue\": 0,\n"
+                + "      \"intValue\": 2,\n"
+                + "      \"booleanValue\": false,\n"
+                + "      \"stringValue\": \"i0\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"longValue\": 1,\n"
+                + "      \"intValue\": 3,\n"
+                + "      \"booleanValue\": false,\n"
+                + "      \"stringValue\": \"i1\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"longValue\": 2,\n"
+                + "      \"intValue\": 4,\n"
+                + "      \"booleanValue\": false,\n"
+                + "      \"stringValue\": \"i2\"\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}");
   }
 
   @Test
   public void testPrettyPrintArrayOfPrimitives() {
-    int[] ints = new int[] { 1, 2, 3, 4, 5 };
+    int[] ints = {1, 2, 3, 4, 5};
     String json = gson.toJson(ints);
     assertThat(json).isEqualTo("[\n  1,\n  2,\n  3,\n  4,\n  5\n]");
   }
 
   @Test
   public void testPrettyPrintArrayOfPrimitiveArrays() {
-    int[][] ints = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
-        { 9, 0 }, { 10 } };
+    int[][] ints = {{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 0}, {10}};
     String json = gson.toJson(ints);
-    assertThat(json).isEqualTo("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
-        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
+    assertThat(json)
+        .isEqualTo(
+            "[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
+                + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
   }
 
   @Test
   public void testPrettyPrintListOfPrimitiveArrays() {
-    List<Integer[]> list = Arrays.asList(new Integer[][] { { 1, 2 }, { 3, 4 },
-        { 5, 6 }, { 7, 8 }, { 9, 0 }, { 10 } });
+    List<Integer[]> list =
+        Arrays.asList(new Integer[][] {{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 0}, {10}});
     String json = gson.toJson(list);
-    assertThat(json).isEqualTo("[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
-        + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
+    assertThat(json)
+        .isEqualTo(
+            "[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ],\n  [\n    5,\n    6\n  ],"
+                + "\n  [\n    7,\n    8\n  ],\n  [\n    9,\n    0\n  ],\n  [\n    10\n  ]\n]");
   }
-  
+
   @Test
   public void testMap() {
     Map<String, Integer> map = new LinkedHashMap<>();
@@ -119,14 +163,8 @@ public class PrettyPrintingTest {
 
   @Test
   public void testMultipleArrays() {
-    int[][][] ints = new int[][][] { { { 1 }, { 2 } } };
+    int[][][] ints = {{{1}, {2}}};
     String json = gson.toJson(ints);
     assertThat(json).isEqualTo("[\n  [\n    [\n      1\n    ],\n    [\n      2\n    ]\n  ]\n]");
-  }
-
-  private void print(String msg) {
-    if (DEBUG) {
-      System.out.println(msg);
-    }
   }
 }

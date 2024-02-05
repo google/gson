@@ -34,13 +34,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Adapts types whose static type is only 'Object'. Uses getClass() on
- * serialization and a primitive/Map/List on deserialization.
+ * Adapts types whose static type is only 'Object'. Uses getClass() on serialization and a
+ * primitive/Map/List on deserialization.
  */
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
-  /**
-   * Gson default factory using {@link ToNumberPolicy#DOUBLE}.
-   */
+  /** Gson default factory using {@link ToNumberPolicy#DOUBLE}. */
   private static final TypeAdapterFactory DOUBLE_FACTORY = newFactory(ToNumberPolicy.DOUBLE);
 
   private final Gson gson;
@@ -54,7 +52,8 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   private static TypeAdapterFactory newFactory(final ToNumberStrategy toNumberStrategy) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
-      @Override public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      @Override
+      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         if (type.getRawType() == Object.class) {
           return (TypeAdapter<T>) new ObjectTypeAdapter(gson, toNumberStrategy);
         }
@@ -72,8 +71,8 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   }
 
   /**
-   * Tries to begin reading a JSON array or JSON object, returning {@code null} if
-   * the next element is neither of those.
+   * Tries to begin reading a JSON array or JSON object, returning {@code null} if the next element
+   * is neither of those.
    */
   private Object tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
     switch (peeked) {
@@ -106,7 +105,8 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     }
   }
 
-  @Override public Object read(JsonReader in) throws IOException {
+  @Override
+  public Object read(JsonReader in) throws IOException {
     // Either List or Map
     Object current;
     JsonToken peeked = in.peek();
@@ -166,7 +166,8 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     }
   }
 
-  @Override public void write(JsonWriter out, Object value) throws IOException {
+  @Override
+  public void write(JsonWriter out, Object value) throws IOException {
     if (value == null) {
       out.nullValue();
       return;

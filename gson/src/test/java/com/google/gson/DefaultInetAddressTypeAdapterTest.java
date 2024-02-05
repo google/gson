@@ -24,19 +24,20 @@ import org.junit.Test;
 
 /**
  * Unit tests for the default serializer/deserializer for the {@code InetAddress} type.
- * 
+ *
  * @author Joel Leitch
  */
 public class DefaultInetAddressTypeAdapterTest {
   private Gson gson;
-  
+
   @Before
   public void setUp() throws Exception {
     gson = new Gson();
   }
-  
+
   @Test
   public void testInetAddressSerializationAndDeserialization() throws Exception {
+    @SuppressWarnings("AddressSelection") // we really do want this method
     InetAddress address = InetAddress.getByName("8.8.8.8");
     String jsonAddress = gson.toJson(address);
     assertThat(jsonAddress).isEqualTo("\"8.8.8.8\"");

@@ -38,10 +38,11 @@ public class ExposeFieldsTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new GsonBuilder()
-        .excludeFieldsWithoutExposeAnnotation()
-        .registerTypeAdapter(SomeInterface.class, new SomeInterfaceInstanceCreator())
-        .create();
+    gson =
+        new GsonBuilder()
+            .excludeFieldsWithoutExposeAnnotation()
+            .registerTypeAdapter(SomeInterface.class, new SomeInterfaceInstanceCreator())
+            .create();
   }
 
   @Test
@@ -57,14 +58,17 @@ public class ExposeFieldsTest {
     ClassWithExposedFields object1 = new ClassWithExposedFields(1, 1);
     ClassWithExposedFields object2 = new ClassWithExposedFields(null, 1);
     ClassWithExposedFields object3 = new ClassWithExposedFields(2, 2);
-    ClassWithExposedFields[] objects = { object1, object2, object3 };
+    ClassWithExposedFields[] objects = {object1, object2, object3};
 
     String json = gson.toJson(objects);
-    String expected = new StringBuilder()
-        .append('[').append(object1.getExpectedJson()).append(',')
-        .append(object2.getExpectedJson()).append(',')
-        .append(object3.getExpectedJson()).append(']')
-        .toString();
+    String expected =
+        '['
+            + object1.getExpectedJson()
+            + ','
+            + object2.getExpectedJson()
+            + ','
+            + object3.getExpectedJson()
+            + ']';
 
     assertThat(json).isEqualTo(expected);
   }
@@ -101,16 +105,16 @@ public class ExposeFieldsTest {
     assertThat(obj.a).isEqualTo(0);
     assertThat(obj.b).isEqualTo(1);
   }
-  
+
   @Test
   public void testExposedInterfaceFieldSerialization() {
     String expected = "{\"interfaceField\":{}}";
     ClassWithInterfaceField target = new ClassWithInterfaceField(new SomeObject());
     String actual = gson.toJson(target);
-    
+
     assertThat(actual).isEqualTo(expected);
   }
-  
+
   @Test
   public void testExposedInterfaceFieldDeserialization() {
     String json = "{\"interfaceField\":{}}";
@@ -122,11 +126,14 @@ public class ExposeFieldsTest {
   private static class ClassWithExposedFields {
     @Expose private final Integer a;
     private final Integer b;
+
     @Expose(serialize = false)
     @Keep
     final long c;
+
     @Expose(deserialize = false)
     final double d;
+
     @Expose(serialize = false, deserialize = false)
     @Keep
     final char e;
@@ -134,6 +141,7 @@ public class ExposeFieldsTest {
     public ClassWithExposedFields(Integer a, Integer b) {
       this(a, b, 1L, 2.0, 'a');
     }
+
     public ClassWithExposedFields(Integer a, Integer b, long c, double d, char e) {
       this.a = a;
       this.b = b;
@@ -157,27 +165,27 @@ public class ExposeFieldsTest {
     private final int a = 0;
     private final int b = 1;
   }
-  
+
   private static interface SomeInterface {
     // Empty interface
   }
-  
+
   private static class SomeObject implements SomeInterface {
     // Do nothing
   }
-  
+
   private static class SomeInterfaceInstanceCreator implements InstanceCreator<SomeInterface> {
-    @Override public SomeInterface createInstance(Type type) {
+    @Override
+    public SomeInterface createInstance(Type type) {
       return new SomeObject();
     }
   }
-  
+
   private static class ClassWithInterfaceField {
-    @Expose
-    private final SomeInterface interfaceField;
+    @Expose private final SomeInterface interfaceField;
 
     public ClassWithInterfaceField(SomeInterface interfaceField) {
       this.interfaceField = interfaceField;
     }
-  }  
+  }
 }

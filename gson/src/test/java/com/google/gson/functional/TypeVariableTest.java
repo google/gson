@@ -28,8 +28,7 @@ import java.util.Map;
 import org.junit.Test;
 
 /**
- * Functional test for Gson serialization and deserialization of
- * classes with type variables.
+ * Functional test for Gson serialization and deserialization of classes with type variables.
  *
  * @author Joel Leitch
  */
@@ -59,7 +58,8 @@ public class TypeVariableTest {
     Type type = new TypeToken<Foo<String, Integer>>() {}.getType();
     String json = gson.toJson(original, type);
     assertThat(json)
-        .isEqualTo("{\"someSField\":\"e\",\"someTField\":5,\"map\":{\"f\":[6,7]},\"redField\":false}");
+        .isEqualTo(
+            "{\"someSField\":\"e\",\"someTField\":5,\"map\":{\"f\":[6,7]},\"redField\":false}");
     assertThat(gson.<Foo<String, Integer>>fromJson(json, type)).isEqualTo(original);
   }
 
@@ -126,9 +126,9 @@ public class TypeVariableTest {
       }
       Foo<S, T> realFoo = (Foo<S, T>) o;
       return redField.equals(realFoo.redField)
-        && someTField.equals(realFoo.someTField)
-        && someSField.equals(realFoo.someSField)
-        && map.equals(realFoo.map);
+          && someTField.equals(realFoo.someTField)
+          && someSField.equals(realFoo.someSField)
+          && map.equals(realFoo.map);
     }
   }
 

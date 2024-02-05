@@ -21,8 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.functional.DefaultTypeAdaptersTest;
-import com.google.gson.internal.JavaVersion;
-import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Locale;
@@ -31,6 +29,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+// Suppression for `java.sql.Date` to make it explicit that this is not `java.util.Date`
+@SuppressWarnings("UnnecessarilyFullyQualified")
 public class SqlTypesGsonTest {
   private Gson gson;
   private TimeZone oldTimeZone;
@@ -53,7 +53,7 @@ public class SqlTypesGsonTest {
 
   @Test
   public void testNullSerializationAndDeserialization() {
-    testNullSerializationAndDeserialization(Date.class);
+    testNullSerializationAndDeserialization(java.sql.Date.class);
     testNullSerializationAndDeserialization(Time.class);
     testNullSerializationAndDeserialization(Timestamp.class);
   }
@@ -113,11 +113,10 @@ public class SqlTypesGsonTest {
   public void testDefaultSqlTimestampSerialization() {
     Timestamp now = new java.sql.Timestamp(1259875082000L);
     String json = gson.toJson(now);
-    if (JavaVersion.isJava9OrLater()) {
-      assertThat(json).isEqualTo("\"Dec 3, 2009, 1:18:02 PM\"");
-    } else {
-      assertThat(json).isEqualTo("\"Dec 3, 2009 1:18:02 PM\"");
-    }
+    // The exact format of the serialized date-time string depends on the JDK version. The pattern
+    // here allows for an optional comma after the date, and what might be U+202F (Narrow No-Break
+    // Space) before "PM".
+    assertThat(json).matches("\"Dec 3, 2009,? 1:18:02\\hPM\"");
   }
 
   @Test
