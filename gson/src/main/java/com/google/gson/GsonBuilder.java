@@ -66,7 +66,7 @@ import java.util.Objects;
  *     .registerTypeAdapter(Id.class, new IdTypeAdapter())
  *     .enableComplexMapKeySerialization()
  *     .serializeNulls()
- *     .setDateFormat(DateFormat.LONG)
+ *     .setDateFormat(DateFormat.LONG, DateFormat.LONG)
  *     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
  *     .setPrettyPrinting()
  *     .setVersion(1.0)
