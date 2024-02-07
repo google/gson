@@ -30,7 +30,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
-  private final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
+  private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
 
   @Override
   public void write(JsonWriter out, Date date) throws IOException {

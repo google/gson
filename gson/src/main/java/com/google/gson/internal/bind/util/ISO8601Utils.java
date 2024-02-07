@@ -36,6 +36,8 @@ import java.util.TimeZone;
 // Date parsing code from Jackson databind ISO8601Utils.java
 // https://github.com/FasterXML/jackson-databind/blob/2.8/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
 public class ISO8601Utils {
+  private ISO8601Utils() {}
+
   /**
    * ID to represent the 'UTC' string, default timezone since Jackson 2.7
    *
@@ -197,7 +199,9 @@ public class ISO8601Utils {
           char c = date.charAt(offset);
           if (c != 'Z' && c != '+' && c != '-') {
             seconds = parseInt(date, offset, offset += 2);
-            if (seconds > 59 && seconds < 63) seconds = 59; // truncate up to 3 leap seconds
+            if (seconds > 59 && seconds < 63) {
+              seconds = 59; // truncate up to 3 leap seconds
+            }
             // milliseconds can be optional in the format
             if (checkOffset(date, offset, '.')) {
               offset += 1;
@@ -241,7 +245,7 @@ public class ISO8601Utils {
 
         offset += timezoneOffset.length();
         // 18-Jun-2015, tatu: Minor simplification, skip offset of "+0000"/"+00:00"
-        if ("+0000".equals(timezoneOffset) || "+00:00".equals(timezoneOffset)) {
+        if (timezoneOffset.equals("+0000") || timezoneOffset.equals("+00:00")) {
           timezone = TIMEZONE_UTC;
         } else {
           // 18-Jun-2015, tatu: Looks like offsets only work from GMT, not UTC...
@@ -372,7 +376,9 @@ public class ISO8601Utils {
   private static int indexOfNonDigit(String string, int offset) {
     for (int i = offset; i < string.length(); i++) {
       char c = string.charAt(i);
-      if (c < '0' || c > '9') return i;
+      if (c < '0' || c > '9') {
+        return i;
+      }
     }
     return string.length();
   }

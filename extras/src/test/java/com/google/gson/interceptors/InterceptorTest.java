@@ -171,7 +171,9 @@ public final class InterceptorTest {
       if (user.name == null || user.password == null) {
         throw new JsonSyntaxException("name and password are required fields.");
       }
-      if (user.email == null) user.email = User.DEFAULT_EMAIL;
+      if (user.email == null) {
+        user.email = User.DEFAULT_EMAIL;
+      }
     }
   }
 
@@ -192,7 +194,9 @@ public final class InterceptorTest {
       if (address.city == null || address.state == null || address.zip == null) {
         throw new JsonSyntaxException("Address city, state and zip are required fields.");
       }
-      if (address.firstLine == null) address.firstLine = Address.DEFAULT_FIRST_LINE;
+      if (address.firstLine == null) {
+        address.firstLine = Address.DEFAULT_FIRST_LINE;
+      }
     }
   }
 }

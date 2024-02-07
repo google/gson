@@ -10,6 +10,8 @@ import com.google.gson.GsonBuilder;
  * therefore not matched by the default {@code gson.pro} rules.
  */
 public class NoSerializedNameMain {
+  private NoSerializedNameMain() {}
+
   static class TestClassNoArgsConstructor {
     // Has a no-args default constructor.
     public String s;

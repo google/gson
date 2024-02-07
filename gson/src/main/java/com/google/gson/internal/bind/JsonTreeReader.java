@@ -376,13 +376,13 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   @Override
-  public String getPreviousPath() {
-    return getPath(true);
+  public String getPath() {
+    return getPath(false);
   }
 
   @Override
-  public String getPath() {
-    return getPath(false);
+  public String getPreviousPath() {
+    return getPath(true);
   }
 
   private String locationString() {

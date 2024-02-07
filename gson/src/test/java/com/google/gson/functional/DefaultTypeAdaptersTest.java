@@ -16,7 +16,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -90,17 +90,15 @@ public class DefaultTypeAdaptersTest {
 
   @Test
   public void testClassSerialization() {
-    try {
-      gson.toJson(String.class);
-      fail();
-    } catch (UnsupportedOperationException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Attempted to serialize java.lang.Class: java.lang.String. Forgot to register a type"
-                  + " adapter?\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
-    }
+    var exception =
+        assertThrows(UnsupportedOperationException.class, () -> gson.toJson(String.class));
+    assertThat(exception)
+        .hasMessageThat()
+        .isEqualTo(
+            "Attempted to serialize java.lang.Class: java.lang.String. Forgot to register a type"
+                + " adapter?\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
+
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
     assertThat(gson.toJson(String.class)).isEqualTo("\"java.lang.String\"");
@@ -108,16 +106,15 @@ public class DefaultTypeAdaptersTest {
 
   @Test
   public void testClassDeserialization() {
-    try {
-      gson.fromJson("String.class", Class.class);
-      fail();
-    } catch (UnsupportedOperationException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
-    }
+    var exception =
+        assertThrows(
+            UnsupportedOperationException.class, () -> gson.fromJson("String.class", Class.class));
+    assertThat(exception)
+        .hasMessageThat()
+        .isEqualTo(
+            "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#java-lang-class-unsupported");
+
     // Override with a custom type adapter for class.
     gson = new GsonBuilder().registerTypeAdapter(Class.class, new MyClassTypeAdapter()).create();
     assertThat(gson.fromJson("java.lang.String", Class.class)).isAssignableTo(String.class);
@@ -289,11 +286,10 @@ public class DefaultTypeAdaptersTest {
 
   @Test
   public void testBadValueForBigDecimalDeserialization() {
-    try {
-      gson.fromJson("{\"value\"=1.5e-1.0031}", ClassWithBigDecimal.class);
-      fail("Exponent of a BigDecimal must be an integer value.");
-    } catch (JsonParseException expected) {
-    }
+    // Exponent of a BigDecimal must be an integer value
+    assertThrows(
+        JsonParseException.class,
+        () -> gson.fromJson("{\"value\": 1.5e-1.0031}", ClassWithBigDecimal.class));
   }
 
   @Test
@@ -374,23 +370,17 @@ public class DefaultTypeAdaptersTest {
     json = "[true,false,true,true,true,true,false,false,true,false,false]";
     assertThat(gson.fromJson(json, BitSet.class)).isEqualTo(expected);
 
-    try {
-      gson.fromJson("[1, []]", BitSet.class);
-      fail();
-    } catch (JsonSyntaxException e) {
-      assertThat(e)
-          .hasMessageThat()
-          .isEqualTo("Invalid bitset value type: BEGIN_ARRAY; at path $[1]");
-    }
+    var exception =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1, []]", BitSet.class));
+    assertThat(exception)
+        .hasMessageThat()
+        .isEqualTo("Invalid bitset value type: BEGIN_ARRAY; at path $[1]");
 
-    try {
-      gson.fromJson("[1, 2]", BitSet.class);
-      fail();
-    } catch (JsonSyntaxException e) {
-      assertThat(e)
-          .hasMessageThat()
-          .isEqualTo("Invalid bitset value 2, expected 0 or 1; at path $[1]");
-    }
+    exception =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1, 2]", BitSet.class));
+    assertThat(exception)
+        .hasMessageThat()
+        .isEqualTo("Invalid bitset value 2, expected 0 or 1; at path $[1]");
   }
 
   @Test
@@ -468,28 +458,47 @@ public class DefaultTypeAdaptersTest {
 
   @Test
   public void testDefaultGregorianCalendarSerialization() {
+    GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"), Locale.US);
+    // Calendar was created with current time, must clear it
+    cal.clear();
+    cal.set(2018, Calendar.JUNE, 25, 10, 20, 30);
+
     Gson gson = new GsonBuilder().create();
-    GregorianCalendar cal = new GregorianCalendar();
     String json = gson.toJson(cal);
-    assertThat(json).contains("year");
-    assertThat(json).contains("month");
-    assertThat(json).contains("dayOfMonth");
-    assertThat(json).contains("hourOfDay");
-    assertThat(json).contains("minute");
-    assertThat(json).contains("second");
+    assertThat(json)
+        .isEqualTo(
+            "{\"year\":2018,\"month\":5,\"dayOfMonth\":25,\"hourOfDay\":10,\"minute\":20,\"second\":30}");
   }
 
   @Test
   public void testDefaultGregorianCalendarDeserialization() {
-    Gson gson = new GsonBuilder().create();
-    String json = "{year:2009,month:2,dayOfMonth:11,hourOfDay:14,minute:29,second:23}";
-    GregorianCalendar cal = gson.fromJson(json, GregorianCalendar.class);
-    assertThat(cal.get(Calendar.YEAR)).isEqualTo(2009);
-    assertThat(cal.get(Calendar.MONTH)).isEqualTo(2);
-    assertThat(cal.get(Calendar.DAY_OF_MONTH)).isEqualTo(11);
-    assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(14);
-    assertThat(cal.get(Calendar.MINUTE)).isEqualTo(29);
-    assertThat(cal.get(Calendar.SECOND)).isEqualTo(23);
+    TimeZone defaultTimeZone = TimeZone.getDefault();
+    Locale defaultLocale = Locale.getDefault();
+
+    try {
+      // Calendar deserialization uses default TimeZone and Locale; set them here to make the test
+      // deterministic
+      TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+      Locale.setDefault(Locale.US);
+
+      Gson gson = new GsonBuilder().create();
+      String json =
+          "{\"year\":2009,\"month\":2,\"dayOfMonth\":11,\"hourOfDay\":14,\"minute\":29,\"second\":23}";
+      GregorianCalendar cal = gson.fromJson(json, GregorianCalendar.class);
+      assertThat(cal.get(Calendar.YEAR)).isEqualTo(2009);
+      assertThat(cal.get(Calendar.MONTH)).isEqualTo(2);
+      assertThat(cal.get(Calendar.DAY_OF_MONTH)).isEqualTo(11);
+      assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(14);
+      assertThat(cal.get(Calendar.MINUTE)).isEqualTo(29);
+      assertThat(cal.get(Calendar.SECOND)).isEqualTo(23);
+      assertThat(cal.getTimeInMillis()).isEqualTo(1236781763000L);
+
+      // Serializing value again should be equivalent to original JSON
+      assertThat(gson.toJson(cal)).isEqualTo(json);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
   }
 
   @Test
@@ -654,16 +663,13 @@ public class DefaultTypeAdaptersTest {
 
   @Test
   public void testJsonElementTypeMismatch() {
-    try {
-      gson.fromJson("\"abc\"", JsonObject.class);
-      fail();
-    } catch (JsonSyntaxException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive;"
-                  + " at path $");
-    }
+    var exception =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"abc\"", JsonObject.class));
+    assertThat(exception)
+        .hasMessageThat()
+        .isEqualTo(
+            "Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive;"
+                + " at path $");
   }
 
   private static class ClassWithBigDecimal {

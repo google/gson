@@ -152,7 +152,7 @@ public class ReflectionAccessFilterTest {
   }
 
   private static class ClassWithStaticField {
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "NonFinalStaticField"})
     private static int i = 1;
   }
 

@@ -19,7 +19,6 @@ package com.google.gson;
 import com.google.common.base.Objects;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.Primitives;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -33,6 +32,7 @@ import java.lang.reflect.Type;
  * @author Joel Leitch
  */
 public class ParameterizedTypeFixtures {
+  private ParameterizedTypeFixtures() {}
 
   public static final class MyParameterizedType<T> {
     public final T value;
@@ -50,7 +50,7 @@ public class ParameterizedTypeFixtures {
       return String.format("{\"value\":%s}", valueAsJson);
     }
 
-    private String getExpectedJson(Object obj) {
+    private static String getExpectedJson(Object obj) {
       Class<?> clazz = obj.getClass();
       if (Primitives.isWrapperType(Primitives.wrap(clazz))) {
         return obj.toString();
@@ -62,15 +62,7 @@ public class ParameterizedTypeFixtures {
           Method method = clazz.getMethod("getExpectedJson");
           Object results = method.invoke(obj);
           return (String) results;
-        } catch (SecurityException e) {
-          throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-          throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-          throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-          throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
           throw new RuntimeException(e);
         }
       }

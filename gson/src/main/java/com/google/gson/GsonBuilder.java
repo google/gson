@@ -614,14 +614,6 @@ public final class GsonBuilder {
     return this;
   }
 
-  private static int checkDateFormatStyle(int style) {
-    // Valid DateFormat styles are: 0, 1, 2, 3 (FULL, LONG, MEDIUM, SHORT)
-    if (style < 0 || style > 3) {
-      throw new IllegalArgumentException("Invalid style: " + style);
-    }
-    return style;
-  }
-
   /**
    * Configures Gson to serialize {@code Date} objects according to the date style value provided.
    * You can call this method or {@link #setDateFormat(String)} multiple times, but only the last
@@ -667,6 +659,14 @@ public final class GsonBuilder {
     this.timeStyle = checkDateFormatStyle(timeStyle);
     this.datePattern = null;
     return this;
+  }
+
+  private static int checkDateFormatStyle(int style) {
+    // Valid DateFormat styles are: 0, 1, 2, 3 (FULL, LONG, MEDIUM, SHORT)
+    if (style < 0 || style > 3) {
+      throw new IllegalArgumentException("Invalid style: " + style);
+    }
+    return style;
   }
 
   /**
@@ -722,7 +722,7 @@ public final class GsonBuilder {
     return this;
   }
 
-  private boolean isTypeObjectOrJsonElement(Type type) {
+  private static boolean isTypeObjectOrJsonElement(Type type) {
     return type instanceof Class
         && (type == Object.class || JsonElement.class.isAssignableFrom((Class<?>) type));
   }
@@ -901,7 +901,7 @@ public final class GsonBuilder {
         new ArrayList<>(reflectionFilters));
   }
 
-  private void addTypeAdaptersForDate(
+  private static void addTypeAdaptersForDate(
       String datePattern, int dateStyle, int timeStyle, List<TypeAdapterFactory> factories) {
     TypeAdapterFactory dateAdapterFactory;
     boolean sqlTypesSupported = SqlTypesSupport.SUPPORTS_SQL_TYPES;

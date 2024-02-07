@@ -109,7 +109,7 @@
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-base</artifactId>
-            <version>7.4.1</version>
+            <version>7.4.2</version>
           </dependency>
           <dependency>
             <groupId>com.guardsquare</groupId>
@@ -218,7 +218,7 @@
               but it appears that can be ignored -->
             <groupId>com.android.tools</groupId>
             <artifactId>r8</artifactId>
-            <version>8.2.33</version>
+            <version>8.2.42</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -228,7 +228,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.2.3</version>
+        <version>3.2.5</version>
         <executions>
           <execution>
             <goals>

@@ -21,12 +21,13 @@ import java.util.Locale;
 
 /** Provides DateFormats for US locale with patterns which were the default ones before Java 9. */
 public class PreJava9DateFormatProvider {
+  private PreJava9DateFormatProvider() {}
 
   /**
    * Returns the same DateFormat as {@code DateFormat.getDateInstance(style, Locale.US)} in Java 8
    * or below.
    */
-  public static DateFormat getUSDateFormat(int style) {
+  public static DateFormat getUsDateFormat(int style) {
     return new SimpleDateFormat(getDateFormatPattern(style), Locale.US);
   }
 
@@ -34,7 +35,7 @@ public class PreJava9DateFormatProvider {
    * Returns the same DateFormat as {@code DateFormat.getDateTimeInstance(dateStyle, timeStyle,
    * Locale.US)} in Java 8 or below.
    */
-  public static DateFormat getUSDateTimeFormat(int dateStyle, int timeStyle) {
+  public static DateFormat getUsDateTimeFormat(int dateStyle, int timeStyle) {
     String pattern =
         getDatePartOfDateTimePattern(dateStyle) + " " + getTimePartOfDateTimePattern(timeStyle);
     return new SimpleDateFormat(pattern, Locale.US);

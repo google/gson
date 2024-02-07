@@ -32,6 +32,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import java.io.CharArrayReader;
 import java.io.File;
 import java.io.IOException;
@@ -173,13 +174,12 @@ public final class ParseBenchmark {
   private static class GsonStreamParser implements Parser {
     @Override
     public void parse(char[] data, Document document) throws Exception {
-      com.google.gson.stream.JsonReader jsonReader =
-          new com.google.gson.stream.JsonReader(new CharArrayReader(data));
+      JsonReader jsonReader = new JsonReader(new CharArrayReader(data));
       readToken(jsonReader);
       jsonReader.close();
     }
 
-    private void readToken(com.google.gson.stream.JsonReader reader) throws IOException {
+    private static void readToken(JsonReader reader) throws IOException {
       while (true) {
         switch (reader.peek()) {
           case BEGIN_ARRAY:
@@ -211,8 +211,6 @@ public final class ParseBenchmark {
             break;
           case END_DOCUMENT:
             return;
-          default:
-            throw new IllegalArgumentException("Unexpected token" + reader.peek());
         }
       }
     }
@@ -221,8 +219,7 @@ public final class ParseBenchmark {
   private static class GsonSkipParser implements Parser {
     @Override
     public void parse(char[] data, Document document) throws Exception {
-      com.google.gson.stream.JsonReader jsonReader =
-          new com.google.gson.stream.JsonReader(new CharArrayReader(data));
+      JsonReader jsonReader = new JsonReader(new CharArrayReader(data));
       jsonReader.skipValue();
       jsonReader.close();
     }
@@ -309,6 +306,7 @@ public final class ParseBenchmark {
     }
   }
 
+  @SuppressWarnings("MemberName")
   static class Tweet {
     @JsonProperty String coordinates;
     @JsonProperty boolean favorited;
@@ -332,6 +330,7 @@ public final class ParseBenchmark {
     @JsonProperty String in_reply_to_user_id_str;
   }
 
+  @SuppressWarnings("MemberName")
   static class User {
     @JsonProperty String name;
     @JsonProperty String profile_sidebar_border_color;

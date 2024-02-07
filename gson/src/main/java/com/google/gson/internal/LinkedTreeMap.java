@@ -233,7 +233,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     return valuesEqual ? mine : null;
   }
 
-  private boolean equal(Object a, Object b) {
+  private static boolean equal(Object a, Object b) {
     return Objects.equals(a, b);
   }
 

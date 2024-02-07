@@ -36,6 +36,7 @@ import java.util.Collection;
  * @author Joel Leitch
  */
 public class TestTypes {
+  private TestTypes() {}
 
   public static class Base {
     public static final String BASE_NAME = Base.class.getSimpleName();

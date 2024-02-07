@@ -18,7 +18,6 @@ package com.google.gson.internal.bind.util;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -52,7 +51,7 @@ public class ISO8601UtilsTest {
     Date date = calendar.getTime();
     String dateStr = ISO8601Utils.format(date);
     String expectedDate = "2018-06-25";
-    assertThat(dateStr.substring(0, expectedDate.length())).isEqualTo(expectedDate);
+    assertThat(dateStr).startsWith(expectedDate);
   }
 
   @Test
@@ -87,21 +86,13 @@ public class ISO8601UtilsTest {
   @Test
   public void testDateParseInvalidDay() {
     String dateStr = "2022-12-33";
-    try {
-      ISO8601Utils.parse(dateStr, new ParsePosition(0));
-      fail("Expected parsing to fail");
-    } catch (ParseException expected) {
-    }
+    assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
   }
 
   @Test
   public void testDateParseInvalidMonth() {
     String dateStr = "2022-14-30";
-    try {
-      ISO8601Utils.parse(dateStr, new ParsePosition(0));
-      fail("Expected parsing to fail");
-    } catch (ParseException expected) {
-    }
+    assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
   }
 
   @Test
