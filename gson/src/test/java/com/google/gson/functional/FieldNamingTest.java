@@ -91,11 +91,12 @@ public final class FieldNamingTest {
                 + "'annotatedName':7,'lower-id':8,'_9':9}");
   }
 
-  private Gson getGsonWithNamingPolicy(FieldNamingPolicy fieldNamingPolicy) {
+  private static Gson getGsonWithNamingPolicy(FieldNamingPolicy fieldNamingPolicy) {
     return new GsonBuilder().setFieldNamingPolicy(fieldNamingPolicy).create();
   }
 
-  @SuppressWarnings("unused") // fields are used reflectively
+  // Suppress because fields are used reflectively, and the names are intentionally unconventional
+  @SuppressWarnings({"unused", "MemberName", "ConstantField"})
   private static class TestNames {
     int lowerCamel = 1;
     int UpperCamel = 2;

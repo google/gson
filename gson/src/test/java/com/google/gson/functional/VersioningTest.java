@@ -85,9 +85,12 @@ public class VersioningTest {
   public void testVersionedClassesDeserialization() {
     Gson gson = gsonWithVersion(1.0);
     String json = "{\"a\":3,\"b\":4,\"c\":5}";
+
     Version1 version1 = gson.fromJson(json, Version1.class);
     assertThat(version1.a).isEqualTo(3);
     assertThat(version1.b).isEqualTo(4);
+
+    @SuppressWarnings("MemberName")
     Version1_1 version1_1 = gson.fromJson(json, Version1_1.class);
     assertThat(version1_1.a).isEqualTo(3);
     assertThat(version1_1.b).isEqualTo(4);
@@ -104,6 +107,8 @@ public class VersioningTest {
   public void testIgnoreLaterVersionClassDeserialization() {
     Gson gson = gsonWithVersion(1.0);
     String json = "{\"a\":3,\"b\":4,\"c\":5,\"d\":6}";
+
+    @SuppressWarnings("MemberName")
     Version1_2 version1_2 = gson.fromJson(json, Version1_2.class);
     // Since the class is versioned to be after 1.0, we expect null
     // This is the new behavior in Gson 2.0

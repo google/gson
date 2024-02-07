@@ -884,7 +884,7 @@ public final class JsonReaderTest {
     assertNotANumber("-.0e1");
   }
 
-  private void assertNotANumber(String s) throws IOException {
+  private static void assertNotANumber(String s) throws IOException {
     JsonReader reader = new JsonReader(reader(s));
     reader.setStrictness(Strictness.LENIENT);
     assertThat(reader.peek()).isEqualTo(JsonToken.STRING);
@@ -1858,6 +1858,7 @@ public final class JsonReaderTest {
     }
   }
 
+  @SuppressWarnings("UngroupedOverloads")
   @Test
   public void testFailWithPosition() throws IOException {
     testFailWithPosition("Expected value at line 6 column 5 path $[1]", "[\n\n\n\n\n\"a\",}]");
@@ -1909,7 +1910,7 @@ public final class JsonReaderTest {
     testFailWithPosition("Expected value at line 1 column 6 path $[1]", "\ufeff[\"a\",}]");
   }
 
-  private void testFailWithPosition(String message, String json) throws IOException {
+  private static void testFailWithPosition(String message, String json) throws IOException {
     // Validate that it works reading the string normally.
     JsonReader reader1 = new JsonReader(reader(json));
     reader1.setStrictness(Strictness.LENIENT);
@@ -2264,7 +2265,7 @@ public final class JsonReaderTest {
     }
   }
 
-  private String repeat(char c, int count) {
+  private static String repeat(char c, int count) {
     char[] array = new char[count];
     Arrays.fill(array, c);
     return new String(array);
@@ -2382,7 +2383,7 @@ public final class JsonReaderTest {
                 + troubleshootingId);
   }
 
-  private void assertDocument(String document, Object... expectations) throws IOException {
+  private static void assertDocument(String document, Object... expectations) throws IOException {
     JsonReader reader = new JsonReader(reader(document));
     reader.setStrictness(Strictness.LENIENT);
     for (Object expectation : expectations) {
@@ -2419,7 +2420,7 @@ public final class JsonReaderTest {
   }
 
   /** Returns a reader that returns one character at a time. */
-  private Reader reader(final String s) {
+  private static Reader reader(final String s) {
     /* if (true) */ return new StringReader(s);
     /* return new Reader() {
       int position = 0;

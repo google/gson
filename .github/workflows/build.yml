@@ -15,14 +15,13 @@ jobs:
         include:
           - java: 21
             # Disable Enforcer check which (intentionally) prevents using JDK 21 for building
-            # Exclude 'shrinker-test' module because R8 does not support JDK 21 yet
-            extra-mvn-args: -Denforcer.fail=false --projects '!:shrinker-test'
+            extra-mvn-args: -Denforcer.fail=false
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
       - name: "Set up JDK ${{ matrix.java }}"
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93  # v4.0.0
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
@@ -36,9 +35,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
       - name: "Set up GraalVM"
-        uses: graalvm/setup-graalvm@v1
+        uses: graalvm/setup-graalvm@b8dc5fccfbc65b21dd26e8341e7b21c86547f61b  # v1.1.5.1
         with:
           java-version: '17'
           distribution: 'graalvm'
@@ -55,9 +54,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
       - name: "Set up JDK 17"
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93  # v4.0.0
         with:
           distribution: 'temurin'
           java-version: 17

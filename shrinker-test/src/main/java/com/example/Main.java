@@ -15,6 +15,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class Main {
+  private Main() {}
+
   /**
    * Main entrypoint, called by {@code ShrinkingIT.test()}.
    *

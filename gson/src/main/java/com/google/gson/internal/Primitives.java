@@ -60,7 +60,7 @@ public final class Primitives {
    *     wrap(String.class) == String.class
    * </pre>
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "MissingBraces"})
   public static <T> Class<T> wrap(Class<T> type) {
     if (type == int.class) return (Class<T>) Integer.class;
     if (type == float.class) return (Class<T>) Float.class;
@@ -84,7 +84,7 @@ public final class Primitives {
    *     unwrap(String.class) == String.class
    * </pre>
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "MissingBraces"})
   public static <T> Class<T> unwrap(Class<T> type) {
     if (type == Integer.class) return (Class<T>) int.class;
     if (type == Float.class) return (Class<T>) float.class;

@@ -5,6 +5,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class TestExecutor {
+  private TestExecutor() {}
+
   /**
    * Helper method for running individual tests. In case of an exception wraps it and includes the
    * {@code name} of the test to make debugging issues with the obfuscated JARs a bit easier.

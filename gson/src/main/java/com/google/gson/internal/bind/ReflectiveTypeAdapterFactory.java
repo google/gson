@@ -78,7 +78,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private boolean includeField(Field f, boolean serialize) {
-    return !excluder.excludeClass(f.getType(), serialize) && !excluder.excludeField(f, serialize);
+    return !excluder.excludeField(f, serialize);
   }
 
   /** first element holds the default name */
@@ -108,6 +108,31 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
     if (!Object.class.isAssignableFrom(raw)) {
       return null; // it's a primitive!
+    }
+
+    // Don't allow using reflection on anonymous and local classes because synthetic fields for
+    // captured enclosing values make this unreliable
+    if (ReflectionHelper.isAnonymousOrNonStaticLocal(raw)) {
+      // This adapter just serializes and deserializes null, ignoring the actual values
+      // This is done for backward compatibility; troubleshooting-wise it might be better to throw
+      // exceptions
+      return new TypeAdapter<T>() {
+        @Override
+        public T read(JsonReader in) throws IOException {
+          in.skipValue();
+          return null;
+        }
+
+        @Override
+        public void write(JsonWriter out, T value) throws IOException {
+          out.nullValue();
+        }
+
+        @Override
+        public String toString() {
+          return "AnonymousOrNonStaticLocalClassAdapter";
+        }
+      };
     }
 
     FilterResult filterResult =
@@ -172,7 +197,9 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
               constructorConstructor, context, fieldType, annotation, false);
     }
     final boolean jsonAdapterPresent = mapped != null;
-    if (mapped == null) mapped = context.getAdapter(fieldType);
+    if (mapped == null) {
+      mapped = context.getAdapter(fieldType);
+    }
 
     @SuppressWarnings("unchecked")
     final TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) mapped;

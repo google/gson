@@ -44,6 +44,7 @@ import java.util.Locale;
 import org.junit.Test;
 
 /** Functional tests for the {@link JsonAdapter} annotation on classes. */
+@SuppressWarnings("ClassNamedLikeTypeParameter") // for dummy classes A, B, ...
 public final class JsonAdapterAnnotationOnClassesTest {
 
   @Test
@@ -305,7 +306,8 @@ public final class JsonAdapterAnnotationOnClassesTest {
   // This class is used in JsonAdapter Javadoc as an example
   @JsonAdapter(UserJsonAdapter.class)
   private static class User {
-    final String firstName, lastName;
+    final String firstName;
+    final String lastName;
 
     User(String firstName, String lastName) {
       this.firstName = firstName;

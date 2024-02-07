@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter.DateType;
@@ -51,7 +52,7 @@ public class DefaultDateTypeAdapterTest {
     assertFormattingAlwaysEmitsUsLocale(Locale.FRANCE);
   }
 
-  private void assertFormattingAlwaysEmitsUsLocale(Locale locale) {
+  private static void assertFormattingAlwaysEmitsUsLocale(Locale locale) {
     TimeZone defaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     Locale defaultLocale = Locale.getDefault();
@@ -191,6 +192,34 @@ public class DefaultDateTypeAdapterTest {
     IllegalStateException e =
         assertThrows(IllegalStateException.class, () -> adapter.fromJson("{}"));
     assertThat(e).hasMessageThat().startsWith("Expected a string but was BEGIN_OBJECT");
+  }
+
+  @Test
+  public void testGsonDateFormat() {
+    TimeZone originalTimeZone = TimeZone.getDefault();
+    // Set the default timezone to UTC
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    try {
+      Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm z").create();
+      Date originalDate = new Date(0);
+
+      // Serialize the date object
+      String json = gson.toJson(originalDate);
+      assertThat(json).isEqualTo("\"1970-01-01 00:00 UTC\"");
+
+      // Deserialize a date string with the PST timezone
+      Date deserializedDate = gson.fromJson("\"1970-01-01 00:00 PST\"", Date.class);
+      // Assert that the deserialized date's time is correct
+      assertThat(deserializedDate.getTime()).isEqualTo(new Date(28800000).getTime());
+
+      // Serialize the deserialized date object again
+      String jsonAfterDeserialization = gson.toJson(deserializedDate);
+      // The expectation is that the date, after deserialization, when serialized again should still
+      // be in the UTC timezone
+      assertThat(jsonAfterDeserialization).isEqualTo("\"1970-01-01 08:00 UTC\"");
+    } finally {
+      TimeZone.setDefault(originalTimeZone);
+    }
   }
 
   private static TypeAdapter<Date> dateAdapter(TypeAdapterFactory adapterFactory) {

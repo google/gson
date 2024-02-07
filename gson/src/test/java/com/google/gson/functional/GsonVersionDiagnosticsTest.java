@@ -79,7 +79,7 @@ public class GsonVersionDiagnosticsTest {
     ensureAssertionErrorPrintsGsonVersion(e);
   }
 
-  private void ensureAssertionErrorPrintsGsonVersion(AssertionError expected) {
+  private static void ensureAssertionErrorPrintsGsonVersion(AssertionError expected) {
     String msg = expected.getMessage();
     // System.err.println(msg);
     int start = msg.indexOf("(GSON");

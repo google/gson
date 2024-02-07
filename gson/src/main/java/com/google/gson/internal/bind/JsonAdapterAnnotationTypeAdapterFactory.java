@@ -67,7 +67,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
   }
 
   // Separate helper method to make sure callers retrieve annotation in a consistent way
-  private JsonAdapter getAnnotation(Class<?> rawType) {
+  private static JsonAdapter getAnnotation(Class<?> rawType) {
     return rawType.getAnnotation(JsonAdapter.class);
   }
 
