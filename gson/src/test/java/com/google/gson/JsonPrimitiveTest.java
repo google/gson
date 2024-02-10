@@ -329,9 +329,9 @@ public class JsonPrimitiveTest {
     assertThat(small.equals(large)).isFalse();
 
     BigDecimal doubleMax = BigDecimal.valueOf(Double.MAX_VALUE);
-    JsonPrimitive smallBD = new JsonPrimitive(doubleMax.add(new BigDecimal("100.0")));
-    JsonPrimitive largeBD = new JsonPrimitive(doubleMax.add(new BigDecimal("200.0")));
-    assertThat(smallBD.equals(largeBD)).isFalse();
+    JsonPrimitive smallDecimal = new JsonPrimitive(doubleMax.add(new BigDecimal("100.0")));
+    JsonPrimitive largeDecimal = new JsonPrimitive(doubleMax.add(new BigDecimal("200.0")));
+    assertThat(smallDecimal.equals(largeDecimal)).isFalse();
   }
 
   @Test
@@ -345,6 +345,22 @@ public class JsonPrimitiveTest {
             new JsonPrimitive(new BigDecimal("0.00"))
                 .equals(new JsonPrimitive(Double.valueOf("0.00"))))
         .isTrue();
+  }
+
+  /**
+   * Verifies that {@link JsonPrimitive#equals(Object)} is <i>transitive</i> for {@link BigDecimal},
+   * as required by the {@link Object#equals(Object)} documentation.
+   */
+  @Test
+  public void testBigDecimalEqualsTransitive() {
+    JsonPrimitive x = new JsonPrimitive(new BigDecimal("0"));
+    JsonPrimitive y = new JsonPrimitive(0.0d);
+    JsonPrimitive z = new JsonPrimitive(new BigDecimal("0.00"));
+
+    assertThat(x.equals(y)).isTrue();
+    assertThat(y.equals(z)).isTrue();
+    // ... implies
+    assertThat(x.equals(z)).isTrue();
   }
 
   @Test
