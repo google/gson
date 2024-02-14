@@ -36,6 +36,7 @@ import java.util.Collection;
  * @author Joel Leitch
  */
 public class TestTypes {
+  private TestTypes() {}
 
   public static class Base {
     public static final String BASE_NAME = Base.class.getSimpleName();
@@ -54,6 +55,7 @@ public class TestTypes {
   public static class ClassWithBaseField {
     public static final String FIELD_KEY = "base";
     public final Base base;
+
     public ClassWithBaseField(Base base) {
       this.base = base;
     }
@@ -62,6 +64,7 @@ public class TestTypes {
   public static class ClassWithBaseArrayField {
     public static final String FIELD_KEY = "base";
     public final Base[] base;
+
     public ClassWithBaseArrayField(Base[] base) {
       this.base = base;
     }
@@ -70,6 +73,7 @@ public class TestTypes {
   public static class ClassWithBaseCollectionField {
     public static final String FIELD_KEY = "base";
     public final Collection<Base> base;
+
     public ClassWithBaseCollectionField(Collection<Base> base) {
       this.base = base;
     }
@@ -77,6 +81,7 @@ public class TestTypes {
 
   public static class BaseSerializer implements JsonSerializer<Base> {
     public static final String NAME = BaseSerializer.class.getSimpleName();
+
     @Override
     public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
@@ -84,8 +89,10 @@ public class TestTypes {
       return obj;
     }
   }
+
   public static class SubSerializer implements JsonSerializer<Sub> {
     public static final String NAME = SubSerializer.class.getSimpleName();
+
     @Override
     public JsonElement serialize(Sub src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
@@ -163,7 +170,8 @@ public class TestTypes {
 
     @Override
     public String toString() {
-      return String.format("(longValue=%d,intValue=%d,booleanValue=%b,stringValue=%s)",
+      return String.format(
+          "(longValue=%d,intValue=%d,booleanValue=%b,stringValue=%s)",
           longValue, intValue, booleanValue, stringValue);
     }
   }
@@ -274,7 +282,7 @@ public class TestTypes {
     }
 
     public ClassWithTransientFields(long value) {
-      longValue = new long[] { value };
+      longValue = new long[] {value};
       transientLongValue = value + 1;
     }
 
@@ -319,12 +327,14 @@ public class TestTypes {
 
   public static class ArrayOfObjects {
     private final BagOfPrimitives[] elements;
+
     public ArrayOfObjects() {
       elements = new BagOfPrimitives[3];
       for (int i = 0; i < elements.length; ++i) {
-        elements[i] = new BagOfPrimitives(i, i+2, false, "i"+i);
+        elements[i] = new BagOfPrimitives(i, i + 2, false, "i" + i);
       }
     }
+
     public String getExpectedJson() {
       StringBuilder sb = new StringBuilder("{\"elements\":[");
       boolean first = true;
@@ -350,6 +360,7 @@ public class TestTypes {
       }
       return "{\"ref\":" + ref.getExpectedJson() + "}";
     }
+
     @Override
     public boolean equals(Object obj) {
       return true;
@@ -363,6 +374,7 @@ public class TestTypes {
 
   public static class ClassWithArray {
     public final Object[] array;
+
     public ClassWithArray() {
       array = null;
     }
@@ -374,21 +386,27 @@ public class TestTypes {
 
   public static class ClassWithObjects {
     public final BagOfPrimitives bag;
+
     public ClassWithObjects() {
       this(new BagOfPrimitives());
     }
+
     public ClassWithObjects(BagOfPrimitives bag) {
       this.bag = bag;
     }
   }
 
   public static class ClassWithSerializedNameFields {
-    @SerializedName("fooBar") public final int f;
-    @SerializedName("Another Foo") public final int g;
+    @SerializedName("fooBar")
+    public final int f;
+
+    @SerializedName("Another Foo")
+    public final int g;
 
     public ClassWithSerializedNameFields() {
       this(1, 4);
     }
+
     public ClassWithSerializedNameFields(int f, int g) {
       this.f = f;
       this.g = g;
@@ -399,13 +417,14 @@ public class TestTypes {
     }
   }
 
-  public static class CrazyLongTypeAdapter
-      implements JsonSerializer<Long>, JsonDeserializer<Long> {
+  public static class CrazyLongTypeAdapter implements JsonSerializer<Long>, JsonDeserializer<Long> {
     public static final long DIFFERENCE = 5L;
+
     @Override
     public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src + DIFFERENCE);
     }
+
     @Override
     public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {

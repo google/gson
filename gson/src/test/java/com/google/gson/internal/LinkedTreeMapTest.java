@@ -52,7 +52,7 @@ public final class LinkedTreeMapTest {
     map.put("a", "android");
     map.put("c", "cola");
     map.put("b", "bbq");
-    Iterator<Map.Entry<String,String>> it = map.entrySet().iterator();
+    Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
     it.next();
     it.next();
     it.next();
@@ -78,7 +78,8 @@ public final class LinkedTreeMapTest {
     try {
       map.put(new Object(), "android");
       fail();
-    } catch (ClassCastException expected) {}
+    } catch (ClassCastException expected) {
+    }
   }
 
   @Test
@@ -121,7 +122,6 @@ public final class LinkedTreeMapTest {
     assertThat(map.containsValue(null)).isTrue();
     assertThat(map.get("a")).isNull();
   }
-
 
   @Test
   public void testEntrySetValueNull_Forbidden() {
@@ -237,7 +237,7 @@ public final class LinkedTreeMapTest {
 
   @SuppressWarnings("varargs")
   @SafeVarargs
-  private final <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
+  private static final <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
     ArrayList<T> actualList = new ArrayList<>();
     for (T t : actual) {
       actualList.add(t);

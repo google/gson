@@ -25,11 +25,12 @@ import org.junit.Test;
 
 /**
  * Test fixes for infinite recursion on {@link $Gson$Types#resolve(java.lang.reflect.Type, Class,
- * java.lang.reflect.Type)}, described at <a href="https://github.com/google/gson/issues/440">Issue #440</a>
- * and similar issues.
- * <p>
- * These tests originally caused {@link StackOverflowError} because of infinite recursion on attempts to
- * resolve generics on types, with an intermediate types like 'Foo2&lt;? extends ? super ? extends ... ? extends A&gt;'
+ * java.lang.reflect.Type)}, described at <a href="https://github.com/google/gson/issues/440">Issue
+ * #440</a> and similar issues.
+ *
+ * <p>These tests originally caused {@link StackOverflowError} because of infinite recursion on
+ * attempts to resolve generics on types, with intermediate types like {@code Foo2<? extends ? super
+ * ? extends ... ? extends A>}
  */
 public class RecursiveTypesResolveTest {
 
@@ -37,15 +38,13 @@ public class RecursiveTypesResolveTest {
   private static class Foo1<A> {
     public Foo2<? extends A> foo2;
   }
+
   @SuppressWarnings("unused")
   private static class Foo2<B> {
     public Foo1<? super B> foo1;
   }
 
-  /**
-   * Test simplest case of recursion.
-   */
-
+  /** Test simplest case of recursion. */
   @Test
   public void testRecursiveResolveSimple() {
     @SuppressWarnings("rawtypes")
@@ -53,10 +52,7 @@ public class RecursiveTypesResolveTest {
     assertThat(adapter).isNotNull();
   }
 
-  /**
-   * Tests belows check the behaviour of the methods changed for the fix.
-   */
-
+  /** Tests below check the behavior of the methods changed for the fix. */
   @Test
   public void testDoubleSupertype() {
     assertThat($Gson$Types.supertypeOf($Gson$Types.supertypeOf(Number.class)))
@@ -81,10 +77,7 @@ public class RecursiveTypesResolveTest {
         .isEqualTo($Gson$Types.subtypeOf(Object.class));
   }
 
-  /**
-   * Tests for recursion while resolving type variables.
-   */
-
+  /** Tests for recursion while resolving type variables. */
   @SuppressWarnings("unused")
   private static class TestType<X> {
     TestType<? super X> superType;

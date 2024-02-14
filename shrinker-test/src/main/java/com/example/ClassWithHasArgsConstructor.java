@@ -2,10 +2,7 @@ package com.example;
 
 import com.google.gson.annotations.SerializedName;
 
-/**
- * Class without no-args constructor, but with field annotated with
- * {@link SerializedName}.
- */
+/** Class without no-args constructor, but with field annotated with {@link SerializedName}. */
 public class ClassWithHasArgsConstructor {
   @SerializedName("myField")
   public int i;

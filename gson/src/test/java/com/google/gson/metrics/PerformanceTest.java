@@ -39,6 +39,7 @@ import org.junit.Test;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@SuppressWarnings("SystemOut") // allow System.out because test is for manual execution anyway
 public class PerformanceTest {
   private static final int COLLECTION_SIZE = 5000;
 
@@ -90,6 +91,7 @@ public class PerformanceTest {
     private ExceptionHolder() {
       this("", "");
     }
+
     public ExceptionHolder(String message, String stackTrace) {
       this.message = message;
       this.stackTrace = stackTrace;
@@ -112,23 +114,19 @@ public class PerformanceTest {
     }
   }
 
-  /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
-   */
+  /** Created in response to http://code.google.com/p/google-gson/issues/detail?id=96 */
   @Test
   @Ignore
   public void testLargeCollectionSerialization() {
     int count = 1400000;
     List<CollectionEntry> list = new ArrayList<>(count);
     for (int i = 0; i < count; ++i) {
-      list.add(new CollectionEntry("name"+i,"value"+i));
+      list.add(new CollectionEntry("name" + i, "value" + i));
     }
     String unused = gson.toJson(list);
   }
 
-  /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
-   */
+  /** Created in response to http://code.google.com/p/google-gson/issues/detail?id=96 */
   @Test
   @Ignore
   public void testLargeCollectionDeserialization() {
@@ -146,14 +144,12 @@ public class PerformanceTest {
     }
     sb.append(']');
     String json = sb.toString();
-    Type collectionType = new TypeToken<ArrayList<CollectionEntry>>(){}.getType();
+    Type collectionType = new TypeToken<ArrayList<CollectionEntry>>() {}.getType();
     List<CollectionEntry> list = gson.fromJson(json, collectionType);
     assertThat(list).hasSize(count);
   }
 
-  /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
-   */
+  /** Created in response to http://code.google.com/p/google-gson/issues/detail?id=96 */
   // Last I tested, Gson was able to serialize upto 14MB byte array
   @Test
   @Ignore
@@ -168,15 +164,13 @@ public class PerformanceTest {
     }
   }
 
-  /**
-   * Created in response to http://code.google.com/p/google-gson/issues/detail?id=96
-   */
+  /** Created in response to http://code.google.com/p/google-gson/issues/detail?id=96 */
   // Last I tested, Gson was able to deserialize a byte array of 11MB
   @Test
   @Ignore
   public void testByteArrayDeserialization() {
     for (int numElements = 10639296; true; numElements += 16384) {
-      StringBuilder sb = new StringBuilder(numElements*2);
+      StringBuilder sb = new StringBuilder(numElements * 2);
       sb.append("[");
       boolean first = true;
       for (int i = 0; i < numElements; ++i) {
@@ -194,14 +188,14 @@ public class PerformanceTest {
     }
   }
 
-// The tests to measure serialization and deserialization performance of Gson
-// Based on the discussion at
-// http://groups.google.com/group/google-gson/browse_thread/thread/7a50b17a390dfaeb
-// Test results: 10/19/2009
-// Serialize classes avg time: 60 ms
-// Deserialized classes avg time: 70 ms
-// Serialize exposed classes avg time: 159 ms
-// Deserialized exposed classes avg time: 173 ms
+  // The tests to measure serialization and deserialization performance of Gson
+  // Based on the discussion at
+  // http://groups.google.com/group/google-gson/browse_thread/thread/7a50b17a390dfaeb
+  // Test results: 10/19/2009
+  // Serialize classes avg time: 60 ms
+  // Deserialized classes avg time: 70 ms
+  // Serialize exposed classes avg time: 159 ms
+  // Deserialized exposed classes avg time: 173 ms
 
   @Test
   @Ignore
@@ -251,7 +245,6 @@ public class PerformanceTest {
     Map<String, Long> unused = gson.fromJson(json, new TypeToken<Map<String, Long>>() {}.getType());
     t2 = System.currentTimeMillis();
     System.out.printf("Large object deserialized in: %d ms\n", (t2 - t1));
-
   }
 
   @Test
@@ -296,11 +289,11 @@ public class PerformanceTest {
 
     Gson gson = new Gson();
     String json = gson.toJson(original);
-    Type longToLong = new TypeToken<Map<Long, Long>>(){}.getType();
+    Type longToLong = new TypeToken<Map<Long, Long>>() {}.getType();
     Map<Long, Long> unused = gson.fromJson(json, longToLong);
   }
 
-  private String buildJsonForClassWithList() {
+  private static String buildJsonForClassWithList() {
     StringBuilder sb = new StringBuilder("{");
     sb.append("field:").append("'str',");
     sb.append("list:[");
@@ -309,12 +302,12 @@ public class PerformanceTest {
       if (first) {
         first = false;
       } else {
-        sb.append(",");
+        sb.append(',');
       }
       sb.append("{field:'element-" + i + "'}");
     }
-    sb.append("]");
-    sb.append("}");
+    sb.append(']');
+    sb.append('}');
     String json = sb.toString();
     return json;
   }
@@ -323,9 +316,11 @@ public class PerformanceTest {
   private static final class ClassWithList {
     final String field;
     final List<ClassWithField> list = new ArrayList<>(COLLECTION_SIZE);
+
     ClassWithList() {
       this(null);
     }
+
     ClassWithList(String field) {
       this.field = field;
     }
@@ -334,9 +329,11 @@ public class PerformanceTest {
   @SuppressWarnings("unused")
   private static final class ClassWithField {
     final String field;
+
     ClassWithField() {
       this("");
     }
+
     public ClassWithField(String field) {
       this.field = field;
     }
@@ -344,13 +341,13 @@ public class PerformanceTest {
 
   @SuppressWarnings("unused")
   private static final class ClassWithListOfObjects {
-    @Expose
-    final String field;
-    @Expose
-    final List<ClassWithExposedField> list = new ArrayList<>(COLLECTION_SIZE);
+    @Expose final String field;
+    @Expose final List<ClassWithExposedField> list = new ArrayList<>(COLLECTION_SIZE);
+
     ClassWithListOfObjects() {
       this(null);
     }
+
     ClassWithListOfObjects(String field) {
       this.field = field;
     }
@@ -358,11 +355,12 @@ public class PerformanceTest {
 
   @SuppressWarnings("unused")
   private static final class ClassWithExposedField {
-    @Expose
-    final String field;
+    @Expose final String field;
+
     ClassWithExposedField() {
       this("");
     }
+
     ClassWithExposedField(String field) {
       this.field = field;
     }

@@ -46,10 +46,11 @@ public final class InterceptorTest {
 
   @Before
   public void setUp() throws Exception {
-    this.gson = new GsonBuilder()
-        .registerTypeAdapterFactory(new InterceptorFactory())
-        .enableComplexMapKeySerialization()
-        .create();
+    this.gson =
+        new GsonBuilder()
+            .registerTypeAdapterFactory(new InterceptorFactory())
+            .enableComplexMapKeySerialization()
+            .create();
   }
 
   @Test
@@ -57,7 +58,8 @@ public final class InterceptorTest {
     try {
       gson.fromJson("{}", User.class);
       fail();
-    } catch (JsonParseException expected) {}
+    } catch (JsonParseException expected) {
+    }
   }
 
   @Test
@@ -68,27 +70,33 @@ public final class InterceptorTest {
 
   @Test
   public void testList() {
-    List<User> list = gson.fromJson("[{name:'bob',password:'pwd'}]", new TypeToken<List<User>>(){}.getType());
+    List<User> list =
+        gson.fromJson("[{name:'bob',password:'pwd'}]", new TypeToken<List<User>>() {}.getType());
     User user = list.get(0);
     assertEquals(User.DEFAULT_EMAIL, user.email);
   }
 
   @Test
   public void testCollection() {
-    Collection<User> list = gson.fromJson("[{name:'bob',password:'pwd'}]", new TypeToken<Collection<User>>(){}.getType());
+    Collection<User> list =
+        gson.fromJson(
+            "[{name:'bob',password:'pwd'}]", new TypeToken<Collection<User>>() {}.getType());
     User user = list.iterator().next();
     assertEquals(User.DEFAULT_EMAIL, user.email);
   }
 
   @Test
   public void testMapKeyAndValues() {
-    Type mapType = new TypeToken<Map<User, Address>>(){}.getType();
+    Type mapType = new TypeToken<Map<User, Address>>() {}.getType();
     try {
       gson.fromJson("[[{name:'bob',password:'pwd'},{}]]", mapType);
       fail();
-    } catch (JsonSyntaxException expected) {}
-    Map<User, Address> map = gson.fromJson("[[{name:'bob',password:'pwd'},{city:'Mountain View',state:'CA',zip:'94043'}]]",
-        mapType);
+    } catch (JsonSyntaxException expected) {
+    }
+    Map<User, Address> map =
+        gson.fromJson(
+            "[[{name:'bob',password:'pwd'},{city:'Mountain View',state:'CA',zip:'94043'}]]",
+            mapType);
     Entry<User, Address> entry = map.entrySet().iterator().next();
     assertEquals(User.DEFAULT_EMAIL, entry.getKey().email);
     assertEquals(Address.DEFAULT_FIRST_LINE, entry.getValue().firstLine);
@@ -102,24 +110,29 @@ public final class InterceptorTest {
 
   @Test
   public void testCustomTypeAdapter() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(User.class, new TypeAdapter<User>() {
-          @Override public void write(JsonWriter out, User value) throws IOException {
-            throw new UnsupportedOperationException();
-          }
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                User.class,
+                new TypeAdapter<User>() {
+                  @Override
+                  public void write(JsonWriter out, User value) throws IOException {
+                    throw new UnsupportedOperationException();
+                  }
 
-          @Override public User read(JsonReader in) throws IOException {
-            in.beginObject();
-            String unused1 = in.nextName();
-            String name = in.nextString();
-            String unused2 = in.nextName();
-            String password = in.nextString();
-            in.endObject();
-            return new User(name, password);
-          }
-        })
-        .registerTypeAdapterFactory(new InterceptorFactory())
-        .create();
+                  @Override
+                  public User read(JsonReader in) throws IOException {
+                    in.beginObject();
+                    String unused1 = in.nextName();
+                    String name = in.nextString();
+                    String unused2 = in.nextName();
+                    String password = in.nextString();
+                    in.endObject();
+                    return new User(name, password);
+                  }
+                })
+            .registerTypeAdapterFactory(new InterceptorFactory())
+            .create();
     UserGroup userGroup = gson.fromJson("{user:{name:'bob',password:'pwd'}}", UserGroup.class);
     assertEquals(User.DEFAULT_EMAIL, userGroup.user.email);
   }
@@ -145,6 +158,7 @@ public final class InterceptorTest {
     String password;
     String email;
     Address address;
+
     public User(String name, String password) {
       this.name = name;
       this.password = password;
@@ -152,11 +166,14 @@ public final class InterceptorTest {
   }
 
   public static final class UserValidator implements JsonPostDeserializer<User> {
-    @Override public void postDeserialize(User user) {
+    @Override
+    public void postDeserialize(User user) {
       if (user.name == null || user.password == null) {
         throw new JsonSyntaxException("name and password are required fields.");
       }
-      if (user.email == null) user.email = User.DEFAULT_EMAIL;
+      if (user.email == null) {
+        user.email = User.DEFAULT_EMAIL;
+      }
     }
   }
 
@@ -172,11 +189,14 @@ public final class InterceptorTest {
   }
 
   public static final class AddressValidator implements JsonPostDeserializer<Address> {
-    @Override public void postDeserialize(Address address) {
+    @Override
+    public void postDeserialize(Address address) {
       if (address.city == null || address.state == null || address.zip == null) {
         throw new JsonSyntaxException("Address city, state and zip are required fields.");
       }
-      if (address.firstLine == null) address.firstLine = Address.DEFAULT_FIRST_LINE;
+      if (address.firstLine == null) {
+        address.firstLine = Address.DEFAULT_FIRST_LINE;
+      }
     }
   }
 }

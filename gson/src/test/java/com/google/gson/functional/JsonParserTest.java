@@ -56,7 +56,8 @@ public class JsonParserTest {
     try {
       gson.fromJson("[[]", Object[].class);
       fail();
-    } catch (JsonSyntaxException expected) { }
+    } catch (JsonSyntaxException expected) {
+    }
   }
 
   @Test
@@ -79,7 +80,8 @@ public class JsonParserTest {
     try {
       gson.fromJson(array, BagOfPrimitives.class);
       fail("BagOfPrimitives is not an array");
-    } catch (JsonParseException expected) { }
+    } catch (JsonParseException expected) {
+    }
   }
 
   @Test
@@ -94,7 +96,8 @@ public class JsonParserTest {
     try {
       gson.fromJson(obj, BagOfPrimitives.class);
       fail("BagOfPrimitives is not an array");
-    } catch (JsonParseException expected) { }
+    } catch (JsonParseException expected) {
+    }
   }
 
   @Test
@@ -112,13 +115,14 @@ public class JsonParserTest {
     try {
       gson.fromJson(obj, Nested.class);
       fail("Nested has field BagOfPrimitives which is not an array");
-    } catch (JsonParseException expected) { }
+    } catch (JsonParseException expected) {
+    }
   }
 
   @Test
   public void testChangingCustomTreeAndDeserializing() {
     StringReader json =
-      new StringReader("{'stringValue':'no message','intValue':10,'longValue':20}");
+        new StringReader("{'stringValue':'no message','intValue':10,'longValue':20}");
     JsonObject obj = (JsonObject) JsonParser.parseReader(json);
     obj.remove("stringValue");
     obj.addProperty("stringValue", "fooBar");
@@ -130,10 +134,11 @@ public class JsonParserTest {
 
   @Test
   public void testExtraCommasInArrays() {
-    Type type = new TypeToken<List<String>>() {}.getType();
-    assertThat(Arrays.asList("a", null, "b", null, null)).isEqualTo(gson.fromJson("[a,,b,,]", type));
-    assertThat(Arrays.asList(null, null)).isEqualTo(gson.fromJson("[,]", type));
-    assertThat(Arrays.asList("a", null)).isEqualTo(gson.fromJson("[a,]", type));
+    TypeToken<List<String>> type = new TypeToken<>() {};
+    assertThat(gson.fromJson("[a,,b,,]", type))
+        .isEqualTo(Arrays.asList("a", null, "b", null, null));
+    assertThat(gson.fromJson("[,]", type)).isEqualTo(Arrays.asList(null, null));
+    assertThat(gson.fromJson("[a,]", type)).isEqualTo(Arrays.asList("a", null));
   }
 
   @Test

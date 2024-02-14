@@ -41,8 +41,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Functional tests for Json serialization and deserialization of classes with
- * inheritance hierarchies.
+ * Functional tests for Json serialization and deserialization of classes with inheritance
+ * hierarchies.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -57,17 +57,20 @@ public class InheritanceTest {
 
   @Test
   public void testSubClassSerialization() {
-    SubTypeOfNested target = new SubTypeOfNested(new BagOfPrimitives(10, 20, false, "stringValue"),
-        new BagOfPrimitives(30, 40, true, "stringValue"));
+    SubTypeOfNested target =
+        new SubTypeOfNested(
+            new BagOfPrimitives(10, 20, false, "stringValue"),
+            new BagOfPrimitives(30, 40, true, "stringValue"));
     assertThat(gson.toJson(target)).isEqualTo(target.getExpectedJson());
   }
 
   @Test
   public void testSubClassDeserialization() {
-    String json = "{\"value\":5,\"primitive1\":{\"longValue\":10,\"intValue\":20,"
-        + "\"booleanValue\":false,\"stringValue\":\"stringValue\"},\"primitive2\":"
-        + "{\"longValue\":30,\"intValue\":40,\"booleanValue\":true,"
-        + "\"stringValue\":\"stringValue\"}}";
+    String json =
+        "{\"value\":5,\"primitive1\":{\"longValue\":10,\"intValue\":20,"
+            + "\"booleanValue\":false,\"stringValue\":\"stringValue\"},\"primitive2\":"
+            + "{\"longValue\":30,\"intValue\":40,\"booleanValue\":true,"
+            + "\"stringValue\":\"stringValue\"}}";
     SubTypeOfNested target = gson.fromJson(json, SubTypeOfNested.class);
     assertThat(target.getExpectedJson()).isEqualTo(json);
   }
@@ -82,12 +85,13 @@ public class InheritanceTest {
 
   @Test
   public void testClassWithBaseArrayFieldSerialization() {
-    Base[] baseClasses = new Base[]{ new Sub(), new Sub()};
+    Base[] baseClasses = new Base[] {new Sub(), new Sub()};
     ClassWithBaseArrayField sub = new ClassWithBaseArrayField(baseClasses);
     JsonObject json = gson.toJsonTree(sub).getAsJsonObject();
     JsonArray bases = json.get(ClassWithBaseArrayField.FIELD_KEY).getAsJsonArray();
     for (JsonElement element : bases) {
-      assertThat(element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString()).isEqualTo(Sub.SUB_NAME);
+      assertThat(element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString())
+          .isEqualTo(Sub.SUB_NAME);
     }
   }
 
@@ -100,7 +104,8 @@ public class InheritanceTest {
     JsonObject json = gson.toJsonTree(sub).getAsJsonObject();
     JsonArray bases = json.get(ClassWithBaseArrayField.FIELD_KEY).getAsJsonArray();
     for (JsonElement element : bases) {
-      assertThat(element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString()).isEqualTo(Sub.SUB_NAME);
+      assertThat(element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString())
+          .isEqualTo(Sub.SUB_NAME);
     }
   }
 
@@ -192,11 +197,12 @@ public class InheritanceTest {
 
   @Test
   public void testSubInterfacesOfCollectionDeserialization() {
-    String json = "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
-        + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
-        + "}";
+    String json =
+        "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
+            + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
+            + "}";
     ClassWithSubInterfacesOfCollection target =
-      gson.fromJson(json, ClassWithSubInterfacesOfCollection.class);
+        gson.fromJson(json, ClassWithSubInterfacesOfCollection.class);
     assertThat(target.listContains(0, 1, 2, 3)).isTrue();
     assertThat(target.queueContains(0, 1, 2, 3)).isTrue();
     assertThat(target.setContains(0.1F, 0.2F, 0.3F, 0.4F)).isTrue();
@@ -209,8 +215,8 @@ public class InheritanceTest {
     private Set<Float> set;
     private SortedSet<Character> sortedSet;
 
-    public ClassWithSubInterfacesOfCollection(List<Integer> list, Queue<Long> queue, Set<Float> set,
-        SortedSet<Character> sortedSet) {
+    public ClassWithSubInterfacesOfCollection(
+        List<Integer> list, Queue<Long> queue, Set<Float> set, SortedSet<Character> sortedSet) {
       this.list = list;
       this.queue = queue;
       this.set = set;
@@ -269,7 +275,7 @@ public class InheritanceTest {
     }
 
     @CanIgnoreReturnValue
-    private StringBuilder append(StringBuilder sb, Collection<?> c) {
+    private static StringBuilder append(StringBuilder sb, Collection<?> c) {
       sb.append("[");
       boolean first = true;
       for (Object o : c) {

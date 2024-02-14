@@ -46,9 +46,12 @@ public class FormattingStyleTest {
   }
 
   private static String buildExpected(String newline, String indent, boolean spaceAfterSeparators) {
-    String expected = "{<EOL><INDENT>\"a\":<COLON_SPACE>[<EOL><INDENT><INDENT>1,<COMMA_SPACE><EOL><INDENT><INDENT>2<EOL><INDENT>]<EOL>}";
+    String expected =
+        "{<EOL><INDENT>\"a\":<COLON_SPACE>[<EOL><INDENT><INDENT>1,<COMMA_SPACE><EOL><INDENT><INDENT>2<EOL><INDENT>]<EOL>}";
     String commaSpace = spaceAfterSeparators && newline.isEmpty() ? " " : "";
-    return expected.replace("<EOL>", newline).replace("<INDENT>", indent)
+    return expected
+        .replace("<EOL>", newline)
+        .replace("<INDENT>", indent)
         .replace("<COLON_SPACE>", spaceAfterSeparators ? " " : "")
         .replace("<COMMA_SPACE>", commaSpace);
   }
@@ -57,9 +60,7 @@ public class FormattingStyleTest {
   private static final String[] TEST_NEWLINES = {
     "", "\r", "\n", "\r\n", "\n\r\r\n", System.lineSeparator()
   };
-  private static final String[] TEST_INDENTS = {
-    "", "  ", "    ", "\t", " \t \t"
-  };
+  private static final String[] TEST_INDENTS = {"", "  ", "    ", "\t", " \t \t"};
 
   @Test
   public void testDefault() {
@@ -72,7 +73,8 @@ public class FormattingStyleTest {
   public void testVariousCombinationsParse() {
     // Mixing various indent and newline styles in the same string, to be parsed.
     String jsonStringMix = "{\r\t'a':\r\n[        1,2\t]\n}";
-    TypeToken<Map<String, List<Integer>>> inputType = new TypeToken<Map<String, List<Integer>>>() {};
+    TypeToken<Map<String, List<Integer>>> inputType =
+        new TypeToken<Map<String, List<Integer>>>() {};
 
     Map<String, List<Integer>> actualParsed;
     // Test all that all combinations of newline can be parsed and generate the same INPUT.
@@ -111,13 +113,14 @@ public class FormattingStyleTest {
     String expectedJson = buildExpected("\n", "  ", true);
     assertThat(json).isEqualTo(expectedJson);
     // Sanity check to verify that `buildExpected` works correctly
-    assertThat(json).isEqualTo(
-        "{\n"
-        + "  \"a\": [\n"
-        + "    1,\n"
-        + "    2\n"
-        + "  ]\n"
-        + "}");
+    assertThat(json)
+        .isEqualTo(
+            "{\n" //
+                + "  \"a\": [\n" //
+                + "    1,\n" //
+                + "    2\n" //
+                + "  ]\n" //
+                + "}");
   }
 
   @Test
@@ -135,8 +138,11 @@ public class FormattingStyleTest {
     for (String newline : TEST_NEWLINES) {
       for (String indent : TEST_INDENTS) {
         for (boolean spaceAfterSeparators : new boolean[] {true, false}) {
-          FormattingStyle style = FormattingStyle.COMPACT.withNewline(newline)
-              .withIndent(indent).withSpaceAfterSeparators(spaceAfterSeparators);
+          FormattingStyle style =
+              FormattingStyle.COMPACT
+                  .withNewline(newline)
+                  .withIndent(indent)
+                  .withSpaceAfterSeparators(spaceAfterSeparators);
 
           String json = toJson(createInput(), style);
           String expectedJson = buildExpected(newline, indent, spaceAfterSeparators);
@@ -152,8 +158,8 @@ public class FormattingStyleTest {
    */
   @Test
   public void testCompactToPretty() {
-    FormattingStyle style = FormattingStyle.COMPACT.withNewline("\n").withIndent("  ")
-        .withSpaceAfterSeparators(true);
+    FormattingStyle style =
+        FormattingStyle.COMPACT.withNewline("\n").withIndent("  ").withSpaceAfterSeparators(true);
 
     String json = toJson(createInput(), style);
     String expectedJson = toJson(createInput(), FormattingStyle.PRETTY);
@@ -166,8 +172,8 @@ public class FormattingStyleTest {
    */
   @Test
   public void testPrettyToCompact() {
-    FormattingStyle style = FormattingStyle.PRETTY.withNewline("").withIndent("")
-        .withSpaceAfterSeparators(false);
+    FormattingStyle style =
+        FormattingStyle.PRETTY.withNewline("").withIndent("").withSpaceAfterSeparators(false);
 
     String json = toJson(createInput(), style);
     String expectedJson = toJson(createInput(), FormattingStyle.COMPACT);
@@ -182,7 +188,8 @@ public class FormattingStyleTest {
       FormattingStyle.PRETTY.withNewline("\u2028");
       fail("Gson should not accept anything but \\r and \\n for newline");
     } catch (IllegalArgumentException expected) {
-      assertThat(expected).hasMessageThat()
+      assertThat(expected)
+          .hasMessageThat()
           .isEqualTo("Only combinations of \\n and \\r are allowed in newline.");
     }
 
@@ -190,7 +197,8 @@ public class FormattingStyleTest {
       FormattingStyle.PRETTY.withNewline("NL");
       fail("Gson should not accept anything but \\r and \\n for newline");
     } catch (IllegalArgumentException expected) {
-      assertThat(expected).hasMessageThat()
+      assertThat(expected)
+          .hasMessageThat()
           .isEqualTo("Only combinations of \\n and \\r are allowed in newline.");
     }
 
@@ -198,7 +206,8 @@ public class FormattingStyleTest {
       FormattingStyle.PRETTY.withIndent("\f");
       fail("Gson should not accept anything but space and tab for indent");
     } catch (IllegalArgumentException expected) {
-      assertThat(expected).hasMessageThat()
+      assertThat(expected)
+          .hasMessageThat()
           .isEqualTo("Only combinations of spaces and tabs are allowed in indent.");
     }
   }

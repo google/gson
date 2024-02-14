@@ -19,7 +19,9 @@
 ### Checklist
 <!-- The following checklist is mainly intended for yourself to verify that you did not miss anything -->
 
-- [ ] New code follows the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
+- [ ] New code follows the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)\
+  This is automatically checked by `mvn verify`, but can also be checked on its own using `mvn spotless:check`.\
+  Style violations can be fixed using `mvn spotless:apply`; this can be done in a separate commit to verify that it did not cause undesired changes.
 - [ ] If necessary, new public API validates arguments, for example rejects `null`
 - [ ] New public API has Javadoc
     - [ ] Javadoc uses `@since $next-version$`  

@@ -21,8 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.functional.DefaultTypeAdaptersTest;
-import com.google.gson.internal.JavaVersion;
-import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Locale;
@@ -31,6 +29,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+// Suppression for `java.sql.Date` to make it explicit that this is not `java.util.Date`
+@SuppressWarnings("UnnecessarilyFullyQualified")
 public class SqlTypesGsonTest {
   private Gson gson;
   private TimeZone oldTimeZone;
@@ -53,7 +53,7 @@ public class SqlTypesGsonTest {
 
   @Test
   public void testNullSerializationAndDeserialization() {
-    testNullSerializationAndDeserialization(Date.class);
+    testNullSerializationAndDeserialization(java.sql.Date.class);
     testNullSerializationAndDeserialization(Time.class);
     testNullSerializationAndDeserialization(Timestamp.class);
   }

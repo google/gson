@@ -19,29 +19,29 @@ package com.google.gson;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import com.google.gson.functional.FieldNamingTest;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import org.junit.Test;
-import com.google.gson.functional.FieldNamingTest;
 
 /**
- * Performs tests directly against {@link FieldNamingPolicy}; for integration tests
- * see {@link FieldNamingTest}.
+ * Performs tests directly against {@link FieldNamingPolicy}; for integration tests see {@link
+ * FieldNamingTest}.
  */
 public class FieldNamingPolicyTest {
   @Test
   public void testSeparateCamelCase() {
     // Map from original -> expected
-    String[][] argumentPairs =  {
-      { "a", "a" },
-      { "ab", "ab" },
-      { "Ab", "Ab" },
-      { "aB", "a_B" },
-      { "AB", "A_B" },
-      { "A_B", "A__B" },
-      { "firstSecondThird", "first_Second_Third" },
-      { "__", "__" },
-      { "_123", "_123" }
+    String[][] argumentPairs = {
+      {"a", "a"},
+      {"ab", "ab"},
+      {"Ab", "Ab"},
+      {"aB", "a_B"},
+      {"AB", "A_B"},
+      {"A_B", "A__B"},
+      {"firstSecondThird", "first_Second_Third"},
+      {"__", "__"},
+      {"_123", "_123"}
     };
 
     for (String[] pair : argumentPairs) {
@@ -52,19 +52,19 @@ public class FieldNamingPolicyTest {
   @Test
   public void testUpperCaseFirstLetter() {
     // Map from original -> expected
-    String[][] argumentPairs =  {
-      { "a", "A" },
-      { "ab", "Ab" },
-      { "AB", "AB" },
-      { "_a", "_A" },
-      { "_ab", "_Ab" },
-      { "__", "__" },
-      { "_1", "_1" },
+    String[][] argumentPairs = {
+      {"a", "A"},
+      {"ab", "Ab"},
+      {"AB", "AB"},
+      {"_a", "_A"},
+      {"_ab", "_Ab"},
+      {"__", "__"},
+      {"_1", "_1"},
       // Not a letter, but has uppercase variant (should not be uppercased)
       // See https://github.com/google/gson/issues/1965
-      { "\u2170", "\u2170" },
-      { "_\u2170", "_\u2170" },
-      { "\u2170a", "\u2170A" },
+      {"\u2170", "\u2170"},
+      {"_\u2170", "_\u2170"},
+      {"\u2170a", "\u2170A"},
     };
 
     for (String[] pair : argumentPairs) {
@@ -72,9 +72,7 @@ public class FieldNamingPolicyTest {
     }
   }
 
-  /**
-   * Upper-casing policies should be unaffected by default Locale.
-   */
+  /** Upper-casing policies should be unaffected by default Locale. */
   @Test
   public void testUpperCasingLocaleIndependent() throws Exception {
     class Dummy {
@@ -99,25 +97,25 @@ public class FieldNamingPolicyTest {
     try {
       // Verify that default Locale has different case conversion rules
       assertWithMessage("Test setup is broken")
-          .that(name.toUpperCase(Locale.getDefault())).doesNotMatch(expected);
+          .that(name.toUpperCase(Locale.getDefault()))
+          .doesNotMatch(expected);
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
         assertWithMessage("Unexpected conversion for %s", policy)
-            .that(policy.translateName(field)).matches(expected);
+            .that(policy.translateName(field))
+            .matches(expected);
       }
     } finally {
-        Locale.setDefault(oldLocale);
+      Locale.setDefault(oldLocale);
     }
   }
 
-  /**
-   * Lower casing policies should be unaffected by default Locale.
-   */
+  /** Lower casing policies should be unaffected by default Locale. */
   @Test
   public void testLowerCasingLocaleIndependent() throws Exception {
     class Dummy {
-      @SuppressWarnings("unused")
+      @SuppressWarnings({"unused", "ConstantField"})
       int I;
     }
 
@@ -138,15 +136,17 @@ public class FieldNamingPolicyTest {
     try {
       // Verify that default Locale has different case conversion rules
       assertWithMessage("Test setup is broken")
-          .that(name.toLowerCase(Locale.getDefault())).doesNotMatch(expected);
+          .that(name.toLowerCase(Locale.getDefault()))
+          .doesNotMatch(expected);
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
         assertWithMessage("Unexpected conversion for %s", policy)
-            .that(policy.translateName(field)).matches(expected);
+            .that(policy.translateName(field))
+            .matches(expected);
       }
     } finally {
-        Locale.setDefault(oldLocale);
+      Locale.setDefault(oldLocale);
     }
   }
 }

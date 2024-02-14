@@ -19,16 +19,14 @@ package com.google.gson.graph;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Test;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 public final class GraphAdapterBuilderTest {
   @Test
@@ -41,27 +39,25 @@ public final class GraphAdapterBuilderTest {
     paper.beats = rock;
 
     GsonBuilder gsonBuilder = new GsonBuilder();
-    new GraphAdapterBuilder()
-        .addType(Roshambo.class)
-        .registerOn(gsonBuilder);
+    new GraphAdapterBuilder().addType(Roshambo.class).registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
-    assertEquals("{'0x1':{'name':'ROCK','beats':'0x2'}," +
-        "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
-        "'0x3':{'name':'PAPER','beats':'0x1'}}",
+    assertEquals(
+        "{'0x1':{'name':'ROCK','beats':'0x2'},"
+            + "'0x2':{'name':'SCISSORS','beats':'0x3'},"
+            + "'0x3':{'name':'PAPER','beats':'0x1'}}",
         gson.toJson(rock).replace('"', '\''));
   }
 
   @Test
   public void testDeserialization() {
-    String json = "{'0x1':{'name':'ROCK','beats':'0x2'}," +
-        "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
-        "'0x3':{'name':'PAPER','beats':'0x1'}}";
+    String json =
+        "{'0x1':{'name':'ROCK','beats':'0x2'},"
+            + "'0x2':{'name':'SCISSORS','beats':'0x3'},"
+            + "'0x3':{'name':'PAPER','beats':'0x1'}}";
 
     GsonBuilder gsonBuilder = new GsonBuilder();
-    new GraphAdapterBuilder()
-        .addType(Roshambo.class)
-        .registerOn(gsonBuilder);
+    new GraphAdapterBuilder().addType(Roshambo.class).registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
     Roshambo rock = gson.fromJson(json, Roshambo.class);
@@ -78,9 +74,7 @@ public final class GraphAdapterBuilderTest {
     String json = "{'0x1':{'name':'SUICIDE','beats':'0x1'}}";
 
     GsonBuilder gsonBuilder = new GsonBuilder();
-    new GraphAdapterBuilder()
-        .addType(Roshambo.class)
-        .registerOn(gsonBuilder);
+    new GraphAdapterBuilder().addType(Roshambo.class).registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
     Roshambo suicide = gson.fromJson(json, Roshambo.class);
@@ -140,9 +134,10 @@ public final class GraphAdapterBuilderTest {
         .registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
-    assertEquals("{'0x1':{'name':'Google','employees':['0x2','0x3']},"
-        + "'0x2':{'name':'Jesse','company':'0x1'},"
-        + "'0x3':{'name':'Joel','company':'0x1'}}",
+    assertEquals(
+        "{'0x1':{'name':'Google','employees':['0x2','0x3']},"
+            + "'0x2':{'name':'Jesse','company':'0x1'},"
+            + "'0x3':{'name':'Joel','company':'0x1'}}",
         gson.toJson(google).replace('"', '\''));
   }
 
@@ -155,9 +150,10 @@ public final class GraphAdapterBuilderTest {
         .registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
-    String json = "{'0x1':{'name':'Google','employees':['0x2','0x3']},"
-        + "'0x2':{'name':'Jesse','company':'0x1'},"
-        + "'0x3':{'name':'Joel','company':'0x1'}}";
+    String json =
+        "{'0x1':{'name':'Google','employees':['0x2','0x3']},"
+            + "'0x2':{'name':'Jesse','company':'0x1'},"
+            + "'0x3':{'name':'Joel','company':'0x1'}}";
     Company company = gson.fromJson(json, Company.class);
     assertEquals("Google", company.name);
     Employee jesse = company.employees.get(0);
@@ -171,6 +167,7 @@ public final class GraphAdapterBuilderTest {
   static class Roshambo {
     String name;
     Roshambo beats;
+
     Roshambo(String name) {
       this.name = name;
     }
@@ -179,6 +176,7 @@ public final class GraphAdapterBuilderTest {
   static class Employee {
     final String name;
     final Company company;
+
     Employee(String name, Company company) {
       this.name = name;
       this.company = company;
@@ -189,6 +187,7 @@ public final class GraphAdapterBuilderTest {
   static class Company {
     final String name;
     final List<Employee> employees = new ArrayList<>();
+
     Company(String name) {
       this.name = name;
     }

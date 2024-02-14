@@ -5,12 +5,14 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class TestExecutor {
+  private TestExecutor() {}
+
   /**
-   * Helper method for running individual tests. In case of an exception wraps it and
-   * includes the {@code name} of the test to make debugging issues with the obfuscated
-   * JARs a bit easier.
+   * Helper method for running individual tests. In case of an exception wraps it and includes the
+   * {@code name} of the test to make debugging issues with the obfuscated JARs a bit easier.
    */
-  public static void run(BiConsumer<String, String> outputConsumer, String name, Supplier<String> resultSupplier) {
+  public static void run(
+      BiConsumer<String, String> outputConsumer, String name, Supplier<String> resultSupplier) {
     String result;
     try {
       result = resultSupplier.get();
@@ -21,8 +23,8 @@ public class TestExecutor {
   }
 
   /**
-   * Returns {@code t}, but in a way which (hopefully) prevents code shrinkers from
-   * simplifying this.
+   * Returns {@code t}, but in a way which (hopefully) prevents code shrinkers from simplifying
+   * this.
    */
   public static <T> T same(T t) {
     // This is essentially `return t`, but contains some redundant code to try

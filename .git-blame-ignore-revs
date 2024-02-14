@@ -1,0 +1,5 @@
+# Ignore commit which reformatted code
+2c94c757a6a9426cc2fe47bc1c63f69e7c73b7b4
+
+# Ignore commit which changed line endings consistently to LF
+c2a0e4634a2100494159add78db2ee06f5eb9be6

@@ -38,7 +38,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
@@ -52,15 +54,15 @@ public class ReflectionAccessFilterTest {
     }
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
   }
 
   @Test
   public void testBlockInaccessibleJava() throws ReflectiveOperationException {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA)
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA)
+            .create();
 
     // Serialization should fail for classes with non-public fields
     try {
@@ -68,12 +70,14 @@ public class ReflectionAccessFilterTest {
       fail("Expected exception; test needs to be run with Java >= 9");
     } catch (JsonIOException expected) {
       // Note: This test is rather brittle and depends on the JDK implementation
-      assertThat(expected).hasMessageThat()
-          .isEqualTo("Field 'java.io.File#path' is not accessible and ReflectionAccessFilter does not permit"
-        + " making it accessible. Register a TypeAdapter for the declaring type, adjust the access"
-        + " filter or increase the visibility of the element and its declaring type.");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Field 'java.io.File#path' is not accessible and ReflectionAccessFilter does not"
+                  + " permit making it accessible. Register a TypeAdapter for the declaring type,"
+                  + " adjust the access filter or increase the visibility of the element and its"
+                  + " declaring type.");
     }
-
 
     // But serialization should succeed for classes with only public fields.
     // Not many JDK classes have mutable public fields, thank goodness, but java.awt.Point does.
@@ -91,90 +95,103 @@ public class ReflectionAccessFilterTest {
 
   @Test
   public void testBlockInaccessibleJavaExtendingJdkClass() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA)
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA)
+            .create();
 
     try {
       gson.toJson(new ClassExtendingJdkClass());
       fail("Expected exception; test needs to be run with Java >= 9");
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat()
-          .isEqualTo("Field 'java.io.Reader#lock' is not accessible and ReflectionAccessFilter does not permit"
-              + " making it accessible. Register a TypeAdapter for the declaring type, adjust the access"
-              + " filter or increase the visibility of the element and its declaring type.");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Field 'java.io.Reader#lock' is not accessible and ReflectionAccessFilter does not"
+                  + " permit making it accessible. Register a TypeAdapter for the declaring type,"
+                  + " adjust the access filter or increase the visibility of the element and its"
+                  + " declaring type.");
     }
   }
 
   @Test
   public void testBlockAllJava() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_ALL_JAVA)
-      .create();
+    Gson gson =
+        new GsonBuilder().addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_ALL_JAVA).create();
 
     // Serialization should fail for any Java class
     try {
       gson.toJson(Thread.currentThread());
       fail();
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat()
-          .isEqualTo("ReflectionAccessFilter does not permit using reflection for class java.lang.Thread."
-              + " Register a TypeAdapter for this type or adjust the access filter.");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "ReflectionAccessFilter does not permit using reflection for class java.lang.Thread."
+                  + " Register a TypeAdapter for this type or adjust the access filter.");
     }
   }
 
   @Test
   public void testBlockAllJavaExtendingJdkClass() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_ALL_JAVA)
-      .create();
+    Gson gson =
+        new GsonBuilder().addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_ALL_JAVA).create();
 
     try {
       gson.toJson(new ClassExtendingJdkClass());
       fail();
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat()
-          .isEqualTo("ReflectionAccessFilter does not permit using reflection for class java.io.Reader"
-              + " (supertype of class com.google.gson.functional.ReflectionAccessFilterTest$ClassExtendingJdkClass)."
-              + " Register a TypeAdapter for this type or adjust the access filter.");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "ReflectionAccessFilter does not permit using reflection for class java.io.Reader"
+                  + " (supertype of class"
+                  + " com.google.gson.functional.ReflectionAccessFilterTest$ClassExtendingJdkClass)."
+                  + " Register a TypeAdapter for this type or adjust the access filter.");
     }
   }
 
   private static class ClassWithStaticField {
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "NonFinalStaticField"})
     private static int i = 1;
   }
 
   @Test
   public void testBlockInaccessibleStaticField() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          return FilterResult.BLOCK_INACCESSIBLE;
-        }
-      })
-      // Include static fields
-      .excludeFieldsWithModifiers(0)
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    return FilterResult.BLOCK_INACCESSIBLE;
+                  }
+                })
+            // Include static fields
+            .excludeFieldsWithModifiers(0)
+            .create();
 
-      try {
-        gson.toJson(new ClassWithStaticField());
-        fail("Expected exception; test needs to be run with Java >= 9");
-      } catch (JsonIOException expected) {
-        assertThat(expected).hasMessageThat()
-            .isEqualTo("Field 'com.google.gson.functional.ReflectionAccessFilterTest$ClassWithStaticField#i'"
-                + " is not accessible and ReflectionAccessFilter does not permit making it accessible."
-                + " Register a TypeAdapter for the declaring type, adjust the access filter or increase"
-                + " the visibility of the element and its declaring type.");
-      }
+    try {
+      gson.toJson(new ClassWithStaticField());
+      fail("Expected exception; test needs to be run with Java >= 9");
+    } catch (JsonIOException expected) {
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Field 'com.google.gson.functional.ReflectionAccessFilterTest$ClassWithStaticField#i'"
+                  + " is not accessible and ReflectionAccessFilter does not permit making it"
+                  + " accessible. Register a TypeAdapter for the declaring type, adjust the access"
+                  + " filter or increase the visibility of the element and its declaring type.");
+    }
   }
 
-  private static class SuperTestClass {
-  }
+  private static class SuperTestClass {}
+
   private static class SubTestClass extends SuperTestClass {
     @SuppressWarnings("unused")
     public int i = 1;
   }
+
   private static class OtherClass {
     @SuppressWarnings("unused")
     public int i = 2;
@@ -182,29 +199,41 @@ public class ReflectionAccessFilterTest {
 
   @Test
   public void testDelegation() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          // INDECISIVE in last filter should act like ALLOW
-          return SuperTestClass.class.isAssignableFrom(rawClass) ? FilterResult.BLOCK_ALL : FilterResult.INDECISIVE;
-        }
-      })
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          // INDECISIVE should delegate to previous filter
-          return rawClass == SubTestClass.class ? FilterResult.ALLOW : FilterResult.INDECISIVE;
-        }
-      })
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    // INDECISIVE in last filter should act like ALLOW
+                    return SuperTestClass.class.isAssignableFrom(rawClass)
+                        ? FilterResult.BLOCK_ALL
+                        : FilterResult.INDECISIVE;
+                  }
+                })
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    // INDECISIVE should delegate to previous filter
+                    return rawClass == SubTestClass.class
+                        ? FilterResult.ALLOW
+                        : FilterResult.INDECISIVE;
+                  }
+                })
+            .create();
 
     // Filter disallows SuperTestClass
     try {
       gson.toJson(new SuperTestClass());
       fail();
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("ReflectionAccessFilter does not permit using reflection for class"
-        + " com.google.gson.functional.ReflectionAccessFilterTest$SuperTestClass."
-        + " Register a TypeAdapter for this type or adjust the access filter.");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "ReflectionAccessFilter does not permit using reflection for class"
+                  + " com.google.gson.functional.ReflectionAccessFilterTest$SuperTestClass."
+                  + " Register a TypeAdapter for this type or adjust the access filter.");
     }
 
     // But registration order is reversed, so filter for SubTestClass allows reflection
@@ -220,38 +249,50 @@ public class ReflectionAccessFilterTest {
     @SuppressWarnings("unused")
     private int i = 1;
   }
-  private static class ExtendingClassWithPrivateField extends ClassWithPrivateField {
-  }
+
+  private static class ExtendingClassWithPrivateField extends ClassWithPrivateField {}
 
   @Test
   public void testAllowForSupertype() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          return FilterResult.BLOCK_INACCESSIBLE;
-        }
-      })
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    return FilterResult.BLOCK_INACCESSIBLE;
+                  }
+                })
+            .create();
 
     // First make sure test is implemented correctly and access is blocked
     try {
       gson.toJson(new ExtendingClassWithPrivateField());
       fail("Expected exception; test needs to be run with Java >= 9");
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Field 'com.google.gson.functional.ReflectionAccessFilterTest$ClassWithPrivateField#i'"
-        + " is not accessible and ReflectionAccessFilter does not permit making it accessible."
-        + " Register a TypeAdapter for the declaring type, adjust the access filter or increase"
-        + " the visibility of the element and its declaring type.");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Field"
+                  + " 'com.google.gson.functional.ReflectionAccessFilterTest$ClassWithPrivateField#i'"
+                  + " is not accessible and ReflectionAccessFilter does not permit making it"
+                  + " accessible. Register a TypeAdapter for the declaring type, adjust the access"
+                  + " filter or increase the visibility of the element and its declaring type.");
     }
 
-    gson = gson.newBuilder()
-      // Allow reflective access for supertype
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          return rawClass == ClassWithPrivateField.class ? FilterResult.ALLOW : FilterResult.INDECISIVE;
-        }
-      })
-      .create();
+    gson =
+        gson.newBuilder()
+            // Allow reflective access for supertype
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    return rawClass == ClassWithPrivateField.class
+                        ? FilterResult.ALLOW
+                        : FilterResult.INDECISIVE;
+                  }
+                })
+            .create();
 
     // Inherited (inaccessible) private field should have been made accessible
     String json = gson.toJson(new ExtendingClassWithPrivateField());
@@ -259,27 +300,34 @@ public class ReflectionAccessFilterTest {
   }
 
   private static class ClassWithPrivateNoArgsConstructor {
-    private ClassWithPrivateNoArgsConstructor() {
-    }
+    private ClassWithPrivateNoArgsConstructor() {}
   }
 
   @Test
   public void testInaccessibleNoArgsConstructor() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          return FilterResult.BLOCK_INACCESSIBLE;
-        }
-      })
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    return FilterResult.BLOCK_INACCESSIBLE;
+                  }
+                })
+            .create();
 
     try {
       gson.fromJson("{}", ClassWithPrivateNoArgsConstructor.class);
       fail("Expected exception; test needs to be run with Java >= 9");
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Unable to invoke no-args constructor of class com.google.gson.functional.ReflectionAccessFilterTest$ClassWithPrivateNoArgsConstructor;"
-        + " constructor is not accessible and ReflectionAccessFilter does not permit making it accessible. Register an"
-        + " InstanceCreator or a TypeAdapter for this type, change the visibility of the constructor or adjust the access filter.");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Unable to invoke no-args constructor of class"
+                  + " com.google.gson.functional.ReflectionAccessFilterTest$ClassWithPrivateNoArgsConstructor;"
+                  + " constructor is not accessible and ReflectionAccessFilter does not permit"
+                  + " making it accessible. Register an InstanceCreator or a TypeAdapter for this"
+                  + " type, change the visibility of the constructor or adjust the access filter.");
     }
   }
 
@@ -293,69 +341,95 @@ public class ReflectionAccessFilterTest {
 
   @Test
   public void testClassWithoutNoArgsConstructor() {
-    GsonBuilder gsonBuilder = new GsonBuilder()
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          // Even BLOCK_INACCESSIBLE should prevent usage of Unsafe for object creation
-          return FilterResult.BLOCK_INACCESSIBLE;
-        }
-      });
+    GsonBuilder gsonBuilder =
+        new GsonBuilder()
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    // Even BLOCK_INACCESSIBLE should prevent usage of Unsafe for object creation
+                    return FilterResult.BLOCK_INACCESSIBLE;
+                  }
+                });
     Gson gson = gsonBuilder.create();
 
     try {
       gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
       fail();
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Unable to create instance of class com.google.gson.functional.ReflectionAccessFilterTest$ClassWithoutNoArgsConstructor;"
-        + " ReflectionAccessFilter does not permit using reflection or Unsafe. Register an InstanceCreator"
-        + " or a TypeAdapter for this type or adjust the access filter to allow using reflection.");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Unable to create instance of class"
+                  + " com.google.gson.functional.ReflectionAccessFilterTest$ClassWithoutNoArgsConstructor;"
+                  + " ReflectionAccessFilter does not permit using reflection or Unsafe. Register"
+                  + " an InstanceCreator or a TypeAdapter for this type or adjust the access filter"
+                  + " to allow using reflection.");
     }
 
     // But should not fail when custom TypeAdapter is specified
-    gson = gson.newBuilder()
-      .registerTypeAdapter(ClassWithoutNoArgsConstructor.class, new TypeAdapter<ClassWithoutNoArgsConstructor>() {
-        @Override public ClassWithoutNoArgsConstructor read(JsonReader in) throws IOException {
-          in.skipValue();
-          return new ClassWithoutNoArgsConstructor("TypeAdapter");
-        }
-        @Override public void write(JsonWriter out, ClassWithoutNoArgsConstructor value) {
-          throw new AssertionError("Not needed for test");
-        }
-      })
-      .create();
-    ClassWithoutNoArgsConstructor deserialized = gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
+    gson =
+        gson.newBuilder()
+            .registerTypeAdapter(
+                ClassWithoutNoArgsConstructor.class,
+                new TypeAdapter<ClassWithoutNoArgsConstructor>() {
+                  @Override
+                  public ClassWithoutNoArgsConstructor read(JsonReader in) throws IOException {
+                    in.skipValue();
+                    return new ClassWithoutNoArgsConstructor("TypeAdapter");
+                  }
+
+                  @Override
+                  public void write(JsonWriter out, ClassWithoutNoArgsConstructor value) {
+                    throw new AssertionError("Not needed for test");
+                  }
+                })
+            .create();
+    ClassWithoutNoArgsConstructor deserialized =
+        gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
     assertThat(deserialized.s).isEqualTo("TypeAdapter");
 
     // But should not fail when custom InstanceCreator is specified
-    gson = gsonBuilder
-      .registerTypeAdapter(ClassWithoutNoArgsConstructor.class, new InstanceCreator<ClassWithoutNoArgsConstructor>() {
-        @Override public ClassWithoutNoArgsConstructor createInstance(Type type) {
-          return new ClassWithoutNoArgsConstructor("InstanceCreator");
-        }
-      })
-      .create();
+    gson =
+        gsonBuilder
+            .registerTypeAdapter(
+                ClassWithoutNoArgsConstructor.class,
+                new InstanceCreator<ClassWithoutNoArgsConstructor>() {
+                  @Override
+                  public ClassWithoutNoArgsConstructor createInstance(Type type) {
+                    return new ClassWithoutNoArgsConstructor("InstanceCreator");
+                  }
+                })
+            .create();
     deserialized = gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
     assertThat(deserialized.s).isEqualTo("InstanceCreator");
   }
 
   /**
-   * When using {@link FilterResult#BLOCK_ALL}, registering only a {@link JsonSerializer}
-   * but not performing any deserialization should not throw any exception.
+   * When using {@link FilterResult#BLOCK_ALL}, registering only a {@link JsonSerializer} but not
+   * performing any deserialization should not throw any exception.
    */
   @Test
   public void testBlockAllPartial() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          return FilterResult.BLOCK_ALL;
-        }
-      })
-      .registerTypeAdapter(OtherClass.class, new JsonSerializer<OtherClass>() {
-        @Override public JsonElement serialize(OtherClass src, Type typeOfSrc, JsonSerializationContext context) {
-          return new JsonPrimitive(123);
-        }
-      })
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    return FilterResult.BLOCK_ALL;
+                  }
+                })
+            .registerTypeAdapter(
+                OtherClass.class,
+                new JsonSerializer<OtherClass>() {
+                  @Override
+                  public JsonElement serialize(
+                      OtherClass src, Type typeOfSrc, JsonSerializationContext context) {
+                    return new JsonPrimitive(123);
+                  }
+                })
+            .create();
 
     String json = gson.toJson(new OtherClass());
     assertThat(json).isEqualTo("123");
@@ -365,65 +439,104 @@ public class ReflectionAccessFilterTest {
       gson.fromJson("{}", OtherClass.class);
       fail();
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("ReflectionAccessFilter does not permit using reflection for class com.google.gson.functional.ReflectionAccessFilterTest$OtherClass."
-        + " Register a TypeAdapter for this type or adjust the access filter.");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "ReflectionAccessFilter does not permit using reflection for class"
+                  + " com.google.gson.functional.ReflectionAccessFilterTest$OtherClass. Register a"
+                  + " TypeAdapter for this type or adjust the access filter.");
     }
   }
 
   /**
-   * Should not fail when deserializing collection interface
-   * (Even though this goes through {@link ConstructorConstructor} as well)
+   * Should not fail when deserializing collection interface (even though this goes through {@link
+   * ConstructorConstructor} as well)
    */
   @Test
   public void testBlockAllCollectionInterface() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          return FilterResult.BLOCK_ALL;
-        }
-      })
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    return FilterResult.BLOCK_ALL;
+                  }
+                })
+            .create();
     List<?> deserialized = gson.fromJson("[1.0]", List.class);
     assertThat(deserialized.get(0)).isEqualTo(1.0);
   }
 
   /**
-   * Should not fail when deserializing specific collection implementation
-   * (Even though this goes through {@link ConstructorConstructor} as well)
+   * Should not fail when deserializing specific collection implementation (even though this goes
+   * through {@link ConstructorConstructor} as well)
    */
   @Test
   public void testBlockAllCollectionImplementation() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          return FilterResult.BLOCK_ALL;
-        }
-      })
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    return FilterResult.BLOCK_ALL;
+                  }
+                })
+            .create();
     List<?> deserialized = gson.fromJson("[1.0]", LinkedList.class);
     assertThat(deserialized.get(0)).isEqualTo(1.0);
   }
 
   /**
-   * When trying to deserialize interface an exception for that should
-   * be thrown, even if {@link FilterResult#BLOCK_INACCESSIBLE} is used
+   * When trying to deserialize interface an exception for that should be thrown, even if {@link
+   * FilterResult#BLOCK_INACCESSIBLE} is used
    */
   @Test
   public void testBlockInaccessibleInterface() {
-    Gson gson = new GsonBuilder()
-      .addReflectionAccessFilter(new ReflectionAccessFilter() {
-        @Override public FilterResult check(Class<?> rawClass) {
-          return FilterResult.BLOCK_INACCESSIBLE;
-        }
-      })
-      .create();
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(
+                new ReflectionAccessFilter() {
+                  @Override
+                  public FilterResult check(Class<?> rawClass) {
+                    return FilterResult.BLOCK_INACCESSIBLE;
+                  }
+                })
+            .create();
 
     try {
       gson.fromJson("{}", Runnable.class);
       fail();
     } catch (JsonIOException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
-        + " this type. Interface name: java.lang.Runnable");
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo(
+              "Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
+                  + " this type. Interface name: java.lang.Runnable");
+    }
+  }
+
+  /**
+   * Verifies that the predefined filter constants have meaningful {@code toString()} output to make
+   * debugging easier.
+   */
+  @Test
+  public void testConstantsToString() throws Exception {
+    List<Field> constantFields = new ArrayList<>();
+
+    for (Field f : ReflectionAccessFilter.class.getFields()) {
+      // Only include ReflectionAccessFilter constants (in case any other fields are added in the
+      // future)
+      if (f.getType() == ReflectionAccessFilter.class) {
+        constantFields.add(f);
+      }
+    }
+
+    assertThat(constantFields).isNotEmpty();
+    for (Field f : constantFields) {
+      Object constant = f.get(null);
+      assertThat(constant.toString()).isEqualTo("ReflectionAccessFilter#" + f.getName());
     }
   }
 }

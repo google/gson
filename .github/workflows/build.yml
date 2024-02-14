@@ -11,28 +11,33 @@ jobs:
     strategy:
       matrix:
         java: [ 11, 17 ]
+        # Custom JDK 21 configuration
+        include:
+          - java: 21
+            # Disable Enforcer check which (intentionally) prevents using JDK 21 for building
+            extra-mvn-args: -Denforcer.fail=false
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
       - name: "Set up JDK ${{ matrix.java }}"
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93  # v4.0.0
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
           cache: 'maven'
       - name: Build with Maven
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
-        run: mvn --batch-mode --update-snapshots --no-transfer-progress verify javadoc:jar
+        run: mvn --batch-mode --no-transfer-progress verify javadoc:jar ${{ matrix.extra-mvn-args || '' }}
 
   native-image-test:
     name: "GraalVM Native Image test"
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
       - name: "Set up GraalVM"
-        uses: graalvm/setup-graalvm@v1
+        uses: graalvm/setup-graalvm@b8dc5fccfbc65b21dd26e8341e7b21c86547f61b  # v1.1.5.1
         with:
           java-version: '17'
           distribution: 'graalvm'
@@ -42,4 +47,29 @@ jobs:
       - name: Build and run tests
         # Only run tests in `graal-native-image-test` (and implicitly build and run tests in `gson`),
         # everything else is covered already by regular build job above
-        run: mvn test --batch-mode --update-snapshots --no-transfer-progress --activate-profiles native-image-test --projects graal-native-image-test --also-make
+        run: mvn test --batch-mode --no-transfer-progress --activate-profiles native-image-test --projects graal-native-image-test --also-make
+
+  verify-reproducible-build:
+    name: "Verify reproducible build"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+      - name: "Set up JDK 17"
+        uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93  # v4.0.0
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'maven'
+
+      - name: "Verify no plugin issues"
+        run: mvn artifact:check-buildplan --batch-mode --no-transfer-progress
+
+      - name: "Verify reproducible build"
+        # See https://maven.apache.org/guides/mini/guide-reproducible-builds.html#how-to-test-my-maven-build-reproducibility
+        run: |
+          mvn clean install --batch-mode --no-transfer-progress -Dproguard.skip -DskipTests
+          # Run with `-Dbuildinfo.attach=false`; otherwise `artifact:compare` fails because it creates a `.buildinfo` file which
+          # erroneously references the existing `.buildinfo` file (respectively because it is overwriting it, a file with size 0)
+          # See https://issues.apache.org/jira/browse/MARTIFACT-57
+          mvn clean verify artifact:compare --batch-mode --no-transfer-progress -Dproguard.skip -DskipTests -Dbuildinfo.attach=false
