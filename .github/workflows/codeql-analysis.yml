@@ -36,7 +36,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@e8893c57a1f3a2b659b6b55564fdfdbbd2982911  # v3.24.0
+      uses: github/codeql-action/init@47b3d888fe66b639e431abf22ebca059152f1eea  # v3.24.5
       with:
         languages: ${{ matrix.language }}
         # Run all security queries and maintainability and reliability queries
@@ -50,4 +50,4 @@ jobs:
         mvn compile --batch-mode --no-transfer-progress
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@e8893c57a1f3a2b659b6b55564fdfdbbd2982911  # v3.24.0
+      uses: github/codeql-action/analyze@47b3d888fe66b639e431abf22ebca059152f1eea  # v3.24.5
