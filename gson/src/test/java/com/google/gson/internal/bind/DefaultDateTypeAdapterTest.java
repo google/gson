@@ -18,7 +18,7 @@ package com.google.gson.internal.bind;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -63,10 +63,7 @@ public class DefaultDateTypeAdapterTest {
       // Note: \h means "horizontal space", because some JDK versions use Narrow No Break Space
       // (U+202F) before the AM or PM indication.
       String utcFull = "(Coordinated Universal Time|UTC)";
-      assertFormatted("Jan 1, 1970,? 12:00:00\\hAM", DateType.DATE.createDefaultsAdapterFactory());
-      assertFormatted("1/1/70", DateType.DATE.createAdapterFactory(DateFormat.SHORT));
-      assertFormatted("Jan 1, 1970", DateType.DATE.createAdapterFactory(DateFormat.MEDIUM));
-      assertFormatted("January 1, 1970", DateType.DATE.createAdapterFactory(DateFormat.LONG));
+      assertFormatted("Jan 1, 1970,? 12:00:00\\hAM", DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
       assertFormatted(
           "1/1/70,? 12:00\\hAM",
           DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
@@ -95,16 +92,7 @@ public class DefaultDateTypeAdapterTest {
       Date date = new Date(0);
       assertParsed(
           DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(date),
-          DateType.DATE.createDefaultsAdapterFactory());
-      assertParsed(
-          DateFormat.getDateInstance(DateFormat.SHORT).format(date),
-          DateType.DATE.createAdapterFactory(DateFormat.SHORT));
-      assertParsed(
-          DateFormat.getDateInstance(DateFormat.MEDIUM).format(date),
-          DateType.DATE.createAdapterFactory(DateFormat.MEDIUM));
-      assertParsed(
-          DateFormat.getDateInstance(DateFormat.LONG).format(date),
-          DateType.DATE.createAdapterFactory(DateFormat.LONG));
+          DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
       assertParsed(
           DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date),
           DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
@@ -130,10 +118,7 @@ public class DefaultDateTypeAdapterTest {
     Locale defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
     try {
-      assertParsed("Jan 1, 1970 0:00:00 AM", DateType.DATE.createDefaultsAdapterFactory());
-      assertParsed("1/1/70", DateType.DATE.createAdapterFactory(DateFormat.SHORT));
-      assertParsed("Jan 1, 1970", DateType.DATE.createAdapterFactory(DateFormat.MEDIUM));
-      assertParsed("January 1, 1970", DateType.DATE.createAdapterFactory(DateFormat.LONG));
+      assertParsed("Jan 1, 1970 0:00:00 AM", DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
       assertParsed(
           "1/1/70 0:00 AM", DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
       assertParsed(
@@ -158,8 +143,8 @@ public class DefaultDateTypeAdapterTest {
     Locale defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
     try {
-      assertFormatted("Dec 31, 1969,? 4:00:00\\hPM", DateType.DATE.createDefaultsAdapterFactory());
-      assertParsed("Dec 31, 1969 4:00:00 PM", DateType.DATE.createDefaultsAdapterFactory());
+      assertFormatted("Dec 31, 1969,? 4:00:00\\hPM", DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
+      assertParsed("Dec 31, 1969 4:00:00 PM", DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
     } finally {
       TimeZone.setDefault(defaultTimeZone);
       Locale.setDefault(defaultLocale);
@@ -168,23 +153,12 @@ public class DefaultDateTypeAdapterTest {
 
   @Test
   public void testDateDeserializationISO8601() throws Exception {
-    TypeAdapterFactory adapterFactory = DateType.DATE.createDefaultsAdapterFactory();
+    TypeAdapterFactory adapterFactory = DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY;
     assertParsed("1970-01-01T00:00:00.000Z", adapterFactory);
     assertParsed("1970-01-01T00:00Z", adapterFactory);
     assertParsed("1970-01-01T00:00:00+00:00", adapterFactory);
     assertParsed("1970-01-01T01:00:00+01:00", adapterFactory);
     assertParsed("1970-01-01T01:00:00+01", adapterFactory);
-  }
-
-  @Test
-  public void testDateSerialization() {
-    int dateStyle = DateFormat.LONG;
-    TypeAdapter<Date> dateTypeAdapter = dateAdapter(DateType.DATE.createAdapterFactory(dateStyle));
-    DateFormat formatter = DateFormat.getDateInstance(dateStyle, Locale.US);
-    Date currentDate = new Date();
-
-    String dateString = dateTypeAdapter.toJson(currentDate);
-    assertThat(dateString).isEqualTo(toLiteral(formatter.format(currentDate)));
   }
 
   @Test
@@ -200,28 +174,24 @@ public class DefaultDateTypeAdapterTest {
 
   @Test
   public void testInvalidDatePattern() {
-    try {
-      DateType.DATE.createAdapterFactory("I am a bad Date pattern....");
-      fail("Invalid date pattern should fail.");
-    } catch (IllegalArgumentException expected) {
-    }
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> DateType.DATE.createAdapterFactory("I am a bad Date pattern...."));
   }
 
   @Test
   public void testNullValue() throws Exception {
-    TypeAdapter<Date> adapter = dateAdapter(DateType.DATE.createDefaultsAdapterFactory());
+    TypeAdapter<Date> adapter = dateAdapter(DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
     assertThat(adapter.fromJson("null")).isNull();
     assertThat(adapter.toJson(null)).isEqualTo("null");
   }
 
   @Test
   public void testUnexpectedToken() throws Exception {
-    try {
-      TypeAdapter<Date> adapter = dateAdapter(DateType.DATE.createDefaultsAdapterFactory());
-      adapter.fromJson("{}");
-      fail("Unexpected token should fail.");
-    } catch (IllegalStateException expected) {
-    }
+    TypeAdapter<Date> adapter = dateAdapter(DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
+    IllegalStateException e =
+        assertThrows(IllegalStateException.class, () -> adapter.fromJson("{}"));
+    assertThat(e).hasMessageThat().startsWith("Expected a string but was BEGIN_OBJECT");
   }
 
   @Test

@@ -232,7 +232,7 @@ public final class Gson {
    *       through {@link GsonBuilder#registerTypeAdapter(Type, Object)}.
    *   <li>The default Date format is same as {@link java.text.DateFormat#DEFAULT}. This format
    *       ignores the millisecond portion of the date during serialization. You can change this by
-   *       invoking {@link GsonBuilder#setDateFormat(int)} or {@link
+   *       invoking {@link GsonBuilder#setDateFormat(int, int)} or {@link
    *       GsonBuilder#setDateFormat(String)}.
    *   <li>By default, Gson ignores the {@link com.google.gson.annotations.Expose} annotation. You
    *       can enable Gson to serialize/deserialize only those fields marked with this annotation

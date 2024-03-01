@@ -358,6 +358,7 @@ public class GsonBuilderTest {
     assertThat(emptyFormatted).isEqualTo(originalFormatted);
   }
 
+  @SuppressWarnings("deprecation") // for GsonBuilder.setDateFormat(int)
   @Test
   public void testSetDateFormatValidStyle() {
     GsonBuilder builder = new GsonBuilder();
@@ -370,6 +371,7 @@ public class GsonBuilderTest {
     }
   }
 
+  @SuppressWarnings("deprecation") // for GsonBuilder.setDateFormat(int)
   @Test
   public void testSetDateFormatInvalidStyle() {
     GsonBuilder builder = new GsonBuilder();
