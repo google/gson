@@ -160,7 +160,10 @@ section "JSON Strictness handling" for alternative solutions.
 
 **Symptom:** An `IllegalStateException` with a message in the form "Expected ... but was ..." is thrown
 
-**Reason:** The JSON data does not have the correct format
+**Reason:**
+
+- The JSON data does not have the correct format
+- Or, Gson has no built-in adapter for a type and tries to deserialize it as JSON object
 
 **Solution:** Make sure that your classes correctly model the JSON data. Also during debugging log the JSON data right before calling Gson methods or set a breakpoint to inspect the data and make sure it has the expected format. Read the location information of the exception message, it indicates where exactly in the document the error occurred, including the [JSONPath](https://goessner.net/articles/JsonPath/).
 
@@ -183,6 +186,9 @@ And you want to deserialize the following JSON data:
 This will fail with an exception similar to this one: `IllegalStateException: Expected a string but was BEGIN_ARRAY at line 2 column 17 path $.languages`\
 This means Gson expected a JSON string value but found the beginning of a JSON array (`[`). The location information "line 2 column 17" points to the `[` in the JSON data (with some slight inaccuracies), so does the JSONPath `$.languages` in the exception message. It refers to the `languages` member of the root object (`$.`).\
 The solution here is to change in the `WebPage` class the field `String languages` to `List<String> languages`.
+
+If you are sure that the JSON data is correct and the exception message is "Expected BEGIN_OBJECT but was ...", then this might indicate that Gson has no built-in adapter for the type.
+Gson then tries to use reflection and expects that the data is a JSON object (hence the error message "Expected BEGIN_OBJECT ..."). In that case you have to write a custom [`TypeAdapter`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) for that type. If you already wrote a custom adapter, but it is not used, see [this troubleshooting point](#custom-adapter-not-used).
 
 ## <a id="adapter-not-null-safe"></a> `IllegalStateException`: "Expected ... but was NULL"
 
