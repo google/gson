@@ -25,7 +25,9 @@ This guide describes how to troubleshoot common issues when using Gson.
 
 **Reason:** You use Gson by accident to access internal fields of third-party classes
 
-**Solution:** Write custom Gson [`TypeAdapter`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) implementations for the affected classes or change the type of your data. If this occurs for a field in one of your classes which you did not actually want to serialize or deserialize in the first place, you can exclude that field, see the [user guide](UserGuide.md#excluding-fields-from-serialization-and-deserialization).
+**Solution:** Write custom Gson [`TypeAdapter`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) implementations for the affected classes or change the type of your data.
+If you already wrote a custom adapter, but it is not used, see [this troubleshooting point](#custom-adapter-not-used).\
+If this occurs for a field in one of your classes which you did not actually want to serialize or deserialize in the first place, you can exclude that field, see the [user guide](UserGuide.md#excluding-fields-from-serialization-and-deserialization).
 
 **Explanation:**
 
@@ -158,7 +160,10 @@ section "JSON Strictness handling" for alternative solutions.
 
 **Symptom:** An `IllegalStateException` with a message in the form "Expected ... but was ..." is thrown
 
-**Reason:** The JSON data does not have the correct format
+**Reason:**
+
+- The JSON data does not have the correct format
+- Or, Gson has no built-in adapter for a type and tries to deserialize it as JSON object
 
 **Solution:** Make sure that your classes correctly model the JSON data. Also during debugging log the JSON data right before calling Gson methods or set a breakpoint to inspect the data and make sure it has the expected format. Read the location information of the exception message, it indicates where exactly in the document the error occurred, including the [JSONPath](https://goessner.net/articles/JsonPath/).
 
@@ -181,6 +186,9 @@ And you want to deserialize the following JSON data:
 This will fail with an exception similar to this one: `IllegalStateException: Expected a string but was BEGIN_ARRAY at line 2 column 17 path $.languages`\
 This means Gson expected a JSON string value but found the beginning of a JSON array (`[`). The location information "line 2 column 17" points to the `[` in the JSON data (with some slight inaccuracies), so does the JSONPath `$.languages` in the exception message. It refers to the `languages` member of the root object (`$.`).\
 The solution here is to change in the `WebPage` class the field `String languages` to `List<String> languages`.
+
+If you are sure that the JSON data is correct and the exception message is "Expected BEGIN_OBJECT but was ...", then this might indicate that Gson has no built-in adapter for the type.
+Gson then tries to use reflection and expects that the data is a JSON object (hence the error message "Expected BEGIN_OBJECT ..."). In that case you have to write a custom [`TypeAdapter`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) for that type. If you already wrote a custom adapter, but it is not used, see [this troubleshooting point](#custom-adapter-not-used).
 
 ## <a id="adapter-not-null-safe"></a> `IllegalStateException`: "Expected ... but was NULL"
 
@@ -285,6 +293,30 @@ Class.forName(jsonString, false, getClass().getClassLoader()).asSubclass(MyBaseC
 
 This will not initialize arbitrary classes, and it will throw a `ClassCastException` if the loaded class is not the same as or a subclass of `MyBaseClass`.
 
+## <a id="custom-adapter-not-used"></a> Custom type adapter is not used
+
+**Symptom:** You have registered a custom `TypeAdapter` (or `JsonSerializer` or `JsonDeserializer`) on a `GsonBuilder`, but Gson is not using your adapter
+
+**Reason:**
+
+- You registered the adapter for the wrong type
+- Or, you are serializing or deserializing a subclass
+- Or, your custom `Gson` instance is not actually used
+
+**Solution:**
+
+- Debug your code and verify that the custom `Gson` instance on which you have registered the adapter is actually used. Possibly parts of your application are using a different `Gson` instance, or you are using a framework such as Spring which is using a different `Gson` instance with default configuration (in that case have a look at the framework-specific configuration options).
+- Verify that you are registering the adapter for the correct type. `GsonBuilder.registerTypeAdapter(...)` takes the adapter as `Object` argument, so you will not see a compilation error when you provide the wrong type.
+  For example when you want to register an adapter for `MyClass`, you should call `registerTypeAdapter(MyClass.class, new MyClassAdapter())`.\
+  Also pay close attention to the package name, there are classes with the same name in different packages, such as `java.util.Date` and `java.sql.Date`.
+- `registerTypeAdapter` only registers an adapter for the specified class, _but not for subclasses_. Use [`registerTypeHierarchyAdapter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#registerTypeHierarchyAdapter(java.lang.Class,java.lang.Object))
+  to also handle subclasses.
+- Be careful with parameterized types for `registerTypeAdapter` because Gson only uses the adapter if there is an exact match for the types.
+  For example if you register an adapter for `List<Number>` it won't be used for `List` (raw type), `List<Integer>` or `ArrayList<Number>`.
+  You can solve this by writing a [`TypeAdapterFactory`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapterFactory.html) instead, which manually checks if the type matches.
+- If you want to register an adapter for a primitive type such as `boolean`, you might also want to register it for the wrapper type `java.lang.Boolean`, and the other way around.
+- The built-in adapters for `JsonElement` (and subclasses) and for `Object` cannot be overwritten. However, as workaround for a field of those types you can use the [`@JsonAdapter` annotation](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/JsonAdapter.html) to specify a custom adapter.
+
 ## <a id="type-token-raw"></a> `IllegalStateException`: 'TypeToken must be created with a type argument' <br> `RuntimeException`: 'Missing type parameter'
 
 **Symptom:** An `IllegalStateException` with the message 'TypeToken must be created with a type argument' is thrown.\
@@ -316,7 +348,7 @@ Note: For newer Gson versions these rules might be applied automatically; make s
 
 **Symptom:** A `JsonIOException` with the message 'Abstract classes can't be instantiated!' is thrown; the class mentioned in the exception message is not actually `abstract` in your source code, and you are using the code shrinking tool R8 (Android app builds normally have this configured by default).
 
-Note: If the class which you are trying to deserialize is actually abstract, then this exception is probably unrelated to R8 and you will have to implement a custom [`InstanceCreator`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/InstanceCreator.html) or [`TypeAdapter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) which creates an instance of a non-abstract subclass of the class.
+Note: If the class which you are trying to deserialize is actually abstract, then this exception is probably unrelated to R8 and you will have to implement a custom [`InstanceCreator`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/InstanceCreator.html) or [`TypeAdapter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/TypeAdapter.html) which creates an instance of a non-abstract subclass of the class. If you already wrote a custom adapter, but it is not used, see [this troubleshooting point](#custom-adapter-not-used).
 
 **Reason:** The code shrinking tool R8 performs optimizations where it removes the no-args constructor from a class and makes the class `abstract`. Due to this Gson cannot create an instance of the class.
 

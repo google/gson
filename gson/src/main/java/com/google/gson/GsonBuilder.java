@@ -683,7 +683,9 @@ public final class GsonBuilder {
    *
    * <p>This registers the type specified and no other types: you must manually register related
    * types! For example, applications registering {@code boolean.class} should also register {@code
-   * Boolean.class}.
+   * Boolean.class}. And when registering an adapter for a class which has subclasses, you might
+   * also want to register the adapter for subclasses, or use {@link
+   * #registerTypeHierarchyAdapter(Class, Object)} instead.
    *
    * <p>{@link JsonSerializer} and {@link JsonDeserializer} are made "{@code null}-safe". This means
    * when trying to serialize {@code null}, Gson will write a JSON {@code null} and the serializer
@@ -697,6 +699,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @throws IllegalArgumentException if the type adapter being registered is for {@code Object}
    *     class or {@link JsonElement} or any of its subclasses
+   * @see #registerTypeHierarchyAdapter(Class, Object)
    */
   @CanIgnoreReturnValue
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
@@ -733,7 +736,7 @@ public final class GsonBuilder {
   }
 
   /**
-   * Register a factory for type adapters. Registering a factory is useful when the type adapter
+   * Registers a factory for type adapters. Registering a factory is useful when the type adapter
    * needs to be configured based on the type of the field being processed. Gson is designed to
    * handle a large number of factories, so you should consider registering them to be at par with
    * registering an individual type adapter.
