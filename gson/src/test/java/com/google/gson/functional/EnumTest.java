@@ -38,6 +38,10 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Date;
+import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -308,4 +312,67 @@ public class EnumTest {
       return toString;
     }
   }
+
+  /** This test case focuses on the deserialization of a generic data structure using 
+   * TypeToken to accurately maintain type information. */
+  @Test
+  public void testDeserializationOfGenericStructureWithTypeToken() {
+	  String json = "[{\"key\":\"value1\"}, {\"key\":\"value2\"}]";
+	  Gson gson = new Gson();
+	  Type type = new TypeToken<List<Map<String, String>>>() {}.getType();
+	  List<Map<String, String>> list = gson.fromJson(json, type);
+
+	  assertThat(list.size()).isEqualTo(2);
+	  assertThat(list.get(0).get("key")).isEqualTo("value1");
+	  assertThat(list.get(1).get("key")).isEqualTo("value2");
+  }
+
+
+  /** This test ensures that custom serializers and deserializers for 
+   * enums work as expected, preserving the ability to encode additional information or apply custom logic. */
+  enum TestEnum {
+	  VALUE_ONE, VALUE_TWO
+  }
+
+  @Test
+  public void testCustomSerializationAndDeserializationOfEnums() {
+	  GsonBuilder builder = new GsonBuilder();
+	  builder.registerTypeAdapter(TestEnum.class, new JsonSerializer<TestEnum>() {
+		  @Override
+		  public JsonElement serialize(TestEnum src, Type typeOfSrc, JsonSerializationContext context) {
+			  return new JsonPrimitive(src.toString().toLowerCase());
+		  }
+	  }).registerTypeAdapter(TestEnum.class, new JsonDeserializer<TestEnum>() {
+		  @Override
+		  public TestEnum deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+			  return TestEnum.valueOf(json.getAsString().toUpperCase());
+		  }
+	  });
+	  Gson gson = builder.create();
+
+	  String json = gson.toJson(TestEnum.VALUE_ONE);
+	  assertThat(json).isEqualTo("\"value_one\"");
+
+	  TestEnum enumValue = gson.fromJson("\"value_one\"", TestEnum.class);
+	  assertThat(enumValue).isEqualTo(TestEnum.VALUE_ONE);
+  }
+
+  /** This test verifies the custom date formats during serialization 
+   * and deserialization, ensuring that GSON can correctly parse and 
+   * format dates according to specified patterns. */
+  @Test
+  public void testHandlingDateFormats() throws ParseException {
+	  String pattern = "yyyy-MM-dd";
+	  Gson gson = new GsonBuilder().setDateFormat(pattern).create();
+	  SimpleDateFormat format = new SimpleDateFormat(pattern);
+	  Date date = format.parse("2024-01-01");
+
+	  String json = gson.toJson(date);
+	  assertThat(json).isEqualTo("\"2024-01-01\"");
+
+	  Date deserializedDate = gson.fromJson("\"2024-01-01\"", Date.class);
+	  assertThat(format.format(deserializedDate)).isEqualTo("2024-01-01");
+  }
+
+
 }
