@@ -93,7 +93,7 @@
       <dependency>
         <groupId>com.google.truth</groupId>
         <artifactId>truth</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.2</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -293,7 +293,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.24.1</version>
+                <version>2.25.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -442,7 +442,7 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.18.3</version>
+          <version>0.18.5</version>
           <configuration>
             <oldVersion>
               <dependency>

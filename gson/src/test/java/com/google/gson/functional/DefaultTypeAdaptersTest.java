@@ -16,6 +16,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
@@ -501,22 +502,84 @@ public class DefaultTypeAdaptersTest {
     }
   }
 
+  /** Uses {@link GsonBuilder#setDateFormat(int, int)} */
   @Test
   public void testDateSerializationWithStyle() {
-    int style = DateFormat.SHORT;
     Date date = new Date(0);
-    String expectedFormatted = DateFormat.getDateTimeInstance(style, style, Locale.US).format(date);
+    int[] styles = {DateFormat.FULL, DateFormat.LONG, DateFormat.MEDIUM, DateFormat.SHORT};
 
-    Gson gson = new GsonBuilder().setDateFormat(style, style).create();
-    String json = gson.toJson(date);
-    assertThat(json).isEqualTo("\"" + expectedFormatted + "\"");
-    // Verify that custom style is not equal to default style
-    assertThat(json).isNotEqualTo(new Gson().toJson(date));
+    for (int dateStyle : styles) {
+      for (int timeStyle : styles) {
+        String expectedFormatted =
+            DateFormat.getDateTimeInstance(dateStyle, timeStyle, Locale.US).format(date);
+
+        Gson gson = new GsonBuilder().setDateFormat(dateStyle, timeStyle).create();
+        String json = gson.toJson(date);
+        assertWithMessage("dateStyle=" + dateStyle + ", timeStyle=" + timeStyle)
+            .that(json)
+            .isEqualTo("\"" + expectedFormatted + "\"");
+
+        assertWithMessage("dateStyle=" + dateStyle + ", timeStyle=" + timeStyle)
+            .that(gson.fromJson(json, Date.class).getTime())
+            .isEqualTo(date.getTime());
+      }
+    }
+
+    // `new Gson()` should use dateStyle=DEFAULT, timeStyle=DEFAULT
+    String expectedFormatted =
+        DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US)
+            .format(date);
+    assertThat(new Gson().toJson(date)).isEqualTo("\"" + expectedFormatted + "\"");
   }
 
+  /** Uses {@link GsonBuilder#setDateFormat(int)} */
+  @SuppressWarnings("deprecation") // for GsonBuilder.setDateFormat(int)
+  @Test
+  public void testDateSerializationWithDateStyle() {
+    Date date = new Date(0);
+    int[] styles = {DateFormat.FULL, DateFormat.LONG, DateFormat.MEDIUM, DateFormat.SHORT};
+
+    for (int dateStyle : styles) {
+      String expectedFormatted =
+          DateFormat.getDateTimeInstance(dateStyle, DateFormat.DEFAULT, Locale.US).format(date);
+
+      Gson gson = new GsonBuilder().setDateFormat(dateStyle).create();
+      String json = gson.toJson(date);
+      assertWithMessage("dateStyle=" + dateStyle)
+          .that(json)
+          .isEqualTo("\"" + expectedFormatted + "\"");
+
+      assertWithMessage("dateStyle=" + dateStyle)
+          .that(gson.fromJson(json, Date.class).getTime())
+          .isEqualTo(date.getTime());
+    }
+  }
+
+  /**
+   * Using {@link GsonBuilder#setDateFormat(int, int)} should overwrite previous patterns set with
+   * {@link GsonBuilder#setDateFormat(String)}
+   */
+  @Test
+  public void testDateStyleOverwritesPattern() {
+    String pattern = "yyyy-MM-dd";
+    Date date = new Date(0);
+    GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat(pattern);
+    String patternJson = gsonBuilder.create().toJson(date);
+
+    int style = DateFormat.SHORT;
+    String styleJson = gsonBuilder.setDateFormat(style, style).create().toJson(date);
+    String expectedFormatted = DateFormat.getDateTimeInstance(style, style, Locale.US).format(date);
+    assertThat(styleJson).isEqualTo("\"" + expectedFormatted + "\"");
+
+    // Should not be equal to pattern JSON output
+    assertThat(styleJson).isNotEqualTo(patternJson);
+  }
+
+  @SuppressWarnings("deprecation") // for GsonBuilder.setDateFormat(int)
   @Test
   public void testDateSerializationWithPattern() {
     String pattern = "yyyy-MM-dd";
+    // This also verifies that a custom pattern overwrites a custom style
     Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
@@ -527,6 +590,7 @@ public class DefaultTypeAdaptersTest {
   @Test
   public void testDateDeserializationWithPattern() {
     String pattern = "yyyy-MM-dd";
+    // This also verifies that a custom pattern overwrites a custom style
     Gson gson = new GsonBuilder().setDateFormat(DateFormat.FULL).setDateFormat(pattern).create();
     Date now = new Date(1315806903103L);
     String json = gson.toJson(now);
