@@ -26,7 +26,47 @@ import java.io.StringReader;
 
 /**
  * A parser to parse JSON into a parse tree of {@link JsonElement}s.
+ * 
+ * <p>Here's an example of parsing from a string:
+ * 
+ * <pre>
+ * String json = "{\"key\": \"value\"}";
+ * JsonElement jsonElement = JsonParser.parseString(json);
+ * JsonObject jsonObject = jsonElement.getAsJsonObject();
+ * </pre>
  *
+ * <p>It can also parse from a reader:
+ * 
+ * <pre>
+ * try (Reader reader = new FileReader("C:\\my_json.json")) {
+ *     JsonElement jsonElement = JsonParser.parseReader(reader);
+ *     JsonObject jsonObject = jsonElement.getAsJsonObject();
+ * } catch (IOException e) {
+ *     e.printStackTrace();
+ * }
+ * </pre>
+ * 
+ * <p>If you want to parse from a {@link JsonReader} for more customized parsing requirements, the following example demonstrates how to achieve it:
+ * 
+ * <pre>
+ * String json = "{\"key1\": \"value1\", \"skipKey\": \"skipValue\", \"key2\": \"value2\"}";
+ * try (JsonReader jsonReader = new JsonReader(new StringReader(json))) {
+ *     jsonReader.beginObject();
+ *     while (jsonReader.hasNext()) {
+ *         String fieldName = jsonReader.nextName();
+ *         if ("skipKey".equals(fieldName)) {
+ *             jsonReader.skipValue();
+ *         } else {
+ *             JsonElement jsonElement = JsonParser.parseReader(jsonReader);
+ *             String fieldValue = jsonElement.getAsString();
+ *         }
+ *     }
+ *     jsonReader.endObject();
+ * } catch (IOException e) {
+ *     e.printStackTrace();
+ * }
+ * </pre>
+ * 
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @since 1.3
