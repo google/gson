@@ -930,7 +930,9 @@ public final class Gson {
     Strictness oldStrictness = writer.getStrictness();
     if (this.strictness != null) {
       writer.setStrictness(this.strictness);
-    } else if (writer.getStrictness() != Strictness.STRICT) {
+    }
+    // For backward compatibility change to LENIENT if writer has default strictness LEGACY_STRICT
+    else if (writer.getStrictness() == Strictness.LEGACY_STRICT) {
       writer.setStrictness(Strictness.LENIENT);
     }
 
@@ -1013,7 +1015,9 @@ public final class Gson {
 
     if (this.strictness != null) {
       writer.setStrictness(this.strictness);
-    } else if (writer.getStrictness() != Strictness.STRICT) {
+    }
+    // For backward compatibility change to LENIENT if writer has default strictness LEGACY_STRICT
+    else if (writer.getStrictness() == Strictness.LEGACY_STRICT) {
       writer.setStrictness(Strictness.LENIENT);
     }
 
@@ -1347,7 +1351,9 @@ public final class Gson {
 
     if (this.strictness != null) {
       reader.setStrictness(this.strictness);
-    } else if (reader.getStrictness() != Strictness.STRICT) {
+    }
+    // For backward compatibility change to LENIENT if reader has default strictness LEGACY_STRICT
+    else if (reader.getStrictness() == Strictness.LEGACY_STRICT) {
       reader.setStrictness(Strictness.LENIENT);
     }
 
