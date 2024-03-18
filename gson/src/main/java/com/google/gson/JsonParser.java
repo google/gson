@@ -26,9 +26,11 @@ import java.io.StringReader;
 
 /**
  * A parser to parse JSON into a parse tree of {@link JsonElement}s.
- * 
+ *
+ * <p>The JSON data is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode}.
+ *
  * <p>Here's an example of parsing from a string:
- * 
+ *
  * <pre>
  * String json = "{\"key\": \"value\"}";
  * JsonElement jsonElement = JsonParser.parseString(json);
@@ -36,37 +38,34 @@ import java.io.StringReader;
  * </pre>
  *
  * <p>It can also parse from a reader:
- * 
+ *
  * <pre>
- * try (Reader reader = new FileReader("C:\\my_json.json")) {
- *     JsonElement jsonElement = JsonParser.parseReader(reader);
- *     JsonObject jsonObject = jsonElement.getAsJsonObject();
- * } catch (IOException e) {
- *     e.printStackTrace();
+ * try (Reader reader = new FileReader("my-data.json", StandardCharsets.UTF_8)) {
+ *   JsonElement jsonElement = JsonParser.parseReader(reader);
+ *   JsonObject jsonObject = jsonElement.getAsJsonObject();
  * }
  * </pre>
- * 
- * <p>If you want to parse from a {@link JsonReader} for more customized parsing requirements, the following example demonstrates how to achieve it:
- * 
+ *
+ * <p>If you want to parse from a {@link JsonReader} for more customized parsing requirements, the
+ * following example demonstrates how to achieve it:
+ *
  * <pre>
- * String json = "{\"key1\": \"value1\", \"skipKey\": \"skipValue\", \"key2\": \"value2\"}";
+ * String json = "{\"skipObj\": {\"skipKey\": \"skipValue\"},\"obj\": {\"key\": \"value\"}}";
  * try (JsonReader jsonReader = new JsonReader(new StringReader(json))) {
- *     jsonReader.beginObject();
- *     while (jsonReader.hasNext()) {
- *         String fieldName = jsonReader.nextName();
- *         if ("skipKey".equals(fieldName)) {
- *             jsonReader.skipValue();
- *         } else {
- *             JsonElement jsonElement = JsonParser.parseReader(jsonReader);
- *             String fieldValue = jsonElement.getAsString();
- *         }
+ *   jsonReader.beginObject();
+ *   while (jsonReader.hasNext()) {
+ *     String fieldName = jsonReader.nextName();
+ *     if (fieldName.equals("skipObj")) {
+ *       jsonReader.skipValue();
+ *     } else {
+ *       JsonElement jsonElement = JsonParser.parseReader(jsonReader);
+ *       JsonObject jsonObject = jsonElement.getAsJsonObject();
  *     }
- *     jsonReader.endObject();
- * } catch (IOException e) {
- *     e.printStackTrace();
+ *   }
+ *   jsonReader.endObject();
  * }
  * </pre>
- * 
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @since 1.3
