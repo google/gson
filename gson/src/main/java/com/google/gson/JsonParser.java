@@ -99,8 +99,8 @@ public final class JsonParser {
   public static JsonElement parseReader(JsonReader reader)
       throws JsonIOException, JsonSyntaxException {
     Strictness strictness = reader.getStrictness();
-    // For backward compatibility change to LENIENT if reader has default strictness LEGACY_STRICT
     if (strictness == Strictness.LEGACY_STRICT) {
+      // For backward compatibility change to LENIENT if reader has default strictness LEGACY_STRICT
       reader.setStrictness(Strictness.LENIENT);
     }
     try {
