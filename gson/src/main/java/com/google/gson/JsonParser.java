@@ -126,9 +126,10 @@ public final class JsonParser {
    * methods, no exception is thrown if the JSON data has multiple top-level JSON elements, or if
    * there is trailing data.
    *
-   * <p>The JSON data is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode},
-   * regardless of the strictness setting of the provided reader. The strictness setting of the
-   * reader is restored once this method returns.
+   * <p>If the {@linkplain JsonReader#getStrictness() strictness of the reader} is {@link
+   * Strictness#STRICT}, that strictness will be used for parsing. Otherwise the strictness will be
+   * temporarily changed to {@link Strictness#LENIENT} and will be restored once this method
+   * returns.
    *
    * @throws JsonParseException if there is an IOException or if the specified text is not valid
    *     JSON
@@ -137,7 +138,10 @@ public final class JsonParser {
   public static JsonElement parseReader(JsonReader reader)
       throws JsonIOException, JsonSyntaxException {
     Strictness strictness = reader.getStrictness();
-    reader.setStrictness(Strictness.LENIENT);
+    if (strictness == Strictness.LEGACY_STRICT) {
+      // For backward compatibility change to LENIENT if reader has default strictness LEGACY_STRICT
+      reader.setStrictness(Strictness.LENIENT);
+    }
     try {
       return Streams.parse(reader);
     } catch (StackOverflowError e) {

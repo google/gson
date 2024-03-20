@@ -174,14 +174,29 @@ public class JsonParserTest {
   }
 
   @Test
+  public void testLegacyStrict() {
+    JsonReader reader = new JsonReader(new StringReader("unquoted"));
+    Strictness strictness = Strictness.LEGACY_STRICT;
+    // LEGACY_STRICT is ignored by JsonParser later; parses in lenient mode instead
+    reader.setStrictness(strictness);
+
+    assertThat(JsonParser.parseReader(reader)).isEqualTo(new JsonPrimitive("unquoted"));
+    // Original strictness was restored
+    assertThat(reader.getStrictness()).isEqualTo(strictness);
+  }
+
+  @Test
   public void testStrict() {
     JsonReader reader = new JsonReader(new StringReader("faLsE"));
     Strictness strictness = Strictness.STRICT;
-    // Strictness is ignored by JsonParser later; always parses in lenient mode
     reader.setStrictness(strictness);
 
-    assertThat(JsonParser.parseReader(reader)).isEqualTo(new JsonPrimitive(false));
-    // Original strictness was restored
+    var e = assertThrows(JsonSyntaxException.class, () -> JsonParser.parseReader(reader));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON");
+    // Original strictness was kept
     assertThat(reader.getStrictness()).isEqualTo(strictness);
   }
 }

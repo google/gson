@@ -316,7 +316,7 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Returns true if the {@link Strictness} of this writer is equal to {@link Strictness#LENIENT}.
    *
-   * @see JsonWriter#setStrictness(Strictness)
+   * @see #getStrictness()
    */
   public boolean isLenient() {
     return strictness == Strictness.LENIENT;
@@ -338,6 +338,7 @@ public class JsonWriter implements Closeable, Flushable {
    * </dl>
    *
    * @param strictness the new strictness of this writer. May not be {@code null}.
+   * @see #getStrictness()
    * @since $next-version$
    */
   public final void setStrictness(Strictness strictness) {
