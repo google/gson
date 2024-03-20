@@ -203,7 +203,8 @@ public final class MixedStreamTest {
 
     StringWriter writer = new StringWriter();
     new Gson().toJson(contents, type, new JsonWriter(writer));
-    assertThat(writer.toString()).isEqualTo("[\"\\u003c\",\"\\u003e\",\"\\u0026\",\"\\u003d\",\"\\u0027\"]");
+    assertThat(writer.toString())
+        .isEqualTo("[\"\\u003c\",\"\\u003e\",\"\\u0026\",\"\\u003d\",\"\\u0027\"]");
   }
 
   @Test
@@ -215,7 +216,6 @@ public final class MixedStreamTest {
     new GsonBuilder().disableHtmlEscaping().create().toJson(contents, type, new JsonWriter(writer));
     assertThat(writer.toString()).isEqualTo("[\"<\",\">\",\"&\",\"=\",\"'\"]");
   }
-
 
   @Test
   public void testWriteLenient() {
