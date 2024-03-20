@@ -20,6 +20,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -27,6 +28,69 @@ import java.math.BigInteger;
 /**
  * A class representing an element of JSON. It could either be a {@link JsonObject}, a {@link
  * JsonArray}, a {@link JsonPrimitive} or a {@link JsonNull}.
+ *
+ * <p>This class provides multiple {@code getAs...} methods which allow
+ *
+ * <ul>
+ *   <li>obtaining the represented primitive value, for example {@link #getAsString()}
+ *   <li>casting to the {@code JsonElement} subclasses in a convenient way, for example {@link
+ *       #getAsJsonObject()}
+ * </ul>
+ *
+ * <h2>Converting {@code JsonElement} from / to JSON</h2>
+ *
+ * There are two ways to parse JSON data as a {@link JsonElement}:
+ *
+ * <ul>
+ *   <li>{@link JsonParser}, for example:
+ *       <pre>
+ * JsonObject jsonObject = JsonParser.parseString("{}").getAsJsonObject();
+ * </pre>
+ *   <li>{@link Gson#fromJson(Reader, Class) Gson.fromJson(..., JsonElement.class)}<br>
+ *       It is possible to directly specify a {@code JsonElement} subclass, for example:
+ *       <pre>
+ * JsonObject jsonObject = gson.fromJson("{}", JsonObject.class);
+ * </pre>
+ * </ul>
+ *
+ * To convert a {@code JsonElement} to JSON the method {@link Gson#toJson(JsonElement)} and its
+ * overloads can be used.
+ *
+ * <p>It is also possible to obtain the {@link TypeAdapter} for {@code JsonElement} from a {@link
+ * Gson} instance and then use it for conversion to JSON:
+ *
+ * <pre>{@code
+ * TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
+ *
+ * JsonElement value = adapter.fromJson("{}");
+ * String json = adapter.toJson(value);
+ * }</pre>
+ *
+ * <h2>{@code JsonElement} as JSON data</h2>
+ *
+ * {@code JsonElement} can also be treated as JSON data, allowing to deserialize from a {@code
+ * JsonElement} and serializing to a {@code JsonElement}. The {@link Gson} class offers these
+ * methods for this:
+ *
+ * <ul>
+ *   <li>{@link Gson#fromJson(JsonElement, Class) Gson.fromJson(JsonElement, ...)}, for example:
+ *       <pre>
+ * JsonObject jsonObject = ...;
+ * MyClass myObj = gson.fromJson(jsonObject, MyClass.class);
+ * </pre>
+ *   <li>{@link Gson#toJsonTree(Object)}, for example:
+ *       <pre>
+ * MyClass myObj = ...;
+ * JsonElement json = gson.toJsonTree(myObj);
+ * </pre>
+ * </ul>
+ *
+ * The {@link TypeAdapter} class provides corresponding methods as well:
+ *
+ * <ul>
+ *   <li>{@link TypeAdapter#fromJsonTree(JsonElement)}
+ *   <li>{@link TypeAdapter#toJsonTree(Object)}
+ * </ul>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
