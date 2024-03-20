@@ -197,19 +197,25 @@ public final class MixedStreamTest {
   }
 
   @Test
-  public void testWriteHtmlSafe() {
+  public void testWriteHtmlSafeWithEscaping() {
     List<String> contents = Arrays.asList("<", ">", "&", "=", "'");
     Type type = new TypeToken<List<String>>() {}.getType();
 
     StringWriter writer = new StringWriter();
     new Gson().toJson(contents, type, new JsonWriter(writer));
-    assertThat(writer.toString())
-        .isEqualTo("[\"\\u003c\",\"\\u003e\",\"\\u0026\",\"\\u003d\",\"\\u0027\"]");
+    assertThat(writer.toString()).isEqualTo("[\"\\u003c\",\"\\u003e\",\"\\u0026\",\"\\u003d\",\"\\u0027\"]");
+  }
 
-    writer = new StringWriter();
+  @Test
+  public void testWriteHtmlSafeWithoutEscaping() {
+    List<String> contents = Arrays.asList("<", ">", "&", "=", "'");
+    Type type = new TypeToken<List<String>>() {}.getType();
+
+    StringWriter writer = new StringWriter();
     new GsonBuilder().disableHtmlEscaping().create().toJson(contents, type, new JsonWriter(writer));
     assertThat(writer.toString()).isEqualTo("[\"<\",\">\",\"&\",\"=\",\"'\"]");
   }
+
 
   @Test
   public void testWriteLenient() {
