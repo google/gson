@@ -970,7 +970,9 @@ public final class JsonWriterTest {
     writer.beginArray();
     writer.endArray();
     writer.close();
+    assertThat(stringWriter.toString()).isEqualTo("[]");
     writer.close();
+    assertThat(stringWriter.toString()).isEqualTo("[]");
   }
 
   @Test
