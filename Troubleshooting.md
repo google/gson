@@ -9,7 +9,10 @@ This guide describes how to troubleshoot common issues when using Gson.
 
 **Symptom:** `ClassCastException` is thrown when accessing an object deserialized by Gson
 
-**Reason:** Your code is most likely not type-safe
+**Reason:**
+
+- Your code is most likely not type-safe
+- Or, you have not configured code shrinking tools such as ProGuard or R8 correctly
 
 **Solution:** Make sure your code adheres to the following:
 
@@ -18,6 +21,8 @@ This guide describes how to troubleshoot common issues when using Gson.
 - When using `TypeToken` prefer the `Gson.fromJson` overloads with `TypeToken` parameter such as [`fromJson(Reader, TypeToken)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#fromJson(java.io.Reader,com.google.gson.reflect.TypeToken)).
   The overloads with `Type` parameter do not provide any type-safety guarantees.
 - When using `TypeToken` make sure you don't capture a type variable. For example avoid something like `new TypeToken<List<T>>()` (where `T` is a type variable). Due to Java [type erasure](https://dev.java/learn/generics/type-erasure/) the actual type of `T` is not available at runtime. Refactor your code to pass around `TypeToken` instances or use [`TypeToken.getParameterized(...)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/reflect/TypeToken.html#getParameterized(java.lang.reflect.Type,java.lang.reflect.Type...)), for example `TypeToken.getParameterized(List.class, elementType)` where `elementType` is a type you have to provide separately.
+
+If you are using a code shrinking tool such as ProGuard or R8 (for example when building an Android app), make sure it is correctly configured to keep generic signatures and to keep Gson's `TypeToken` class. See the [Android example](examples/android-proguard-example/README.md) for more information.
 
 ## <a id="reflection-inaccessible"></a> `InaccessibleObjectException`: 'module ... does not "opens ..." to unnamed module'
 
@@ -197,7 +202,7 @@ Gson then tries to use reflection and expects that the data is a JSON object (he
 **Reason:**
 
 - A built-in adapter does not support JSON null values
-- You have written a custom `TypeAdapter` which does not properly handle JSON null values
+- Or, you have written a custom `TypeAdapter` which does not properly handle JSON null values
 
 **Solution:** If this occurs for a custom adapter you wrote, add code similar to the following at the beginning of its `read` method:
 
@@ -245,7 +250,7 @@ If you want to prevent using reflection on third-party classes in the future you
 
 **Reason:** You used `GsonBuilder.excludeFieldsWithModifiers` to overwrite the default excluded modifiers
 
-**Solution:** When calling `GsonBuilder.excludeFieldsWithModifiers` you overwrite the default excluded modifiers. Therefore, you have to explicitly exclude `static` fields if desired. This can be done by adding `Modifier.STATIC` as additional argument.
+**Solution:** When calling `GsonBuilder.excludeFieldsWithModifiers` you overwrite the default excluded modifiers. Therefore, you have to explicitly exclude `static` fields if desired. This can be done by adding `Modifier.STATIC` as additional argument to the `excludeFieldsWithModifiers` call.
 
 ## <a id="no-such-method-error"></a> `NoSuchMethodError` when calling Gson methods
 
@@ -272,12 +277,13 @@ If that fails with a `NullPointerException` you have to try one of the other way
 **Reason:**
 
 - The name you have specified with a [`@SerializedName`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html) annotation for a field collides with the name of another field
-- The [`FieldNamingStrategy`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/FieldNamingStrategy.html) you have specified produces conflicting field names
-- A field of your class has the same name as the field of a superclass
+- Or, the [`FieldNamingStrategy`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/FieldNamingStrategy.html) you have specified produces conflicting field names
+- Or, a field of your class has the same name as the field of a superclass
+- Or, you are using an obfuscation tool such as ProGuard or R8 and it has renamed the fields; in that case see [this troubleshooting point](#android-app-random-names)
 
 Gson prevents multiple fields with the same name because during deserialization it would be ambiguous for which field the JSON data should be deserialized. For serialization it would cause the same field to appear multiple times in JSON. While the JSON specification permits this, it is likely that the application parsing the JSON data will not handle it correctly.
 
-**Solution:** First identify the fields with conflicting names based on the exception message. Then decide if you want to rename one of them using the [`@SerializedName`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html) annotation, or if you want to [exclude](UserGuide.md#excluding-fields-from-serialization-and-deserialization) one of them. When excluding one of the fields you have to include it for both serialization and deserialization (even if your application only performs one of these actions) because the duplicate field check cannot differentiate between these actions.
+**Solution:** First identify the fields with conflicting names based on the exception message. Then decide if you want to rename one of them using the [`@SerializedName`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html) annotation, or if you want to [exclude](UserGuide.md#excluding-fields-from-serialization-and-deserialization) one of them. When excluding one of the fields you have to apply the exclusion for both serialization and deserialization (even if your application only performs one of these actions) because the duplicate field check cannot differentiate between these actions.
 
 ## <a id="java-lang-class-unsupported"></a> `UnsupportedOperationException` when serializing or deserializing `java.lang.Class`
 
@@ -325,7 +331,7 @@ For older Gson versions a `RuntimeException` with message 'Missing type paramete
 **Reason:**
 
 - You created a `TypeToken` without type argument, for example `new TypeToken() {}` (note the missing `<...>`). You always have to provide the type argument, for example like this: `new TypeToken<List<String>>() {}`. Normally the compiler will also emit a 'raw types' warning when you forget the `<...>`.
-- You are using a code shrinking tool such as ProGuard or R8 (Android app builds normally have this enabled by default) but have not configured it correctly for usage with Gson.
+- Or, you are using a code shrinking tool such as ProGuard or R8 (Android app builds normally have this enabled by default) but have not configured it correctly for usage with Gson.
 
 **Solution:** When you are using a code shrinking tool such as ProGuard or R8 you have to adjust your configuration to include the following rules:
 
