@@ -33,6 +33,9 @@ import java.util.List;
  * <p>{@code JsonArray} only implements the {@link Iterable} interface but not the {@link List}
  * interface. A {@code List} view of it can be obtained with {@link #asList()}.
  *
+ * <p>See the {@link JsonElement} documentation for details on how to convert {@code JsonArray} and
+ * generally any {@code JsonElement} from and to JSON.
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
