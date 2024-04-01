@@ -28,7 +28,7 @@ import com.google.gson.protobuf.generated.Annotations;
 import com.google.gson.protobuf.generated.Bag.OuterMessage;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage;
-import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.GeneratedMessage;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,18 +51,18 @@ public class ProtosWithAnnotationsTest {
             .addSerializedEnumValueExtension(Annotations.serializedValue);
     gson =
         new GsonBuilder()
-            .registerTypeHierarchyAdapter(GeneratedMessageV3.class, protoTypeAdapter.build())
+            .registerTypeHierarchyAdapter(GeneratedMessage.class, protoTypeAdapter.build())
             .create();
     gsonWithEnumNumbers =
         new GsonBuilder()
             .registerTypeHierarchyAdapter(
-                GeneratedMessageV3.class,
+                GeneratedMessage.class,
                 protoTypeAdapter.setEnumSerialization(EnumSerialization.NUMBER).build())
             .create();
     gsonWithLowerHyphen =
         new GsonBuilder()
             .registerTypeHierarchyAdapter(
-                GeneratedMessageV3.class,
+                GeneratedMessage.class,
                 protoTypeAdapter
                     .setFieldNameSerializationFormat(
                         CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_HYPHEN)
