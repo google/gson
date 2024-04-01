@@ -27,7 +27,7 @@ import com.google.gson.protobuf.ProtoTypeAdapter.EnumSerialization;
 import com.google.gson.protobuf.generated.Bag.ProtoWithDifferentCaseFormat;
 import com.google.gson.protobuf.generated.Bag.ProtoWithRepeatedFields;
 import com.google.gson.protobuf.generated.Bag.SimpleProto;
-import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.GeneratedMessage;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,7 +45,7 @@ public class ProtosWithComplexAndRepeatedFieldsTest {
     gson =
         new GsonBuilder()
             .registerTypeHierarchyAdapter(
-                GeneratedMessageV3.class,
+                GeneratedMessage.class,
                 ProtoTypeAdapter.newBuilder()
                     .setEnumSerialization(EnumSerialization.NUMBER)
                     .build())
@@ -53,7 +53,7 @@ public class ProtosWithComplexAndRepeatedFieldsTest {
     upperCamelGson =
         new GsonBuilder()
             .registerTypeHierarchyAdapter(
-                GeneratedMessageV3.class,
+                GeneratedMessage.class,
                 ProtoTypeAdapter.newBuilder()
                     .setFieldNameSerializationFormat(
                         CaseFormat.LOWER_UNDERSCORE, CaseFormat.UPPER_CAMEL)
