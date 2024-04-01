@@ -247,7 +247,7 @@ public final class ParseBenchmark {
             depth--;
             break;
           case FIELD_NAME:
-            jp.getCurrentName();
+            jp.currentName();
             break;
           case VALUE_STRING:
             jp.getText();
