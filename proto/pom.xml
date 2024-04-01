@@ -32,7 +32,7 @@
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
 
-    <protobufVersion>3.25.3</protobufVersion>
+    <protobufVersion>4.26.1</protobufVersion>
   </properties>
 
   <licenses>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.0.0-jre</version>
+      <version>33.1.0-jre</version>
     </dependency>
 
     <dependency>
