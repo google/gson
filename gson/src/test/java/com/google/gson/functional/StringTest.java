@@ -45,7 +45,7 @@ public class StringTest {
   @Test
   public void testStringValueDeserialization() {
     String value = "someRandomStringValue";
-    String actual = gson.fromJson("\"" + value + "\"", String.class);
+    String actual = gson.deserializeFromJson("\"" + value + "\"", String.class);
     assertThat(actual).isEqualTo(value);
   }
 
@@ -53,7 +53,7 @@ public class StringTest {
   public void testSingleQuoteInStringSerialization() {
     String valueWithQuotes = "beforeQuote'afterQuote";
     String jsonRepresentation = gson.toJson(valueWithQuotes);
-    assertThat(gson.fromJson(jsonRepresentation, String.class)).isEqualTo(valueWithQuotes);
+    assertThat(gson.deserializeFromJson(jsonRepresentation, String.class)).isEqualTo(valueWithQuotes);
   }
 
   @Test
@@ -66,7 +66,7 @@ public class StringTest {
   @Test
   public void testEscapedCtrlNInStringDeserialization() {
     String json = "'a\\nb'";
-    String actual = gson.fromJson(json, String.class);
+    String actual = gson.deserializeFromJson(json, String.class);
     assertThat(actual).isEqualTo("a\nb");
   }
 
@@ -80,7 +80,7 @@ public class StringTest {
   @Test
   public void testEscapedCtrlRInStringDeserialization() {
     String json = "'a\\rb'";
-    String actual = gson.fromJson(json, String.class);
+    String actual = gson.deserializeFromJson(json, String.class);
     assertThat(actual).isEqualTo("a\rb");
   }
 
@@ -93,14 +93,14 @@ public class StringTest {
 
   @Test
   public void testEscapedBackslashInStringDeserialization() {
-    String actual = gson.fromJson("'a\\\\b'", String.class);
+    String actual = gson.deserializeFromJson("'a\\\\b'", String.class);
     assertThat(actual).isEqualTo("a\\b");
   }
 
   @Test
   public void testSingleQuoteInStringDeserialization() {
     String value = "beforeQuote'afterQuote";
-    String actual = gson.fromJson("\"" + value + "\"", String.class);
+    String actual = gson.deserializeFromJson("\"" + value + "\"", String.class);
     assertThat(actual).isEqualTo(value);
   }
 
@@ -108,14 +108,14 @@ public class StringTest {
   public void testEscapingQuotesInStringSerialization() {
     String valueWithQuotes = "beforeQuote\"afterQuote";
     String jsonRepresentation = gson.toJson(valueWithQuotes);
-    String target = gson.fromJson(jsonRepresentation, String.class);
+    String target = gson.deserializeFromJson(jsonRepresentation, String.class);
     assertThat(target).isEqualTo(valueWithQuotes);
   }
 
   @Test
   public void testEscapingQuotesInStringDeserialization() {
     String value = "beforeQuote\\\"afterQuote";
-    String actual = gson.fromJson("\"" + value + "\"", String.class);
+    String actual = gson.deserializeFromJson("\"" + value + "\"", String.class);
     String expected = "beforeQuote\"afterQuote";
     assertThat(actual).isEqualTo(expected);
   }
@@ -131,7 +131,7 @@ public class StringTest {
   public void testStringWithEscapedSlashDeserialization() {
     String value = "/";
     String json = "'\\/'";
-    String actual = gson.fromJson(json, String.class);
+    String actual = gson.deserializeFromJson(json, String.class);
     assertThat(actual).isEqualTo(value);
   }
 
@@ -153,11 +153,11 @@ public class StringTest {
   @Test
   public void testAssignmentCharDeserialization() {
     String json = "\"abc=\"";
-    String value = gson.fromJson(json, String.class);
+    String value = gson.deserializeFromJson(json, String.class);
     assertThat(value).isEqualTo("abc=");
 
     json = "'abc\\u003d'";
-    value = gson.fromJson(json, String.class);
+    value = gson.deserializeFromJson(json, String.class);
     assertThat(value).isEqualTo("abc=");
   }
 
@@ -171,7 +171,7 @@ public class StringTest {
   @Test
   public void testJavascriptKeywordsInStringDeserialization() {
     String json = "'null true false function'";
-    String value = gson.fromJson(json, String.class);
+    String value = gson.deserializeFromJson(json, String.class);
     assertThat(json.substring(1, json.length() - 1)).isEqualTo(value);
   }
 }

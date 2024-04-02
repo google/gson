@@ -568,7 +568,10 @@ public class JsonWriter implements Closeable, Flushable {
   @CanIgnoreReturnValue
   public JsonWriter value(float value) throws IOException {
     writeDeferredName();
-    if (strictness != Strictness.LENIENT && (Float.isNaN(value) || Float.isInfinite(value))) {
+    boolean lenient = strictness == Strictness.LENIENT;
+    boolean finite = Float.isFinite(value);
+    boolean isNaN = Float.isNaN(value);
+    if (!lenient && (isNaN || !finite)) {
       throw new IllegalArgumentException("Numeric values must be finite, but was " + value);
     }
     beforeValue();
@@ -708,11 +711,14 @@ public class JsonWriter implements Closeable, Flushable {
   public void close() throws IOException {
     out.close();
 
-    int size = stackSize;
-    if (size > 1 || (size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT)) {
+    if (isDocumentIncomplete(stackSize)) {
       throw new IOException("Incomplete document");
     }
     stackSize = 0;
+  }
+
+  private boolean isDocumentIncomplete(int size) {
+    return size > 1 || (size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT);
   }
 
   /**

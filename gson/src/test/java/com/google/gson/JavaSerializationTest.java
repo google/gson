@@ -40,7 +40,7 @@ public final class JavaSerializationTest {
   @Test
   public void testMapIsSerializable() throws Exception {
     Type type = new TypeToken<Map<String, Integer>>() {}.getType();
-    Map<String, Integer> map = gson.fromJson("{\"b\":1,\"c\":2,\"a\":3}", type);
+    Map<String, Integer> map = gson.deserializeFromJson("{\"b\":1,\"c\":2,\"a\":3}", type);
     Map<String, Integer> serialized = serializedCopy(map);
     assertThat(serialized).isEqualTo(map);
     // Also check that the iteration order is retained.
@@ -50,7 +50,7 @@ public final class JavaSerializationTest {
   @Test
   public void testListIsSerializable() throws Exception {
     Type type = new TypeToken<List<String>>() {}.getType();
-    List<String> list = gson.fromJson("[\"a\",\"b\",\"c\"]", type);
+    List<String> list = gson.deserializeFromJson("[\"a\",\"b\",\"c\"]", type);
     List<String> serialized = serializedCopy(list);
     assertThat(serialized).isEqualTo(list);
   }
@@ -58,7 +58,7 @@ public final class JavaSerializationTest {
   @Test
   public void testNumberIsSerializable() throws Exception {
     Type type = new TypeToken<List<Number>>() {}.getType();
-    List<Number> list = gson.fromJson("[1,3.14,6.673e-11]", type);
+    List<Number> list = gson.deserializeFromJson("[1,3.14,6.673e-11]", type);
     List<Number> serialized = serializedCopy(list);
     assertThat(serialized.get(0).doubleValue()).isEqualTo(1.0);
     assertThat(serialized.get(1).doubleValue()).isEqualTo(3.14);

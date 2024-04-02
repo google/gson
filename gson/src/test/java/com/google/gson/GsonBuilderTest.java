@@ -132,7 +132,7 @@ public class GsonBuilderTest {
     assertThat(json2).isEqualTo("{}");
 
     // Should use default instance creator
-    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
+    CustomClass3 customClass3 = gson.deserializeFromJson("{}", CustomClass3.class);
     assertThat(customClass3.s).isEqualTo(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE);
   }
 
@@ -143,7 +143,7 @@ public class GsonBuilderTest {
     String json2 = gson.toJson(new CustomClass2());
     assertThat(json2).isEqualTo("\"custom-hierarchy-adapter\"");
 
-    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
+    CustomClass3 customClass3 = gson.deserializeFromJson("{}", CustomClass3.class);
     assertThat(customClass3.s).isEqualTo("custom-instance");
   }
 
@@ -204,7 +204,7 @@ public class GsonBuilderTest {
   public void testDisableJdkUnsafe() {
     Gson gson = new GsonBuilder().disableJdkUnsafe().create();
     try {
-      gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
+      gson.deserializeFromJson("{}", ClassWithoutNoArgsConstructor.class);
       fail("Expected exception");
     } catch (JsonIOException expected) {
       assertThat(expected)

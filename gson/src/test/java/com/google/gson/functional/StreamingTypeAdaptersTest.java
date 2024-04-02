@@ -206,7 +206,7 @@ public final class StreamingTypeAdaptersTest {
     }
     String json = "{horsePower:1.0,passengers:[null,'jesse,30']}";
     try {
-      gson.fromJson(json, Truck.class);
+      gson.deserializeFromJson(json, Truck.class);
       fail();
     } catch (JsonSyntaxException expected) {
       assertThat(expected)
@@ -219,7 +219,7 @@ public final class StreamingTypeAdaptersTest {
     gson = new GsonBuilder().registerTypeAdapter(Person.class, typeAdapter.nullSafe()).create();
     assertThat(gson.toJson(truck, Truck.class))
         .isEqualTo("{\"horsePower\":1.0,\"passengers\":[null,\"jesse,30\"]}");
-    truck = gson.fromJson(json, Truck.class);
+    truck = gson.deserializeFromJson(json, Truck.class);
     assertThat(truck.horsePower).isEqualTo(1.0D);
     assertThat(truck.passengers.get(0)).isNull();
     assertThat(truck.passengers.get(1).name).isEqualTo("jesse");

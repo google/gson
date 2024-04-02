@@ -74,7 +74,7 @@ public class GsonVersionDiagnosticsTest {
   @Test
   public void testAssertionErrorInDeserializationPrintsVersion() {
     AssertionError e =
-        assertThrows(AssertionError.class, () -> gson.fromJson("{'a':'abc'}", TestType.class));
+        assertThrows(AssertionError.class, () -> gson.deserializeFromJson("{'a':'abc'}", TestType.class));
 
     ensureAssertionErrorPrintsGsonVersion(e);
   }

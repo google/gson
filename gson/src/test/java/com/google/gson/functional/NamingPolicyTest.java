@@ -59,7 +59,7 @@ public class NamingPolicyTest {
   public void testGsonWithNonDefaultFieldNamingPolicyDeserialiation() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
     String target = "{\"SomeConstantStringInstanceField\":\"someValue\"}";
-    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    StringWrapper deserializedObject = gson.deserializeFromJson(target, StringWrapper.class);
     assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
   }
 
@@ -89,7 +89,7 @@ public class NamingPolicyTest {
   public void testGsonWithLowerCaseDotPolicyDeserialiation() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DOTS).create();
     String target = "{\"some.constant.string.instance.field\":\"someValue\"}";
-    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    StringWrapper deserializedObject = gson.deserializeFromJson(target, StringWrapper.class);
     assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
   }
 
@@ -97,7 +97,7 @@ public class NamingPolicyTest {
   public void testGsonWithLowerCaseDashPolicyDeserialiation() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES).create();
     String target = "{\"some-constant-string-instance-field\":\"someValue\"}";
-    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    StringWrapper deserializedObject = gson.deserializeFromJson(target, StringWrapper.class);
     assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
   }
 
@@ -118,7 +118,7 @@ public class NamingPolicyTest {
     Gson gson =
         builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
     String target = "{\"some_constant_string_instance_field\":\"someValue\"}";
-    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    StringWrapper deserializedObject = gson.deserializeFromJson(target, StringWrapper.class);
     assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
   }
 
@@ -135,7 +135,7 @@ public class NamingPolicyTest {
     Gson gson = builder.create();
     ClassWithSerializedNameFields expected = new ClassWithSerializedNameFields(5, 7);
     ClassWithSerializedNameFields actual =
-        gson.fromJson(expected.getExpectedJson(), ClassWithSerializedNameFields.class);
+        gson.deserializeFromJson(expected.getExpectedJson(), ClassWithSerializedNameFields.class);
     assertThat(actual.f).isEqualTo(expected.f);
   }
 
@@ -203,7 +203,7 @@ public class NamingPolicyTest {
     Gson gson =
         builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES).create();
     String target = "{\"Some Constant String Instance Field\":\"someValue\"}";
-    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    StringWrapper deserializedObject = gson.deserializeFromJson(target, StringWrapper.class);
     assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
   }
 
@@ -224,7 +224,7 @@ public class NamingPolicyTest {
     Gson gson =
         builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CASE_WITH_UNDERSCORES).create();
     String target = "{\"SOME_CONSTANT_STRING_INSTANCE_FIELD\":\"someValue\"}";
-    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    StringWrapper deserializedObject = gson.deserializeFromJson(target, StringWrapper.class);
     assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
   }
 
@@ -243,7 +243,7 @@ public class NamingPolicyTest {
     String escapedFieldName = "@value\\\"_s$\\\\";
     assertThat(json).isEqualTo("{\"" + escapedFieldName + "\":10}");
 
-    ClassWithComplexFieldName obj = gson.fromJson(json, ClassWithComplexFieldName.class);
+    ClassWithComplexFieldName obj = gson.deserializeFromJson(json, ClassWithComplexFieldName.class);
     assertThat(obj.value).isEqualTo(10);
   }
 

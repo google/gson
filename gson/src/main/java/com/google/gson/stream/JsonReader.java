@@ -532,6 +532,8 @@ public class JsonReader implements Closeable {
     }
   }
 
+
+
   @SuppressWarnings("fallthrough")
   int doPeek() throws IOException {
     int peekStack = stack[stackSize - 1];

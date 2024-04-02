@@ -46,7 +46,7 @@ public class TypeVariableTest {
     bar1.map.put("key2", new ArrayList<Integer>());
     String json = gson.toJson(bar1);
 
-    Bar bar2 = gson.fromJson(json, Bar.class);
+    Bar bar2 = gson.deserializeFromJson(json, Bar.class);
     assertThat(bar2).isEqualTo(bar1);
   }
 
@@ -60,7 +60,7 @@ public class TypeVariableTest {
     assertThat(json)
         .isEqualTo(
             "{\"someSField\":\"e\",\"someTField\":5,\"map\":{\"f\":[6,7]},\"redField\":false}");
-    assertThat(gson.<Foo<String, Integer>>fromJson(json, type)).isEqualTo(original);
+    assertThat(gson.<Foo<String, Integer>>deserializeFromJson(json, type)).isEqualTo(original);
   }
 
   @Test
@@ -69,7 +69,7 @@ public class TypeVariableTest {
     Blue blue1 = new Blue(true);
     String json = gson.toJson(blue1);
 
-    Blue blue2 = gson.fromJson(json, Blue.class);
+    Blue blue2 = gson.deserializeFromJson(json, Blue.class);
     assertThat(blue2).isEqualTo(blue1);
   }
 

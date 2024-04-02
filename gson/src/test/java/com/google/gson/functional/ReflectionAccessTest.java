@@ -108,7 +108,7 @@ public class ReflectionAccessTest {
               .create();
 
       assertThat(gson.toJson(null, clazz)).isEqualTo("\"custom-write\"");
-      assertThat(gson.fromJson("{}", clazz)).isNull();
+      assertThat(gson.deserializeFromJson("{}", clazz)).isNull();
       assertThat(wasReadCalled.get()).isTrue();
     } finally {
       System.setSecurityManager(original);
@@ -118,7 +118,7 @@ public class ReflectionAccessTest {
   private static JsonIOException assertInaccessibleException(String json, Class<?> toDeserialize) {
     Gson gson = new Gson();
     try {
-      gson.fromJson(json, toDeserialize);
+      gson.deserializeFromJson(json, toDeserialize);
       throw new AssertionError(
           "Missing exception; test has to be run with `--illegal-access=deny`");
     } catch (JsonSyntaxException e) {

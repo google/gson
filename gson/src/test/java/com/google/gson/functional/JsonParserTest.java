@@ -54,7 +54,7 @@ public class JsonParserTest {
   @Test
   public void testParseInvalidJson() {
     try {
-      gson.fromJson("[[]", Object[].class);
+      gson.deserializeFromJson("[[]", Object[].class);
       fail();
     } catch (JsonSyntaxException expected) {
     }
@@ -65,7 +65,7 @@ public class JsonParserTest {
     JsonObject obj = new JsonObject();
     obj.addProperty("stringValue", "foo");
     obj.addProperty("intValue", 11);
-    BagOfPrimitives target = gson.fromJson(obj, BagOfPrimitives.class);
+    BagOfPrimitives target = gson.deserializeFromJson(obj, BagOfPrimitives.class);
     assertThat(target.intValue).isEqualTo(11);
     assertThat(target.stringValue).isEqualTo("foo");
   }
@@ -78,7 +78,7 @@ public class JsonParserTest {
     JsonArray array = new JsonArray();
     array.add(obj);
     try {
-      gson.fromJson(array, BagOfPrimitives.class);
+      gson.deserializeFromJson(array, BagOfPrimitives.class);
       fail("BagOfPrimitives is not an array");
     } catch (JsonParseException expected) {
     }
@@ -94,7 +94,7 @@ public class JsonParserTest {
     obj.add("longValue", array);
 
     try {
-      gson.fromJson(obj, BagOfPrimitives.class);
+      gson.deserializeFromJson(obj, BagOfPrimitives.class);
       fail("BagOfPrimitives is not an array");
     } catch (JsonParseException expected) {
     }
@@ -113,7 +113,7 @@ public class JsonParserTest {
     obj.add("primitive2", array);
 
     try {
-      gson.fromJson(obj, Nested.class);
+      gson.deserializeFromJson(obj, Nested.class);
       fail("Nested has field BagOfPrimitives which is not an array");
     } catch (JsonParseException expected) {
     }
@@ -126,7 +126,7 @@ public class JsonParserTest {
     JsonObject obj = (JsonObject) JsonParser.parseReader(json);
     obj.remove("stringValue");
     obj.addProperty("stringValue", "fooBar");
-    BagOfPrimitives target = gson.fromJson(obj, BagOfPrimitives.class);
+    BagOfPrimitives target = gson.deserializeFromJson(obj, BagOfPrimitives.class);
     assertThat(target.intValue).isEqualTo(10);
     assertThat(target.longValue).isEqualTo(20);
     assertThat(target.stringValue).isEqualTo("fooBar");
@@ -135,17 +135,17 @@ public class JsonParserTest {
   @Test
   public void testExtraCommasInArrays() {
     TypeToken<List<String>> type = new TypeToken<>() {};
-    assertThat(gson.fromJson("[a,,b,,]", type))
+    assertThat(gson.deserializeFromJson("[a,,b,,]", type))
         .isEqualTo(Arrays.asList("a", null, "b", null, null));
-    assertThat(gson.fromJson("[,]", type)).isEqualTo(Arrays.asList(null, null));
-    assertThat(gson.fromJson("[a,]", type)).isEqualTo(Arrays.asList("a", null));
+    assertThat(gson.deserializeFromJson("[,]", type)).isEqualTo(Arrays.asList(null, null));
+    assertThat(gson.deserializeFromJson("[a,]", type)).isEqualTo(Arrays.asList("a", null));
   }
 
   @Test
   public void testExtraCommasInMaps() {
     Type type = new TypeToken<Map<String, String>>() {}.getType();
     try {
-      gson.fromJson("{a:b,}", type);
+      gson.deserializeFromJson("{a:b,}", type);
       fail();
     } catch (JsonSyntaxException expected) {
     }

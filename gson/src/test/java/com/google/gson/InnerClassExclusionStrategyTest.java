@@ -47,21 +47,18 @@ public class InnerClassExclusionStrategyTest {
     assertThat(excluder.excludeField(f, false)).isFalse();
   }
 
-  private void assertExcludesField(Field f) {
-    assertThat(excluder.excludeField(f, true)).isTrue();
-    assertThat(excluder.excludeField(f, false)).isTrue();
-  }
-
   @Test
   public void testExcludeInnerClassObject() {
     Class<?> clazz = innerClass.getClass();
     assertExcludesClass(clazz);
   }
 
+
   @Test
   public void testExcludeInnerClassField() throws Exception {
     Field f = getClass().getField("innerClass");
-    assertExcludesField(f);
+    assertThat(excluder.excludeField(f, true)).isTrue();
+    assertThat(excluder.excludeField(f, false)).isTrue();
   }
 
   @Test

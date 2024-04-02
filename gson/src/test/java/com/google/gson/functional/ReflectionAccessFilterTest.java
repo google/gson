@@ -317,7 +317,7 @@ public class ReflectionAccessFilterTest {
             .create();
 
     try {
-      gson.fromJson("{}", ClassWithPrivateNoArgsConstructor.class);
+      gson.deserializeFromJson("{}", ClassWithPrivateNoArgsConstructor.class);
       fail("Expected exception; test needs to be run with Java >= 9");
     } catch (JsonIOException expected) {
       assertThat(expected)
@@ -354,7 +354,7 @@ public class ReflectionAccessFilterTest {
     Gson gson = gsonBuilder.create();
 
     try {
-      gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
+      gson.deserializeFromJson("{}", ClassWithoutNoArgsConstructor.class);
       fail();
     } catch (JsonIOException expected) {
       assertThat(expected)
@@ -386,7 +386,7 @@ public class ReflectionAccessFilterTest {
                 })
             .create();
     ClassWithoutNoArgsConstructor deserialized =
-        gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
+        gson.deserializeFromJson("{}", ClassWithoutNoArgsConstructor.class);
     assertThat(deserialized.s).isEqualTo("TypeAdapter");
 
     // But should not fail when custom InstanceCreator is specified
@@ -401,7 +401,7 @@ public class ReflectionAccessFilterTest {
                   }
                 })
             .create();
-    deserialized = gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
+    deserialized = gson.deserializeFromJson("{}", ClassWithoutNoArgsConstructor.class);
     assertThat(deserialized.s).isEqualTo("InstanceCreator");
   }
 
@@ -436,7 +436,7 @@ public class ReflectionAccessFilterTest {
 
     // But deserialization should fail
     try {
-      gson.fromJson("{}", OtherClass.class);
+      gson.deserializeFromJson("{}", OtherClass.class);
       fail();
     } catch (JsonIOException expected) {
       assertThat(expected)
@@ -464,7 +464,7 @@ public class ReflectionAccessFilterTest {
                   }
                 })
             .create();
-    List<?> deserialized = gson.fromJson("[1.0]", List.class);
+    List<?> deserialized = gson.deserializeFromJson("[1.0]", List.class);
     assertThat(deserialized.get(0)).isEqualTo(1.0);
   }
 
@@ -484,7 +484,7 @@ public class ReflectionAccessFilterTest {
                   }
                 })
             .create();
-    List<?> deserialized = gson.fromJson("[1.0]", LinkedList.class);
+    List<?> deserialized = gson.deserializeFromJson("[1.0]", LinkedList.class);
     assertThat(deserialized.get(0)).isEqualTo(1.0);
   }
 
@@ -506,7 +506,7 @@ public class ReflectionAccessFilterTest {
             .create();
 
     try {
-      gson.fromJson("{}", Runnable.class);
+      gson.deserializeFromJson("{}", Runnable.class);
       fail();
     } catch (JsonIOException expected) {
       assertThat(expected)

@@ -208,7 +208,7 @@ public class DefaultDateTypeAdapterTest {
       assertThat(json).isEqualTo("\"1970-01-01 00:00 UTC\"");
 
       // Deserialize a date string with the PST timezone
-      Date deserializedDate = gson.fromJson("\"1970-01-01 00:00 PST\"", Date.class);
+      Date deserializedDate = gson.deserializeFromJson("\"1970-01-01 00:00 PST\"", Date.class);
       // Assert that the deserialized date's time is correct
       assertThat(deserializedDate.getTime()).isEqualTo(new Date(28800000).getTime());
 

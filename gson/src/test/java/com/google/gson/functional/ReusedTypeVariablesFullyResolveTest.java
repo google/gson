@@ -45,7 +45,7 @@ public class ReusedTypeVariablesFullyResolveTest {
   @Test
   public void testGenericsPreservation() {
     TestEnumSetCollection withSet =
-        gson.fromJson("{\"collection\":[\"ONE\",\"THREE\"]}", TestEnumSetCollection.class);
+        gson.deserializeFromJson("{\"collection\":[\"ONE\",\"THREE\"]}", TestEnumSetCollection.class);
     Iterator<TestEnum> iterator = withSet.collection.iterator();
     assertThat(withSet).isNotNull();
     assertThat(withSet.collection).isNotNull();

@@ -55,7 +55,7 @@ public class ArrayTest {
   @Test
   public void testTopLevelArrayOfIntsDeserialization() {
     int[] expected = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int[] actual = gson.fromJson("[1,2,3,4,5,6,7,8,9]", int[].class);
+    int[] actual = gson.deserializeFromJson("[1,2,3,4,5,6,7,8,9]", int[].class);
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -63,7 +63,7 @@ public class ArrayTest {
   public void testInvalidArrayDeserialization() {
     String json = "[1, 2 3, 4, 5]";
     try {
-      gson.fromJson(json, int[].class);
+      gson.deserializeFromJson(json, int[].class);
       fail("Gson should not deserialize array elements with missing ,");
     } catch (JsonParseException expected) {
     }
@@ -77,13 +77,13 @@ public class ArrayTest {
 
   @Test
   public void testEmptyArrayDeserialization() {
-    int[] actualObject = gson.fromJson("[]", int[].class);
+    int[] actualObject = gson.deserializeFromJson("[]", int[].class);
     assertThat(actualObject).hasLength(0);
 
-    Integer[] actualObject2 = gson.fromJson("[]", Integer[].class);
+    Integer[] actualObject2 = gson.deserializeFromJson("[]", Integer[].class);
     assertThat(actualObject2).hasLength(0);
 
-    actualObject = gson.fromJson("[ ]", int[].class);
+    actualObject = gson.deserializeFromJson("[ ]", int[].class);
     assertThat(actualObject).hasLength(0);
   }
 
@@ -99,7 +99,7 @@ public class ArrayTest {
   public void testNullsInArrayDeserialization() {
     String json = "[\"foo\",null,\"bar\"]";
     String[] expected = {"foo", null, "bar"};
-    String[] target = gson.fromJson(json, expected.getClass());
+    String[] target = gson.deserializeFromJson(json, expected.getClass());
     assertThat(target).asList().containsAnyIn(expected);
   }
 
@@ -113,7 +113,7 @@ public class ArrayTest {
 
   @Test
   public void testSingleNullInArrayDeserialization() {
-    BagOfPrimitives[] array = gson.fromJson("[null]", BagOfPrimitives[].class);
+    BagOfPrimitives[] array = gson.deserializeFromJson("[null]", BagOfPrimitives[].class);
     assertThat(array).asList().containsExactly((Object) null);
   }
 
@@ -135,7 +135,7 @@ public class ArrayTest {
   @Test
   public void testArrayOfStringsDeserialization() {
     String json = "[\"Hello\",\"World\"]";
-    String[] target = gson.fromJson(json, String[].class);
+    String[] target = gson.deserializeFromJson(json, String[].class);
     assertThat(target).asList().containsExactly("Hello", "World");
   }
 
@@ -149,7 +149,7 @@ public class ArrayTest {
   @Test
   public void testSingleStringArrayDeserialization() {
     String json = "[\"hello\"]";
-    String[] arrayType = gson.fromJson(json, String[].class);
+    String[] arrayType = gson.deserializeFromJson(json, String[].class);
     assertThat(arrayType).asList().containsExactly("hello");
   }
 
@@ -183,7 +183,7 @@ public class ArrayTest {
   public void testArrayOfCollectionDeserialization() {
     String json = "[[1,2],[3,4]]";
     Type type = new TypeToken<Collection<Integer>[]>() {}.getType();
-    Collection<Integer>[] target = gson.fromJson(json, type);
+    Collection<Integer>[] target = gson.deserializeFromJson(json, type);
 
     assertThat(target.length).isEqualTo(2);
     assertThat(target[0].toArray(new Integer[0])).isEqualTo(new Integer[] {1, 2});
@@ -202,7 +202,7 @@ public class ArrayTest {
   @Test
   public void testArrayOfPrimitivesAsObjectsDeserialization() {
     String json = "[1,'abc',0.3,1.1,5]";
-    Object[] objs = gson.fromJson(json, Object[].class);
+    Object[] objs = gson.deserializeFromJson(json, Object[].class);
     assertThat(((Number) objs[0]).intValue()).isEqualTo(1);
     assertThat(objs[1]).isEqualTo("abc");
     assertThat(((Number) objs[2]).doubleValue()).isEqualTo(0.3);
@@ -233,7 +233,7 @@ public class ArrayTest {
 
   @Test
   public void testArrayOfNullDeserialization() {
-    String[] values = gson.fromJson("[null]", String[].class);
+    String[] values = gson.deserializeFromJson("[null]", String[].class);
     assertThat(values[0]).isNull();
   }
 
@@ -274,7 +274,7 @@ public class ArrayTest {
     String json =
         "[['3m Co','71.72','0.02','0.03','4/2 12:00am','Manufacturing'],"
             + "['Alcoa Inc','29.01','0.42','1.47','4/1 12:00am','Manufacturing']]";
-    String[][] items = gson.fromJson(json, String[][].class);
+    String[][] items = gson.deserializeFromJson(json, String[][].class);
     assertThat(items[0][0]).isEqualTo("3m Co");
     assertThat(items[1][5]).isEqualTo("Manufacturing");
   }
@@ -283,7 +283,7 @@ public class ArrayTest {
   public void testMultidimensionalPrimitiveArraysDeserialization() {
     String json = "[[1,2],[3,4]]";
     int[][] expected = {{1, 2}, {3, 4}};
-    assertThat(gson.fromJson(json, int[][].class)).isEqualTo(expected);
+    assertThat(gson.deserializeFromJson(json, int[][].class)).isEqualTo(expected);
   }
 
   /** http://code.google.com/p/google-gson/issues/detail?id=342 */

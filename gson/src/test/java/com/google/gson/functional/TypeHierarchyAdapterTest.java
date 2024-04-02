@@ -105,7 +105,7 @@ public final class TypeHierarchyAdapterTest {
                 + "  }\n"
                 + "}");
 
-    Company copied = gson.fromJson(json, Company.class);
+    Company copied = gson.deserializeFromJson(json, Company.class);
     assertThat(gson.toJson(copied, Company.class)).isEqualTo(json);
     assertThat(company.ceo.userid).isEqualTo(copied.ceo.userid);
     assertThat(company.ceo.assistant.userid).isEqualTo(copied.ceo.assistant.userid);
@@ -131,7 +131,7 @@ public final class TypeHierarchyAdapterTest {
 
     String json = gson.toJson(manager, Manager.class);
     assertThat(json).isEqualTo("\"inder\"");
-    Manager copied = gson.fromJson(json, Manager.class);
+    Manager copied = gson.deserializeFromJson(json, Manager.class);
     assertThat(copied.userid).isEqualTo(manager.userid);
   }
 

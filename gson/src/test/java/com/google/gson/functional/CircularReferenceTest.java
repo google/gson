@@ -121,7 +121,7 @@ public class CircularReferenceTest {
   @Test
   public void testDirectedAcyclicGraphDeserialization() {
     String json = "{\"children\":[{\"children\":[{\"children\":[]}]},{\"children\":[]}]}";
-    ContainsReferenceToSelfType target = gson.fromJson(json, ContainsReferenceToSelfType.class);
+    ContainsReferenceToSelfType target = gson.deserializeFromJson(json, ContainsReferenceToSelfType.class);
     assertThat(target).isNotNull();
     assertThat(target.children).hasSize(2);
   }

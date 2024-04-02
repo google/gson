@@ -58,7 +58,7 @@ public class ConcurrencyTest {
   @Test
   public void testSingleThreadDeserialization() {
     for (int i = 0; i < 10; i++) {
-      MyObject unused = gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+      MyObject unused = gson.deserializeFromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
     }
   }
 
@@ -115,7 +115,7 @@ public class ConcurrencyTest {
                 startLatch.await();
                 for (int i = 0; i < 10; i++) {
                   MyObject unused =
-                      gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+                      gson.deserializeFromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
                 }
               } catch (Throwable t) {
                 failed.set(true);

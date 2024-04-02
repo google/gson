@@ -71,7 +71,7 @@ public class InheritanceTest {
             + "\"booleanValue\":false,\"stringValue\":\"stringValue\"},\"primitive2\":"
             + "{\"longValue\":30,\"intValue\":40,\"booleanValue\":true,"
             + "\"stringValue\":\"stringValue\"}}";
-    SubTypeOfNested target = gson.fromJson(json, SubTypeOfNested.class);
+    SubTypeOfNested target = gson.deserializeFromJson(json, SubTypeOfNested.class);
     assertThat(target.getExpectedJson()).isEqualTo(json);
   }
 
@@ -202,7 +202,7 @@ public class InheritanceTest {
             + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
             + "}";
     ClassWithSubInterfacesOfCollection target =
-        gson.fromJson(json, ClassWithSubInterfacesOfCollection.class);
+        gson.deserializeFromJson(json, ClassWithSubInterfacesOfCollection.class);
     assertThat(target.listContains(0, 1, 2, 3)).isTrue();
     assertThat(target.queueContains(0, 1, 2, 3)).isTrue();
     assertThat(target.setContains(0.1F, 0.2F, 0.3F, 0.4F)).isTrue();

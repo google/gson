@@ -46,13 +46,13 @@ public class PrimitiveCharacterTest {
   @Test
   public void testPrimitiveCharacterAutoboxedDeserialization() {
     char expected = 'a';
-    char actual = gson.fromJson("a", char.class);
+    char actual = gson.deserializeFromJson("a", char.class);
     assertThat(actual).isEqualTo(expected);
 
-    actual = gson.fromJson("\"a\"", char.class);
+    actual = gson.deserializeFromJson("\"a\"", char.class);
     assertThat(actual).isEqualTo(expected);
 
-    actual = gson.fromJson("a", Character.class);
+    actual = gson.deserializeFromJson("a", Character.class);
     assertThat(actual).isEqualTo(expected);
   }
 }

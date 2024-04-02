@@ -61,15 +61,15 @@ public class VersioningTest {
     String json = "{\"a\":3,\"b\":4,\"c\":5}";
 
     Gson gson = gsonWithVersion(1.29);
-    Version1 version1 = gson.fromJson(json, Version1.class);
+    Version1 version1 = gson.deserializeFromJson(json, Version1.class);
     assertThat(version1.a).isEqualTo(3);
 
     gson = gsonWithVersion(1.3);
-    version1 = gson.fromJson(json, Version1.class);
+    version1 = gson.deserializeFromJson(json, Version1.class);
     assertThat(version1.a).isEqualTo(A);
 
     gson = gsonWithVersion(1.31);
-    version1 = gson.fromJson(json, Version1.class);
+    version1 = gson.deserializeFromJson(json, Version1.class);
     assertThat(version1.a).isEqualTo(A);
   }
 
@@ -86,12 +86,12 @@ public class VersioningTest {
     Gson gson = gsonWithVersion(1.0);
     String json = "{\"a\":3,\"b\":4,\"c\":5}";
 
-    Version1 version1 = gson.fromJson(json, Version1.class);
+    Version1 version1 = gson.deserializeFromJson(json, Version1.class);
     assertThat(version1.a).isEqualTo(3);
     assertThat(version1.b).isEqualTo(4);
 
     @SuppressWarnings("MemberName")
-    Version1_1 version1_1 = gson.fromJson(json, Version1_1.class);
+    Version1_1 version1_1 = gson.deserializeFromJson(json, Version1_1.class);
     assertThat(version1_1.a).isEqualTo(3);
     assertThat(version1_1.b).isEqualTo(4);
     assertThat(version1_1.c).isEqualTo(C);
@@ -109,7 +109,7 @@ public class VersioningTest {
     String json = "{\"a\":3,\"b\":4,\"c\":5,\"d\":6}";
 
     @SuppressWarnings("MemberName")
-    Version1_2 version1_2 = gson.fromJson(json, Version1_2.class);
+    Version1_2 version1_2 = gson.deserializeFromJson(json, Version1_2.class);
     // Since the class is versioned to be after 1.0, we expect null
     // This is the new behavior in Gson 2.0
     assertThat(version1_2).isNull();
@@ -131,7 +131,7 @@ public class VersioningTest {
     expected.longValue = 10;
     expected.intValue = 20;
     expected.booleanValue = false;
-    BagOfPrimitives actual = gson.fromJson(json, BagOfPrimitives.class);
+    BagOfPrimitives actual = gson.deserializeFromJson(json, BagOfPrimitives.class);
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -159,22 +159,22 @@ public class VersioningTest {
   public void testVersionedGsonMixingSinceAndUntilDeserialization() {
     String json = "{\"a\":5,\"b\":6}";
     Gson gson = gsonWithVersion(1.0);
-    SinceUntilMixing result = gson.fromJson(json, SinceUntilMixing.class);
+    SinceUntilMixing result = gson.deserializeFromJson(json, SinceUntilMixing.class);
     assertThat(result.a).isEqualTo(5);
     assertThat(result.b).isEqualTo(B);
 
     gson = gsonWithVersion(1.2);
-    result = gson.fromJson(json, SinceUntilMixing.class);
+    result = gson.deserializeFromJson(json, SinceUntilMixing.class);
     assertThat(result.a).isEqualTo(5);
     assertThat(result.b).isEqualTo(6);
 
     gson = gsonWithVersion(1.3);
-    result = gson.fromJson(json, SinceUntilMixing.class);
+    result = gson.deserializeFromJson(json, SinceUntilMixing.class);
     assertThat(result.a).isEqualTo(5);
     assertThat(result.b).isEqualTo(B);
 
     gson = gsonWithVersion(1.4);
-    result = gson.fromJson(json, SinceUntilMixing.class);
+    result = gson.deserializeFromJson(json, SinceUntilMixing.class);
     assertThat(result.a).isEqualTo(5);
     assertThat(result.b).isEqualTo(B);
   }

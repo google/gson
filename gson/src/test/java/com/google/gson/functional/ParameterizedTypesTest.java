@@ -76,7 +76,7 @@ public class ParameterizedTypesTest {
             .create();
 
     String json = expected.getExpectedJson();
-    MyParameterizedType<BagOfPrimitives> actual = gson.fromJson(json, expectedType);
+    MyParameterizedType<BagOfPrimitives> actual = gson.deserializeFromJson(json, expectedType);
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -103,7 +103,7 @@ public class ParameterizedTypesTest {
         "{\"a\":10,\"b\":1.0,\"c\":2.1,\"d\":\"abc\","
             + "\"e\":{\"longValue\":0,\"intValue\":0,\"booleanValue\":false,\"stringValue\":\"\"}}";
     MultiParameters<Integer, Float, Double, String, BagOfPrimitives> target =
-        gson.fromJson(json, typeOfTarget);
+        gson.deserializeFromJson(json, typeOfTarget);
     MultiParameters<Integer, Float, Double, String, BagOfPrimitives> expected =
         new MultiParameters<>(10, 1.0F, 2.1D, "abc", new BagOfPrimitives());
     assertThat(target).isEqualTo(expected);
@@ -141,12 +141,12 @@ public class ParameterizedTypesTest {
 
     MyParameterizedType<Integer> src = new MyParameterizedType<>(10);
     String json = MyParameterizedTypeAdapter.<Integer>getExpectedJson(src);
-    MyParameterizedType<Integer> intTarget = gson.fromJson(json, ptIntegerType);
+    MyParameterizedType<Integer> intTarget = gson.deserializeFromJson(json, ptIntegerType);
     assertThat(intTarget.value).isEqualTo(10);
 
     MyParameterizedType<String> srcStr = new MyParameterizedType<>("abc");
     json = MyParameterizedTypeAdapter.<String>getExpectedJson(srcStr);
-    MyParameterizedType<String> stringTarget = gson.fromJson(json, ptStringType);
+    MyParameterizedType<String> stringTarget = gson.deserializeFromJson(json, ptStringType);
     assertThat(stringTarget.value).isEqualTo("abc");
   }
 
@@ -172,7 +172,7 @@ public class ParameterizedTypesTest {
             .create();
 
     Reader json = new StringReader(expected.getExpectedJson());
-    MyParameterizedType<BagOfPrimitives> actual = gson.fromJson(json, expectedType);
+    MyParameterizedType<BagOfPrimitives> actual = gson.deserializeFromJson(json, expectedType);
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -212,7 +212,7 @@ public class ParameterizedTypesTest {
     ObjectWithTypeVariables<Integer> objToSerialize =
         new ObjectWithTypeVariables<>(obj, array, list, arrayOfLists, list, arrayOfLists);
     String json = gson.toJson(objToSerialize, typeOfSrc);
-    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
+    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.deserializeFromJson(json, typeOfSrc);
 
     assertThat(json).isEqualTo(objAfterDeserialization.getExpectedJson());
   }
@@ -223,7 +223,7 @@ public class ParameterizedTypesTest {
     ObjectWithTypeVariables<Integer> objToSerialize =
         new ObjectWithTypeVariables<>(0, null, null, null, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
-    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
+    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.deserializeFromJson(json, typeOfSrc);
 
     assertThat(json).isEqualTo(objAfterDeserialization.getExpectedJson());
   }
@@ -236,7 +236,7 @@ public class ParameterizedTypesTest {
     ObjectWithTypeVariables<Integer> objToSerialize =
         new ObjectWithTypeVariables<>(null, array, null, null, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
-    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
+    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.deserializeFromJson(json, typeOfSrc);
 
     assertThat(json).isEqualTo(objAfterDeserialization.getExpectedJson());
   }
@@ -251,7 +251,7 @@ public class ParameterizedTypesTest {
     ObjectWithTypeVariables<Integer> objToSerialize =
         new ObjectWithTypeVariables<>(null, null, list, null, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
-    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
+    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.deserializeFromJson(json, typeOfSrc);
 
     assertThat(json).isEqualTo(objAfterDeserialization.getExpectedJson());
   }
@@ -281,7 +281,7 @@ public class ParameterizedTypesTest {
     ObjectWithTypeVariables<Integer> objToSerialize =
         new ObjectWithTypeVariables<>(null, null, null, arrayOfLists, null, null);
     String json = gson.toJson(objToSerialize, typeOfSrc);
-    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.fromJson(json, typeOfSrc);
+    ObjectWithTypeVariables<Integer> objAfterDeserialization = gson.deserializeFromJson(json, typeOfSrc);
 
     assertThat(json).isEqualTo(objAfterDeserialization.getExpectedJson());
   }
@@ -500,7 +500,7 @@ public class ParameterizedTypesTest {
   public void testDeepParameterizedTypeDeserialization() {
     String json = "{value:30}";
     Type type = new TypeToken<Amount<MyQuantity>>() {}.getType();
-    Amount<MyQuantity> amount = gson.fromJson(json, type);
+    Amount<MyQuantity> amount = gson.deserializeFromJson(json, type);
     assertThat(amount.value).isEqualTo(30);
   }
 
@@ -524,28 +524,28 @@ public class ParameterizedTypesTest {
       JsonArray jsonArray = new JsonArray();
       jsonArray.add(jsonObject);
 
-      assertCorrectlyDeserialized(gson.fromJson(jsonArray, typeToken));
-      assertCorrectlyDeserialized(gson.fromJson(jsonArray, type));
+      assertCorrectlyDeserialized(gson.deserializeFromJson(jsonArray, typeToken));
+      assertCorrectlyDeserialized(gson.deserializeFromJson(jsonArray, type));
     }
 
     String json = "[{\"q\":4}]";
 
     {
-      assertCorrectlyDeserialized(gson.fromJson(json, typeToken));
-      assertCorrectlyDeserialized(gson.fromJson(json, type));
+      assertCorrectlyDeserialized(gson.deserializeFromJson(json, typeToken));
+      assertCorrectlyDeserialized(gson.deserializeFromJson(json, type));
     }
 
     {
-      assertCorrectlyDeserialized(gson.fromJson(new StringReader(json), typeToken));
-      assertCorrectlyDeserialized(gson.fromJson(new StringReader(json), type));
+      assertCorrectlyDeserialized(gson.deserializeFromJson(new StringReader(json), typeToken));
+      assertCorrectlyDeserialized(gson.deserializeFromJson(new StringReader(json), type));
     }
 
     {
       JsonReader reader = new JsonReader(new StringReader(json));
-      assertCorrectlyDeserialized(gson.fromJson(reader, typeToken));
+      assertCorrectlyDeserialized(gson.deserializeFromJson(reader, typeToken));
 
       reader = new JsonReader(new StringReader(json));
-      assertCorrectlyDeserialized(gson.fromJson(reader, type));
+      assertCorrectlyDeserialized(gson.deserializeFromJson(reader, type));
     }
   }
 }

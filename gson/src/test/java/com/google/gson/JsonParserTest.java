@@ -167,9 +167,9 @@ public class JsonParserTest {
     parser.setStrictness(Strictness.LENIENT);
     JsonElement element1 = Streams.parse(parser);
     JsonElement element2 = Streams.parse(parser);
-    BagOfPrimitives actualOne = gson.fromJson(element1, BagOfPrimitives.class);
+    BagOfPrimitives actualOne = gson.deserializeFromJson(element1, BagOfPrimitives.class);
     assertThat(actualOne.stringValue).isEqualTo("one");
-    BagOfPrimitives actualTwo = gson.fromJson(element2, BagOfPrimitives.class);
+    BagOfPrimitives actualTwo = gson.deserializeFromJson(element2, BagOfPrimitives.class);
     assertThat(actualTwo.stringValue).isEqualTo("two");
   }
 

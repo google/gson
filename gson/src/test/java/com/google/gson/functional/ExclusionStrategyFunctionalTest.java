@@ -72,7 +72,7 @@ public class ExclusionStrategyFunctionalTest {
   public void testExclusionStrategySerializationDoesNotImpactDeserialization() {
     String json = "{\"annotatedField\":1,\"stringField\":\"x\",\"longField\":2}";
     Gson gson = createGson(new MyExclusionStrategy(String.class), true);
-    SampleObjectForTest value = gson.fromJson(json, SampleObjectForTest.class);
+    SampleObjectForTest value = gson.deserializeFromJson(json, SampleObjectForTest.class);
     assertThat(value.annotatedField).isEqualTo(1);
     assertThat(value.stringField).isEqualTo("x");
     assertThat(value.longField).isEqualTo(2);
@@ -86,7 +86,7 @@ public class ExclusionStrategyFunctionalTest {
     json.add("stringField", new JsonPrimitive(src.stringField + "blah,blah"));
     json.add("longField", new JsonPrimitive(1212311L));
 
-    SampleObjectForTest target = gson.fromJson(json, SampleObjectForTest.class);
+    SampleObjectForTest target = gson.deserializeFromJson(json, SampleObjectForTest.class);
     assertThat(target.longField).isEqualTo(1212311L);
 
     // assert excluded fields are set to the defaults
@@ -115,7 +115,7 @@ public class ExclusionStrategyFunctionalTest {
     assertThat(json.get("stringField").getAsString()).isEqualTo(testObj.stringField);
     assertThat(json.get("longField").getAsLong()).isEqualTo(testObj.longField);
 
-    SampleObjectForTest target = gson.fromJson(json, SampleObjectForTest.class);
+    SampleObjectForTest target = gson.deserializeFromJson(json, SampleObjectForTest.class);
     assertThat(target.longField).isEqualTo(testObj.longField);
 
     // assert excluded fields are set to the defaults
@@ -139,7 +139,7 @@ public class ExclusionStrategyFunctionalTest {
             .addSerializationExclusionStrategy(EXCLUDE_SAMPLE_OBJECT_FOR_TEST)
             .create();
     String json = "{\"annotatedField\":1,\"stringField\":\"x\",\"longField\":2}";
-    SampleObjectForTest value = gson.fromJson(json, SampleObjectForTest.class);
+    SampleObjectForTest value = gson.deserializeFromJson(json, SampleObjectForTest.class);
     assertThat(value.annotatedField).isEqualTo(1);
     assertThat(value.stringField).isEqualTo("x");
     assertThat(value.longField).isEqualTo(2);
@@ -152,7 +152,7 @@ public class ExclusionStrategyFunctionalTest {
             .addDeserializationExclusionStrategy(EXCLUDE_SAMPLE_OBJECT_FOR_TEST)
             .create();
     String json = "{\"annotatedField\":1,\"stringField\":\"x\",\"longField\":2}";
-    SampleObjectForTest value = gson.fromJson(json, SampleObjectForTest.class);
+    SampleObjectForTest value = gson.deserializeFromJson(json, SampleObjectForTest.class);
     assertThat(value).isNull();
   }
 

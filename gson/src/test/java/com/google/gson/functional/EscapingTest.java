@@ -44,7 +44,7 @@ public class EscapingTest {
   public void testEscapingQuotesInStringArray() {
     String[] valueWithQuotes = {"beforeQuote\"afterQuote"};
     String jsonRepresentation = gson.toJson(valueWithQuotes);
-    String[] target = gson.fromJson(jsonRepresentation, String[].class);
+    String[] target = gson.deserializeFromJson(jsonRepresentation, String[].class);
     assertThat(target.length).isEqualTo(1);
     assertThat(target[0]).isEqualTo(valueWithQuotes[0]);
   }
@@ -70,7 +70,7 @@ public class EscapingTest {
     assertThat(jsonRepresentation).doesNotContain(">");
     assertThat(jsonRepresentation).contains("\\\"");
 
-    BagOfPrimitives deserialized = gson.fromJson(jsonRepresentation, BagOfPrimitives.class);
+    BagOfPrimitives deserialized = gson.deserializeFromJson(jsonRepresentation, BagOfPrimitives.class);
     assertThat(deserialized.getExpectedJson()).isEqualTo(objWithPrimitives.getExpectedJson());
   }
 
@@ -84,8 +84,8 @@ public class EscapingTest {
     String nonEscapedJsonForm = noEscapeHtmlGson.toJson(target);
     assertThat(escapedJsonForm).isNotEqualTo(nonEscapedJsonForm);
 
-    assertThat(noEscapeHtmlGson.fromJson(escapedJsonForm, BagOfPrimitives.class)).isEqualTo(target);
-    assertThat(escapeHtmlGson.fromJson(nonEscapedJsonForm, BagOfPrimitives.class))
+    assertThat(noEscapeHtmlGson.deserializeFromJson(escapedJsonForm, BagOfPrimitives.class)).isEqualTo(target);
+    assertThat(escapeHtmlGson.deserializeFromJson(nonEscapedJsonForm, BagOfPrimitives.class))
         .isEqualTo(target);
   }
 
@@ -93,8 +93,8 @@ public class EscapingTest {
   public void testGsonDoubleDeserialization() {
     BagOfPrimitives expected = new BagOfPrimitives(3L, 4, true, "value1");
     String json = gson.toJson(gson.toJson(expected));
-    String value = gson.fromJson(json, String.class);
-    BagOfPrimitives actual = gson.fromJson(value, BagOfPrimitives.class);
+    String value = gson.deserializeFromJson(json, String.class);
+    BagOfPrimitives actual = gson.deserializeFromJson(value, BagOfPrimitives.class);
     assertThat(actual).isEqualTo(expected);
   }
 }

@@ -82,7 +82,7 @@ public class ExposeFieldsTest {
   @Test
   public void testExposeAnnotationDeserialization() {
     String json = "{a:3,b:4,d:20.0}";
-    ClassWithExposedFields target = gson.fromJson(json, ClassWithExposedFields.class);
+    ClassWithExposedFields target = gson.deserializeFromJson(json, ClassWithExposedFields.class);
 
     assertThat(target.a).isEqualTo(3);
     assertThat(target.b).isNull();
@@ -100,7 +100,7 @@ public class ExposeFieldsTest {
   @Test
   public void testNoExposedFieldDeserialization() {
     String json = "{a:4,b:5}";
-    ClassWithNoExposedFields obj = gson.fromJson(json, ClassWithNoExposedFields.class);
+    ClassWithNoExposedFields obj = gson.deserializeFromJson(json, ClassWithNoExposedFields.class);
 
     assertThat(obj.a).isEqualTo(0);
     assertThat(obj.b).isEqualTo(1);
@@ -118,7 +118,7 @@ public class ExposeFieldsTest {
   @Test
   public void testExposedInterfaceFieldDeserialization() {
     String json = "{\"interfaceField\":{}}";
-    ClassWithInterfaceField obj = gson.fromJson(json, ClassWithInterfaceField.class);
+    ClassWithInterfaceField obj = gson.deserializeFromJson(json, ClassWithInterfaceField.class);
 
     assertThat(obj.interfaceField).isNotNull();
   }

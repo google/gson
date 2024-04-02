@@ -17,7 +17,6 @@
 package com.google.gson.internal.reflect;
 
 import com.google.gson.JsonIOException;
-import com.google.gson.internal.GsonBuildConfig;
 import com.google.gson.internal.TroubleshootingGuide;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
@@ -199,7 +198,6 @@ public class ReflectionHelper {
       IllegalAccessException exception) {
     throw new RuntimeException(
         "Unexpected IllegalAccessException occurred (Gson "
-            + GsonBuildConfig.VERSION
             + "). Certain ReflectionAccessFilter features require Java >= 9 to work correctly. If"
             + " you are not using ReflectionAccessFilter, report this to the Gson maintainers.",
         exception);
@@ -210,7 +208,6 @@ public class ReflectionHelper {
     throw new RuntimeException(
         "Unexpected ReflectiveOperationException occurred"
             + " (Gson "
-            + GsonBuildConfig.VERSION
             + ")."
             + " To support Java records, reflection is utilized to read out information"
             + " about records. All these invocations happens after it is established"

@@ -73,7 +73,7 @@ public class TreeTypeAdaptersTest {
     String json =
         "{courseId:1,students:[{id:1,name:'first'},{id:6,name:'second'}],"
             + "numAssignments:4,assignment:{}}";
-    Course<HistoryCourse> target = gson.fromJson(json, TYPE_COURSE_HISTORY);
+    Course<HistoryCourse> target = gson.deserializeFromJson(json, TYPE_COURSE_HISTORY);
     assertThat(target.getStudents().get(0).id.getValue()).isEqualTo("1");
     assertThat(target.getStudents().get(1).id.getValue()).isEqualTo("6");
     assertThat(target.getId().getValue()).isEqualTo("1");

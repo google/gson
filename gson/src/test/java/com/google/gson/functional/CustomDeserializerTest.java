@@ -56,7 +56,7 @@ public class CustomDeserializerTest {
     DataHolder data = new DataHolder(DEFAULT_VALUE);
     String json = gson.toJson(data);
 
-    DataHolder actual = gson.fromJson(json, DataHolder.class);
+    DataHolder actual = gson.deserializeFromJson(json, DataHolder.class);
     assertThat(actual.getData()).isEqualTo(DEFAULT_VALUE + SUFFIX);
   }
 
@@ -65,7 +65,7 @@ public class CustomDeserializerTest {
     DataHolderWrapper dataWrapper = new DataHolderWrapper(new DataHolder(DEFAULT_VALUE));
     String json = gson.toJson(dataWrapper);
 
-    DataHolderWrapper actual = gson.fromJson(json, DataHolderWrapper.class);
+    DataHolderWrapper actual = gson.deserializeFromJson(json, DataHolderWrapper.class);
     assertThat(actual.getWrappedData().getData()).isEqualTo(DEFAULT_VALUE + SUFFIX);
   }
 
@@ -133,7 +133,7 @@ public class CustomDeserializerTest {
                   }
                 })
             .create();
-    SubType1 target = (SubType1) gson.fromJson(json, MyBase.class);
+    SubType1 target = (SubType1) gson.deserializeFromJson(json, MyBase.class);
     assertThat(target.field1).isEqualTo("abc");
   }
 
@@ -181,7 +181,7 @@ public class CustomDeserializerTest {
                 })
             .create();
     String json = "{baseName:'Base',subName:'SubRevised'}";
-    Base target = gson.fromJson(json, Base.class);
+    Base target = gson.deserializeFromJson(json, Base.class);
     assertThat(target).isNull();
   }
 
@@ -201,7 +201,7 @@ public class CustomDeserializerTest {
                 })
             .create();
     String json = "{base:{baseName:'Base',subName:'SubRevised'}}";
-    ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
+    ClassWithBaseField target = gson.deserializeFromJson(json, ClassWithBaseField.class);
     assertThat(target.base).isNull();
   }
 
@@ -221,7 +221,7 @@ public class CustomDeserializerTest {
                 })
             .create();
     String json = "[{baseName:'Base'},{baseName:'Base'}]";
-    Base[] target = gson.fromJson(json, Base[].class);
+    Base[] target = gson.deserializeFromJson(json, Base[].class);
     assertThat(target[0]).isNull();
     assertThat(target[1]).isNull();
   }
@@ -242,7 +242,7 @@ public class CustomDeserializerTest {
                 })
             .create();
     String json = "{bases:[{baseName:'Base'},{baseName:'Base'}]}";
-    ClassWithBaseArray target = gson.fromJson(json, ClassWithBaseArray.class);
+    ClassWithBaseArray target = gson.deserializeFromJson(json, ClassWithBaseArray.class);
     assertThat(target.bases[0]).isNull();
     assertThat(target.bases[1]).isNull();
   }

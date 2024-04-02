@@ -529,7 +529,7 @@ public final class GsonTest {
     assertThat(json2).isEqualTo("{}");
 
     // Should use default instance creator
-    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
+    CustomClass3 customClass3 = gson.deserializeFromJson("{}", CustomClass3.class);
     assertThat(customClass3.s).isEqualTo(CustomClass3.NO_ARG_CONSTRUCTOR_VALUE);
   }
 
@@ -621,7 +621,7 @@ public final class GsonTest {
     String json2 = otherGson.toJson(new CustomClass2());
     assertThat(json2).isEqualTo("\"overwritten custom-hierarchy-adapter\"");
 
-    CustomClass3 customClass3 = otherGson.fromJson("{}", CustomClass3.class);
+    CustomClass3 customClass3 = otherGson.deserializeFromJson("{}", CustomClass3.class);
     assertThat(customClass3.s).isEqualTo("overwritten custom-instance");
   }
 
@@ -632,7 +632,7 @@ public final class GsonTest {
     String json2 = gson.toJson(new CustomClass2());
     assertThat(json2).isEqualTo("\"custom-hierarchy-adapter\"");
 
-    CustomClass3 customClass3 = gson.fromJson("{}", CustomClass3.class);
+    CustomClass3 customClass3 = gson.deserializeFromJson("{}", CustomClass3.class);
     assertThat(customClass3.s).isEqualTo("custom-instance");
   }
 

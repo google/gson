@@ -69,7 +69,7 @@ public class CollectionTest {
   public void testTopLevelCollectionOfIntegersDeserialization() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
     Type collectionType = new TypeToken<Collection<Integer>>() {}.getType();
-    Collection<Integer> target = gson.fromJson(json, collectionType);
+    Collection<Integer> target = gson.deserializeFromJson(json, collectionType);
     int[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     assertThat(toIntArray(target)).isEqualTo(expected);
   }
@@ -78,7 +78,7 @@ public class CollectionTest {
   public void testTopLevelListOfIntegerCollectionsDeserialization() {
     String json = "[[1,2,3],[4,5,6],[7,8,9]]";
     Type collectionType = new TypeToken<Collection<Collection<Integer>>>() {}.getType();
-    List<Collection<Integer>> target = gson.fromJson(json, collectionType);
+    List<Collection<Integer>> target = gson.deserializeFromJson(json, collectionType);
     int[][] expected = new int[3][3];
     for (int i = 0; i < 3; ++i) {
       int start = (3 * i) + 1;
@@ -108,7 +108,7 @@ public class CollectionTest {
   public void testLinkedListDeserialization() {
     String json = "['a1','a2']";
     Type linkedListType = new TypeToken<LinkedList<String>>() {}.getType();
-    List<String> list = gson.fromJson(json, linkedListType);
+    List<String> list = gson.deserializeFromJson(json, linkedListType);
     assertThat(list.get(0)).isEqualTo("a1");
     assertThat(list.get(1)).isEqualTo("a2");
   }
@@ -129,7 +129,7 @@ public class CollectionTest {
   public void testQueueDeserialization() {
     String json = "['a1','a2']";
     Type queueType = new TypeToken<Queue<String>>() {}.getType();
-    Queue<String> queue = gson.fromJson(json, queueType);
+    Queue<String> queue = gson.deserializeFromJson(json, queueType);
     assertThat(queue.element()).isEqualTo("a1");
     queue.remove();
     assertThat(queue.element()).isEqualTo("a2");
@@ -138,7 +138,7 @@ public class CollectionTest {
   @Test
   public void testPriorityQueue() {
     Type type = new TypeToken<PriorityQueue<Integer>>() {}.getType();
-    PriorityQueue<Integer> queue = gson.fromJson("[10, 20, 22]", type);
+    PriorityQueue<Integer> queue = gson.deserializeFromJson("[10, 20, 22]", type);
     assertThat(queue.size()).isEqualTo(3);
     String json = gson.toJson(queue);
     assertThat(queue.remove()).isEqualTo(10);
@@ -150,7 +150,7 @@ public class CollectionTest {
   @Test
   public void testVector() {
     Type type = new TypeToken<Vector<Integer>>() {}.getType();
-    Vector<Integer> target = gson.fromJson("[10, 20, 31]", type);
+    Vector<Integer> target = gson.deserializeFromJson("[10, 20, 31]", type);
     assertThat(target.size()).isEqualTo(3);
     assertThat(target.get(0)).isEqualTo(10);
     assertThat(target.get(1)).isEqualTo(20);
@@ -162,7 +162,7 @@ public class CollectionTest {
   @Test
   public void testStack() {
     Type type = new TypeToken<Stack<Integer>>() {}.getType();
-    Stack<Integer> target = gson.fromJson("[11, 13, 17]", type);
+    Stack<Integer> target = gson.deserializeFromJson("[11, 13, 17]", type);
     assertThat(target.size()).isEqualTo(3);
     String json = gson.toJson(target);
     assertThat(target.pop()).isEqualTo(17);
@@ -191,7 +191,7 @@ public class CollectionTest {
     expected.add("bar");
     String json = "[\"foo\",null,\"bar\"]";
     Type expectedType = new TypeToken<List<String>>() {}.getType();
-    List<String> target = gson.fromJson(json, expectedType);
+    List<String> target = gson.deserializeFromJson(json, expectedType);
     for (int i = 0; i < expected.size(); ++i) {
       assertThat(target.get(i)).isEqualTo(expected.get(i));
     }
@@ -248,7 +248,7 @@ public class CollectionTest {
   public void testCollectionOfStringsDeserialization() {
     String json = "[\"Hello\",\"World\"]";
     Type collectionType = new TypeToken<Collection<String>>() {}.getType();
-    Collection<String> target = gson.fromJson(json, collectionType);
+    Collection<String> target = gson.deserializeFromJson(json, collectionType);
 
     assertThat(target).containsExactly("Hello", "World").inOrder();
   }
@@ -270,14 +270,14 @@ public class CollectionTest {
   @Test
   public void testRawCollectionDeserializationNotAllowed() {
     String json = "[0,1,2,3,4,5,6,7,8,9]";
-    Collection<?> integers = gson.fromJson(json, Collection.class);
+    Collection<?> integers = gson.deserializeFromJson(json, Collection.class);
     // JsonReader converts numbers to double by default so we need a floating point comparison
     assertThat(integers)
         .containsExactly(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
         .inOrder();
 
     json = "[\"Hello\", \"World\"]";
-    Collection<?> strings = gson.fromJson(json, Collection.class);
+    Collection<?> strings = gson.deserializeFromJson(json, Collection.class);
     assertThat(strings).containsExactly("Hello", "World").inOrder();
   }
 
@@ -285,7 +285,7 @@ public class CollectionTest {
   public void testRawCollectionOfBagOfPrimitivesNotAllowed() {
     BagOfPrimitives bag = new BagOfPrimitives(10, 20, false, "stringValue");
     String json = '[' + bag.getExpectedJson() + ',' + bag.getExpectedJson() + ']';
-    Collection<?> target = gson.fromJson(json, Collection.class);
+    Collection<?> target = gson.deserializeFromJson(json, Collection.class);
     assertThat(target.size()).isEqualTo(2);
     for (Object bag1 : target) {
       // Gson 2.0 converts raw objects into maps
@@ -310,7 +310,7 @@ public class CollectionTest {
   public void testWildcardPrimitiveCollectionDeserilaization() {
     String json = "[1,2,3,4,5,6,7,8,9]";
     Type collectionType = new TypeToken<Collection<? extends Integer>>() {}.getType();
-    Collection<? extends Integer> target = gson.fromJson(json, collectionType);
+    Collection<? extends Integer> target = gson.deserializeFromJson(json, collectionType);
     assertThat(target.size()).isEqualTo(9);
     assertThat(target).contains(1);
     assertThat(target).contains(2);
@@ -329,7 +329,7 @@ public class CollectionTest {
     assertThat(json).contains(objA.getExpectedJson());
     assertThat(json).contains(objB.getExpectedJson());
 
-    target = gson.fromJson(json, ObjectWithWildcardCollection.class);
+    target = gson.deserializeFromJson(json, ObjectWithWildcardCollection.class);
     Collection<? extends BagOfPrimitives> deserializedCollection = target.getCollection();
     assertThat(deserializedCollection.size()).isEqualTo(2);
     assertThat(deserializedCollection).contains(objA);
@@ -343,7 +343,7 @@ public class CollectionTest {
     object.longs.add(3L);
     String json = gson.toJson(object, HasArrayListField.class);
     assertThat(json).isEqualTo("{\"longs\":[1,3]}");
-    HasArrayListField copy = gson.fromJson("{\"longs\":[1,3]}", HasArrayListField.class);
+    HasArrayListField copy = gson.deserializeFromJson("{\"longs\":[1,3]}", HasArrayListField.class);
     assertThat(copy.longs).isEqualTo(Arrays.asList(1L, 3L));
   }
 
@@ -414,7 +414,7 @@ public class CollectionTest {
   public void testSetDeserialization() {
     String json = "[{value:1},{value:2}]";
     Type type = new TypeToken<Set<Entry>>() {}.getType();
-    Set<Entry> set = gson.fromJson(json, type);
+    Set<Entry> set = gson.deserializeFromJson(json, type);
     assertThat(set.size()).isEqualTo(2);
     for (Entry entry : set) {
       assertThat(entry.value).isAnyOf(1, 2);
@@ -439,7 +439,7 @@ public class CollectionTest {
             + "    ]\n"
             + "  }\n"
             + "}";
-    BigClass bigClass = new Gson().fromJson(json, BigClass.class);
+    BigClass bigClass = new Gson().deserializeFromJson(json, BigClass.class);
     SmallClass small = bigClass.inBig.get("key").get(0);
     assertThat(small).isNotNull();
     assertThat(small.inSmall).isEqualTo("hello");

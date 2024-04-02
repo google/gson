@@ -1,0 +1,16 @@
+Project Name,Package Name,Type Name,Testability Smell,Cause of the Smell
+main,com.google.gson,GsonBuilder,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 17
+main,com.google.gson,Gson,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 32
+main,com.google.gson.internal,JsonReaderInternalAccess,Global State,The tool detected the smell in this class because the class declares global variables. The detected global variables are: INSTANCE (26)
+main,com.google.gson.internal,Excluder,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 8
+main,com.google.gson.internal.bind,MapTypeAdapterFactory,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 9
+main,com.google.gson.internal.bind,TreeTypeAdapter,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 10
+main,com.google.gson.internal.bind,DefaultDateTypeAdapter,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 9
+main,com.google.gson.internal.bind,DefaultDateTypeAdapter.DateType,Global State,The tool detected the smell in this class because the class can be accessed as a `global` state.
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 16
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory.Adapter,Global State,The tool detected the smell in this class because the class can be accessed as a `global` state.
+main,com.google.gson.internal.bind,NumberTypeAdapter,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 8
+main,com.google.gson.internal.bind,TypeAdapters,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 13
+main,com.google.gson.internal.bind,JsonAdapterAnnotationTypeAdapterFactory,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 8
+main,com.google.gson.internal.bind,ArrayTypeAdapter,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 9
+main,com.google.gson.internal.bind,ObjectTypeAdapter,Excessive Dependency,The tool detected the smell in this class because the class depends on too many dependencies. The total number of dependencies is: 9

@@ -47,7 +47,7 @@ public class GsonTypeAdapterTest {
   @Test
   public void testDefaultTypeAdapterThrowsParseException() throws Exception {
     try {
-      gson.fromJson("{\"abc\":123}", BigInteger.class);
+      gson.deserializeFromJson("{\"abc\":123}", BigInteger.class);
       fail("Should have thrown a JsonParseException");
     } catch (JsonParseException expected) {
     }
@@ -65,13 +65,13 @@ public class GsonTypeAdapterTest {
     assertThat(gson.toJson(null, AtomicLong.class)).isEqualTo("null");
 
     try {
-      gson.fromJson("123", AtomicLong.class);
+      gson.deserializeFromJson("123", AtomicLong.class);
       fail("Type Adapter should have thrown an exception");
     } catch (JsonParseException expected) {
     }
 
     // Verify that deserializer is made null-safe, i.e. it is not called for null
-    assertThat(gson.fromJson(JsonNull.INSTANCE, AtomicLong.class)).isNull();
+    assertThat(gson.deserializeFromJson(JsonNull.INSTANCE, AtomicLong.class)).isNull();
   }
 
   @Test
@@ -81,7 +81,7 @@ public class GsonTypeAdapterTest {
     String json = gson.toJson(atomicInt);
     assertThat(Integer.parseInt(json)).isEqualTo(intialValue + 1);
 
-    atomicInt = gson.fromJson(json, AtomicInteger.class);
+    atomicInt = gson.deserializeFromJson(json, AtomicInteger.class);
     assertThat(atomicInt.get()).isEqualTo(intialValue);
   }
 
@@ -91,7 +91,7 @@ public class GsonTypeAdapterTest {
     String actual = gson.toJson(expected);
     assertThat(actual).isEqualTo("\"" + expected + "\"");
 
-    actual = gson.fromJson(actual, String.class);
+    actual = gson.deserializeFromJson(actual, String.class);
     assertThat(actual).isEqualTo(expected);
   }
 

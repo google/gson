@@ -312,14 +312,26 @@ public final class JsonPrimitive extends JsonElement {
    * BigInteger)
    */
   private static boolean isIntegral(JsonPrimitive primitive) {
-    if (primitive.value instanceof Number) {
-      Number number = (Number) primitive.value;
-      return number instanceof BigInteger
-          || number instanceof Long
-          || number instanceof Integer
-          || number instanceof Short
-          || number instanceof Byte;
-    }
+    return isIntegral(primitive.value);
+  }
+
+  private static boolean isIntegral(BigInteger value) {
+    return true;
+  }
+  private static boolean isIntegral(Integer value) {
+    return true;
+  }
+  private static boolean isIntegral(Long value) {
+    return true;
+  }
+  private static boolean isIntegral(Short value) {
+    return true;
+  }
+  private static boolean isIntegral(Byte value) {
+    return true;
+  }
+  private static boolean isIntegral(Object value) {
     return false;
   }
+
 }

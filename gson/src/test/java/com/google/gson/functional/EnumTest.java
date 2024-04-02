@@ -16,34 +16,19 @@
 
 package com.google.gson.functional;
 
-import static com.google.common.truth.Truth.assertThat;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Date;
-import java.util.List;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Functional tests for Java 5.0 enums.
@@ -68,7 +53,7 @@ public class EnumTest {
 
   @Test
   public void testTopLevelEnumDeserialization() {
-    MyEnum result = gson.fromJson('"' + MyEnum.VALUE1.toString() + '"', MyEnum.class);
+    MyEnum result = gson.deserializeFromJson('"' + MyEnum.VALUE1.toString() + '"', MyEnum.class);
     assertThat(result).isEqualTo(MyEnum.VALUE1);
   }
 
@@ -89,7 +74,7 @@ public class EnumTest {
   public void testCollectionOfEnumsDeserialization() {
     Type type = new TypeToken<Collection<MyEnum>>() {}.getType();
     String json = "[\"VALUE1\",\"VALUE2\"]";
-    Collection<MyEnum> target = gson.fromJson(json, type);
+    Collection<MyEnum> target = gson.deserializeFromJson(json, type);
     MoreAsserts.assertContains(target, MyEnum.VALUE1);
     MoreAsserts.assertContains(target, MyEnum.VALUE2);
   }
@@ -103,7 +88,7 @@ public class EnumTest {
   @Test
   public void testClassWithEnumFieldDeserialization() {
     String json = "{value1:'VALUE1',value2:'VALUE2'}";
-    ClassWithEnumFields target = gson.fromJson(json, ClassWithEnumFields.class);
+    ClassWithEnumFields target = gson.deserializeFromJson(json, ClassWithEnumFields.class);
     assertThat(target.value1).isEqualTo(MyEnum.VALUE1);
     assertThat(target.value2).isEqualTo(MyEnum.VALUE2);
   }
@@ -130,14 +115,14 @@ public class EnumTest {
     assertThat(gson.toJson(Roshambo.ROCK)).isEqualTo("\"ROCK\"");
     assertThat(gson.toJson(EnumSet.allOf(Roshambo.class)))
         .isEqualTo("[\"ROCK\",\"PAPER\",\"SCISSORS\"]");
-    assertThat(gson.fromJson("\"ROCK\"", Roshambo.class)).isEqualTo(Roshambo.ROCK);
+    assertThat(gson.deserializeFromJson("\"ROCK\"", Roshambo.class)).isEqualTo(Roshambo.ROCK);
     Set<Roshambo> deserialized =
-        gson.fromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<>() {});
+        gson.deserializeFromJson("[\"ROCK\",\"PAPER\",\"SCISSORS\"]", new TypeToken<>() {});
     assertThat(deserialized).isEqualTo(EnumSet.allOf(Roshambo.class));
 
     // A bit contrived, but should also work if explicitly deserializing using anonymous enum
     // subclass
-    assertThat(gson.fromJson("\"ROCK\"", Roshambo.ROCK.getClass())).isEqualTo(Roshambo.ROCK);
+    assertThat(gson.deserializeFromJson("\"ROCK\"", Roshambo.ROCK.getClass())).isEqualTo(Roshambo.ROCK);
   }
 
   @Test
@@ -151,9 +136,9 @@ public class EnumTest {
     assertThat(gson.toJson(Roshambo.ROCK)).isEqualTo("\"123ROCK\"");
     assertThat(gson.toJson(EnumSet.allOf(Roshambo.class)))
         .isEqualTo("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]");
-    assertThat(gson.fromJson("\"123ROCK\"", Roshambo.class)).isEqualTo(Roshambo.ROCK);
+    assertThat(gson.deserializeFromJson("\"123ROCK\"", Roshambo.class)).isEqualTo(Roshambo.ROCK);
     Set<Roshambo> deserialized =
-        gson.fromJson("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", new TypeToken<>() {});
+        gson.deserializeFromJson("[\"123ROCK\",\"123PAPER\",\"123SCISSORS\"]", new TypeToken<>() {});
     assertThat(deserialized).isEqualTo(EnumSet.allOf(Roshambo.class));
   }
 
@@ -167,14 +152,14 @@ public class EnumTest {
     assertThat(json).isEqualTo("[\"ROCK\",\"PAPER\"]");
 
     Type collectionType = new TypeToken<Collection<Roshambo>>() {}.getType();
-    Collection<Roshambo> actualJsonList = gson.fromJson(json, collectionType);
+    Collection<Roshambo> actualJsonList = gson.deserializeFromJson(json, collectionType);
     MoreAsserts.assertContains(actualJsonList, Roshambo.ROCK);
     MoreAsserts.assertContains(actualJsonList, Roshambo.PAPER);
   }
 
   @Test
   public void testEnumCaseMapping() {
-    assertThat(gson.fromJson("\"boy\"", Gender.class)).isEqualTo(Gender.MALE);
+    assertThat(gson.deserializeFromJson("\"boy\"", Gender.class)).isEqualTo(Gender.MALE);
     assertThat(gson.toJson(Gender.MALE, Gender.class)).isEqualTo("\"boy\"");
   }
 
@@ -185,7 +170,7 @@ public class EnumTest {
     assertThat(json).isEqualTo("[\"ROCK\",\"PAPER\"]");
 
     Type type = new TypeToken<EnumSet<Roshambo>>() {}.getType();
-    EnumSet<Roshambo> bar = gson.fromJson(json, type);
+    EnumSet<Roshambo> bar = gson.deserializeFromJson(json, type);
     assertThat(bar).containsExactly(Roshambo.ROCK, Roshambo.PAPER).inOrder();
     assertThat(bar).doesNotContain(Roshambo.SCISSORS);
   }
@@ -198,7 +183,7 @@ public class EnumTest {
     assertThat(json).isEqualTo("{\"VALUE1\":\"test\"}");
 
     Type type = new TypeToken<EnumMap<MyEnum, String>>() {}.getType();
-    EnumMap<?, ?> actualMap = gson.fromJson("{\"VALUE1\":\"test\"}", type);
+    EnumMap<?, ?> actualMap = gson.deserializeFromJson("{\"VALUE1\":\"test\"}", type);
     Map<?, ?> expectedMap = Collections.singletonMap(MyEnum.VALUE1, "test");
     assertThat(actualMap).isEqualTo(expectedMap);
   }
@@ -252,8 +237,8 @@ public class EnumTest {
   @Test
   public void testEnumClassWithFields() {
     assertThat(gson.toJson(Color.RED)).isEqualTo("\"RED\"");
-    assertThat(gson.fromJson("RED", Color.class).value).isEqualTo("red");
-    assertThat(gson.fromJson("BLUE", Color.class).index).isEqualTo(2);
+    assertThat(gson.deserializeFromJson("RED", Color.class).value).isEqualTo("red");
+    assertThat(gson.deserializeFromJson("BLUE", Color.class).index).isEqualTo(2);
   }
 
   private enum Color {
@@ -272,11 +257,11 @@ public class EnumTest {
   @Test
   public void testEnumToStringRead() {
     // Should still be able to read constant name
-    assertThat(gson.fromJson("\"A\"", CustomToString.class)).isEqualTo(CustomToString.A);
+    assertThat(gson.deserializeFromJson("\"A\"", CustomToString.class)).isEqualTo(CustomToString.A);
     // Should be able to read toString() value
-    assertThat(gson.fromJson("\"test\"", CustomToString.class)).isEqualTo(CustomToString.A);
+    assertThat(gson.deserializeFromJson("\"test\"", CustomToString.class)).isEqualTo(CustomToString.A);
 
-    assertThat(gson.fromJson("\"other\"", CustomToString.class)).isNull();
+    assertThat(gson.deserializeFromJson("\"other\"", CustomToString.class)).isNull();
   }
 
   private enum CustomToString {
@@ -291,9 +276,9 @@ public class EnumTest {
   /** Test that enum constant names have higher precedence than {@code toString()} result. */
   @Test
   public void testEnumToStringReadInterchanged() {
-    assertThat(gson.fromJson("\"A\"", InterchangedToString.class))
+    assertThat(gson.deserializeFromJson("\"A\"", InterchangedToString.class))
         .isEqualTo(InterchangedToString.A);
-    assertThat(gson.fromJson("\"B\"", InterchangedToString.class))
+    assertThat(gson.deserializeFromJson("\"B\"", InterchangedToString.class))
         .isEqualTo(InterchangedToString.B);
   }
 
@@ -320,7 +305,7 @@ public class EnumTest {
 	  String json = "[{\"key\":\"value1\"}, {\"key\":\"value2\"}]";
 	  Gson gson = new Gson();
 	  Type type = new TypeToken<List<Map<String, String>>>() {}.getType();
-	  List<Map<String, String>> list = gson.fromJson(json, type);
+	  List<Map<String, String>> list = gson.deserializeFromJson(json, type);
 
 	  assertThat(list.size()).isEqualTo(2);
 	  assertThat(list.get(0).get("key")).isEqualTo("value1");
@@ -353,7 +338,7 @@ public class EnumTest {
 	  String json = gson.toJson(TestEnum.VALUE_ONE);
 	  assertThat(json).isEqualTo("\"value_one\"");
 
-	  TestEnum enumValue = gson.fromJson("\"value_one\"", TestEnum.class);
+	  TestEnum enumValue = gson.deserializeFromJson("\"value_one\"", TestEnum.class);
 	  assertThat(enumValue).isEqualTo(TestEnum.VALUE_ONE);
   }
 
@@ -370,7 +355,7 @@ public class EnumTest {
 	  String json = gson.toJson(date);
 	  assertThat(json).isEqualTo("\"2024-01-01\"");
 
-	  Date deserializedDate = gson.fromJson("\"2024-01-01\"", Date.class);
+	  Date deserializedDate = gson.deserializeFromJson("\"2024-01-01\"", Date.class);
 	  assertThat(format.format(deserializedDate)).isEqualTo("2024-01-01");
   }
 

@@ -50,13 +50,13 @@ public class UncategorizedTest {
   @Test
   public void testInvalidJsonDeserializationFails() throws Exception {
     try {
-      gson.fromJson("adfasdf1112,,,\":", BagOfPrimitives.class);
+      gson.deserializeFromJson("adfasdf1112,,,\":", BagOfPrimitives.class);
       fail("Bad JSON should throw a ParseException");
     } catch (JsonParseException expected) {
     }
 
     try {
-      gson.fromJson("{adfasdf1112,,,\":}", BagOfPrimitives.class);
+      gson.deserializeFromJson("{adfasdf1112,,,\":}", BagOfPrimitives.class);
       fail("Bad JSON should throw a ParseException");
     } catch (JsonParseException expected) {
     }
@@ -81,7 +81,7 @@ public class UncategorizedTest {
   public void testGsonInstanceReusableForSerializationAndDeserialization() {
     BagOfPrimitives bag = new BagOfPrimitives();
     String json = gson.toJson(bag);
-    BagOfPrimitives deserialized = gson.fromJson(json, BagOfPrimitives.class);
+    BagOfPrimitives deserialized = gson.deserializeFromJson(json, BagOfPrimitives.class);
     assertThat(deserialized).isEqualTo(bag);
   }
 
@@ -94,12 +94,12 @@ public class UncategorizedTest {
   public void testReturningDerivedClassesDuringDeserialization() {
     Gson gson = new GsonBuilder().registerTypeAdapter(Base.class, new BaseTypeAdapter()).create();
     String json = "{\"opType\":\"OP1\"}";
-    Base base = gson.fromJson(json, Base.class);
+    Base base = gson.deserializeFromJson(json, Base.class);
     assertThat(base).isInstanceOf(Derived1.class);
     assertThat(base.opType).isEqualTo(OperationType.OP1);
 
     json = "{\"opType\":\"OP2\"}";
-    base = gson.fromJson(json, Base.class);
+    base = gson.deserializeFromJson(json, Base.class);
     assertThat(base).isInstanceOf(Derived2.class);
     assertThat(base.opType).isEqualTo(OperationType.OP2);
   }
@@ -111,7 +111,7 @@ public class UncategorizedTest {
   @Test
   public void testTrailingWhitespace() throws Exception {
     List<Integer> integers =
-        gson.fromJson("[1,2,3]  \n\n  ", new TypeToken<List<Integer>>() {}.getType());
+        gson.deserializeFromJson("[1,2,3]  \n\n  ", new TypeToken<List<Integer>>() {}.getType());
     assertThat(integers).containsExactly(1, 2, 3).inOrder();
   }
 

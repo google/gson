@@ -42,7 +42,7 @@ public class MapAsArrayTypeAdapterTest {
     original.put(new Point(8, 8), "b");
     String json = gson.toJson(original, type);
     assertThat(json).isEqualTo("[[{\"x\":5,\"y\":5},\"a\"],[{\"x\":8,\"y\":8},\"b\"]]");
-    assertThat(gson.<Map<Point, String>>fromJson(json, type)).isEqualTo(original);
+    assertThat(gson.<Map<Point, String>>deserializeFromJson(json, type)).isEqualTo(original);
 
     // test that registering a type adapter for one map doesn't interfere with others
     Map<String, Boolean> otherMap = new LinkedHashMap<>();
@@ -52,7 +52,7 @@ public class MapAsArrayTypeAdapterTest {
     assertThat(gson.toJson(otherMap, new TypeToken<Map<String, Boolean>>() {}.getType()))
         .isEqualTo("{\"t\":true,\"f\":false}");
     assertThat(
-            gson.<Object>fromJson(
+            gson.<Object>deserializeFromJson(
                 "{\"t\":true,\"f\":false}", new TypeToken<Map<String, Boolean>>() {}.getType()))
         .isEqualTo(otherMap);
   }
@@ -78,7 +78,7 @@ public class MapAsArrayTypeAdapterTest {
 
     String s = "[[\"1.00\",\"a\"],[\"1.0\",\"b\"]]";
     try {
-      gson.fromJson(s, new TypeToken<Map<Double, String>>() {}.getType());
+      gson.deserializeFromJson(s, new TypeToken<Map<Double, String>>() {}.getType());
       fail();
     } catch (JsonSyntaxException expected) {
     }
@@ -98,7 +98,7 @@ public class MapAsArrayTypeAdapterTest {
     original.put(new Point(1, 8), "def");
     String json = gson.toJson(original, type);
     assertThat(json).isEqualTo("[[{\"x\":6,\"y\":5},\"abc\"],[{\"x\":1,\"y\":8},\"def\"]]");
-    assertThat(gson.<Map<Point, String>>fromJson(json, type)).isEqualTo(original);
+    assertThat(gson.<Map<Point, String>>deserializeFromJson(json, type)).isEqualTo(original);
   }
 
   @Test
@@ -116,7 +116,7 @@ public class MapAsArrayTypeAdapterTest {
     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
     String json = "{map:[[{x:2,y:3},{x:4,y:5}]]}";
     Type type = new TypeToken<PointWithProperty<Point>>() {}.getType();
-    PointWithProperty<Point> map = gson.fromJson(json, type);
+    PointWithProperty<Point> map = gson.deserializeFromJson(json, type);
     Point key = map.map.keySet().iterator().next();
     Point value = map.map.values().iterator().next();
     assertThat(key).isEqualTo(new Point(2, 3));

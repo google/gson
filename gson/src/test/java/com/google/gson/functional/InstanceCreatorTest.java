@@ -54,7 +54,7 @@ public class InstanceCreatorTest {
                 })
             .create();
     String json = "{baseName:'BaseRevised',subName:'Sub'}";
-    Base base = gson.fromJson(json, Base.class);
+    Base base = gson.deserializeFromJson(json, Base.class);
     assertThat(base.baseName).isEqualTo("BaseRevised");
   }
 
@@ -73,7 +73,7 @@ public class InstanceCreatorTest {
             .create();
 
     String json = "{baseName:'Base',subName:'SubRevised'}";
-    Base base = gson.fromJson(json, Base.class);
+    Base base = gson.deserializeFromJson(json, Base.class);
     assertThat(base).isInstanceOf(Sub.class);
 
     Sub sub = (Sub) base;
@@ -95,7 +95,7 @@ public class InstanceCreatorTest {
                 })
             .create();
     String json = "{base:{baseName:'Base',subName:'SubRevised'}}";
-    ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
+    ClassWithBaseField target = gson.deserializeFromJson(json, ClassWithBaseField.class);
     assertThat(target.base).isInstanceOf(Sub.class);
     assertThat(((Sub) target.base).subName).isEqualTo(Sub.SUB_NAME);
   }
@@ -114,7 +114,7 @@ public class InstanceCreatorTest {
         };
     Type listOfStringType = new TypeToken<List<String>>() {}.getType();
     Gson gson = new GsonBuilder().registerTypeAdapter(listOfStringType, listCreator).create();
-    List<String> list = gson.fromJson("[\"a\"]", listOfStringType);
+    List<String> list = gson.deserializeFromJson("[\"a\"]", listOfStringType);
     assertThat(list.getClass()).isEqualTo(SubArrayList.class);
   }
 
@@ -133,11 +133,11 @@ public class InstanceCreatorTest {
     Gson gson = new GsonBuilder().registerTypeAdapter(SortedSet.class, sortedSetCreator).create();
 
     Type sortedSetType = new TypeToken<SortedSet<String>>() {}.getType();
-    SortedSet<String> set = gson.fromJson("[\"a\"]", sortedSetType);
+    SortedSet<String> set = gson.deserializeFromJson("[\"a\"]", sortedSetType);
     assertThat(set.first()).isEqualTo("a");
     assertThat(set.getClass()).isEqualTo(SubTreeSet.class);
 
-    set = gson.fromJson("[\"b\"]", SortedSet.class);
+    set = gson.deserializeFromJson("[\"b\"]", SortedSet.class);
     assertThat(set.first()).isEqualTo("b");
     assertThat(set.getClass()).isEqualTo(SubTreeSet.class);
   }

@@ -42,7 +42,7 @@ public class DefaultInetAddressTypeAdapterTest {
     String jsonAddress = gson.toJson(address);
     assertThat(jsonAddress).isEqualTo("\"8.8.8.8\"");
 
-    InetAddress value = gson.fromJson(jsonAddress, InetAddress.class);
+    InetAddress value = gson.deserializeFromJson(jsonAddress, InetAddress.class);
     assertThat(address).isEqualTo(value);
   }
 }

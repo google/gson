@@ -84,11 +84,11 @@ public class FormattingStyleTest {
         Gson gson = new GsonBuilder().setFormattingStyle(style).create();
 
         String toParse = buildExpected(newline, indent, true);
-        actualParsed = gson.fromJson(toParse, inputType);
+        actualParsed = gson.deserializeFromJson(toParse, inputType);
         assertThat(actualParsed).isEqualTo(createInput());
 
         // Parse the mixed string with the gson parsers configured with various newline / indents.
-        actualParsed = gson.fromJson(jsonStringMix, inputType);
+        actualParsed = gson.deserializeFromJson(jsonStringMix, inputType);
         assertThat(actualParsed).isEqualTo(createInput());
       }
     }

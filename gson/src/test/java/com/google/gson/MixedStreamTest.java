@@ -74,9 +74,9 @@ public final class MixedStreamTest {
     JsonReader jsonReader = new JsonReader(stringReader);
 
     jsonReader.beginArray();
-    assertThat(gson.<Car>fromJson(jsonReader, Car.class)).isEqualTo(BLUE_MUSTANG);
-    assertThat(gson.<Car>fromJson(jsonReader, Car.class)).isEqualTo(BLACK_BMW);
-    assertThat(gson.<Car>fromJson(jsonReader, Car.class)).isEqualTo(RED_MIATA);
+    assertThat(gson.<Car>deserializeFromJson(jsonReader, Car.class)).isEqualTo(BLUE_MUSTANG);
+    assertThat(gson.<Car>deserializeFromJson(jsonReader, Car.class)).isEqualTo(BLACK_BMW);
+    assertThat(gson.<Car>deserializeFromJson(jsonReader, Car.class)).isEqualTo(RED_MIATA);
     jsonReader.endArray();
   }
 
@@ -88,11 +88,11 @@ public final class MixedStreamTest {
     jsonReader.beginArray();
 
     jsonReader.setLenient(false);
-    Car unused1 = gson.fromJson(jsonReader, Car.class);
+    Car unused1 = gson.deserializeFromJson(jsonReader, Car.class);
     assertThat(jsonReader.isLenient()).isFalse();
 
     jsonReader.setLenient(true);
-    Car unused2 = gson.fromJson(jsonReader, Car.class);
+    Car unused2 = gson.deserializeFromJson(jsonReader, Car.class);
     assertThat(jsonReader.isLenient()).isTrue();
   }
 
@@ -123,7 +123,7 @@ public final class MixedStreamTest {
     jsonReader.beginArray();
     jsonReader.beginObject();
     try {
-      gson.fromJson(jsonReader, String.class);
+      gson.deserializeFromJson(jsonReader, String.class);
       fail();
     } catch (JsonParseException expected) {
     }
@@ -135,7 +135,7 @@ public final class MixedStreamTest {
     JsonReader jsonReader = new JsonReader(new StringReader(CARS_JSON));
     jsonReader.close();
     try {
-      gson.fromJson(jsonReader, new TypeToken<List<Car>>() {}.getType());
+      gson.deserializeFromJson(jsonReader, new TypeToken<List<Car>>() {}.getType());
       fail();
     } catch (JsonParseException expected) {
     }
@@ -185,12 +185,12 @@ public final class MixedStreamTest {
   public void testReadNulls() {
     Gson gson = new Gson();
     try {
-      gson.fromJson((JsonReader) null, Integer.class);
+      gson.deserializeFromJson((JsonReader) null, Integer.class);
       fail();
     } catch (NullPointerException expected) {
     }
     try {
-      gson.fromJson(new JsonReader(new StringReader("true")), (Type) null);
+      gson.deserializeFromJson(new JsonReader(new StringReader("true")), (Type) null);
       fail();
     } catch (NullPointerException expected) {
     }

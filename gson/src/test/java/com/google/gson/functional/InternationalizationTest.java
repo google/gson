@@ -47,13 +47,13 @@ public class InternationalizationTest {
   public void testStringsWithUnicodeChineseCharactersDeserialization() {
     String expected = "\u597d\u597d\u597d";
     String json = '"' + expected + '"';
-    String actual = gson.fromJson(json, String.class);
+    String actual = gson.deserializeFromJson(json, String.class);
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   public void testStringsWithUnicodeChineseCharactersEscapedDeserialization() {
-    String actual = gson.fromJson("'\\u597d\\u597d\\u597d'", String.class);
+    String actual = gson.deserializeFromJson("'\\u597d\\u597d\\u597d'", String.class);
     assertThat(actual).isEqualTo("\u597d\u597d\u597d");
   }
 
@@ -69,7 +69,7 @@ public class InternationalizationTest {
   public void testSupplementaryUnicodeDeserialization() {
     // Supplementary code point U+1F60A
     String supplementaryCodePoint = new String(new int[] {0x1F60A}, 0, 1);
-    String actual = gson.fromJson('"' + supplementaryCodePoint + '"', String.class);
+    String actual = gson.deserializeFromJson('"' + supplementaryCodePoint + '"', String.class);
     assertThat(actual).isEqualTo(supplementaryCodePoint);
   }
 
@@ -77,7 +77,7 @@ public class InternationalizationTest {
   public void testSupplementaryUnicodeEscapedDeserialization() {
     // Supplementary code point U+1F60A
     String supplementaryCodePoint = new String(new int[] {0x1F60A}, 0, 1);
-    String actual = gson.fromJson("\"\\uD83D\\uDE0A\"", String.class);
+    String actual = gson.deserializeFromJson("\"\\uD83D\\uDE0A\"", String.class);
     assertThat(actual).isEqualTo(supplementaryCodePoint);
   }
 }

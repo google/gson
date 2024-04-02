@@ -1,0 +1,261 @@
+Project Name,Package Name,Type Name,Method Name,Implementation Smell,Cause of the Smell,Method start line no
+main,com.google.gson,GsonBuilder,GsonBuilder,Long Identifier,The length of the field serializeSpecialFloatingPointValues is 35.,125
+main,com.google.gson,GsonBuilder,checkDateFormatStyle,Magic Number,The method contains a magic number: 3,669
+main,com.google.gson,GsonBuilder,registerTypeAdapter,Long Statement,The length of the statement "$Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof InstanceCreator<?>|| typeAdapter instanceof TypeAdapter<?>);" is 207.,677
+main,com.google.gson,GsonBuilder,registerTypeAdapter,Long Statement,The length of the statement "@SuppressWarnings({"unchecked"`"rawtypes"}) TypeAdapterFactory factory=TypeAdapters.newFactory(TypeToken.get(type)`(TypeAdapter)typeAdapter);" is 141.,677
+main,com.google.gson,GsonBuilder,registerTypeHierarchyAdapter,Long Statement,The length of the statement "$Gson$Preconditions.checkArgument(typeAdapter instanceof JsonSerializer<?> || typeAdapter instanceof JsonDeserializer<?> || typeAdapter instanceof TypeAdapter<?>);" is 163.,757
+main,com.google.gson,GsonBuilder,registerTypeHierarchyAdapter,Long Statement,The length of the statement "@SuppressWarnings({"unchecked"`"rawtypes"}) TypeAdapterFactory factory=TypeAdapters.newTypeHierarchyFactory(baseType`(TypeAdapter)typeAdapter);" is 143.,757
+main,com.google.gson,GsonBuilder,serializeSpecialFloatingPointValues,Long Identifier,The length of the field serializeSpecialFloatingPointValues is 35.,797
+main,com.google.gson,GsonBuilder,create,Long Identifier,The length of the field serializeSpecialFloatingPointValues is 35.,870
+main,com.google.gson,GsonBuilder,create,Long Statement,The length of the statement "return new Gson(excluder`fieldNamingPolicy`new HashMap<>(instanceCreators)`serializeNulls`complexMapKeySerialization`generateNonExecutableJson`escapeHtmlChars`formattingStyle`strictness`serializeSpecialFloatingPointValues`useJdkUnsafe`longSerializationPolicy`datePattern`dateStyle`timeStyle`new ArrayList<>(this.factories)`new ArrayList<>(this.hierarchyFactories)`factories`objectToNumberStrategy`numberToNumberStrategy`new ArrayList<>(reflectionFilters));" is 456.,870
+main,com.google.gson,GsonBuilder,create,Magic Number,The method contains a magic number: 3,870
+main,com.google.gson,Gson,Gson,Long Identifier,The length of the field DEFAULT_SPECIALIZE_FLOAT_VALUES is 31.,214
+main,com.google.gson,Gson,Gson,Long Identifier,The length of the field DEFAULT_OBJECT_TO_NUMBER_STRATEGY is 33.,214
+main,com.google.gson,Gson,Gson,Long Identifier,The length of the field DEFAULT_NUMBER_TO_NUMBER_STRATEGY is 33.,214
+main,com.google.gson,Gson,Gson,Long Statement,The length of the statement "this(Excluder.DEFAULT`DEFAULT_FIELD_NAMING_STRATEGY`Collections.<Type`InstanceCreator<?>>emptyMap()`DEFAULT_SERIALIZE_NULLS`DEFAULT_COMPLEX_MAP_KEYS`DEFAULT_JSON_NON_EXECUTABLE`DEFAULT_ESCAPE_HTML`DEFAULT_FORMATTING_STYLE`DEFAULT_STRICTNESS`DEFAULT_SPECIALIZE_FLOAT_VALUES`DEFAULT_USE_JDK_UNSAFE`LongSerializationPolicy.DEFAULT`DEFAULT_DATE_PATTERN`DateFormat.DEFAULT`DateFormat.DEFAULT`Collections.<TypeAdapterFactory>emptyList()`Collections.<TypeAdapterFactory>emptyList()`Collections.<TypeAdapterFactory>emptyList()`DEFAULT_OBJECT_TO_NUMBER_STRATEGY`DEFAULT_NUMBER_TO_NUMBER_STRATEGY`Collections.<ReflectionAccessFilter>emptyList());" is 636.,214
+main,com.google.gson,Gson,Gson,Long Identifier,The length of the parameter serializeSpecialFloatingPointValues is 35.,278
+main,com.google.gson,Gson,Gson,Long Identifier,The length of the field serializeSpecialFloatingPointValues is 35.,278
+main,com.google.gson,Gson,Gson,Long Parameter List,The method has 21 parameters. ,278
+main,com.google.gson,Gson,Gson,Long Statement,The length of the statement "factories.add(new ReflectiveTypeAdapterFactory(constructorConstructor`fieldNamingStrategy`excluder`jsonAdapterFactory`reflectionFilters));" is 138.,278
+main,com.google.gson,Gson,doubleAdapter,Long Identifier,The length of the parameter serializeSpecialFloatingPointValues is 35.,450
+main,com.google.gson,Gson,doubleAdapter,Long Identifier,The length of the field serializeSpecialFloatingPointValues is 35.,450
+main,com.google.gson,Gson,floatAdapter,Long Identifier,The length of the parameter serializeSpecialFloatingPointValues is 35.,477
+main,com.google.gson,Gson,floatAdapter,Long Identifier,The length of the field serializeSpecialFloatingPointValues is 35.,477
+main,com.google.gson,Gson,checkValidFloatingPoint,Long Statement,The length of the statement "throw new IllegalArgumentException(value + " is not a valid double value as per JSON specification. To override this" + " behavior` use GsonBuilder.serializeSpecialFloatingPointValues() method.");" is 196.,507
+main,com.google.gson,Gson,getAdapter,Complex Method,Cyclomatic complexity of the method is 9,587
+main,com.google.gson,Gson,toString,Long Statement,The length of the statement "return "{serializeNulls:" + serializeNulls + "`factories:"+ factories+ "`instanceCreators:"+ constructorConstructor+ "}";" is 121.,1525
+main,com.google.gson,JsonPrimitive,getAsBigInteger,Long Statement,The length of the statement "return value instanceof BigInteger ? (BigInteger)value : isIntegral(this) ? BigInteger.valueOf(this.getAsNumber().longValue()) : NumberLimits.parseBigInteger(this.getAsString());" is 178.,185
+main,com.google.gson,JsonPrimitive,hashCode,Magic Number,The method contains a magic number: 31,256
+main,com.google.gson,JsonPrimitive,hashCode,Magic Number,The method contains a magic number: 32,256
+main,com.google.gson,JsonPrimitive,hashCode,Magic Number,The method contains a magic number: 32,256
+main,com.google.gson,JsonPrimitive,equals,Long Statement,The length of the statement "return (this.value instanceof BigInteger || other.value instanceof BigInteger) ? this.getAsBigInteger().equals(other.getAsBigInteger()) : this.getAsNumber().longValue() == other.getAsNumber().longValue();" is 204.,274
+main,com.google.gson,JsonPrimitive,isIntegral,Long Statement,The length of the statement "return number instanceof BigInteger || number instanceof Long || number instanceof Integer|| number instanceof Short|| number instanceof Byte;" is 142.,310
+main,com.google.gson.stream,JsonReader,peek,Complex Method,Cyclomatic complexity of the method is 19,495
+main,com.google.gson.stream,JsonReader,peek,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@778cb591,495
+main,com.google.gson.stream,JsonReader,doPeek,Complex Conditional,The conditional expression (pos < limit || fillBuffer(1)) && buffer[pos] == '>' is complex.,535
+main,com.google.gson.stream,JsonReader,doPeek,Complex Method,Cyclomatic complexity of the method is 37,535
+main,com.google.gson.stream,JsonReader,doPeek,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@29ebbbcb,535
+main,com.google.gson.stream,JsonReader,doPeek,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@422ca9ec,535
+main,com.google.gson.stream,JsonReader,doPeek,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@3e0bb51d,535
+main,com.google.gson.stream,JsonReader,doPeek,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@2cb9af70,535
+main,com.google.gson.stream,JsonReader,doPeek,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@58f86ccf,535
+main,com.google.gson.stream,JsonReader,peekKeyword,Complex Conditional,The conditional expression (pos + length < limit || fillBuffer(length + 1)) && isLiteral(buffer[pos + length]) is complex.,672
+main,com.google.gson.stream,JsonReader,peekKeyword,Complex Method,Cyclomatic complexity of the method is 8,672
+main,com.google.gson.stream,JsonReader,peekNumber,Complex Conditional,The conditional expression last == NUMBER_CHAR_DIGIT && fitsInLong && (value != Long.MIN_VALUE || negative) && (value != 0 || !negative) is complex.,721
+main,com.google.gson.stream,JsonReader,peekNumber,Complex Conditional,The conditional expression last == NUMBER_CHAR_DIGIT || last == NUMBER_CHAR_FRACTION_DIGIT || last == NUMBER_CHAR_EXP_DIGIT is complex.,721
+main,com.google.gson.stream,JsonReader,peekNumber,Complex Method,Cyclomatic complexity of the method is 24,721
+main,com.google.gson.stream,JsonReader,peekNumber,Magic Number,The method contains a magic number: 10,721
+main,com.google.gson.stream,JsonReader,peekNumber,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@7f3cddf5,721
+main,com.google.gson.stream,JsonReader,isLiteral,Complex Method,Cyclomatic complexity of the method is 17,831
+main,com.google.gson.stream,JsonReader,isLiteral,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@1cfc2c52,831
+main,com.google.gson.stream,JsonReader,nextString,Complex Method,Cyclomatic complexity of the method is 8,882
+main,com.google.gson.stream,JsonReader,nextDouble,Complex Conditional,The conditional expression strictness != Strictness.LENIENT && (Double.isNaN(result) || Double.isInfinite(result)) is complex.,956
+main,com.google.gson.stream,JsonReader,nextDouble,Complex Method,Cyclomatic complexity of the method is 8,956
+main,com.google.gson.stream,JsonReader,nextLong,Complex Conditional,The conditional expression p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED || p == PEEKED_UNQUOTED is complex.,1000
+main,com.google.gson.stream,JsonReader,nextLong,Empty catch clause,The method has an empty catch block.,1000
+main,com.google.gson.stream,JsonReader,nextQuotedValue,Complex Method,Cyclomatic complexity of the method is 11,1054
+main,com.google.gson.stream,JsonReader,nextQuotedValue,Magic Number,The method contains a magic number: 0x20,1054
+main,com.google.gson.stream,JsonReader,nextQuotedValue,Magic Number,The method contains a magic number: 2,1054
+main,com.google.gson.stream,JsonReader,nextQuotedValue,Magic Number,The method contains a magic number: 16,1054
+main,com.google.gson.stream,JsonReader,nextQuotedValue,Magic Number,The method contains a magic number: 2,1054
+main,com.google.gson.stream,JsonReader,nextQuotedValue,Magic Number,The method contains a magic number: 16,1054
+main,com.google.gson.stream,JsonReader,nextUnquotedValue,Complex Method,Cyclomatic complexity of the method is 23,1117
+main,com.google.gson.stream,JsonReader,nextUnquotedValue,Magic Number,The method contains a magic number: 16,1117
+main,com.google.gson.stream,JsonReader,nextUnquotedValue,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@66da47e2,1117
+main,com.google.gson.stream,JsonReader,skipUnquotedValue,Complex Method,Cyclomatic complexity of the method is 19,1204
+main,com.google.gson.stream,JsonReader,skipUnquotedValue,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@7f90edb9,1204
+main,com.google.gson.stream,JsonReader,nextInt,Complex Conditional,The conditional expression p == PEEKED_SINGLE_QUOTED || p == PEEKED_DOUBLE_QUOTED || p == PEEKED_UNQUOTED is complex.,1237
+main,com.google.gson.stream,JsonReader,nextInt,Complex Method,Cyclomatic complexity of the method is 8,1237
+main,com.google.gson.stream,JsonReader,nextInt,Empty catch clause,The method has an empty catch block.,1237
+main,com.google.gson.stream,JsonReader,skipValue,Complex Method,Cyclomatic complexity of the method is 19,1305
+main,com.google.gson.stream,JsonReader,skipValue,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@2f3d0a5,1305
+main,com.google.gson.stream,JsonReader,push,Magic Number,The method contains a magic number: 2,1398
+main,com.google.gson.stream,JsonReader,fillBuffer,Complex Conditional,The conditional expression lineNumber == 0 && lineStart == 0 && limit > 0 && buffer[0] == '\ufeff' is complex.,1408
+main,com.google.gson.stream,JsonReader,nextNonWhitespace,Complex Conditional,The conditional expression c == ' ' || c == '\r' || c == '\t' is complex.,1441
+main,com.google.gson.stream,JsonReader,nextNonWhitespace,Complex Method,Cyclomatic complexity of the method is 14,1441
+main,com.google.gson.stream,JsonReader,nextNonWhitespace,Magic Number,The method contains a magic number: 2,1441
+main,com.google.gson.stream,JsonReader,nextNonWhitespace,Magic Number,The method contains a magic number: 2,1441
+main,com.google.gson.stream,JsonReader,nextNonWhitespace,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@13bc93b,1441
+main,com.google.gson.stream,JsonReader,getPath,Complex Conditional,The conditional expression usePreviousPath && pathIndex > 0 && i == stackSize - 1 is complex.,1592
+main,com.google.gson.stream,JsonReader,getPath,Complex Method,Cyclomatic complexity of the method is 12,1592
+main,com.google.gson.stream,JsonReader,getPath,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@356a6ba9,1592
+main,com.google.gson.stream,JsonReader,readEscapeCharacter,Complex Method,Cyclomatic complexity of the method is 20,1661
+main,com.google.gson.stream,JsonReader,readEscapeCharacter,Magic Number,The method contains a magic number: 4,1661
+main,com.google.gson.stream,JsonReader,readEscapeCharacter,Magic Number,The method contains a magic number: 4,1661
+main,com.google.gson.stream,JsonReader,readEscapeCharacter,Magic Number,The method contains a magic number: 4,1661
+main,com.google.gson.stream,JsonReader,readEscapeCharacter,Magic Number,The method contains a magic number: 4,1661
+main,com.google.gson.stream,JsonReader,readEscapeCharacter,Magic Number,The method contains a magic number: 10,1661
+main,com.google.gson.stream,JsonReader,readEscapeCharacter,Magic Number,The method contains a magic number: 10,1661
+main,com.google.gson.stream,JsonReader,readEscapeCharacter,Magic Number,The method contains a magic number: 4,1661
+main,com.google.gson.stream,JsonReader,readEscapeCharacter,Magic Number,The method contains a magic number: 4,1661
+main,com.google.gson.stream,JsonReader,readEscapeCharacter,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@4defb598,1661
+main,com.google.gson.stream,JsonReader,syntaxError,Long Statement,The length of the statement "throw new MalformedJsonException(message + locationString() + "\nSee "+ TroubleshootingGuide.createUrl("malformed-json"));" is 122.,1735
+main,com.google.gson.stream,JsonReader,unexpectedTokenError,Long Statement,The length of the statement "return new IllegalStateException("Expected " + expected + " but was "+ peek()+ locationString()+ "\nSee "+ TroubleshootingGuide.createUrl(troubleshootingId));" is 158.,1744
+main,com.google.gson.stream,JsonReader,consumeNonExecutePrefix,Complex Conditional,The conditional expression buf[p] != ')' || buf[p + 1] != ']' || buf[p + 2] != '}' || buf[p + 3] != '\'' || buf[p + 4] != '\n' is complex.,1758
+main,com.google.gson.stream,JsonReader,consumeNonExecutePrefix,Magic Number,The method contains a magic number: 5,1758
+main,com.google.gson.stream,JsonReader,consumeNonExecutePrefix,Magic Number,The method contains a magic number: 5,1758
+main,com.google.gson.stream,JsonReader,consumeNonExecutePrefix,Magic Number,The method contains a magic number: 2,1758
+main,com.google.gson.stream,JsonReader,consumeNonExecutePrefix,Magic Number,The method contains a magic number: 3,1758
+main,com.google.gson.stream,JsonReader,consumeNonExecutePrefix,Magic Number,The method contains a magic number: 4,1758
+main,com.google.gson.stream,JsonReader,consumeNonExecutePrefix,Magic Number,The method contains a magic number: 5,1758
+main,com.google.gson.stream,JsonWriter,setFormattingStyle,Long Statement,The length of the statement "this.usesEmptyNewlineAndIndent=this.formattingStyle.getNewline().isEmpty() && this.formattingStyle.getIndent().isEmpty();" is 121.,257
+main,com.google.gson.stream,JsonWriter,push,Magic Number,The method contains a magic number: 2,463
+main,com.google.gson.stream,JsonWriter,value,Complex Conditional,The conditional expression strictness != Strictness.LENIENT && (Float.isNaN(value) || Float.isInfinite(value)) is complex.,558
+main,com.google.gson.stream,JsonWriter,value,Complex Conditional,The conditional expression strictness != Strictness.LENIENT && (Double.isNaN(value) || Double.isInfinite(value)) is complex.,579
+main,com.google.gson.stream,JsonWriter,value,Complex Conditional,The conditional expression string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN") is complex.,612
+main,com.google.gson.stream,JsonWriter,close,Complex Conditional,The conditional expression size > 1 || (size == 1 && stack[size - 1] != NONEMPTY_DOCUMENT) is complex.,702
+main,com.google.gson.stream,JsonWriter,isTrustedNumberType,Long Statement,The length of the statement "return c == Integer.class || c == Long.class || c == Double.class || c == Float.class || c == Byte.class || c == Short.class || c == BigDecimal.class || c == BigInteger.class || c == AtomicInteger.class || c == AtomicLong.class;" is 228.,718
+main,com.google.gson.stream,JsonWriter,string,Complex Method,Cyclomatic complexity of the method is 8,737
+main,com.google.gson.stream,JsonWriter,string,Magic Number,The method contains a magic number: 128,737
+main,com.google.gson.stream,JsonWriter,beforeValue,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@51053278,795
+main,com.google.gson.reflect,TypeToken,getTypeTokenTypeArgument,Long Statement,The length of the statement "throw new IllegalStateException("TypeToken must be created with a type argument: new TypeToken<...>() {}; When using code" + " shrinkers (ProGuard` R8` ...) make sure that generic signatures are preserved." + "\nSee "+ TroubleshootingGuide.createUrl("type-token-raw"));" is 269.,91
+main,com.google.gson.reflect,TypeToken,verifyNoTypeVariable,Complex Method,Cyclomatic complexity of the method is 10,121
+main,com.google.gson.reflect,TypeToken,verifyNoTypeVariable,Long Statement,The length of the statement "throw new IllegalArgumentException("TypeToken type argument must not contain a type variable; captured type variable " + typeVariable.getName() + " declared by "+ typeVariable.getGenericDeclaration()+ "\nSee "+ TroubleshootingGuide.createUrl("typetoken-type-variable"));" is 270.,121
+main,com.google.gson.reflect,TypeToken,isAssignableFrom,Complex Method,Cyclomatic complexity of the method is 10,243
+main,com.google.gson.reflect,TypeToken,buildUnsupportedTypeException,Long Statement,The length of the statement "exceptionMessage.append("but got: ").append(token.getClass().getName()).append("` for type token: ").append(token.toString());" is 126.,312
+main,com.google.gson.reflect,TypeToken,getParameterized,Complex Method,Cyclomatic complexity of the method is 8,364
+main,com.google.gson.reflect,TypeToken,getParameterized,Long Statement,The length of the statement "throw new IllegalArgumentException(rawClass.getName() + " requires " + expectedArgsCount+ " type arguments` but got "+ actualArgsCount);" is 136.,364
+main,com.google.gson.reflect,TypeToken,getParameterized,Long Statement,The length of the statement "throw new IllegalArgumentException("Raw type " + rawClass.getName() + " is not supported because it requires specifying an owner type");" is 136.,364
+main,com.google.gson.reflect,TypeToken,getParameterized,Long Statement,The length of the statement "throw new IllegalArgumentException("Type argument " + typeArgument + " does not satisfy bounds for type variable "+ typeVariable+ " declared by "+ rawType);" is 156.,364
+main,com.google.gson.internal,LinkedTreeMap,find,Complex Method,Cyclomatic complexity of the method is 9,146
+main,com.google.gson.internal,LinkedTreeMap,find,Long Statement,The length of the statement "@SuppressWarnings("unchecked") Comparable<Object> comparableKey=(comparator == NATURAL_ORDER) ? (Comparable<Object>)key : null;" is 127.,146
+main,com.google.gson.internal,LinkedTreeMap,rebalance,Complex Conditional,The conditional expression rightDelta == -1 || (rightDelta == 0 && !insert) is complex.,332
+main,com.google.gson.internal,LinkedTreeMap,rebalance,Complex Conditional,The conditional expression leftDelta == 1 || (leftDelta == 0 && !insert) is complex.,332
+main,com.google.gson.internal,LinkedTreeMap,rebalance,Complex Method,Cyclomatic complexity of the method is 11,332
+main,com.google.gson.internal,LinkedTreeMap,rebalance,Magic Number,The method contains a magic number: 2,332
+main,com.google.gson.internal,LinkedTreeMap,rebalance,Magic Number,The method contains a magic number: 2,332
+main,com.google.gson.internal,PreJava9DateFormatProvider,getDatePartOfDateTimePattern,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@e284b72,36
+main,com.google.gson.internal,PreJava9DateFormatProvider,getTimePartOfDateTimePattern,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@68794e3d,51
+main,com.google.gson.internal,UnsafeAllocator,create,Empty catch clause,The method has an empty catch block.,48
+main,com.google.gson.internal,UnsafeAllocator,create,Empty catch clause,The method has an empty catch block.,48
+main,com.google.gson.internal,UnsafeAllocator,create,Empty catch clause,The method has an empty catch block.,48
+main,com.google.gson.internal,UnsafeAllocator,create,Long Statement,The length of the statement "throw new UnsupportedOperationException("Cannot allocate " + c + ". Usage of JDK sun.misc.Unsafe is enabled` but it could not be used."+ " Make sure your runtime is configured correctly.");" is 189.,48
+main,com.google.gson.internal,UnsafeAllocator,newInstance,Long Statement,The length of the statement "throw new UnsupportedOperationException("Cannot allocate " + c + ". Usage of JDK sun.misc.Unsafe is enabled` but it could not be used."+ " Make sure your runtime is configured correctly.");" is 189.,119
+main,com.google.gson.internal,NumberLimits,checkNumberStringLength,Magic Number,The method contains a magic number: 30,15
+main,com.google.gson.internal,NumberLimits,parseBigDecimal,Magic Number,The method contains a magic number: 10_000,21
+main,com.google.gson.internal,Excluder,create,Long Statement,The length of the statement "* The delegate is lazily created because it may not be needed` and creating it may fail. Field has to be {@code volatile} because {@link Gson} guarantees to be thread-safe." is 172.,110
+main,com.google.gson.internal,Excluder,excludeField,Complex Method,Cyclomatic complexity of the method is 10,155
+main,com.google.gson.internal,Excluder,excludeField,Long Statement,The length of the statement "if (version != Excluder.IGNORE_VERSIONS && !isValidVersion(field.getAnnotation(Since.class)`field.getAnnotation(Until.class))) {" is 128.,155
+main,com.google.gson.internal,Excluder,excludeClass,Complex Conditional,The conditional expression !serialize && !Enum.class.isAssignableFrom(clazz) && ReflectionHelper.isAnonymousOrNonStaticLocal(clazz) is complex.,194
+main,com.google.gson.internal,Excluder,excludeClass,Long Statement,The length of the statement "if (version != Excluder.IGNORE_VERSIONS && !isValidVersion(clazz.getAnnotation(Since.class)`clazz.getAnnotation(Until.class))) {" is 128.,194
+main,com.google.gson.internal,JavaVersion,parseMajorJavaVersion,Magic Number,The method contains a magic number: 6,34
+main,com.google.gson.internal,JavaVersion,parseDotted,Magic Number,The method contains a magic number: 3,46
+main,com.google.gson.internal,JavaVersion,isJava9OrLater,Magic Number,The method contains a magic number: 9,86
+main,com.google.gson.internal,ReflectionAccessFilterHelper,isAnyPlatformType,Long Statement,The length of the statement "return isAndroidType(className) || className.startsWith("kotlin.") || className.startsWith("kotlinx.")|| className.startsWith("scala.");" is 136.,51
+main,com.google.gson.internal,$Gson$Types,getRawType,Long Statement,The length of the statement "throw new IllegalArgumentException("Expected a Class` ParameterizedType` or GenericArrayType` but <" + type + "> is of type "+ className);" is 138.,130
+main,com.google.gson.internal,$Gson$Types,equals,Complex Method,Cyclomatic complexity of the method is 11,173
+main,com.google.gson.internal,$Gson$Types,equals,Long Statement,The length of the statement "return equal(pa.getOwnerType()`pb.getOwnerType()) && pa.getRawType().equals(pb.getRawType()) && Arrays.equals(pa.getActualTypeArguments()`pb.getActualTypeArguments());" is 167.,173
+main,com.google.gson.internal,$Gson$Types,getGenericSupertype,Complex Method,Cyclomatic complexity of the method is 10,233
+main,com.google.gson.internal,$Gson$Types,getArrayComponentType,Long Statement,The length of the statement "return array instanceof GenericArrayType ? ((GenericArrayType)array).getGenericComponentType() : ((Class<?>)array).getComponentType();" is 134.,295
+main,com.google.gson.internal,$Gson$Types,resolve,Complex Method,Cyclomatic complexity of the method is 18,348
+main,com.google.gson.internal,ConstructorConstructor,checkInstantiable,Long Statement,The length of the statement "return "Interfaces can't be instantiated! Register an InstanceCreator" + " or a TypeAdapter for this type. Interface name: " + c.getName();" is 139.,65
+main,com.google.gson.internal,ConstructorConstructor,checkInstantiable,Long Statement,The length of the statement "return "Abstract classes can't be instantiated! Adjust the R8 configuration or register" + " an InstanceCreator or a TypeAdapter for this type. Class name: " + c.getName() + "\nSee "+ TroubleshootingGuide.createUrl("r8-abstract-class");" is 236.,65
+main,com.google.gson.internal,ConstructorConstructor,get,Complex Method,Cyclomatic complexity of the method is 8,97
+main,com.google.gson.internal,ConstructorConstructor,get,Long Statement,The length of the statement "@SuppressWarnings("unchecked") final InstanceCreator<T> rawTypeCreator=(InstanceCreator<T>)instanceCreators.get(rawType);" is 121.,97
+main,com.google.gson.internal,ConstructorConstructor,get,Long Statement,The length of the statement "final String message="Unable to create instance of " + rawType + "; ReflectionAccessFilter does not permit using reflection or Unsafe. Register an"+ " InstanceCreator or a TypeAdapter for this type or adjust the access filter to"+ " allow using reflection.";" is 258.,97
+main,com.google.gson.internal,ConstructorConstructor,newDefaultConstructor,Long Statement,The length of the statement "boolean canAccess=filterResult == FilterResult.ALLOW || (ReflectionAccessFilterHelper.canAccess(constructor`null) && (filterResult != FilterResult.BLOCK_ALL || Modifier.isPublic(constructor.getModifiers())));" is 208.,229
+main,com.google.gson.internal,ConstructorConstructor,newDefaultConstructor,Long Statement,The length of the statement "final String message="Unable to invoke no-args constructor of " + rawType + ";"+ " constructor is not accessible and ReflectionAccessFilter does not permit making"+ " it accessible. Register an InstanceCreator or a TypeAdapter for this type` change"+ " the visibility of the constructor or adjust the access filter.";" is 317.,229
+main,com.google.gson.internal,ConstructorConstructor,newDefaultConstructor,Long Statement,The length of the statement "throw new RuntimeException("Failed to invoke constructor '" + ReflectionHelper.constructorToString(constructor) + "' with no args"`e);" is 134.,229
+main,com.google.gson.internal,ConstructorConstructor,newDefaultConstructor,Long Statement,The length of the statement "throw new RuntimeException("Failed to invoke constructor '" + ReflectionHelper.constructorToString(constructor) + "' with no args"`e.getCause());" is 145.,229
+main,com.google.gson.internal,ConstructorConstructor,construct,Long Statement,The length of the statement "throw new RuntimeException("Failed to invoke constructor '" + ReflectionHelper.constructorToString(constructor) + "' with no args"`e);" is 134.,293
+main,com.google.gson.internal,ConstructorConstructor,construct,Long Statement,The length of the statement "throw new RuntimeException("Failed to invoke constructor '" + ReflectionHelper.constructorToString(constructor) + "' with no args"`e.getCause());" is 145.,293
+main,com.google.gson.internal,ConstructorConstructor,newDefaultImplementationConstructor,Complex Method,Cyclomatic complexity of the method is 10,323
+main,com.google.gson.internal,ConstructorConstructor,newDefaultImplementationConstructor,Long Statement,The length of the statement "else if (type instanceof ParameterizedType && !String.class.isAssignableFrom(TypeToken.get(((ParameterizedType)type).getActualTypeArguments()[0]).getRawType())) {" is 162.,323
+main,com.google.gson.internal,ConstructorConstructor,newUnsafeAllocator,Long Statement,The length of the statement "throw new RuntimeException(("Unable to create instance of " + rawType + ". Registering an InstanceCreator or a TypeAdapter for this type` or adding a"+ " no-args constructor may fix this problem.")`e);" is 201.,412
+main,com.google.gson.internal,ConstructorConstructor,newUnsafeAllocator,Long Statement,The length of the statement "String exceptionMessage="Unable to create instance of " + rawType + "; usage of JDK Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter"+ " for this type` adding a no-args constructor` or enabling usage of JDK Unsafe may"+ " fix this problem.";" is 260.,412
+main,com.google.gson.internal,ConstructorConstructor,construct,Long Statement,The length of the statement "throw new RuntimeException(("Unable to create instance of " + rawType + ". Registering an InstanceCreator or a TypeAdapter for this type` or adding a"+ " no-args constructor may fix this problem.")`e);" is 201.,415
+main,com.google.gson.internal,Primitives,isWrapperType,Long Statement,The length of the statement "return type == Integer.class || type == Float.class || type == Byte.class || type == Double.class || type == Long.class || type == Character.class || type == Boolean.class || type == Short.class || type == Void.class;" is 217.,35
+main,com.google.gson.internal,Primitives,wrap,Complex Method,Cyclomatic complexity of the method is 10,53
+main,com.google.gson.internal,Primitives,unwrap,Complex Method,Cyclomatic complexity of the method is 10,77
+main,com.google.gson.internal.reflect,ReflectionHelper,getInaccessibleTroubleshootingSuffix,Long Statement,The length of the statement "String troubleshootingId=message != null && message.contains("to module com.google.gson") ? "reflection-inaccessible-to-module-gson" : "reflection-inaccessible";" is 161.,46
+main,com.google.gson.internal.reflect,ReflectionHelper,makeAccessible,Long Statement,The length of the statement "throw new JsonIOException("Failed making " + description + " accessible; either increase its visibility"+ " or write a custom TypeAdapter for its declaring type."+ getInaccessibleTroubleshootingSuffix(exception)`exception);" is 223.,59
+main,com.google.gson.internal.reflect,ReflectionHelper,appendExecutableParameters,Long Statement,The length of the statement "Class<?>[] parameters=(executable instanceof Method) ? ((Method)executable).getParameterTypes() : ((Constructor<?>)executable).getParameterTypes();" is 147.,132
+main,com.google.gson.internal.reflect,ReflectionHelper,tryMakeAccessible,Long Statement,The length of the statement "return "Failed making constructor '" + constructorToString(constructor) + "' accessible; either increase its visibility or write a custom InstanceCreator or"+ " TypeAdapter for its declaring type: "+ exception.getMessage()+ getInaccessibleTroubleshootingSuffix(exception);" is 272.,159
+main,com.google.gson.internal.reflect,ReflectionHelper,createExceptionForUnexpectedIllegalAccess,Long Statement,The length of the statement "throw new RuntimeException("Unexpected IllegalAccessException occurred (Gson " + GsonBuildConfig.VERSION + "). Certain ReflectionAccessFilter features require Java >= 9 to work correctly. If"+ " you are not using ReflectionAccessFilter` report this to the Gson maintainers."`exception);" is 286.,198
+main,com.google.gson.internal.reflect,ReflectionHelper,createExceptionForRecordReflectionException,Long Statement,The length of the statement "throw new RuntimeException("Unexpected ReflectiveOperationException occurred" + " (Gson " + GsonBuildConfig.VERSION + ")."+ " To support Java records` reflection is utilized to read out information"+ " about records. All these invocations happens after it is established"+ " that records exist in the JVM. This exception is unexpected behavior."`exception);" is 357.,208
+main,com.google.gson.internal.bind,TypeAdapterRuntimeTypeWrapper,write,Long Statement,The length of the statement "@SuppressWarnings("unchecked") TypeAdapter<T> runtimeTypeAdapter=(TypeAdapter<T>)context.getAdapter(TypeToken.get(runtimeType));" is 128.,43
+main,com.google.gson.internal.bind,TypeAdapterRuntimeTypeWrapper,getRuntimeTypeIfMoreSpecific,Complex Conditional,The conditional expression value != null && (type instanceof Class<?> || type instanceof TypeVariable<?>) is complex.,96
+main,com.google.gson.internal.bind,MapTypeAdapterFactory,create,Long Statement,The length of the statement "@SuppressWarnings({"unchecked"`"rawtypes"}) TypeAdapter<T> result=new Adapter(gson`keyAndValueTypes[0]`keyAdapter`keyAndValueTypes[1]`valueAdapter`constructor);" is 160.,125
+main,com.google.gson.internal.bind,MapTypeAdapterFactory,getKeyAdapter,Long Statement,The length of the statement "return (keyType == boolean.class || keyType == Boolean.class) ? TypeAdapters.BOOLEAN_AS_STRING : context.getAdapter(TypeToken.get(keyType));" is 140.,147
+main,com.google.gson.internal.bind,TreeTypeAdapter,TreeTypeAdapter,Long Parameter List,The method has 6 parameters. ,62
+main,com.google.gson.internal.bind,TreeTypeAdapter,TreeTypeAdapter,Long Parameter List,The method has 5 parameters. ,77
+main,com.google.gson.internal.bind,DefaultDateTypeAdapter,create,Long Statement,The length of the statement "return typeToken.getRawType() == Date.class ? (TypeAdapter<T>)new DefaultDateTypeAdapter<>(DateType.DATE`DateFormat.DEFAULT`DateFormat.DEFAULT) : null;" is 151.,66
+main,com.google.gson.internal.bind,DefaultDateTypeAdapter,deserializeToDate,Empty catch clause,The method has an empty catch block.,165
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,ReflectiveTypeAdapterFactory,Long Parameter List,The method has 5 parameters. ,67
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,create,Long Statement,The length of the statement "throw new JsonIOException("ReflectionAccessFilter does not permit using reflection for " + raw + ". Register a TypeAdapter for this type or adjust the access filter.");" is 168.,105
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,create,Long Statement,The length of the statement "@SuppressWarnings("unchecked") TypeAdapter<T> adapter=(TypeAdapter<T>)new RecordAdapter<>(raw`getBoundFields(gson`type`raw`blockInaccessible`true)`blockInaccessible);" is 166.,105
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,checkAccessible,Long Statement,The length of the statement "throw new JsonIOException(memberDescription + " is not accessible and ReflectionAccessFilter does not permit making it" + " accessible. Register a TypeAdapter for the declaring type` adjust the access"+ " filter or increase the visibility of the element and its declaring type.");" is 280.,164
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,createBoundField,Complex Method,Cyclomatic complexity of the method is 12,177
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,createBoundField,Long Parameter List,The method has 7 parameters. ,177
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,createBoundField,Long Statement,The length of the statement "writeTypeAdapter=jsonAdapterPresent ? typeAdapter : new TypeAdapterRuntimeTypeWrapper<>(context`typeAdapter`fieldType.getType());" is 129.,177
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,createBoundField,Long Statement,The length of the statement "throw new JsonParseException("null is not allowed as value for record component '" + fieldName + "' of primitive type; at path "+ reader.getPath());" is 148.,177
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,readIntoArray,Long Statement,The length of the statement "throw new JsonParseException("null is not allowed as value for record component '" + fieldName + "' of primitive type; at path "+ reader.getPath());" is 148.,250
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,createDuplicateFieldException,Long Statement,The length of the statement "throw new IllegalArgumentException("Class " + declaringType.getName() + " declares multiple JSON fields named '"+ duplicateName+ "'; conflict is caused by fields "+ ReflectionHelper.fieldToString(field1)+ " and "+ ReflectionHelper.fieldToString(field2)+ "\nSee "+ TroubleshootingGuide.createUrl("duplicate-fields"));" is 316.,301
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,getBoundFields,Complex Method,Cyclomatic complexity of the method is 17,316
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,getBoundFields,Long Parameter List,The method has 5 parameters. ,316
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,getBoundFields,Long Statement,The length of the statement "throw new JsonIOException("ReflectionAccessFilter does not permit using reflection for " + raw + " (supertype of "+ originalRaw+ "). Register a TypeAdapter for this type or adjust the access filter.");" is 201.,316
+main,com.google.gson.internal.bind,ReflectiveTypeAdapterFactory,getBoundFields,Long Statement,The length of the statement "BoundField boundField=createBoundField(context`field`accessor`serializedName`TypeToken.get(fieldType)`serialize`blockInaccessible);" is 131.,316
+main,com.google.gson.internal.bind,CollectionTypeAdapterFactory,create,Long Statement,The length of the statement "@SuppressWarnings({"unchecked"`"rawtypes"}) TypeAdapter<T> result=new Adapter(gson`elementType`elementTypeAdapter`constructor);" is 127.,41
+main,com.google.gson.internal.bind,NumberTypeAdapter,read,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@580a65df,62
+main,com.google.gson.internal.bind,TypeAdapters,write,Long Statement,The length of the statement "throw new UnsupportedOperationException("Attempted to serialize java.lang.Class: " + value.getName() + ". Forgot to register a type adapter?"+ "\nSee "+ TroubleshootingGuide.createUrl("java-lang-class-unsupported"));" is 216.,74
+main,com.google.gson.internal.bind,TypeAdapters,read,Long Statement,The length of the statement "throw new UnsupportedOperationException("Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?" + "\nSee " + TroubleshootingGuide.createUrl("java-lang-class-unsupported"));" is 197.,84
+main,com.google.gson.internal.bind,TypeAdapters,read,Complex Method,Cyclomatic complexity of the method is 8,97
+main,com.google.gson.internal.bind,TypeAdapters,read,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@20641a54,97
+main,com.google.gson.internal.bind,TypeAdapters,read,Magic Number,The method contains a magic number: 255,197
+main,com.google.gson.internal.bind,TypeAdapters,read,Magic Number,The method contains a magic number: 65535,232
+main,com.google.gson.internal.bind,TypeAdapters,read,Complex Method,Cyclomatic complexity of the method is 9,711
+main,com.google.gson.internal.bind,TypeAdapters,read,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@6cdbb6f1,711
+main,com.google.gson.internal.bind,TypeAdapters,tryBeginNesting,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@4ef105f1,821
+main,com.google.gson.internal.bind,TypeAdapters,readTerminal,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@455ea56d,838
+main,com.google.gson.internal.bind,TypeAdapters,read,Complex Method,Cyclomatic complexity of the method is 11,857
+main,com.google.gson.internal.bind,TypeAdapters,write,Complex Method,Cyclomatic complexity of the method is 9,918
+main,com.google.gson.internal.bind,TypeAdapters,newTypeHierarchyFactory,Long Statement,The length of the statement "throw new JsonSyntaxException("Expected a " + requestedType.getName() + " but was "+ result.getClass().getName()+ "; at path "+ in.getPreviousPath());" is 150.,1121
+main,com.google.gson.internal.bind,TypeAdapters,create,Long Statement,The length of the statement "throw new JsonSyntaxException("Expected a " + requestedType.getName() + " but was "+ result.getClass().getName()+ "; at path "+ in.getPreviousPath());" is 150.,1128
+main,com.google.gson.internal.bind,TypeAdapters,read,Long Statement,The length of the statement "throw new JsonSyntaxException("Expected a " + requestedType.getName() + " but was "+ result.getClass().getName()+ "; at path "+ in.getPreviousPath());" is 150.,1142
+main,com.google.gson.internal.bind,JsonAdapterAnnotationTypeAdapterFactory,getTypeAdapter,Long Parameter List,The method has 5 parameters. ,102
+main,com.google.gson.internal.bind,JsonAdapterAnnotationTypeAdapterFactory,getTypeAdapter,Long Statement,The length of the statement "@SuppressWarnings({"unchecked"`"rawtypes"}) TypeAdapter<?> tempAdapter=new TreeTypeAdapter(serializer`deserializer`gson`type`skipPast`nullSafe);" is 144.,102
+main,com.google.gson.internal.bind,JsonAdapterAnnotationTypeAdapterFactory,getTypeAdapter,Long Statement,The length of the statement "throw new IllegalArgumentException("Invalid attempt to bind an instance of " + instance.getClass().getName() + " as a @JsonAdapter for "+ type.toString()+ ". @JsonAdapter value must be a TypeAdapter` TypeAdapterFactory`"+ " JsonSerializer or JsonDeserializer.");" is 262.,102
+main,com.google.gson.internal.bind,ArrayTypeAdapter,create,Complex Conditional,The conditional expression !(type instanceof GenericArrayType || (type instanceof Class && ((Class<?>)type).isArray())) is complex.,37
+main,com.google.gson.internal.bind,ArrayTypeAdapter,create,Long Statement,The length of the statement "@SuppressWarnings({"unchecked"`"rawtypes"}) TypeAdapter<T> arrayAdapter=new ArrayTypeAdapter(gson`componentTypeAdapter`$Gson$Types.getRawType(componentType));" is 158.,37
+main,com.google.gson.internal.bind,ObjectTypeAdapter,tryBeginNesting,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@46ce706f,73
+main,com.google.gson.internal.bind,ObjectTypeAdapter,readTerminal,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@6e5fa6ee,90
+main,com.google.gson.internal.bind,ObjectTypeAdapter,read,Complex Method,Cyclomatic complexity of the method is 10,108
+main,com.google.gson.internal.bind,JsonTreeReader,peek,Complex Method,Cyclomatic complexity of the method is 13,120
+main,com.google.gson.internal.bind,JsonTreeReader,peek,Magic Number,The method contains a magic number: 2,120
+main,com.google.gson.internal.bind,JsonTreeReader,nextDouble,Complex Conditional,The conditional expression !isLenient() && (Double.isNaN(result) || Double.isInfinite(result)) is complex.,231
+main,com.google.gson.internal.bind,JsonTreeReader,nextJsonElement,Complex Conditional,The conditional expression peeked == JsonToken.NAME || peeked == JsonToken.END_ARRAY || peeked == JsonToken.END_OBJECT || peeked == JsonToken.END_DOCUMENT is complex.,279
+main,com.google.gson.internal.bind,JsonTreeReader,nextJsonElement,Long Statement,The length of the statement "if (peeked == JsonToken.NAME || peeked == JsonToken.END_ARRAY || peeked == JsonToken.END_OBJECT || peeked == JsonToken.END_DOCUMENT) {" is 134.,279
+main,com.google.gson.internal.bind,JsonTreeReader,skipValue,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@6dd95b62,298
+main,com.google.gson.internal.bind,JsonTreeReader,push,Magic Number,The method contains a magic number: 2,337
+main,com.google.gson.internal.bind,JsonTreeReader,getPath,Complex Conditional,The conditional expression usePreviousPath && pathIndex > 0 && (i == stackSize - 1 || i == stackSize - 2) is complex.,347
+main,com.google.gson.internal.bind,JsonTreeReader,getPath,Complex Method,Cyclomatic complexity of the method is 8,347
+main,com.google.gson.internal.bind,JsonTreeReader,getPath,Magic Number,The method contains a magic number: 2,347
+main,com.google.gson.internal.bind,JsonTreeWriter,value,Complex Conditional,The conditional expression !isLenient() && (Float.isNaN(value) || Float.isInfinite(value)) is complex.,187
+main,com.google.gson.internal.bind,JsonTreeWriter,value,Complex Conditional,The conditional expression !isLenient() && (Double.isNaN(value) || Double.isInfinite(value)) is complex.,197
+main,com.google.gson.internal.bind.util,ISO8601Utils,format,Magic Number,The method contains a magic number: 60,82
+main,com.google.gson.internal.bind.util,ISO8601Utils,format,Magic Number,The method contains a magic number: 1000,82
+main,com.google.gson.internal.bind.util,ISO8601Utils,format,Magic Number,The method contains a magic number: 60,82
+main,com.google.gson.internal.bind.util,ISO8601Utils,format,Magic Number,The method contains a magic number: 60,82
+main,com.google.gson.internal.bind.util,ISO8601Utils,format,Magic Number,The method contains a magic number: 1000,82
+main,com.google.gson.internal.bind.util,ISO8601Utils,format,Magic Number,The method contains a magic number: 60,82
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Complex Conditional,The conditional expression c != 'Z' && c != '+' && c != '-' is complex.,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Complex Method,Cyclomatic complexity of the method is 20,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 4,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 2,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 2,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 2,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 2,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 2,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 59,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 63,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 59,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 3,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 2,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 10,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 100,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Magic Number,The method contains a magic number: 5,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parse,Missing default,The following switch statement is missing a default case: !org.eclipse.jdt.core.dom.SwitchStatement@6d19bb2e,137
+main,com.google.gson.internal.bind.util,ISO8601Utils,parseInt,Complex Conditional,The conditional expression beginIndex < 0 || endIndex > value.length() || beginIndex > endIndex is complex.,322
+main,com.google.gson.internal.bind.util,ISO8601Utils,parseInt,Magic Number,The method contains a magic number: 10,322
+main,com.google.gson.internal.bind.util,ISO8601Utils,parseInt,Magic Number,The method contains a magic number: 10,322
+main,com.google.gson.internal.bind.util,ISO8601Utils,parseInt,Magic Number,The method contains a magic number: 10,322

@@ -55,7 +55,7 @@ public class EnumWithObfuscatedTest {
       }
     }
 
-    assertThat(gson.fromJson("\"MAIL\"", Gender.class)).isEqualTo(Gender.MALE);
+    assertThat(gson.deserializeFromJson("\"MAIL\"", Gender.class)).isEqualTo(Gender.MALE);
     assertThat(gson.toJson(Gender.MALE, Gender.class)).isEqualTo("\"MAIL\"");
   }
 }
