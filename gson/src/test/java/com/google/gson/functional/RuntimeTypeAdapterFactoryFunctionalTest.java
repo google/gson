@@ -213,7 +213,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
                     + "; did you forget to register a subtype?");
           }
           JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
-          if (!jsonObject.has(typeFieldName)) {
+          if (!jsonObject.hasMember(typeFieldName)) {
             JsonObject clone = new JsonObject();
             clone.add(typeFieldName, new JsonPrimitive(label));
             for (Map.Entry<String, JsonElement> e : jsonObject.entrySet()) {

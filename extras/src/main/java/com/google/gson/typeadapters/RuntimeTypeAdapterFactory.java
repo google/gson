@@ -312,7 +312,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 
         JsonObject clone = new JsonObject();
 
-        if (jsonObject.has(typeFieldName)) {
+        if (jsonObject.hasMember(typeFieldName)) {
           throw new JsonParseException(
               "cannot serialize "
                   + srcType.getName()

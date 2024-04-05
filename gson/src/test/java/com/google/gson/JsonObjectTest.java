@@ -44,7 +44,7 @@ public class JsonObjectTest {
   public void testAddingAndRemovingObjectProperties() {
     JsonObject jsonObj = new JsonObject();
     String propertyName = "property";
-    assertThat(jsonObj.has(propertyName)).isFalse();
+    assertThat(jsonObj.hasMember(propertyName)).isFalse();
     assertThat(jsonObj.get(propertyName)).isNull();
 
     JsonPrimitive value = new JsonPrimitive("blah");
@@ -53,7 +53,7 @@ public class JsonObjectTest {
 
     JsonElement removedElement = jsonObj.remove(propertyName);
     assertThat(removedElement).isEqualTo(value);
-    assertThat(jsonObj.has(propertyName)).isFalse();
+    assertThat(jsonObj.hasMember(propertyName)).isFalse();
     assertThat(jsonObj.get(propertyName)).isNull();
 
     assertThat(jsonObj.remove(propertyName)).isNull();
@@ -65,7 +65,7 @@ public class JsonObjectTest {
     JsonObject jsonObj = new JsonObject();
     jsonObj.add(propertyName, null);
 
-    assertThat(jsonObj.has(propertyName)).isTrue();
+    assertThat(jsonObj.hasMember(propertyName)).isTrue();
 
     JsonElement jsonElement = jsonObj.get(propertyName);
     assertThat(jsonElement).isNotNull();
@@ -91,7 +91,7 @@ public class JsonObjectTest {
     JsonObject jsonObj = new JsonObject();
     jsonObj.addProperty(propertyName, true);
 
-    assertThat(jsonObj.has(propertyName)).isTrue();
+    assertThat(jsonObj.hasMember(propertyName)).isTrue();
 
     JsonElement jsonElement = jsonObj.get(propertyName);
     assertThat(jsonElement).isNotNull();
@@ -106,7 +106,7 @@ public class JsonObjectTest {
     JsonObject jsonObj = new JsonObject();
     jsonObj.addProperty(propertyName, value);
 
-    assertThat(jsonObj.has(propertyName)).isTrue();
+    assertThat(jsonObj.hasMember(propertyName)).isTrue();
 
     JsonElement jsonElement = jsonObj.get(propertyName);
     assertThat(jsonElement).isNotNull();
@@ -121,7 +121,7 @@ public class JsonObjectTest {
     JsonObject jsonObj = new JsonObject();
     jsonObj.addProperty(propertyName, value);
 
-    assertThat(jsonObj.has(propertyName)).isTrue();
+    assertThat(jsonObj.hasMember(propertyName)).isTrue();
 
     JsonElement jsonElement = jsonObj.get(propertyName);
     assertThat(jsonElement).isNotNull();

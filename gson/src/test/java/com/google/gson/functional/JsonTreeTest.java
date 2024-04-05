@@ -86,7 +86,7 @@ public class JsonTreeTest {
   public void testJsonTreeNull() {
     BagOfPrimitives bag = new BagOfPrimitives(10L, 5, false, null);
     JsonObject jsonElement = (JsonObject) gson.toJsonTree(bag, BagOfPrimitives.class);
-    assertThat(jsonElement.has("stringValue")).isFalse();
+    assertThat(jsonElement.hasMember("stringValue")).isFalse();
   }
 
   private static void assertContains(JsonObject json, JsonPrimitive child) {

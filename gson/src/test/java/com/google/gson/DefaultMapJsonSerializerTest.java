@@ -64,6 +64,6 @@ public class DefaultMapJsonSerializerTest {
 
     assertThat(element.isJsonObject()).isTrue();
     JsonObject mapJsonObject = element.getAsJsonObject();
-    assertThat(mapJsonObject.has(key)).isTrue();
+    assertThat(mapJsonObject.hasMember(key)).isTrue();
   }
 }

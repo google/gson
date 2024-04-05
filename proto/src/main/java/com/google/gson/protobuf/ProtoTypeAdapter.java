@@ -219,7 +219,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
 
   @Override
   public JsonElement serialize(Message src, Type typeOfSrc, JsonSerializationContext context) {
-    JsonObject ret = new JsonObject();
+    JsonObject serializedMessage = new JsonObject();
     final Map<FieldDescriptor, Object> fields = src.getAllFields();
 
     for (Map.Entry<FieldDescriptor, Object> fieldPair : fields.entrySet()) {
@@ -236,17 +236,17 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
               (Collection<EnumValueDescriptor>) fieldPair.getValue();
           for (EnumValueDescriptor enumDesc : enumDescs) {
             array.add(context.serialize(getEnumValue(enumDesc)));
-            ret.add(name, array);
+            serializedMessage.add(name, array);
           }
         } else {
           EnumValueDescriptor enumDesc = ((EnumValueDescriptor) fieldPair.getValue());
-          ret.add(name, context.serialize(getEnumValue(enumDesc)));
+          serializedMessage.add(name, context.serialize(getEnumValue(enumDesc)));
         }
       } else {
-        ret.add(name, context.serialize(fieldPair.getValue()));
+        serializedMessage.add(name, context.serialize(fieldPair.getValue()));
       }
     }
-    return ret;
+    return serializedMessage;
   }
 
   @Override
