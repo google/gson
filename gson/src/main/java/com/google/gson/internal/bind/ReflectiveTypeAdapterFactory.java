@@ -175,30 +175,26 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private BoundField createBoundField(
-      final Gson context,
-      final Field field,
-      final Method accessor,
-      final String serializedName,
-      final TypeToken<?> fieldType,
+      final BoundFieldCreationContext boundFieldCreationContext,
       final boolean serialize,
       final boolean blockInaccessible) {
 
-    final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
+    final boolean isPrimitive = Primitives.isPrimitive(boundFieldCreationContext.fieldType.getRawType());
 
-    int modifiers = field.getModifiers();
+    int modifiers = boundFieldCreationContext.field.getModifiers();
     final boolean isStaticFinalField = Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers);
 
-    JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
+    JsonAdapter annotation = boundFieldCreationContext.field.getAnnotation(JsonAdapter.class);
     TypeAdapter<?> mapped = null;
     if (annotation != null) {
       // This is not safe; requires that user has specified correct adapter class for @JsonAdapter
       mapped =
           jsonAdapterFactory.getTypeAdapter(
-              constructorConstructor, context, fieldType, annotation, false);
+              constructorConstructor, boundFieldCreationContext.context, boundFieldCreationContext.fieldType, annotation, false);
     }
     final boolean jsonAdapterPresent = mapped != null;
     if (mapped == null) {
-      mapped = context.getAdapter(fieldType);
+      mapped = boundFieldCreationContext.context.getAdapter(boundFieldCreationContext.fieldType);
     }
 
     @SuppressWarnings("unchecked")
@@ -208,31 +204,31 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       writeTypeAdapter =
           jsonAdapterPresent
               ? typeAdapter
-              : new TypeAdapterRuntimeTypeWrapper<>(context, typeAdapter, fieldType.getType());
+              : new TypeAdapterRuntimeTypeWrapper<>(boundFieldCreationContext.context, typeAdapter, boundFieldCreationContext.fieldType.getType());
     } else {
       // Will never actually be used, but we set it to avoid confusing nullness-analysis tools
       writeTypeAdapter = typeAdapter;
     }
-    return new BoundField(serializedName, field) {
+    return new BoundField(boundFieldCreationContext.serializedName, boundFieldCreationContext.field) {
       @Override
       void write(JsonWriter writer, Object source) throws IOException, IllegalAccessException {
         if (blockInaccessible) {
-          if (accessor == null) {
+          if (boundFieldCreationContext.accessor == null) {
             checkAccessible(source, field);
           } else {
             // Note: This check might actually be redundant because access check for canonical
             // constructor should have failed already
-            checkAccessible(source, accessor);
+            checkAccessible(source, boundFieldCreationContext.accessor);
           }
         }
 
         Object fieldValue;
-        if (accessor != null) {
+        if (boundFieldCreationContext.accessor != null) {
           try {
-            fieldValue = accessor.invoke(source);
+            fieldValue = boundFieldCreationContext.accessor.invoke(source);
           } catch (InvocationTargetException e) {
             String accessorDescription =
-                ReflectionHelper.getAccessibleObjectDescription(accessor, false);
+                ReflectionHelper.getAccessibleObjectDescription(boundFieldCreationContext.accessor, false);
             throw new JsonIOException(
                 "Accessor " + accessorDescription + " threw exception", e.getCause());
           }
@@ -391,13 +387,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         Type fieldType = $Gson$Types.resolve(type.getType(), raw, field.getGenericType());
         List<String> fieldNames = getFieldNames(field);
         String serializedName = fieldNames.get(0);
+        BoundFieldCreationContext boundFieldCreationContext = new BoundFieldCreationContext(context, field, accessor, serializedName, TypeToken.get(fieldType));
         BoundField boundField =
             createBoundField(
-                context,
-                field,
-                accessor,
-                serializedName,
-                TypeToken.get(fieldType),
+                boundFieldCreationContext,
                 serialize,
                 blockInaccessible);
 
