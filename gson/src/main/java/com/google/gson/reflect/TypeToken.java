@@ -333,7 +333,7 @@ public class TypeToken<T> {
   private static boolean matches(Type from, Type to, Map<String, Type> typeMap) {
     return to.equals(from)
         || (from instanceof TypeVariable
-            && to.equals(typeMap.get(((TypeVariable<?>) from).getName())));
+        && to.equals(typeMap.get(((TypeVariable<?>) from).getName())));
   }
 
   @Override

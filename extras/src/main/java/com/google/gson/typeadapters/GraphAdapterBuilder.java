@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.graph;
+package com.google.gson.typeadapters;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

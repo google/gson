@@ -18,6 +18,7 @@ package com.google.gson.typeadapters;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
+import com.google.gson.internal.bind.util.DateParsingUtils;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -26,7 +27,6 @@ import java.text.ParsePosition;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Locale;
 import java.util.TimeZone;
 
 public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
@@ -37,7 +37,7 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
     if (date == null) {
       out.nullValue();
     } else {
-      String value = format(date, true, UTC_TIME_ZONE);
+      String value = DateParsingUtils.format(date, true, UTC_TIME_ZONE);
       out.value(value);
     }
   }
@@ -64,69 +64,7 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
   // https://github.com/FasterXML/jackson-databind/blob/2.8/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
   private static final String GMT_ID = "GMT";
 
-  /**
-   * Format date into yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
-   *
-   * @param date the date to format
-   * @param millis true to include millis precision otherwise false
-   * @param tz timezone to use for the formatting (GMT will produce 'Z')
-   * @return the date formatted as yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
-   */
-  private static String format(Date date, boolean millis, TimeZone tz) {
-    Calendar calendar = new GregorianCalendar(tz, Locale.US);
-    calendar.setTime(date);
 
-    // estimate capacity of buffer as close as we can (yeah, that's pedantic ;)
-    int capacity = "yyyy-MM-ddThh:mm:ss".length();
-    capacity += millis ? ".sss".length() : 0;
-    capacity += tz.getRawOffset() == 0 ? "Z".length() : "+hh:mm".length();
-    StringBuilder formatted = new StringBuilder(capacity);
-
-    padInt(formatted, calendar.get(Calendar.YEAR), "yyyy".length());
-    formatted.append('-');
-    padInt(formatted, calendar.get(Calendar.MONTH) + 1, "MM".length());
-    formatted.append('-');
-    padInt(formatted, calendar.get(Calendar.DAY_OF_MONTH), "dd".length());
-    formatted.append('T');
-    padInt(formatted, calendar.get(Calendar.HOUR_OF_DAY), "hh".length());
-    formatted.append(':');
-    padInt(formatted, calendar.get(Calendar.MINUTE), "mm".length());
-    formatted.append(':');
-    padInt(formatted, calendar.get(Calendar.SECOND), "ss".length());
-    if (millis) {
-      formatted.append('.');
-      padInt(formatted, calendar.get(Calendar.MILLISECOND), "sss".length());
-    }
-
-    int offset = tz.getOffset(calendar.getTimeInMillis());
-    if (offset != 0) {
-      int hours = Math.abs((offset / (60 * 1000)) / 60);
-      int minutes = Math.abs((offset / (60 * 1000)) % 60);
-      formatted.append(offset < 0 ? '-' : '+');
-      padInt(formatted, hours, "hh".length());
-      formatted.append(':');
-      padInt(formatted, minutes, "mm".length());
-    } else {
-      formatted.append('Z');
-    }
-
-    return formatted.toString();
-  }
-
-  /**
-   * Zero pad a number to a specified length
-   *
-   * @param buffer buffer to use for padding
-   * @param value the integer value to pad if necessary.
-   * @param length the length of the string we should zero pad
-   */
-  private static void padInt(StringBuilder buffer, int value, int length) {
-    String strValue = Integer.toString(value);
-    for (int i = length - strValue.length(); i > 0; i--) {
-      buffer.append('0');
-    }
-    buffer.append(strValue);
-  }
 
   /**
    * Parse a date from ISO-8601 formatted string. It expects a format

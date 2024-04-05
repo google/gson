@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -132,22 +131,6 @@ public abstract class JsonElement {
     throw new IllegalStateException("Not a JSON Primitive: " + this);
   }
 
-  /**
-   * Convenience method to get this element as a {@link JsonNull}. If this element is of some other
-   * type, an {@link IllegalStateException} will result. Hence it is best to use this method after
-   * ensuring that this element is of the desired type by calling {@link #isJsonNull()} first.
-   *
-   * @return this element as a {@link JsonNull}.
-   * @throws IllegalStateException if this element is of another type.
-   * @since 1.2
-   */
-  @CanIgnoreReturnValue // When this method is used only to verify that the value is JsonNull
-  public JsonNull getAsJsonNull() {
-    if (isJsonNull()) {
-      return (JsonNull) this;
-    }
-    throw new IllegalStateException("Not a JSON Null: " + this);
-  }
 
   /**
    * Convenience method to get this element as a boolean value.

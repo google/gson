@@ -69,7 +69,7 @@ public class ISO8601UtilsTest {
   public void testDateFormatWithTimezone() {
     long time = 1530209176870L;
     Date date = new Date(time);
-    String dateStr = DateToISO8601Converter.format(date, true, TimeZone.getTimeZone("Brazil/East"));
+    String dateStr = DateParsingUtils.format(date, true, TimeZone.getTimeZone("Brazil/East"));
     String expectedDate = "2018-06-28T15:06:16.870-03:00";
     assertThat(dateStr).isEqualTo(expectedDate);
   }

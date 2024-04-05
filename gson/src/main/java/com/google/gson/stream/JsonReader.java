@@ -336,7 +336,7 @@ public class JsonReader implements Closeable {
   /**
    * Returns true if the {@link Strictness} of this reader is equal to {@link Strictness#LENIENT}.
    *
-   * @see #setStrictness(Strictness)
+   * @see #getStrictness()
    */
   public final boolean isLenient() {
     return strictness == Strictness.LENIENT;
@@ -393,6 +393,7 @@ public class JsonReader implements Closeable {
    * </dl>
    *
    * @param strictness the new strictness value of this reader. May not be {@code null}.
+   * @see #getStrictness()
    * @since $next-version$
    */
   public final void setStrictness(Strictness strictness) {
@@ -1671,56 +1672,25 @@ public class JsonReader implements Closeable {
     }
 
     char escaped = buffer[pos++];
+    char[] escapeChars = {'t', 'b', 'n', 'r', 'f'};
+    char[] escapeValues = {'\t', '\b', '\n', '\r', '\f'};
+
+    for(int i=0; i<escapeChars.length; i++){
+      if(escaped == escapeChars[i]){
+        return escapeValues[i];
+      }
+    }
+
     switch (escaped) {
       case 'u':
-        if (pos + 4 > limit && !fillBuffer(4)) {
-          throw syntaxError("Unterminated escape sequence");
-        }
-        // Equivalent to Integer.parseInt(stringPool.get(buffer, pos, 4), 16);
-        int result = 0;
-        for (int i = pos, end = i + 4; i < end; i++) {
-          char c = buffer[i];
-          result <<= 4;
-          if (c >= '0' && c <= '9') {
-            result += (c - '0');
-          } else if (c >= 'a' && c <= 'f') {
-            result += (c - 'a' + 10);
-          } else if (c >= 'A' && c <= 'F') {
-            result += (c - 'A' + 10);
-          } else {
-            throw syntaxError("Malformed Unicode escape \\u" + new String(buffer, pos, 4));
-          }
-        }
-        pos += 4;
-        return (char) result;
-
-      case 't':
-        return '\t';
-
-      case 'b':
-        return '\b';
-
-      case 'n':
-        return '\n';
-
-      case 'r':
-        return '\r';
-
-      case 'f':
-        return '\f';
+        return readUnicodeEscape();
 
       case '\n':
-        if (strictness == Strictness.STRICT) {
-          throw syntaxError("Cannot escape a newline character in strict mode");
-        }
-        lineNumber++;
-        lineStart = pos;
+        handleNewlineEscape();
         // fall-through
 
       case '\'':
-        if (strictness == Strictness.STRICT) {
-          throw syntaxError("Invalid escaped character \"'\" in strict mode");
-        }
+        handleStrictModeCheck();
       case '"':
       case '\\':
       case '/':
@@ -1730,6 +1700,48 @@ public class JsonReader implements Closeable {
         throw syntaxError("Invalid escape sequence");
     }
   }
+
+  private char readUnicodeEscape() throws IOException{
+    if (pos + 4 > limit && !fillBuffer(4)) {
+      throw syntaxError("Unterminated escape sequence");
+    }
+    int result = 0;
+    for(int i = pos, end = i + 4; i < end; i++) {
+      char c = buffer[i];
+      result <<= 4;
+      if (c >= '0' && c <= '9') {
+        result += (c - '0');
+      } else if (c >= 'a' && c <= 'f') {
+        result += (c - 'a' + 10);
+      } else if (c >= 'A' && c <= 'F') {
+        result += (c - 'A' + 10);
+      } else {
+        throw syntaxError("Malformed Unicode escape \\u" + new String(buffer, pos, 4));
+      }
+    }
+    pos += 4;
+    return (char) result;
+  }
+
+  private void handleNewlineEscape() throws IOException{
+    if (strictness == Strictness.STRICT) {
+      throw syntaxError("Cannot escape a newline character in strict mode");
+    }
+    lineNumber++;
+    lineStart = pos;
+  }
+
+  private void handleStrictModeCheck() throws IOException{
+    if (strictness == Strictness.STRICT) {
+      throw syntaxError("Invalid escaped character \"'\" in strict mode");
+    }
+  }
+
+
+
+
+
+
 
   /**
    * Throws a new {@link MalformedJsonException} with the given message and information about the

@@ -177,17 +177,6 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
-   * Returns true if this array contains the specified element.
-   *
-   * @return true if this array contains the specified element.
-   * @param element whose presence in this array is to be tested
-   * @since 2.3
-   */
-  public boolean contains(JsonElement element) {
-    return elements.contains(element);
-  }
-
-  /**
    * Returns the number of elements in the array.
    *
    * @return the number of elements in the array.

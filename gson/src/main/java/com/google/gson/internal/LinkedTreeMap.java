@@ -56,7 +56,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   Node<K, V> root;
   int size = 0;
   int modCount = 0;
-
+  private EntrySet entrySet;
+  private KeySet keySet;
   // Used to preserve iteration order
   final Node<K, V> header;
 
@@ -141,6 +142,18 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   public V remove(Object key) {
     Node<K, V> node = removeInternalByKey(key);
     return node != null ? node.value : null;
+  }
+
+  @Override
+  public Set<Entry<K, V>> entrySet() {
+    EntrySet result = entrySet;
+    return result != null ? result : (entrySet = new EntrySet());
+  }
+
+  @Override
+  public Set<K> keySet() {
+    KeySet result = keySet;
+    return result != null ? result : (keySet = new KeySet());
   }
 
   /**
@@ -233,9 +246,6 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     return valuesEqual ? mine : null;
   }
 
-  private static boolean equal(Object a, Object b) {
-    return Objects.equals(a, b);
-  }
 
   /**
    * Removes {@code node} from this tree, rearranging the tree's structure as necessary.
@@ -309,6 +319,10 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     return node;
   }
 
+  private static boolean equal(Object a, Object b) {
+    return Objects.equals(a, b);
+  }
+
   @SuppressWarnings("ReferenceEquality")
   private void replaceInParent(Node<K, V> node, Node<K, V> replacement) {
     Node<K, V> parent = node.parent;
@@ -351,11 +365,11 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
 
         int rightDelta = rightLeftHeight - rightRightHeight;
         if (rightDelta == -1 || (rightDelta == 0 && !insert)) {
-          rotateLeft(node); // AVL right right
+          rotate(node, true); // AVL right right
         } else {
           assert (rightDelta == 1);
-          rotateRight(right); // AVL right left
-          rotateLeft(node);
+          rotate(right, false); // AVL right left
+          rotate(node, true);
         }
         if (insert) {
           break; // no further rotations will be necessary
@@ -369,11 +383,11 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
 
         int leftDelta = leftLeftHeight - leftRightHeight;
         if (leftDelta == 1 || (leftDelta == 0 && !insert)) {
-          rotateRight(node); // AVL left left
+          rotate(node, false); // AVL left left
         } else {
           assert (leftDelta == -1);
-          rotateLeft(left); // AVL left right
-          rotateRight(node);
+          rotate(left, true); // AVL left right
+          rotate(node, false);
         }
         if (insert) {
           break; // no further rotations will be necessary
@@ -395,70 +409,41 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
   }
 
-  /** Rotates the subtree so that its root's right child is the new root. */
-  private void rotateLeft(Node<K, V> root) {
-    Node<K, V> left = root.left;
-    Node<K, V> pivot = root.right;
+
+
+  private void rotate(Node<K, V> root, boolean isLeftRotation){
+    Node<K, V> child = isLeftRotation ? root.left : root.right;
+    Node<K, V> pivot = isLeftRotation ? root.right : root.left;
     Node<K, V> pivotLeft = pivot.left;
     Node<K, V> pivotRight = pivot.right;
 
-    // move the pivot's left child to the root's right
-    root.right = pivotLeft;
-    if (pivotLeft != null) {
-      pivotLeft.parent = root;
+    if(isLeftRotation){
+      root.right = pivotLeft;
+      if (pivotLeft != null) {
+        pivotLeft.parent = root;
+      }
+    }
+    else{
+      root.left = pivotRight;
+      if(pivotRight != null){
+        pivotRight.parent = root;
+      }
     }
 
     replaceInParent(root, pivot);
 
-    // move the root to the pivot's left
-    pivot.left = root;
-    root.parent = pivot;
-
-    // fix heights
-    root.height =
-        Math.max(left != null ? left.height : 0, pivotLeft != null ? pivotLeft.height : 0) + 1;
-    pivot.height = Math.max(root.height, pivotRight != null ? pivotRight.height : 0) + 1;
-  }
-
-  /** Rotates the subtree so that its root's left child is the new root. */
-  private void rotateRight(Node<K, V> root) {
-    Node<K, V> pivot = root.left;
-    Node<K, V> right = root.right;
-    Node<K, V> pivotLeft = pivot.left;
-    Node<K, V> pivotRight = pivot.right;
-
-    // move the pivot's right child to the root's left
-    root.left = pivotRight;
-    if (pivotRight != null) {
-      pivotRight.parent = root;
+    if(isLeftRotation){
+      pivot.left = root;
+    }else{
+      pivot.right = root;
     }
-
-    replaceInParent(root, pivot);
-
-    // move the root to the pivot's right
-    pivot.right = root;
     root.parent = pivot;
 
-    // fixup heights
-    root.height =
-        Math.max(right != null ? right.height : 0, pivotRight != null ? pivotRight.height : 0) + 1;
-    pivot.height = Math.max(root.height, pivotLeft != null ? pivotLeft.height : 0) + 1;
+    root.height = Math.max(child != null ? child.height : 0, (isLeftRotation ? pivotLeft : pivotRight) != null ? (isLeftRotation ? pivotLeft : pivotRight).height : 0) + 1;
+    pivot.height = Math.max(root.height, (isLeftRotation ? pivotRight : pivotLeft) != null ? (isLeftRotation ? pivotRight : pivotLeft).height : 0) + 1;
   }
 
-  private EntrySet entrySet;
-  private KeySet keySet;
 
-  @Override
-  public Set<Entry<K, V>> entrySet() {
-    EntrySet result = entrySet;
-    return result != null ? result : (entrySet = new EntrySet());
-  }
-
-  @Override
-  public Set<K> keySet() {
-    KeySet result = keySet;
-    return result != null ? result : (keySet = new KeySet());
-  }
 
   static final class Node<K, V> implements Entry<K, V> {
     Node<K, V> parent;

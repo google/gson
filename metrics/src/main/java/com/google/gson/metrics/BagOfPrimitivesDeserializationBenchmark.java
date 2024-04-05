@@ -86,7 +86,7 @@ public class BagOfPrimitivesDeserializationBenchmark {
    * setting object values by reflection. We should strive to reduce the discrepancy between this
    * and {@link #timeBagOfPrimitivesDefault(int)} .
    */
-  public void timeBagOfPrimitivesReflectionStreaming(int reps) throws Exception {
+  public void timeBagOfPrimitivesReflectionStreaming(int reps) throws IOException, IllegalAccessException {
     for (int i = 0; i < reps; ++i) {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);

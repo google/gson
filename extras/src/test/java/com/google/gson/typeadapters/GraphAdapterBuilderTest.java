@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.graph;
+package com.google.gson.typeadapters;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -26,6 +26,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import com.google.gson.typeadapters.GraphAdapterBuilder;
 import org.junit.Test;
 
 public final class GraphAdapterBuilderTest {
