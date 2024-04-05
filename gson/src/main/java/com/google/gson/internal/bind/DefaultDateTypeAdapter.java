@@ -22,7 +22,8 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.JavaVersion;
 import com.google.gson.internal.PreJava9DateFormatProvider;
-import com.google.gson.internal.bind.util.ISO8601Utils;
+import com.google.gson.internal.bind.util.DateToISO8601Converter;
+import com.google.gson.internal.bind.util.DateToISO8601Converter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -68,8 +69,8 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
           return typeToken.getRawType() == Date.class
               ? (TypeAdapter<T>)
-                  new DefaultDateTypeAdapter<>(
-                      DateType.DATE, DateFormat.DEFAULT, DateFormat.DEFAULT)
+              new DefaultDateTypeAdapter<>(
+                  DateType.DATE, DateFormat.DEFAULT, DateFormat.DEFAULT)
               : null;
         }
 
@@ -179,7 +180,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
     }
 
     try {
-      return ISO8601Utils.parse(s, new ParsePosition(0));
+      return DateToISO8601Converter.parse(s, new ParsePosition(0));
     } catch (ParseException e) {
       throw new JsonSyntaxException(
           "Failed parsing '" + s + "' as Date; at path " + in.getPreviousPath(), e);

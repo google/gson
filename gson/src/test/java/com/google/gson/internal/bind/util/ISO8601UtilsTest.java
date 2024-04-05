@@ -49,7 +49,7 @@ public class ISO8601UtilsTest {
     calendar.clear();
     calendar.set(2018, Calendar.JUNE, 25);
     Date date = calendar.getTime();
-    String dateStr = ISO8601Utils.format(date);
+    String dateStr = DateToISO8601Converter.format(date);
     String expectedDate = "2018-06-25";
     assertThat(dateStr).startsWith(expectedDate);
   }
@@ -59,7 +59,7 @@ public class ISO8601UtilsTest {
   public void testDateFormatWithMilliseconds() {
     long time = 1530209176870L;
     Date date = new Date(time);
-    String dateStr = ISO8601Utils.format(date, true);
+    String dateStr = DateToISO8601Converter.format(date, true);
     String expectedDate = "2018-06-28T18:06:16.870Z";
     assertThat(dateStr).isEqualTo(expectedDate);
   }
@@ -69,7 +69,7 @@ public class ISO8601UtilsTest {
   public void testDateFormatWithTimezone() {
     long time = 1530209176870L;
     Date date = new Date(time);
-    String dateStr = ISO8601Utils.format(date, true, TimeZone.getTimeZone("Brazil/East"));
+    String dateStr = DateToISO8601Converter.format(date, true, TimeZone.getTimeZone("Brazil/East"));
     String expectedDate = "2018-06-28T15:06:16.870-03:00";
     assertThat(dateStr).isEqualTo(expectedDate);
   }
@@ -78,7 +78,7 @@ public class ISO8601UtilsTest {
   @SuppressWarnings("UndefinedEquals")
   public void testDateParseWithDefaultTimezone() throws ParseException {
     String dateStr = "2018-06-25";
-    Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
+    Date date = DateToISO8601Converter.parse(dateStr, new ParsePosition(0));
     Date expectedDate = new GregorianCalendar(2018, Calendar.JUNE, 25).getTime();
     assertThat(date).isEqualTo(expectedDate);
   }
@@ -86,20 +86,20 @@ public class ISO8601UtilsTest {
   @Test
   public void testDateParseInvalidDay() {
     String dateStr = "2022-12-33";
-    assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
+    assertThrows(ParseException.class, () -> DateToISO8601Converter.parse(dateStr, new ParsePosition(0)));
   }
 
   @Test
   public void testDateParseInvalidMonth() {
     String dateStr = "2022-14-30";
-    assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
+    assertThrows(ParseException.class, () -> DateToISO8601Converter.parse(dateStr, new ParsePosition(0)));
   }
 
   @Test
   @SuppressWarnings("UndefinedEquals")
   public void testDateParseWithTimezone() throws ParseException {
     String dateStr = "2018-06-25T00:00:00-03:00";
-    Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
+    Date date = DateToISO8601Converter.parse(dateStr, new ParsePosition(0));
     GregorianCalendar calendar = createUtcCalendar();
     calendar.set(2018, Calendar.JUNE, 25, 3, 0);
     Date expectedDate = calendar.getTime();
@@ -110,7 +110,7 @@ public class ISO8601UtilsTest {
   @SuppressWarnings("UndefinedEquals")
   public void testDateParseSpecialTimezone() throws ParseException {
     String dateStr = "2018-06-25T00:02:00-02:58";
-    Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
+    Date date = DateToISO8601Converter.parse(dateStr, new ParsePosition(0));
     GregorianCalendar calendar = createUtcCalendar();
     calendar.set(2018, Calendar.JUNE, 25, 3, 0);
     Date expectedDate = calendar.getTime();
@@ -120,6 +120,6 @@ public class ISO8601UtilsTest {
   @Test
   public void testDateParseInvalidTime() {
     final String dateStr = "2018-06-25T61:60:62-03:00";
-    assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
+    assertThrows(ParseException.class, () -> DateToISO8601Converter.parse(dateStr, new ParsePosition(0)));
   }
 }

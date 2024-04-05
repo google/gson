@@ -40,8 +40,16 @@
     <maven.compiler.release>7</maven.compiler.release>
     <maven.compiler.testRelease>11</maven.compiler.testRelease>
 
+    <sonar.host.url>http://localhost:9000</sonar.host.url>
+    <sonar.login>admin</sonar.login>
+    <sonar.password>admin</sonar.password>
+    <sonar.java.binaries>target/classes</sonar.java.binaries>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+
     <!-- Make the build reproducible, see https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
     <!-- Automatically updated by Maven Release Plugin -->
+<!--    <maven.compiler.release>${maven.compiler.source}</maven.compiler.release>-->
     <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
   </properties>
 
@@ -128,6 +136,16 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.sonarsource.scanner.maven</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+        <version>3.9.1.2184</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
       </plugin>
 
       <!-- Spotless plugin: keeps the code formatted following the google-java-styleguide -->

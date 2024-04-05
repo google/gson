@@ -35,8 +35,8 @@ import java.util.TimeZone;
  */
 // Date parsing code from Jackson databind ISO8601Utils.java
 // https://github.com/FasterXML/jackson-databind/blob/2.8/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
-public class ISO8601Utils {
-  private ISO8601Utils() {}
+public class DateToISO8601Converter {
+  private DateToISO8601Converter() {}
 
   /**
    * ID to represent the 'UTC' string, default timezone since Jackson 2.7
