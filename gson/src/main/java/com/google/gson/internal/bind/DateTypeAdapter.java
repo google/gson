@@ -21,6 +21,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.JavaVersion;
+import com.google.gson.internal.PreJava20DateFormatProvider;
 import com.google.gson.internal.PreJava9DateFormatProvider;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.reflect.TypeToken;
@@ -64,6 +65,9 @@ public final class DateTypeAdapter extends TypeAdapter<Date> {
     }
     if (JavaVersion.isJava9OrLater()) {
       dateFormats.add(PreJava9DateFormatProvider.getUSDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT));
+    }
+    if (JavaVersion.isJava20OrLater()) {
+      dateFormats.add(PreJava20DateFormatProvider.getUSDateFormat());
     }
   }
 
