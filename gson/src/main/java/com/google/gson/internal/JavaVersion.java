@@ -88,5 +88,9 @@ public final class JavaVersion {
     return majorJavaVersion >= 9;
   }
 
+  public static boolean isJava20OrLater() {
+    return majorJavaVersion >= 20;
+  }
+
   private JavaVersion() { }
 }
