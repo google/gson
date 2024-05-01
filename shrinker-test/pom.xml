@@ -114,7 +114,7 @@
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-core</artifactId>
-            <version>9.1.1</version>
+            <version>9.1.3</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -145,7 +145,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.5.2</version>
+        <version>3.5.3</version>
         <executions>
           <execution>
             <phase>package</phase>
