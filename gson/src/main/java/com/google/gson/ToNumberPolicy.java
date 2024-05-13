@@ -68,7 +68,7 @@ public enum ToNumberPolicy implements ToNumberStrategy {
     @Override
     public Number readNumber(JsonReader in) throws IOException, JsonParseException {
       String value = in.nextString();
-      if (value.contains(".")) {
+      if (value.indexOf('.') >= 0) {
         return parseAsDouble(value, in);
       } else {
         try {
