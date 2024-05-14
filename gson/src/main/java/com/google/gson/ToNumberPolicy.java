@@ -73,7 +73,7 @@ public enum ToNumberPolicy implements ToNumberStrategy {
       } else {
         try {
           return Long.parseLong(value);
-        } catch (NumberFormatException longE) {
+        } catch (NumberFormatException e) {
           return parseAsDouble(value, in);
         }
       }
@@ -87,9 +87,9 @@ public enum ToNumberPolicy implements ToNumberStrategy {
               "JSON forbids NaN and infinities: " + d + "; at path " + in.getPreviousPath());
         }
         return d;
-      } catch (NumberFormatException doubleE) {
+      } catch (NumberFormatException e) {
         throw new JsonParseException(
-            "Cannot parse " + value + "; at path " + in.getPreviousPath(), doubleE);
+            "Cannot parse " + value + "; at path " + in.getPreviousPath(), e);
       }
     }
   },
