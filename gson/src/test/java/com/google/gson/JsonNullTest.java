@@ -43,4 +43,9 @@ public final class JsonNullTest {
     assertThat(a.deepCopy()).isSameInstanceAs(JsonNull.INSTANCE);
     assertThat(JsonNull.INSTANCE.deepCopy()).isSameInstanceAs(JsonNull.INSTANCE);
   }
+
+  @Test
+  public void testToString() {
+    assertThat(JsonNull.INSTANCE.toString()).isEqualTo("null");
+  }
 }

@@ -260,12 +260,34 @@ public class JsonPrimitiveTest {
   }
 
   @Test
-  public void testValidJsonOnToString() {
+  public void testToString() {
     JsonPrimitive json = new JsonPrimitive("Some\nEscaped\nValue");
     assertThat(json.toString()).isEqualTo("\"Some\\nEscaped\\nValue\"");
 
+    json = new JsonPrimitive("");
+    assertThat(json.toString()).isEqualTo("\"\"");
+
     json = new JsonPrimitive(new BigDecimal("1.333"));
     assertThat(json.toString()).isEqualTo("1.333");
+
+    // Preserves trailing 0
+    json = new JsonPrimitive(new BigDecimal("1.0000"));
+    assertThat(json.toString()).isEqualTo("1.0000");
+
+    json = new JsonPrimitive(Float.NaN);
+    assertThat(json.toString()).isEqualTo("NaN");
+
+    json = new JsonPrimitive(Double.NEGATIVE_INFINITY);
+    assertThat(json.toString()).isEqualTo("-Infinity");
+
+    json = new JsonPrimitive('a');
+    assertThat(json.toString()).isEqualTo("\"a\"");
+
+    json = new JsonPrimitive('\0');
+    assertThat(json.toString()).isEqualTo("\"\\u0000\"");
+
+    json = new JsonPrimitive(true);
+    assertThat(json.toString()).isEqualTo("true");
   }
 
   @Test

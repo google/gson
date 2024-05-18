@@ -50,7 +50,7 @@ import java.io.StringReader;
  * following example demonstrates how to achieve it:
  *
  * <pre>
- * String json = "{\"skipObj\": {\"skipKey\": \"skipValue\"},\"obj\": {\"key\": \"value\"}}";
+ * String json = "{\"skipObj\": {\"skipKey\": \"skipValue\"}, \"obj\": {\"key\": \"value\"}}";
  * try (JsonReader jsonReader = new JsonReader(new StringReader(json))) {
  *   jsonReader.beginObject();
  *   while (jsonReader.hasNext()) {

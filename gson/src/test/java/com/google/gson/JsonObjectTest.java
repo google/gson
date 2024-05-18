@@ -344,4 +344,21 @@ public class JsonObjectTest {
       assertThat(new ArrayList<>(o.entrySet())).isEqualTo(new ArrayList<>(expectedEntriesQueue));
     }
   }
+
+  @Test
+  public void testToString() {
+    JsonObject object = new JsonObject();
+    assertThat(object.toString()).isEqualTo("{}");
+
+    object.add("a", JsonNull.INSTANCE);
+    object.addProperty("b\0", Float.NaN);
+    JsonArray nestedArray = new JsonArray();
+    nestedArray.add('"');
+    object.add("c", nestedArray);
+    JsonObject nestedObject = new JsonObject();
+    nestedObject.addProperty("n\0", 1);
+    object.add("d", nestedObject);
+    assertThat(object.toString())
+        .isEqualTo("{\"a\":null,\"b\\u0000\":NaN,\"c\":[\"\\\"\"],\"d\":{\"n\\u0000\":1}}");
+  }
 }

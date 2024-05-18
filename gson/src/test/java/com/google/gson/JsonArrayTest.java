@@ -376,4 +376,21 @@ public final class JsonArrayTest {
     assertThat(jsonArray.toString())
         .isEqualTo("[\"a\",\"a\",true,true,1212,1212,34.34,34.34,null,null]");
   }
+
+  @Test
+  public void testToString() {
+    JsonArray array = new JsonArray();
+    assertThat(array.toString()).isEqualTo("[]");
+
+    array.add(JsonNull.INSTANCE);
+    array.add(Float.NaN);
+    array.add("a\0");
+    JsonArray nestedArray = new JsonArray();
+    nestedArray.add('"');
+    array.add(nestedArray);
+    JsonObject nestedObject = new JsonObject();
+    nestedObject.addProperty("n\0", 1);
+    array.add(nestedObject);
+    assertThat(array.toString()).isEqualTo("[null,NaN,\"a\\u0000\",[\"\\\"\"],{\"n\\u0000\":1}]");
+  }
 }
