@@ -281,12 +281,13 @@ public final class Gson {
     factories.add(excluder);
 
     // users' type adapters
+    factories.addAll(factoriesToBeAdded);
+
     factories.addAll(GLOBAL_ADAPTER_FACTORIES);
     for (Map.Entry<Type, TypeAdapter<?>> adapterEntry : GLOBAL_TYPE_ADAPTERS.entrySet()) {
       // copy paste from com.google.gson.GsonBuilder.registerTypeAdapter
       factories.add(TypeAdapters.newFactory(TypeToken.get(adapterEntry.getKey()), (TypeAdapter) adapterEntry.getValue()));
     }
-    factories.addAll(factoriesToBeAdded);
 
     // type adapters for basic platform types
     factories.add(TypeAdapters.STRING_FACTORY);
