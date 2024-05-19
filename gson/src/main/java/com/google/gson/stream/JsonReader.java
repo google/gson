@@ -394,7 +394,7 @@ public class JsonReader implements Closeable {
    *
    * @param strictness the new strictness value of this reader. May not be {@code null}.
    * @see #getStrictness()
-   * @since $next-version$
+   * @since 2.11.0
    */
   public final void setStrictness(Strictness strictness) {
     Objects.requireNonNull(strictness);
@@ -405,7 +405,7 @@ public class JsonReader implements Closeable {
    * Returns the {@linkplain Strictness strictness} of this reader.
    *
    * @see #setStrictness(Strictness)
-   * @since $next-version$
+   * @since 2.11.0
    */
   public final Strictness getStrictness() {
     return strictness;

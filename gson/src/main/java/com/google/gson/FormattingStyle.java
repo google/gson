@@ -34,7 +34,7 @@ import java.util.Objects;
  * @see GsonBuilder#setFormattingStyle(FormattingStyle)
  * @see JsonWriter#setFormattingStyle(FormattingStyle)
  * @see <a href="https://en.wikipedia.org/wiki/Newline">Wikipedia Newline article</a>
- * @since $next-version$
+ * @since 2.11.0
  */
 public class FormattingStyle {
   private final String newline;

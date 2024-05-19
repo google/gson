@@ -14,7 +14,7 @@ import com.google.gson.stream.JsonWriter;
  *
  * @see JsonReader#setStrictness(Strictness)
  * @see JsonWriter#setStrictness(Strictness)
- * @since $next-version$
+ * @since 2.11.0
  */
 public enum Strictness {
   /** Allow large deviations from the JSON specification. */

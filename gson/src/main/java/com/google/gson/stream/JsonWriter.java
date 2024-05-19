@@ -261,7 +261,7 @@ public class JsonWriter implements Closeable, Flushable {
    * level of indentation, or the newline style, to accommodate various OS styles.
    *
    * @param formattingStyle the formatting style to use, must not be {@code null}.
-   * @since $next-version$
+   * @since 2.11.0
    */
   public final void setFormattingStyle(FormattingStyle formattingStyle) {
     this.formattingStyle = Objects.requireNonNull(formattingStyle);
@@ -286,7 +286,7 @@ public class JsonWriter implements Closeable, Flushable {
    * Returns the pretty printing style used by this writer.
    *
    * @return the {@code FormattingStyle} that will be used.
-   * @since $next-version$
+   * @since 2.11.0
    */
   public final FormattingStyle getFormattingStyle() {
     return formattingStyle;
@@ -339,7 +339,7 @@ public class JsonWriter implements Closeable, Flushable {
    *
    * @param strictness the new strictness of this writer. May not be {@code null}.
    * @see #getStrictness()
-   * @since $next-version$
+   * @since 2.11.0
    */
   public final void setStrictness(Strictness strictness) {
     this.strictness = Objects.requireNonNull(strictness);
@@ -349,7 +349,7 @@ public class JsonWriter implements Closeable, Flushable {
    * Returns the {@linkplain Strictness strictness} of this writer.
    *
    * @see #setStrictness(Strictness)
-   * @since $next-version$
+   * @since 2.11.0
    */
   public final Strictness getStrictness() {
     return strictness;

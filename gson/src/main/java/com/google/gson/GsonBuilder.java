@@ -522,7 +522,7 @@ public final class GsonBuilder {
    *
    * @param formattingStyle the formatting style to use.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @since $next-version$
+   * @since 2.11.0
    */
   @CanIgnoreReturnValue
   public GsonBuilder setFormattingStyle(FormattingStyle formattingStyle) {
@@ -560,7 +560,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
    * @see JsonReader#setStrictness(Strictness)
    * @see JsonWriter#setStrictness(Strictness)
-   * @since $next-version$
+   * @since 2.11.0
    */
   @CanIgnoreReturnValue
   public GsonBuilder setStrictness(Strictness strictness) {

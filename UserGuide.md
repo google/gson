@@ -76,7 +76,7 @@ The Gson instance does not maintain any state while invoking JSON operations. So
 
 ```gradle
 dependencies {
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.code.gson:gson:2.11.0'
 }
 ```
 
@@ -90,7 +90,7 @@ To use Gson with Maven2/3, you can use the Gson version available in Maven Centr
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.10.1</version>
+      <version>2.11.0</version>
       <scope>compile</scope>
     </dependency>
 </dependencies>
