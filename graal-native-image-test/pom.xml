@@ -20,14 +20,14 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.11.0</version>
+    <version>2.11.1-SNAPSHOT</version>
   </parent>
   <artifactId>graal-native-image-test</artifactId>
 
   <properties>
     <!-- Make the build reproducible, see root `pom.xml` -->
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
-    <project.build.outputTimestamp>2024-05-19T18:53:38Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2024-05-19T18:54:10Z</project.build.outputTimestamp>
 
     <!-- GraalVM is JDK >= 17, however for build with regular JDK these tests
       are also executed with JDK 11, so for them exclude JDK 17 specific tests -->
