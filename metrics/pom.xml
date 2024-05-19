@@ -19,7 +19,7 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.10.2-SNAPSHOT</version>
+    <version>2.11.0</version>
   </parent>
 
   <artifactId>gson-metrics</artifactId>
@@ -30,7 +30,7 @@
   <properties>
     <!-- Make the build reproducible, see root `pom.xml` -->
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
-    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2024-05-19T18:53:38Z</project.build.outputTimestamp>
   </properties>
 
   <licenses>
