@@ -12,6 +12,7 @@ import com.google.gson.stream.JsonWriter;
  * the {@link JsonReader} and you can look at {@link JsonWriter#setStrictness(Strictness)} to see
  * how the strictness affects the {@link JsonWriter}.
  *
+ * @see GsonBuilder#setStrictness(Strictness)
  * @see JsonReader#setStrictness(Strictness)
  * @see JsonWriter#setStrictness(Strictness)
  * @since 2.11.0
