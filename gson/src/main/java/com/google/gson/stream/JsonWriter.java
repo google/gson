@@ -261,6 +261,7 @@ public class JsonWriter implements Closeable, Flushable {
    * level of indentation, or the newline style, to accommodate various OS styles.
    *
    * @param formattingStyle the formatting style to use, must not be {@code null}.
+   * @see #getFormattingStyle()
    * @since 2.11.0
    */
   public final void setFormattingStyle(FormattingStyle formattingStyle) {
@@ -286,6 +287,7 @@ public class JsonWriter implements Closeable, Flushable {
    * Returns the pretty printing style used by this writer.
    *
    * @return the {@code FormattingStyle} that will be used.
+   * @see #setFormattingStyle(FormattingStyle)
    * @since 2.11.0
    */
   public final FormattingStyle getFormattingStyle() {
@@ -360,6 +362,8 @@ public class JsonWriter implements Closeable, Flushable {
    * This escapes the HTML characters {@code <}, {@code >}, {@code &}, {@code =} and {@code '}
    * before writing them to the stream. Without this setting, your XML/HTML encoder should replace
    * these characters with the corresponding escape sequences.
+   *
+   * @see #isHtmlSafe()
    */
   public final void setHtmlSafe(boolean htmlSafe) {
     this.htmlSafe = htmlSafe;
@@ -367,6 +371,8 @@ public class JsonWriter implements Closeable, Flushable {
 
   /**
    * Returns true if this writer writes JSON that's safe for inclusion in HTML and XML documents.
+   *
+   * @see #setHtmlSafe(boolean)
    */
   public final boolean isHtmlSafe() {
     return htmlSafe;
@@ -375,6 +381,8 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Sets whether object members are serialized when their value is null. This has no impact on
    * array elements. The default is true.
+   *
+   * @see #getSerializeNulls()
    */
   public final void setSerializeNulls(boolean serializeNulls) {
     this.serializeNulls = serializeNulls;
@@ -383,6 +391,8 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * Returns true if object members are serialized when their value is null. This has no impact on
    * array elements. The default is true.
+   *
+   * @see #setSerializeNulls(boolean)
    */
   public final boolean getSerializeNulls() {
     return serializeNulls;
