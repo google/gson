@@ -16,8 +16,8 @@ jobs:
           - java: 21
             # Disable Enforcer check which (intentionally) prevents using JDK 21 for building
             extra-mvn-args: -Denforcer.fail=false
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b  # v4.1.4
       - name: "Set up JDK ${{ matrix.java }}"
@@ -32,8 +32,8 @@ jobs:
 
   native-image-test:
     name: "GraalVM Native Image test"
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b  # v4.1.4
       - name: "Set up GraalVM"
@@ -51,8 +51,8 @@ jobs:
 
   verify-reproducible-build:
     name: "Verify reproducible build"
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b  # v4.1.4
       - name: "Set up JDK 17"
@@ -65,11 +65,12 @@ jobs:
       - name: "Verify no plugin issues"
         run: mvn artifact:check-buildplan --batch-mode --no-transfer-progress
 
-      - name: "Verify reproducible build"
+      - name: "Do clean install of dependencies"
         # See https://maven.apache.org/guides/mini/guide-reproducible-builds.html#how-to-test-my-maven-build-reproducibility
         run: |
           mvn clean install --batch-mode --no-transfer-progress -Dproguard.skip -DskipTests
           # Run with `-Dbuildinfo.attach=false`; otherwise `artifact:compare` fails because it creates a `.buildinfo` file which
           # erroneously references the existing `.buildinfo` file (respectively because it is overwriting it, a file with size 0)
           # See https://issues.apache.org/jira/browse/MARTIFACT-57
-          mvn clean verify artifact:compare --batch-mode --no-transfer-progress -Dproguard.skip -DskipTests -Dbuildinfo.attach=false
+      - name: "Verify reproducible build"
+        run: mvn clean verify artifact:compare --batch-mode --no-transfer-progress -Dproguard.skip -DskipTests -Dbuildinfo.attach=false
