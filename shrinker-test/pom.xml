@@ -22,8 +22,8 @@
     <artifactId>gson-parent</artifactId>
     <version>2.11.1-SNAPSHOT</version>
   </parent>
-
   <artifactId>shrinker-test</artifactId>
+  <name>Test: Code shrinking (ProGuard / R8)</name>
 
   <properties>
     <!-- Make the build reproducible, see root `pom.xml` -->
