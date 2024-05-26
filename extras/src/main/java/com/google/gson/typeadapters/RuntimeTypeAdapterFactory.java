@@ -173,8 +173,8 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   }
 
   /**
-   * Creates a new runtime type adapter using for {@code baseType} using {@code typeFieldName} as
-   * the type field name. Type field names are case sensitive.
+   * Creates a new runtime type adapter for {@code baseType} using {@code typeFieldName} as the type
+   * field name. Type field names are case sensitive.
    *
    * @param maintainType true if the type field should be included in deserialized objects
    */

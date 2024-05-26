@@ -16,7 +16,7 @@
 package com.google.gson.protobuf.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.base.CaseFormat;
 import com.google.gson.Gson;
@@ -165,12 +165,7 @@ public class ProtosWithAnnotationsTest {
   @Test
   public void testProtoWithAnnotations_deserializeUnrecognizedEnumValue() {
     String json = String.format("{  %n" + "   \"content\":\"UNRECOGNIZED\"%n" + "}");
-    try {
-      gson.fromJson(json, InnerMessage.class);
-      assertWithMessage("Should have thrown").fail();
-    } catch (JsonParseException e) {
-      // expected
-    }
+    assertThrows(JsonParseException.class, () -> gson.fromJson(json, InnerMessage.class));
   }
 
   @Test

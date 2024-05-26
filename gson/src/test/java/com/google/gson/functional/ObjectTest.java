@@ -43,6 +43,7 @@ import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
 import com.google.gson.reflect.TypeToken;
+import java.io.EOFException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -241,7 +242,8 @@ public class ObjectTest {
   @Test
   public void testTruncatedDeserialization() {
     Type type = new TypeToken<List<String>>() {}.getType();
-    assertThrows(JsonParseException.class, () -> gson.fromJson("[\"a\", \"b\",", type));
+    var e = assertThrows(JsonParseException.class, () -> gson.fromJson("[\"a\", \"b\",", type));
+    assertThat(e).hasCauseThat().isInstanceOf(EOFException.class);
   }
 
   @Test
@@ -757,8 +759,8 @@ public class ObjectTest {
     assertThat(e).hasCauseThat().isSameInstanceAs(ClassWithThrowingConstructor.thrownException);
   }
 
-  @SuppressWarnings("StaticAssignmentOfThrowable")
   static class ClassWithThrowingConstructor {
+    @SuppressWarnings("StaticAssignmentOfThrowable")
     static final RuntimeException thrownException = new RuntimeException("Custom exception");
 
     public ClassWithThrowingConstructor() {

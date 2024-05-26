@@ -91,8 +91,8 @@ public final class UtcDateTypeAdapterTest {
         assertThrows(
             JsonParseException.class, () -> gson.fromJson("2017-06-20T14:32:30", Date.class));
     assertThat(e)
-        .hasCauseThat()
         .hasMessageThat()
-        .isEqualTo("Failed to parse date ['2017-06-20T14']: 2017-06-20T14");
+        .isEqualTo(
+            "java.text.ParseException: Failed to parse date ['2017-06-20T14']: 2017-06-20T14");
   }
 }

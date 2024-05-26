@@ -132,13 +132,23 @@ public class ReadersWritersTest {
   @Test
   public void testTypeMismatchThrowsJsonSyntaxExceptionForStrings() {
     Type type = new TypeToken<Map<String, String>>() {}.getType();
-    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("true", type));
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("true", type));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected BEGIN_OBJECT but was BOOLEAN");
   }
 
   @Test
   public void testTypeMismatchThrowsJsonSyntaxExceptionForReaders() {
     Type type = new TypeToken<Map<String, String>>() {}.getType();
-    assertThrows(JsonSyntaxException.class, () -> gson.fromJson(new StringReader("true"), type));
+    var e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson(new StringReader("true"), type));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected BEGIN_OBJECT but was BOOLEAN");
   }
 
   /**

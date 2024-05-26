@@ -66,7 +66,8 @@ public class MapAsArrayTypeAdapterTest {
     original.put(1.0D, "a");
     original.put(1.0F, "b");
     Type type = new TypeToken<Map<Number, String>>() {}.getType();
-    assertThrows(JsonSyntaxException.class, () -> gson.toJson(original, type));
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.toJson(original, type));
+    assertThat(e).hasMessageThat().isEqualTo("TODO");
   }
 
   @Test

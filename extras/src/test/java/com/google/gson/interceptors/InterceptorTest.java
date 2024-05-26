@@ -55,7 +55,8 @@ public final class InterceptorTest {
 
   @Test
   public void testExceptionsPropagated() {
-    assertThrows(JsonParseException.class, () -> gson.fromJson("{}", User.class));
+    var e = assertThrows(JsonParseException.class, () -> gson.fromJson("{}", User.class));
+    assertThat(e).hasMessageThat().isEqualTo("name and password are required fields.");
   }
 
   @Test

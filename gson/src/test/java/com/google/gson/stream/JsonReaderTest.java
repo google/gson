@@ -76,7 +76,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testEscapedNewlineNotAllowedInStrictMode() throws IOException {
+  public void testEscapedNewlineNotAllowedInStrictMode() {
     String json = "\"\\\n\"";
     JsonReader reader = new JsonReader(reader(json));
     reader.setStrictness(Strictness.STRICT);
@@ -145,7 +145,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testCapitalizedTrueFailWhenStrict() throws IOException {
+  public void testCapitalizedTrueFailWhenStrict() {
     JsonReader reader = new JsonReader(reader("TRUE"));
     reader.setStrictness(Strictness.STRICT);
 
@@ -168,7 +168,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testCapitalizedFalseFailWhenStrict() throws IOException {
+  public void testCapitalizedFalseFailWhenStrict() {
     JsonReader reader = new JsonReader(reader("FALSE"));
     reader.setStrictness(Strictness.STRICT);
 
@@ -191,7 +191,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testCapitalizedNullFailWhenStrict() throws IOException {
+  public void testCapitalizedNullFailWhenStrict() {
     JsonReader reader = new JsonReader(reader("NULL"));
     reader.setStrictness(Strictness.STRICT);
 
@@ -463,7 +463,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testEmptyString() throws IOException {
+  public void testEmptyString() {
     assertThrows(EOFException.class, () -> new JsonReader(reader("")).beginArray());
     assertThrows(EOFException.class, () -> new JsonReader(reader("")).beginObject());
   }
@@ -544,7 +544,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testEscapeCharacterQuoteInStrictMode() throws IOException {
+  public void testEscapeCharacterQuoteInStrictMode() {
     String json = "\"\\'\"";
     JsonReader reader = new JsonReader(reader(json));
     reader.setStrictness(Strictness.STRICT);
@@ -907,7 +907,7 @@ public final class JsonReaderTest {
 
   /**
    * This test fails because there's no double for 9223372036854775808, and our long parsing uses
-   * {@link Double#parseDouble(String)} for fractional values.
+   * Double.parseDouble() for fractional values.
    */
   @Test
   @Ignore
@@ -1371,6 +1371,10 @@ public final class JsonReaderTest {
 
   @Test
   public void testStrictUnnecessaryArraySeparators() throws IOException {
+    // The following calls `nextNull()` because a lenient JsonReader would treat redundant array
+    // separators as
+    // implicit JSON null
+
     JsonReader reader = new JsonReader(reader("[true,,true]"));
     reader.beginArray();
     assertThat(reader.nextBoolean()).isTrue();
@@ -1400,6 +1404,7 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.nextBoolean()).isTrue();
+    // Redundant array separators are treated as implicit JSON null
     reader.nextNull();
     assertThat(reader.nextBoolean()).isTrue();
     reader.endArray();
@@ -1517,14 +1522,14 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testStrictNonExecutePrefix() throws IOException {
+  public void testStrictNonExecutePrefix() {
     JsonReader reader = new JsonReader(reader(")]}'\n []"));
     var e = assertThrows(MalformedJsonException.class, () -> reader.beginArray());
     assertStrictError(e, "line 1 column 1 path $");
   }
 
   @Test
-  public void testStrictNonExecutePrefixWithSkipValue() throws IOException {
+  public void testStrictNonExecutePrefixWithSkipValue() {
     JsonReader reader = new JsonReader(reader(")]}'\n []"));
     var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
     assertStrictError(e, "line 1 column 1 path $");
@@ -1750,7 +1755,7 @@ public final class JsonReaderTest {
 
   // http://code.google.com/p/google-gson/issues/detail?id=409
   @Test
-  public void testStringEndingInSlash() throws IOException {
+  public void testStringEndingInSlash() {
     JsonReader reader = new JsonReader(reader("/"));
     reader.setStrictness(Strictness.LENIENT);
     var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
@@ -1762,7 +1767,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testDocumentWithCommentEndingInSlash() throws IOException {
+  public void testDocumentWithCommentEndingInSlash() {
     JsonReader reader = new JsonReader(reader("/* foo *//"));
     reader.setStrictness(Strictness.LENIENT);
     var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
@@ -1774,7 +1779,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testStringWithLeadingSlash() throws IOException {
+  public void testStringWithLeadingSlash() {
     JsonReader reader = new JsonReader(reader("/x"));
     reader.setStrictness(Strictness.LENIENT);
     var e = assertThrows(MalformedJsonException.class, () -> reader.peek());

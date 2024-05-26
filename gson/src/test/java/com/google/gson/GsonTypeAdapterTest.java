@@ -45,18 +45,20 @@ public class GsonTypeAdapterTest {
   }
 
   @Test
-  public void testDefaultTypeAdapterThrowsParseException() throws Exception {
+  public void testDefaultTypeAdapterThrowsParseException() {
     assertThrows(JsonParseException.class, () -> gson.fromJson("{\"abc\":123}", BigInteger.class));
   }
 
   @Test
-  public void testTypeAdapterThrowsException() throws Exception {
-    assertThrows(IllegalStateException.class, () -> gson.toJson(new AtomicLong(0)));
+  public void testTypeAdapterThrowsException() {
+    Exception e = assertThrows(IllegalStateException.class, () -> gson.toJson(new AtomicLong(0)));
+    assertThat(e).isSameInstanceAs(ExceptionTypeAdapter.thrownException);
 
     // Verify that serializer is made null-safe, i.e. it is not called for null
     assertThat(gson.toJson(null, AtomicLong.class)).isEqualTo("null");
 
-    assertThrows(JsonParseException.class, () -> gson.fromJson("123", AtomicLong.class));
+    e = assertThrows(JsonParseException.class, () -> gson.fromJson("123", AtomicLong.class));
+    assertThat(e).hasCauseThat().isSameInstanceAs(ExceptionTypeAdapter.thrownException);
 
     // Verify that deserializer is made null-safe, i.e. it is not called for null
     assertThat(gson.fromJson(JsonNull.INSTANCE, AtomicLong.class)).isNull();
@@ -85,16 +87,20 @@ public class GsonTypeAdapterTest {
 
   private static class ExceptionTypeAdapter
       implements JsonSerializer<AtomicLong>, JsonDeserializer<AtomicLong> {
+    @SuppressWarnings("StaticAssignmentOfThrowable")
+    static final IllegalStateException thrownException =
+        new IllegalStateException("test-exception");
+
     @Override
     public JsonElement serialize(AtomicLong src, Type typeOfSrc, JsonSerializationContext context) {
-      throw new IllegalStateException();
+      throw thrownException;
     }
 
     @Override
     public AtomicLong deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      throw new IllegalStateException("test-exception");
+      throw thrownException;
     }
   }
 

@@ -200,7 +200,6 @@ public final class StreamingTypeAdaptersTest {
     truck.passengers = new ArrayList<>();
     truck.passengers.add(null);
     truck.passengers.add(new Person("jesse", 30));
-
     assertThrows(NullPointerException.class, () -> gson.toJson(truck, Truck.class));
 
     String json = "{horsePower:1.0,passengers:[null,'jesse,30']}";

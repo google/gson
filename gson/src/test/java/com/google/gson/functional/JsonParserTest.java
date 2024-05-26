@@ -29,6 +29,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.reflect.TypeToken;
+import java.io.EOFException;
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -53,7 +54,8 @@ public class JsonParserTest {
 
   @Test
   public void testParseInvalidJson() {
-    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[]", Object[].class));
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[]", Object[].class));
+    assertThat(e).hasCauseThat().isInstanceOf(EOFException.class);
   }
 
   @Test
@@ -131,6 +133,10 @@ public class JsonParserTest {
   @Test
   public void testExtraCommasInMaps() {
     Type type = new TypeToken<Map<String, String>>() {}.getType();
-    assertThrows(JsonParseException.class, () -> gson.fromJson("{a:b,}", type));
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{a:b,}", type));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected name at line 1 column 7 path $.");
   }
 }

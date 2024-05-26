@@ -732,7 +732,7 @@ public class PrimitiveTest {
 
   @Test
   public void testBigDecimalNegativeInfinityDeserializationNotSupported() {
-    // Gson should not accept positive infinity for deserialization
+    // Gson should not accept negative infinity for deserialization
     assertThrows(JsonSyntaxException.class, () -> gson.fromJson("-Infinity", BigDecimal.class));
   }
 
