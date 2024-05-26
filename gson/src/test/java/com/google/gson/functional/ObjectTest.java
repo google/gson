@@ -624,18 +624,24 @@ public class ObjectTest {
     Gson gson = new Gson();
     Product product = new Product();
     assertThat(gson.toJson(product)).isEqualTo("{\"attributes\":[],\"departments\":[]}");
-    Product unused1 = gson.fromJson(gson.toJson(product), Product.class);
+    Product deserialized = gson.fromJson(gson.toJson(product), Product.class);
+    assertThat(deserialized.attributes).isEmpty();
+    assertThat(deserialized.departments).isEmpty();
 
     product.departments.add(new Department());
     assertThat(gson.toJson(product))
         .isEqualTo("{\"attributes\":[],\"departments\":[{\"name\":\"abc\",\"code\":\"123\"}]}");
-    Product unused2 = gson.fromJson(gson.toJson(product), Product.class);
+    deserialized = gson.fromJson(gson.toJson(product), Product.class);
+    assertThat(deserialized.attributes).isEmpty();
+    assertThat(deserialized.departments).hasSize(1);
 
     product.attributes.add("456");
     assertThat(gson.toJson(product))
         .isEqualTo(
             "{\"attributes\":[\"456\"],\"departments\":[{\"name\":\"abc\",\"code\":\"123\"}]}");
-    Product unused3 = gson.fromJson(gson.toJson(product), Product.class);
+    deserialized = gson.fromJson(gson.toJson(product), Product.class);
+    assertThat(deserialized.attributes).containsExactly("456");
+    assertThat(deserialized.departments).hasSize(1);
   }
 
   static final class Department {
@@ -695,7 +701,9 @@ public class ObjectTest {
   @Test
   public void testStaticFieldDeserialization() {
     // By default Gson should ignore static fields
-    ClassWithStaticField unused = gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
+    ClassWithStaticField deserialized =
+        gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticField.class);
+    assertThat(deserialized).isNotNull();
     assertThat(ClassWithStaticField.s).isEqualTo("initial");
 
     Gson gson =

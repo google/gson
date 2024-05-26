@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,7 +47,7 @@ public class ConcurrencyTest {
   public void testSingleThreadSerialization() {
     MyObject myObj = new MyObject();
     for (int i = 0; i < 10; i++) {
-      String unused = gson.toJson(myObj);
+      assertThat(gson.toJson(myObj)).isEqualTo("{\"a\":\"hello\",\"b\":\"world\",\"i\":42}");
     }
   }
 
@@ -58,7 +58,10 @@ public class ConcurrencyTest {
   @Test
   public void testSingleThreadDeserialization() {
     for (int i = 0; i < 10; i++) {
-      MyObject unused = gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+      MyObject deserialized = gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+      assertThat(deserialized.a).isEqualTo("hello");
+      assertThat(deserialized.b).isEqualTo("world");
+      assertThat(deserialized.i).isEqualTo(1);
     }
   }
 
@@ -70,7 +73,7 @@ public class ConcurrencyTest {
   public void testMultiThreadSerialization() throws InterruptedException {
     final CountDownLatch startLatch = new CountDownLatch(1);
     final CountDownLatch finishedLatch = new CountDownLatch(10);
-    final AtomicBoolean failed = new AtomicBoolean(false);
+    final AtomicReference<Throwable> error = new AtomicReference<>(null);
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
       executor.execute(
@@ -81,10 +84,11 @@ public class ConcurrencyTest {
               try {
                 startLatch.await();
                 for (int i = 0; i < 10; i++) {
-                  String unused = gson.toJson(myObj);
+                  assertThat(gson.toJson(myObj))
+                      .isEqualTo("{\"a\":\"hello\",\"b\":\"world\",\"i\":42}");
                 }
               } catch (Throwable t) {
-                failed.set(true);
+                error.set(t);
               } finally {
                 finishedLatch.countDown();
               }
@@ -93,7 +97,7 @@ public class ConcurrencyTest {
     }
     startLatch.countDown();
     finishedLatch.await();
-    assertThat(failed.get()).isFalse();
+    assertThat(error.get()).isNull();
   }
 
   /**
@@ -104,7 +108,7 @@ public class ConcurrencyTest {
   public void testMultiThreadDeserialization() throws InterruptedException {
     final CountDownLatch startLatch = new CountDownLatch(1);
     final CountDownLatch finishedLatch = new CountDownLatch(10);
-    final AtomicBoolean failed = new AtomicBoolean(false);
+    final AtomicReference<Throwable> error = new AtomicReference<>(null);
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
       executor.execute(
@@ -114,11 +118,14 @@ public class ConcurrencyTest {
               try {
                 startLatch.await();
                 for (int i = 0; i < 10; i++) {
-                  MyObject unused =
+                  MyObject deserialized =
                       gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+                  assertThat(deserialized.a).isEqualTo("hello");
+                  assertThat(deserialized.b).isEqualTo("world");
+                  assertThat(deserialized.i).isEqualTo(1);
                 }
               } catch (Throwable t) {
-                failed.set(true);
+                error.set(t);
               } finally {
                 finishedLatch.countDown();
               }
@@ -127,7 +134,7 @@ public class ConcurrencyTest {
     }
     startLatch.countDown();
     finishedLatch.await();
-    assertThat(failed.get()).isFalse();
+    assertThat(error.get()).isNull();
   }
 
   @SuppressWarnings("unused")

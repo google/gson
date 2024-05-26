@@ -118,9 +118,9 @@ public final class InterceptorTest {
                   @Override
                   public User read(JsonReader in) throws IOException {
                     in.beginObject();
-                    String unused1 = in.nextName();
+                    assertThat(in.nextName()).isEqualTo("name");
                     String name = in.nextString();
-                    String unused2 = in.nextName();
+                    assertThat(in.nextName()).isEqualTo("password");
                     String password = in.nextString();
                     in.endObject();
                     return new User(name, password);

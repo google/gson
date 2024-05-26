@@ -88,11 +88,13 @@ public final class MixedStreamTest {
     jsonReader.beginArray();
 
     jsonReader.setLenient(false);
-    Car unused1 = gson.fromJson(jsonReader, Car.class);
+    Car deserialized = gson.fromJson(jsonReader, Car.class);
+    assertThat(deserialized).isNotNull();
     assertThat(jsonReader.isLenient()).isFalse();
 
     jsonReader.setLenient(true);
-    Car unused2 = gson.fromJson(jsonReader, Car.class);
+    deserialized = gson.fromJson(jsonReader, Car.class);
+    assertThat(deserialized).isNotNull();
     assertThat(jsonReader.isLenient()).isTrue();
   }
 
