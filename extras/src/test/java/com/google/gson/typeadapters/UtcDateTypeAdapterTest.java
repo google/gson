@@ -16,8 +16,8 @@
 
 package com.google.gson.typeadapters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -39,7 +39,7 @@ public final class UtcDateTypeAdapterTest {
     Date expected = new Date();
     String json = gson.toJson(expected);
     Date actual = gson.fromJson(json, Date.class);
-    assertEquals(expected.getTime(), actual.getTime());
+    assertThat(actual.getTime()).isEqualTo(expected.getTime());
   }
 
   @Test
@@ -50,7 +50,7 @@ public final class UtcDateTypeAdapterTest {
       String json = gson.toJson(expected);
       // System.out.println(json + ": " + timeZone);
       Date actual = gson.fromJson(json, Date.class);
-      assertEquals(expected.getTime(), actual.getTime());
+      assertThat(actual.getTime()).isEqualTo(expected.getTime());
     }
   }
 
@@ -62,7 +62,8 @@ public final class UtcDateTypeAdapterTest {
   public void testUtcDatesOnJdkBefore1_7() {
     Gson gson =
         new GsonBuilder().registerTypeAdapter(Date.class, new UtcDateTypeAdapter()).create();
-    Date unused = gson.fromJson("'2014-12-05T04:00:00.000Z'", Date.class);
+    Date date = gson.fromJson("'2014-12-05T04:00:00.000Z'", Date.class);
+    assertThat(date.getTime()).isEqualTo(1417752000000L);
   }
 
   @Test
@@ -73,26 +74,25 @@ public final class UtcDateTypeAdapterTest {
     iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
     String expectedJson = "\"" + iso8601Format.format(expected) + "\"";
     String actualJson = gson.toJson(expected);
-    assertEquals(expectedJson, actualJson);
+    assertThat(actualJson).isEqualTo(expectedJson);
     Date actual = gson.fromJson(expectedJson, Date.class);
-    assertEquals(expected.getTime(), actual.getTime());
+    assertThat(actual.getTime()).isEqualTo(expected.getTime());
   }
 
   @Test
   public void testNullDateSerialization() {
     String json = gson.toJson(null, Date.class);
-    assertEquals("null", json);
+    assertThat(json).isEqualTo("null");
   }
 
   @Test
   public void testWellFormedParseException() {
-    try {
-      gson.fromJson("2017-06-20T14:32:30", Date.class);
-      fail("No exception");
-    } catch (JsonParseException exe) {
-      assertEquals(
-          "java.text.ParseException: Failed to parse date ['2017-06-20T14']: 2017-06-20T14",
-          exe.getMessage());
-    }
+    var e =
+        assertThrows(
+            JsonParseException.class, () -> gson.fromJson("2017-06-20T14:32:30", Date.class));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .isEqualTo("Failed to parse date ['2017-06-20T14']: 2017-06-20T14");
   }
 }
