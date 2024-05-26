@@ -16,7 +16,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.FieldNamingStrategy;
@@ -142,20 +142,16 @@ public class NamingPolicyTest {
   @Test
   public void testGsonDuplicateNameUsingSerializedNameFieldNamingPolicySerialization() {
     Gson gson = builder.create();
-    try {
-      ClassWithDuplicateFields target = new ClassWithDuplicateFields(10);
-      gson.toJson(target);
-      fail();
-    } catch (IllegalArgumentException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Class com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields declares"
-                  + " multiple JSON fields named 'a'; conflict is caused by fields"
-                  + " com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#a and"
-                  + " com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#b\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#duplicate-fields");
-    }
+    ClassWithDuplicateFields target = new ClassWithDuplicateFields(10);
+    var e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(target));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Class com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields declares"
+                + " multiple JSON fields named 'a'; conflict is caused by fields"
+                + " com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#a and"
+                + " com.google.gson.functional.NamingPolicyTest$ClassWithDuplicateFields#b\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#duplicate-fields");
   }
 
   @Test
@@ -171,19 +167,16 @@ public class NamingPolicyTest {
                 })
             .create();
 
-    try {
-      gson.toJson(new ClassWithTwoFields());
-      fail();
-    } catch (IllegalArgumentException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Class com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields declares"
-                  + " multiple JSON fields named 'x'; conflict is caused by fields"
-                  + " com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields#a and"
-                  + " com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields#b\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#duplicate-fields");
-    }
+    var e =
+        assertThrows(IllegalArgumentException.class, () -> gson.toJson(new ClassWithTwoFields()));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Class com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields declares multiple"
+                + " JSON fields named 'x'; conflict is caused by fields"
+                + " com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields#a and"
+                + " com.google.gson.functional.NamingPolicyTest$ClassWithTwoFields#b\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#duplicate-fields");
   }
 
   @Test

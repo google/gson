@@ -17,7 +17,7 @@
 package com.google.gson.internal;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.reflect.TypeToken;
 import java.util.Collections;
@@ -42,34 +42,26 @@ public class ConstructorConstructorTest {
   public void testGet_AbstractClassNoArgConstructor() {
     ObjectConstructor<AbstractClass> constructor =
         constructorConstructor.get(TypeToken.get(AbstractClass.class));
-    try {
-      constructor.construct();
-      fail("Expected exception");
-    } catch (RuntimeException exception) {
-      assertThat(exception)
-          .hasMessageThat()
-          .isEqualTo(
-              "Abstract classes can't be instantiated! Adjust the R8 configuration or register an"
-                  + " InstanceCreator or a TypeAdapter for this type. Class name:"
-                  + " com.google.gson.internal.ConstructorConstructorTest$AbstractClass\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class");
-    }
+    var e = assertThrows(RuntimeException.class, () -> constructor.construct());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Abstract classes can't be instantiated! Adjust the R8 configuration or register an"
+                + " InstanceCreator or a TypeAdapter for this type. Class name:"
+                + " com.google.gson.internal.ConstructorConstructorTest$AbstractClass\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#r8-abstract-class");
   }
 
   @Test
   public void testGet_Interface() {
     ObjectConstructor<Interface> constructor =
         constructorConstructor.get(TypeToken.get(Interface.class));
-    try {
-      constructor.construct();
-      fail("Expected exception");
-    } catch (RuntimeException exception) {
-      assertThat(exception)
-          .hasMessageThat()
-          .isEqualTo(
-              "Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
-                  + " this type. Interface name:"
-                  + " com.google.gson.internal.ConstructorConstructorTest$Interface");
-    }
+    var e = assertThrows(RuntimeException.class, () -> constructor.construct());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
+                + " this type. Interface name:"
+                + " com.google.gson.internal.ConstructorConstructorTest$Interface");
   }
 }

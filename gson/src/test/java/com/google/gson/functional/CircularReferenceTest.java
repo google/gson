@@ -16,7 +16,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -51,11 +51,8 @@ public class CircularReferenceTest {
     ContainsReferenceToSelfType b = new ContainsReferenceToSelfType();
     a.children.add(b);
     b.children.add(a);
-    try {
-      gson.toJson(a);
-      fail("Circular types should not get printed!");
-    } catch (StackOverflowError expected) {
-    }
+    // Circular types should not get printed
+    assertThrows(StackOverflowError.class, () -> gson.toJson(a));
   }
 
   @Test
@@ -72,11 +69,8 @@ public class CircularReferenceTest {
     ClassWithSelfReferenceArray objA = new ClassWithSelfReferenceArray();
     objA.children = new ClassWithSelfReferenceArray[] {objA};
 
-    try {
-      gson.toJson(objA);
-      fail("Circular reference to self can not be serialized!");
-    } catch (StackOverflowError expected) {
-    }
+    // Circular reference to self can not be serialized
+    assertThrows(StackOverflowError.class, () -> gson.toJson(objA));
   }
 
   @Test
@@ -100,11 +94,9 @@ public class CircularReferenceTest {
                   }
                 })
             .create();
-    try {
-      gson.toJson(obj);
-      fail("Circular reference to self can not be serialized!");
-    } catch (StackOverflowError expected) {
-    }
+
+    // Circular reference to self can not be serialized
+    assertThrows(StackOverflowError.class, () -> gson.toJson(obj));
   }
 
   @Test

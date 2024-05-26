@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.common.MoreAsserts;
 import java.util.AbstractMap.SimpleEntry;
@@ -103,19 +103,11 @@ public class JsonObjectAsMapTest {
     assertThat(map.put("b", JsonNull.INSTANCE)).isNull();
     assertThat(map.get("b")).isEqualTo(JsonNull.INSTANCE);
 
-    try {
-      map.put(null, new JsonPrimitive(1));
-      fail();
-    } catch (NullPointerException e) {
-      assertThat(e).hasMessageThat().isEqualTo("key == null");
-    }
+    var e = assertThrows(NullPointerException.class, () -> map.put(null, new JsonPrimitive(1)));
+    assertThat(e).hasMessageThat().isEqualTo("key == null");
 
-    try {
-      map.put("a", null);
-      fail();
-    } catch (NullPointerException e) {
-      assertThat(e).hasMessageThat().isEqualTo("value == null");
-    }
+    e = assertThrows(NullPointerException.class, () -> map.put("a", null));
+    assertThat(e).hasMessageThat().isEqualTo("value == null");
   }
 
   @Test
@@ -153,19 +145,19 @@ public class JsonObjectAsMapTest {
     assertThat(map.get("a")).isEqualTo(new JsonPrimitive(2));
     assertThat(map.get("b")).isEqualTo(new JsonPrimitive(3));
 
-    try {
-      map.putAll(Collections.<String, JsonElement>singletonMap(null, new JsonPrimitive(1)));
-      fail();
-    } catch (NullPointerException e) {
-      assertThat(e).hasMessageThat().isEqualTo("key == null");
-    }
+    var e =
+        assertThrows(
+            NullPointerException.class,
+            () ->
+                map.putAll(
+                    Collections.<String, JsonElement>singletonMap(null, new JsonPrimitive(1))));
+    assertThat(e).hasMessageThat().isEqualTo("key == null");
 
-    try {
-      map.putAll(Collections.<String, JsonElement>singletonMap("a", null));
-      fail();
-    } catch (NullPointerException e) {
-      assertThat(e).hasMessageThat().isEqualTo("value == null");
-    }
+    e =
+        assertThrows(
+            NullPointerException.class,
+            () -> map.putAll(Collections.<String, JsonElement>singletonMap("a", null)));
+    assertThat(e).hasMessageThat().isEqualTo("value == null");
   }
 
   @Test
@@ -191,11 +183,7 @@ public class JsonObjectAsMapTest {
     assertThat(keySet).containsExactly("b", "a").inOrder();
 
     // Key set doesn't support insertions
-    try {
-      keySet.add("c");
-      fail();
-    } catch (UnsupportedOperationException e) {
-    }
+    assertThrows(UnsupportedOperationException.class, () -> keySet.add("c"));
 
     assertThat(keySet.remove("a")).isTrue();
     assertThat(map.keySet()).isEqualTo(Collections.singleton("b"));
@@ -214,11 +202,7 @@ public class JsonObjectAsMapTest {
     assertThat(values).containsExactly(new JsonPrimitive(2), new JsonPrimitive(1)).inOrder();
 
     // Values collection doesn't support insertions
-    try {
-      values.add(new JsonPrimitive(3));
-      fail();
-    } catch (UnsupportedOperationException e) {
-    }
+    assertThrows(UnsupportedOperationException.class, () -> values.add(new JsonPrimitive(3)));
 
     assertThat(values.remove(new JsonPrimitive(2))).isTrue();
     assertThat(new ArrayList<>(map.values()))
@@ -243,11 +227,9 @@ public class JsonObjectAsMapTest {
     // Should contain entries in same order
     assertThat(new ArrayList<>(entrySet)).isEqualTo(expectedEntrySet);
 
-    try {
-      entrySet.add(new SimpleEntry<String, JsonElement>("c", new JsonPrimitive(3)));
-      fail();
-    } catch (UnsupportedOperationException e) {
-    }
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> entrySet.add(new SimpleEntry<String, JsonElement>("c", new JsonPrimitive(3))));
 
     assertThat(entrySet.remove(new SimpleEntry<>("a", new JsonPrimitive(1)))).isTrue();
     assertThat(map.entrySet())
@@ -266,12 +248,8 @@ public class JsonObjectAsMapTest {
     assertThat(o.entrySet())
         .isEqualTo(Collections.singleton(new SimpleEntry<>("b", new JsonPrimitive(3))));
 
-    try {
-      entry.setValue(null);
-      fail();
-    } catch (NullPointerException e) {
-      assertThat(e).hasMessageThat().isEqualTo("value == null");
-    }
+    var e = assertThrows(NullPointerException.class, () -> entry.setValue(null));
+    assertThat(e).hasMessageThat().isEqualTo("value == null");
   }
 
   @Test

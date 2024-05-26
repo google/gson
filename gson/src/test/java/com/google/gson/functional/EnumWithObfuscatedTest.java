@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
@@ -48,11 +48,10 @@ public class EnumWithObfuscatedTest {
   @Test
   public void testEnumClassWithObfuscated() {
     for (Gender enumConstant : Gender.class.getEnumConstants()) {
-      try {
-        Gender.class.getField(enumConstant.name());
-        fail("Enum is not obfuscated");
-      } catch (NoSuchFieldException ignore) {
-      }
+      assertThrows(
+          "Enum is not obfuscated",
+          NoSuchFieldException.class,
+          () -> Gender.class.getField(enumConstant.name()));
     }
 
     assertThat(gson.fromJson("\"MAIL\"", Gender.class)).isEqualTo(Gender.MALE);

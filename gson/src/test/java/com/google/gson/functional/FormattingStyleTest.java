@@ -16,7 +16,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
@@ -182,33 +182,25 @@ public class FormattingStyleTest {
 
   @Test
   public void testStyleValidations() {
-    try {
-      // TBD if we want to accept \u2028 and \u2029. For now we don't because JSON specification
-      // does not consider them to be newlines
-      FormattingStyle.PRETTY.withNewline("\u2028");
-      fail("Gson should not accept anything but \\r and \\n for newline");
-    } catch (IllegalArgumentException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo("Only combinations of \\n and \\r are allowed in newline.");
-    }
+    // TBD if we want to accept \u2028 and \u2029. For now we don't because JSON specification
+    // does not consider them to be newlines
+    var e =
+        assertThrows(
+            IllegalArgumentException.class, () -> FormattingStyle.PRETTY.withNewline("\u2028"));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Only combinations of \\n and \\r are allowed in newline.");
 
-    try {
-      FormattingStyle.PRETTY.withNewline("NL");
-      fail("Gson should not accept anything but \\r and \\n for newline");
-    } catch (IllegalArgumentException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo("Only combinations of \\n and \\r are allowed in newline.");
-    }
+    e =
+        assertThrows(
+            IllegalArgumentException.class, () -> FormattingStyle.PRETTY.withNewline("NL"));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Only combinations of \\n and \\r are allowed in newline.");
 
-    try {
-      FormattingStyle.PRETTY.withIndent("\f");
-      fail("Gson should not accept anything but space and tab for indent");
-    } catch (IllegalArgumentException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo("Only combinations of spaces and tabs are allowed in indent.");
-    }
+    e = assertThrows(IllegalArgumentException.class, () -> FormattingStyle.PRETTY.withIndent("\f"));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Only combinations of spaces and tabs are allowed in indent.");
   }
 }

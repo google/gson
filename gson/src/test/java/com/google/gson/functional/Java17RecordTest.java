@@ -17,7 +17,6 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -156,12 +155,8 @@ public final class Java17RecordTest {
       }
     }
 
-    try {
-      gson.fromJson("{\"s\":\"value\"}", LocalRecord.class);
-      fail();
-    }
     // TODO: Adjust this once Gson throws more specific exception type
-    catch (RuntimeException e) {
+    var e = assertThrows(RuntimeException.class, () -> gson.fromJson("{\"s\":\"value\"}", LocalRecord.class));
       assertThat(e)
           .hasMessageThat()
           .isEqualTo(
@@ -169,7 +164,6 @@ public final class Java17RecordTest {
                   + LocalRecord.class.getName()
                   + "(String)' with args [value]");
       assertThat(e).hasCauseThat().isSameInstanceAs(LocalRecord.thrownException);
-    }
   }
 
   @Test
@@ -197,15 +191,11 @@ public final class Java17RecordTest {
       }
     }
 
-    try {
-      gson.toJson(new LocalRecord("a"));
-      fail();
-    } catch (JsonIOException e) {
+    var e = assertThrows(JsonIOException.class, () -> gson.toJson(new LocalRecord("a")));
       assertThat(e)
           .hasMessageThat()
           .isEqualTo("Accessor method '" + LocalRecord.class.getName() + "#s()' threw exception");
       assertThat(e).hasCauseThat().isSameInstanceAs(LocalRecord.thrownException);
-    }
   }
 
   /** Tests behavior for a record without components */

@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -183,12 +183,8 @@ public class ObjectTest {
             + " com.google.gson.functional.ObjectTest$Superclass2#s\n"
             + "See https://github.com/google/gson/blob/main/Troubleshooting.md#duplicate-fields";
 
-    try {
-      gson.getAdapter(Subclass.class);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
-    }
+    var e = assertThrows(IllegalArgumentException.class, () -> gson.getAdapter(Subclass.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
 
     // Detection should also work properly when duplicate fields exist only for serialization
     Gson gson =
@@ -208,12 +204,8 @@ public class ObjectTest {
                 })
             .create();
 
-    try {
-      gson.getAdapter(Subclass.class);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
-    }
+    e = assertThrows(IllegalArgumentException.class, () -> gson.getAdapter(Subclass.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
   }
 
   @Test
@@ -248,11 +240,8 @@ public class ObjectTest {
 
   @Test
   public void testTruncatedDeserialization() {
-    try {
-      gson.fromJson("[\"a\", \"b\",", new TypeToken<List<String>>() {}.getType());
-      fail();
-    } catch (JsonParseException expected) {
-    }
+    Type type = new TypeToken<List<String>>() {}.getType();
+    assertThrows(JsonParseException.class, () -> gson.fromJson("[\"a\", \"b\",", type));
   }
 
   @Test
@@ -724,16 +713,15 @@ public class ObjectTest {
       ClassWithStaticField.s = oldValue;
     }
 
-    try {
-      gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticFinalField.class);
-      fail();
-    } catch (JsonIOException e) {
-      assertThat(e)
-          .hasMessageThat()
-          .isEqualTo(
-              "Cannot set value of 'static final' field"
-                  + " 'com.google.gson.functional.ObjectTest$ClassWithStaticFinalField#s'");
-    }
+    var e =
+        assertThrows(
+            JsonIOException.class,
+            () -> gson.fromJson("{\"s\":\"custom\"}", ClassWithStaticFinalField.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Cannot set value of 'static final' field"
+                + " 'com.google.gson.functional.ObjectTest$ClassWithStaticFinalField#s'");
   }
 
   @SuppressWarnings({"PrivateConstructorForUtilityClass", "NonFinalStaticField"})
@@ -748,20 +736,17 @@ public class ObjectTest {
 
   @Test
   public void testThrowingDefaultConstructor() {
-    try {
-      gson.fromJson("{}", ClassWithThrowingConstructor.class);
-      fail();
-    }
     // TODO: Adjust this once Gson throws more specific exception type
-    catch (RuntimeException e) {
-      assertThat(e)
-          .hasMessageThat()
-          .isEqualTo(
-              "Failed to invoke constructor"
-                  + " 'com.google.gson.functional.ObjectTest$ClassWithThrowingConstructor()' with"
-                  + " no args");
-      assertThat(e).hasCauseThat().isSameInstanceAs(ClassWithThrowingConstructor.thrownException);
-    }
+    var e =
+        assertThrows(
+            RuntimeException.class, () -> gson.fromJson("{}", ClassWithThrowingConstructor.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Failed to invoke constructor"
+                + " 'com.google.gson.functional.ObjectTest$ClassWithThrowingConstructor()' with"
+                + " no args");
+    assertThat(e).hasCauseThat().isSameInstanceAs(ClassWithThrowingConstructor.thrownException);
   }
 
   @SuppressWarnings("StaticAssignmentOfThrowable")

@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
@@ -131,11 +131,9 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   @Test
   public void testIncorrectTypeAdapterFails() {
-    try {
-      String json = new Gson().toJson(new ClassWithIncorrectJsonAdapter("bar"));
-      fail(json);
-    } catch (ClassCastException expected) {
-    }
+    Gson gson = new Gson();
+    ClassWithIncorrectJsonAdapter obj = new ClassWithIncorrectJsonAdapter("bar");
+    assertThrows(ClassCastException.class, () -> gson.toJson(obj));
   }
 
   @Test
@@ -373,11 +371,9 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   @Test
   public void testIncorrectJsonAdapterType() {
-    try {
-      new Gson().toJson(new D());
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    Gson gson = new Gson();
+    D obj = new D();
+    assertThrows(IllegalArgumentException.class, () -> gson.toJson(obj));
   }
 
   @JsonAdapter(Integer.class)

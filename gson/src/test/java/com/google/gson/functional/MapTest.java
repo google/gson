@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -576,11 +576,12 @@ public class MapTest {
   @Test
   public void testComplexKeysDeserialization() {
     String json = "{'2,3':'a','5,7':'b'}";
-    try {
-      gson.fromJson(json, new TypeToken<Map<Point, String>>() {}.getType());
-      fail();
-    } catch (JsonParseException expected) {
-    }
+    Type type = new TypeToken<Map<Point, String>>() {}.getType();
+    var e = assertThrows(JsonParseException.class, () -> gson.fromJson(json, type));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected BEGIN_OBJECT but was STRING at line 1 column 3 path $");
   }
 
   @Test
@@ -612,11 +613,9 @@ public class MapTest {
 
   @Test
   public void testMapDeserializationWithDuplicateKeys() {
-    try {
-      gson.fromJson("{'a':1,'a':2}", new TypeToken<Map<String, Integer>>() {}.getType());
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+    Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{'a':1,'a':2}", type));
+    assertThat(e).hasMessageThat().isEqualTo("duplicate key: a");
   }
 
   @Test

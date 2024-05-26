@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -58,18 +58,15 @@ public class MapAsArrayTypeAdapterTest {
   }
 
   @Test
-  @Ignore
+  @Ignore("we no longer hash keys at serialization time")
   public void testTwoTypesCollapseToOneSerialize() {
     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
 
     Map<Number, String> original = new LinkedHashMap<>();
     original.put(1.0D, "a");
     original.put(1.0F, "b");
-    try {
-      gson.toJson(original, new TypeToken<Map<Number, String>>() {}.getType());
-      fail(); // we no longer hash keys at serialization time
-    } catch (JsonSyntaxException expected) {
-    }
+    Type type = new TypeToken<Map<Number, String>>() {}.getType();
+    assertThrows(JsonSyntaxException.class, () -> gson.toJson(original, type));
   }
 
   @Test
@@ -77,11 +74,9 @@ public class MapAsArrayTypeAdapterTest {
     Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
 
     String s = "[[\"1.00\",\"a\"],[\"1.0\",\"b\"]]";
-    try {
-      gson.fromJson(s, new TypeToken<Map<Double, String>>() {}.getType());
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+    Type type = new TypeToken<Map<Double, String>>() {}.getType();
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson(s, type));
+    assertThat(e).hasMessageThat().isEqualTo("duplicate key: 1.0");
   }
 
   @Test

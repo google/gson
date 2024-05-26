@@ -17,7 +17,6 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -98,7 +97,7 @@ public class JsonTreeTest {
         }
       }
     }
-    fail();
+    throw new AssertionError("Does not contain " + child);
   }
 
   private static class SubTypeOfBagOfPrimitives extends BagOfPrimitives {

@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
@@ -46,29 +46,17 @@ public class GsonTypeAdapterTest {
 
   @Test
   public void testDefaultTypeAdapterThrowsParseException() throws Exception {
-    try {
-      gson.fromJson("{\"abc\":123}", BigInteger.class);
-      fail("Should have thrown a JsonParseException");
-    } catch (JsonParseException expected) {
-    }
+    assertThrows(JsonParseException.class, () -> gson.fromJson("{\"abc\":123}", BigInteger.class));
   }
 
   @Test
   public void testTypeAdapterThrowsException() throws Exception {
-    try {
-      gson.toJson(new AtomicLong(0));
-      fail("Type Adapter should have thrown an exception");
-    } catch (IllegalStateException expected) {
-    }
+    assertThrows(IllegalStateException.class, () -> gson.toJson(new AtomicLong(0)));
 
     // Verify that serializer is made null-safe, i.e. it is not called for null
     assertThat(gson.toJson(null, AtomicLong.class)).isEqualTo("null");
 
-    try {
-      gson.fromJson("123", AtomicLong.class);
-      fail("Type Adapter should have thrown an exception");
-    } catch (JsonParseException expected) {
-    }
+    assertThrows(JsonParseException.class, () -> gson.fromJson("123", AtomicLong.class));
 
     // Verify that deserializer is made null-safe, i.e. it is not called for null
     assertThat(gson.fromJson(JsonNull.INSTANCE, AtomicLong.class)).isNull();
@@ -106,7 +94,7 @@ public class GsonTypeAdapterTest {
     public AtomicLong deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      throw new IllegalStateException();
+      throw new IllegalStateException("test-exception");
     }
   }
 
