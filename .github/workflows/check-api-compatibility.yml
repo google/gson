@@ -6,8 +6,8 @@ on: pull_request
 
 jobs:
   check-api-compatibility:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
     steps:
       - name: Checkout old version
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b  # v4.1.4
@@ -22,21 +22,19 @@ jobs:
           java-version: '11'
           cache: 'maven'
 
-      - name: Build old version
-        run: |
-          cd gson-old-japicmp
-          # Set dummy version
-          mvn --batch-mode --no-transfer-progress org.codehaus.mojo:versions-maven-plugin:2.11.0:set -DnewVersion=JAPICMP-OLD
-          # Install artifacts with dummy version in local repository; used later by Maven plugin for comparison
-          mvn --batch-mode --no-transfer-progress install -DskipTests
+      - name: Set dummy version
+        working-directory: gson-old-japicmp
+        run: mvn --batch-mode --no-transfer-progress org.codehaus.mojo:versions-maven-plugin:2.11.0:set -DnewVersion=JAPICMP-OLD
+      - name: Install artifacts with dummy version
+        working-directory: gson-old-japicmp
+        run: mvn --batch-mode --no-transfer-progress install -DskipTests
 
       - name: Checkout new version
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b  # v4.1.4
 
       - name: Check API compatibility
         id: check-compatibility
-        run: |
-          mvn --batch-mode --fail-at-end --no-transfer-progress package japicmp:cmp -DskipTests
+        run: mvn --batch-mode --fail-at-end --no-transfer-progress package japicmp:cmp -DskipTests
 
       - name: Upload API differences artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808  # v4.3.3

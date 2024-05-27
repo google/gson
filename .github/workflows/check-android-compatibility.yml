@@ -11,8 +11,8 @@ permissions:
 
 jobs:
   check-android-compatibility:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b  # v4.1.4
 
@@ -24,6 +24,5 @@ jobs:
           cache: 'maven'
 
       - name: Check Android compatibility
-        run: |
-          # Run 'test' phase because plugin normally expects to be executed after tests have been compiled
-          mvn --batch-mode --no-transfer-progress test animal-sniffer:check@check-android-compatibility -DskipTests
+        # Run 'test' phase because plugin normally expects to be executed after tests have been compiled
+        run: mvn --batch-mode --no-transfer-progress test animal-sniffer:check@check-android-compatibility -DskipTests
