@@ -28,6 +28,7 @@
 
   <modules>
     <module>gson</module>
+    <module>jpms-test</module>
     <module>graal-native-image-test</module>
     <module>shrinker-test</module>
     <module>extras</module>
@@ -43,6 +44,12 @@
     <!-- Make the build reproducible, see https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
     <!-- Automatically updated by Maven Release Plugin -->
     <project.build.outputTimestamp>2024-05-19T18:54:10Z</project.build.outputTimestamp>
+
+    <!-- These properties are to be overwritten by the Maven modules -->
+    <!-- Whether this module is an integration test module -->
+    <gson.isTestModule>false</gson.isTestModule>
+    <!-- Whether this module is internal and currently not deployed -->
+    <gson.isInternalModule>${gson.isTestModule}</gson.isInternalModule>
   </properties>
 
   <!-- These attributes specify that the URLs should be inherited by the modules as is, to avoid constructing
@@ -303,6 +310,8 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.6.3</version>
           <configuration>
+            <skip>${gson.isTestModule}</skip>
+
             <!-- Specify newer JDK as target to allow linking to newer Java API, and to generate
               module overview in Javadoc for Gson's module descriptor -->
             <release>11</release>
@@ -340,16 +349,33 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
           <version>3.1.2</version>
+          <configuration>
+            <skip>${gson.isTestModule}</skip>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
           <version>3.3.1</version>
+          <configuration>
+            <skipSource>${gson.isTestModule}</skipSource>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
           <version>3.2.4</version>
+          <configuration>
+            <skip>${gson.isTestModule}</skip>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.2</version>
+          <configuration>
+            <skip>${gson.isInternalModule}</skip>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -444,6 +470,8 @@
           <artifactId>japicmp-maven-plugin</artifactId>
           <version>0.21.1</version>
           <configuration>
+            <skip>${gson.isTestModule}</skip>
+
             <oldVersion>
               <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -485,6 +513,8 @@
                 <goal>check</goal>
               </goals>
               <configuration>
+                <skip>${gson.isTestModule}</skip>
+
                 <signature>
                   <!-- Note: In case Android compatibility impedes Gson development too much in the
                     future, could consider switching to https://github.com/open-toast/gummy-bears
