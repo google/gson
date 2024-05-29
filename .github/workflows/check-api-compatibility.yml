@@ -26,7 +26,7 @@ jobs:
         run: |
           cd gson-old-japicmp
           # Set dummy version
-          mvn --batch-mode --no-transfer-progress org.codehaus.mojo:versions-maven-plugin:2.11.0:set -DnewVersion=JAPICMP-OLD
+          mvn --batch-mode --no-transfer-progress org.codehaus.mojo:versions-maven-plugin:2.11.0:set -DnewVersion=JAPICMP_OLD
           # Install artifacts with dummy version in local repository; used later by Maven plugin for comparison
           mvn --batch-mode --no-transfer-progress install -DskipTests
 

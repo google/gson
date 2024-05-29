@@ -475,7 +475,7 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>${project.artifactId}</artifactId>
                 <!-- This is set by the GitHub workflow -->
-                <version>JAPICMP-OLD</version>
+                <version>JAPICMP_OLD</version>
               </dependency>
             </oldVersion>
             <newVersion>
