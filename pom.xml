@@ -470,21 +470,11 @@
           <artifactId>japicmp-maven-plugin</artifactId>
           <version>0.21.1</version>
           <configuration>
-            <skip>${gson.isTestModule}</skip>
+            <skip>${gson.isInternalModule}</skip>
 
-            <oldVersion>
-              <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>${project.artifactId}</artifactId>
-                <!-- This is set by the GitHub workflow -->
-                <version>JAPICMP-OLD</version>
-              </dependency>
-            </oldVersion>
-            <newVersion>
-              <file>
-                <path>${project.build.directory}/${project.build.finalName}.${project.packaging}</path>
-              </file>
-            </newVersion>
+            <!-- 'Old version' is automatically the last release, 'new version' are the artifacts of the
+              current build -->
+
             <parameter>
               <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
               <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
