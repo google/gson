@@ -1,4 +1,4 @@
-# shrinker-test
+# test-shrinker
 
 This Maven module contains integration tests which check the behavior of Gson when used in combination with code shrinking and obfuscation tools, such as ProGuard or R8.
 

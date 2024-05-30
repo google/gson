@@ -1,4 +1,4 @@
-# graal-native-image-test
+# test-graal-native-image
 
 This Maven module contains integration tests for using Gson in a GraalVM Native Image.
 

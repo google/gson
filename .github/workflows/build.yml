@@ -45,9 +45,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'maven'
       - name: Build and run tests
-        # Only run tests in `graal-native-image-test` (and implicitly build and run tests in `gson`),
+        # Only run tests in `test-graal-native-image` (and implicitly build and run tests in `gson`),
         # everything else is covered already by regular build job above
-        run: mvn test --batch-mode --no-transfer-progress --activate-profiles native-image-test --projects graal-native-image-test --also-make
+        run: mvn test --batch-mode --no-transfer-progress --activate-profiles native-image-test --projects test-graal-native-image --also-make
 
   verify-reproducible-build:
     name: "Verify reproducible build"

@@ -21,7 +21,7 @@
     <artifactId>gson-parent</artifactId>
     <version>2.11.1-SNAPSHOT</version>
   </parent>
-  <artifactId>graal-native-image-test</artifactId>
+  <artifactId>test-graal-native-image</artifactId>
   <name>Test: GraalVM Native Image</name>
 
   <properties>
