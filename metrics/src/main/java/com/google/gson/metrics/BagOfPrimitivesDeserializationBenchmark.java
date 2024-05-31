@@ -48,7 +48,7 @@ public class BagOfPrimitivesDeserializationBenchmark {
   /** Benchmark to measure Gson performance for deserializing an object */
   public void timeBagOfPrimitivesDefault(int reps) {
     for (int i = 0; i < reps; ++i) {
-      gson.fromJson(json, BagOfPrimitives.class);
+      BagOfPrimitives unused = gson.fromJson(json, BagOfPrimitives.class);
     }
   }
 

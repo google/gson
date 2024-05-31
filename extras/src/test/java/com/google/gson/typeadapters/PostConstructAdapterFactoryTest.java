@@ -31,7 +31,8 @@ public class PostConstructAdapterFactoryTest {
   public void test() throws Exception {
     Gson gson =
         new GsonBuilder().registerTypeAdapterFactory(new PostConstructAdapterFactory()).create();
-    gson.fromJson("{\"bread\": \"white\", \"cheese\": \"cheddar\"}", Sandwich.class);
+    Sandwich unused =
+        gson.fromJson("{\"bread\": \"white\", \"cheese\": \"cheddar\"}", Sandwich.class);
     try {
       gson.fromJson("{\"bread\": \"cheesey bread\", \"cheese\": \"swiss\"}", Sandwich.class);
       fail();

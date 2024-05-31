@@ -54,7 +54,8 @@ public class DelegateTypeAdapterTest {
       bags.add(new BagOfPrimitives(i, i, i % 2 == 0, String.valueOf(i)));
     }
     String json = gson.toJson(bags);
-    gson.fromJson(json, new TypeToken<List<BagOfPrimitives>>() {}.getType());
+    List<BagOfPrimitives> unused =
+        gson.fromJson(json, new TypeToken<List<BagOfPrimitives>>() {}.getType());
     // 11: 1 list object, and 10 entries. stats invoked on all 5 fields
     assertThat(stats.numReads).isEqualTo(51);
     assertThat(stats.numWrites).isEqualTo(51);
@@ -64,7 +65,7 @@ public class DelegateTypeAdapterTest {
   public void testDelegateInvokedOnStrings() {
     String[] bags = {"1", "2", "3", "4"};
     String json = gson.toJson(bags);
-    gson.fromJson(json, String[].class);
+    String[] unused = gson.fromJson(json, String[].class);
     // 1 array object with 4 elements.
     assertThat(stats.numReads).isEqualTo(5);
     assertThat(stats.numWrites).isEqualTo(5);
