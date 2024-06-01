@@ -15,4 +15,5 @@
  */
 
 /** This package provides classes for processing JSON in an efficient streaming way. */
+@com.google.errorprone.annotations.CheckReturnValue
 package com.google.gson.stream;
