@@ -28,9 +28,9 @@
 
   <modules>
     <module>gson</module>
-    <module>jpms-test</module>
-    <module>graal-native-image-test</module>
-    <module>shrinker-test</module>
+    <module>test-jpms</module>
+    <module>test-graal-native-image</module>
+    <module>test-shrinker</module>
     <module>extras</module>
     <module>metrics</module>
     <module>proto</module>

@@ -22,7 +22,7 @@
     <artifactId>gson-parent</artifactId>
     <version>2.11.1-SNAPSHOT</version>
   </parent>
-  <artifactId>shrinker-test</artifactId>
+  <artifactId>test-shrinker</artifactId>
   <name>Test: Code shrinking (ProGuard / R8)</name>
 
   <properties>
