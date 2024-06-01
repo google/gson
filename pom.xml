@@ -477,14 +477,12 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>${project.artifactId}</artifactId>
                 <!-- This is set by the GitHub workflow -->
-                <version>JAPICMP-OLD</version>
+                <version>0.0.0-JAPICMP-OLD</version>
               </dependency>
             </oldVersion>
-            <newVersion>
-              <file>
-                <path>${project.build.directory}/${project.build.finalName}.${project.packaging}</path>
-              </file>
-            </newVersion>
+
+            <!-- 'new version' is automatically the version currently being build -->
+
             <parameter>
               <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
               <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
