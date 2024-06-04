@@ -79,12 +79,12 @@
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-base</artifactId>
-            <version>7.4.2</version>
+            <version>7.5.0</version>
           </dependency>
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-core</artifactId>
-            <version>9.1.3</version>
+            <version>9.1.4</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -115,7 +115,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.5.3</version>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -144,7 +144,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.0</version>
         <executions>
           <execution>
             <id>r8</id>
