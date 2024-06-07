@@ -148,15 +148,12 @@ public class JsonObjectAsMapTest {
     var e =
         assertThrows(
             NullPointerException.class,
-            () ->
-                map.putAll(
-                    Collections.<String, JsonElement>singletonMap(null, new JsonPrimitive(1))));
+            () -> map.putAll(Collections.singletonMap(null, new JsonPrimitive(1))));
     assertThat(e).hasMessageThat().isEqualTo("key == null");
 
     e =
         assertThrows(
-            NullPointerException.class,
-            () -> map.putAll(Collections.<String, JsonElement>singletonMap("a", null)));
+            NullPointerException.class, () -> map.putAll(Collections.singletonMap("a", null)));
     assertThat(e).hasMessageThat().isEqualTo("value == null");
   }
 
@@ -221,7 +218,7 @@ public class JsonObjectAsMapTest {
     Set<Entry<String, JsonElement>> entrySet = map.entrySet();
 
     List<Entry<?, ?>> expectedEntrySet =
-        Arrays.<Entry<?, ?>>asList(
+        Arrays.asList(
             new SimpleEntry<>("b", new JsonPrimitive(2)),
             new SimpleEntry<>("a", new JsonPrimitive(1)));
     // Should contain entries in same order

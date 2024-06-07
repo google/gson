@@ -38,7 +38,7 @@ import org.junit.Test;
  */
 public class GsonBuilderTest {
   private static final TypeAdapter<Object> NULL_TYPE_ADAPTER =
-      new TypeAdapter<Object>() {
+      new TypeAdapter<>() {
         @Override
         public void write(JsonWriter out, Object value) {
           throw new AssertionError();

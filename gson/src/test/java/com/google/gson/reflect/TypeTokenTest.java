@@ -328,7 +328,7 @@ public final class TypeTokenTest {
   }
 
   private static <M> void createTypeTokenTypeVariable() {
-    TypeToken<M> unused = new TypeToken<M>() {};
+    var unused = new TypeToken<M>() {};
   }
 
   /**

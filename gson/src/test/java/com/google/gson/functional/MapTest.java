@@ -526,7 +526,7 @@ public class MapTest {
         "{\"bases\":{\"Test\":" + baseTypeJson + "},\"subs\":{\"Test\":" + subTypeJson + "}}";
 
     JsonSerializer<TestTypes.Base> baseTypeAdapter =
-        new JsonSerializer<TestTypes.Base>() {
+        new JsonSerializer<>() {
           @Override
           public JsonElement serialize(
               TestTypes.Base src, Type typeOfSrc, JsonSerializationContext context) {

@@ -141,7 +141,7 @@ public class TreeTypeAdaptersTest {
     private final Assignment<T> assignment;
 
     private Course() {
-      this(null, 0, null, new ArrayList<Student>());
+      this(null, 0, null, new ArrayList<>());
     }
 
     public Course(

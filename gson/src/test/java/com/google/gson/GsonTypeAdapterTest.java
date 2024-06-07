@@ -152,7 +152,7 @@ public class GsonTypeAdapterTest {
       boolean registerAbstractHierarchyDeserializer,
       Object instance) {
     JsonDeserializer<Abstract> deserializer =
-        new JsonDeserializer<Abstract>() {
+        new JsonDeserializer<>() {
           @Override
           public Abstract deserialize(
               JsonElement json, Type typeOfT, JsonDeserializationContext context)

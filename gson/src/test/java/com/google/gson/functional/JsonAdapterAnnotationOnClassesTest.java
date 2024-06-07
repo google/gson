@@ -78,7 +78,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   @Test
   public void testRegisteredAdapterOverridesJsonAdapter() {
     TypeAdapter<A> typeAdapter =
-        new TypeAdapter<A>() {
+        new TypeAdapter<>() {
           @Override
           public void write(JsonWriter out, A value) throws IOException {
             out.value("registeredAdapter");
@@ -98,7 +98,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   @Test
   public void testRegisteredSerializerOverridesJsonAdapter() {
     JsonSerializer<A> serializer =
-        new JsonSerializer<A>() {
+        new JsonSerializer<>() {
           @Override
           public JsonElement serialize(A src, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive("registeredSerializer");
@@ -115,7 +115,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   @Test
   public void testRegisteredDeserializerOverridesJsonAdapter() {
     JsonDeserializer<A> deserializer =
-        new JsonDeserializer<A>() {
+        new JsonDeserializer<>() {
           @Override
           public A deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
               throws JsonParseException {
@@ -170,8 +170,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     assertThat(gson.fromJson("null", WithNullReturningFactory.class)).isNull();
     assertThat(gson.toJson(null, WithNullReturningFactory.class)).isEqualTo("null");
 
-    TypeToken<WithNullReturningFactory<String>> stringTypeArg =
-        new TypeToken<WithNullReturningFactory<String>>() {};
+    TypeToken<WithNullReturningFactory<String>> stringTypeArg = new TypeToken<>() {};
     WithNullReturningFactory<?> deserialized = gson.fromJson("\"a\"", stringTypeArg);
     assertThat(deserialized.t).isEqualTo("custom-read:a");
     assertThat(gson.fromJson("null", stringTypeArg)).isNull();
@@ -181,8 +180,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     // Factory should return `null` for this type and Gson should fall back to reflection-based
     // adapter
-    TypeToken<WithNullReturningFactory<Integer>> numberTypeArg =
-        new TypeToken<WithNullReturningFactory<Integer>>() {};
+    TypeToken<WithNullReturningFactory<Integer>> numberTypeArg = new TypeToken<>() {};
     deserialized = gson.fromJson("{\"t\":1}", numberTypeArg);
     assertThat(deserialized.t).isEqualTo(1);
     assertThat(gson.toJson(new WithNullReturningFactory<>(2), numberTypeArg.getType()))
@@ -266,7 +264,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     static final class JsonAdapterFactory implements TypeAdapterFactory {
       @Override
       public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
-        return new TypeAdapter<T>() {
+        return new TypeAdapter<>() {
           @Override
           public void write(JsonWriter out, T value) throws IOException {
             out.value("jsonAdapterFactory");
@@ -428,7 +426,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
         TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
 
-        return new TypeAdapter<T>() {
+        return new TypeAdapter<>() {
           @Override
           public T read(JsonReader in) throws IOException {
             // Perform custom deserialization
@@ -478,7 +476,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     static class Factory implements TypeAdapterFactory {
       @Override
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-        return new TypeAdapter<T>() {
+        return new TypeAdapter<>() {
           // suppress Error Prone warning; should be clear that `Factory` refers to enclosing class
           @SuppressWarnings("SameNameButDifferent")
           private TypeAdapter<T> delegate() {
@@ -670,7 +668,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
 
-        return new TypeAdapter<T>() {
+        return new TypeAdapter<>() {
           @Override
           public T read(JsonReader in) throws IOException {
             // Perform custom deserialization

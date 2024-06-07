@@ -53,7 +53,7 @@ public class TypeAdapterTest {
   public void testToJson_ThrowingIOException() {
     final IOException exception = new IOException("test");
     TypeAdapter<Integer> adapter =
-        new TypeAdapter<Integer>() {
+        new TypeAdapter<>() {
           @Override
           public void write(JsonWriter out, Integer value) throws IOException {
             throw exception;
@@ -73,7 +73,7 @@ public class TypeAdapterTest {
   }
 
   private static final TypeAdapter<String> adapter =
-      new TypeAdapter<String>() {
+      new TypeAdapter<>() {
         @Override
         public void write(JsonWriter out, String value) throws IOException {
           out.value(value);

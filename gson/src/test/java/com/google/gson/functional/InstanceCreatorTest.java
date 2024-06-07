@@ -106,7 +106,7 @@ public class InstanceCreatorTest {
     @SuppressWarnings("serial")
     class SubArrayList<T> extends ArrayList<T> {}
     InstanceCreator<List<String>> listCreator =
-        new InstanceCreator<List<String>>() {
+        new InstanceCreator<>() {
           @Override
           public List<String> createInstance(Type type) {
             return new SubArrayList<>();
@@ -124,7 +124,7 @@ public class InstanceCreatorTest {
     @SuppressWarnings("serial")
     class SubTreeSet<T> extends TreeSet<T> {}
     InstanceCreator<SortedSet<?>> sortedSetCreator =
-        new InstanceCreator<SortedSet<?>>() {
+        new InstanceCreator<>() {
           @Override
           public SortedSet<?> createInstance(Type type) {
             return new SubTreeSet<>();

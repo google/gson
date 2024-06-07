@@ -73,8 +73,7 @@ public class FormattingStyleTest {
   public void testVariousCombinationsParse() {
     // Mixing various indent and newline styles in the same string, to be parsed.
     String jsonStringMix = "{\r\t'a':\r\n[        1,2\t]\n}";
-    TypeToken<Map<String, List<Integer>>> inputType =
-        new TypeToken<Map<String, List<Integer>>>() {};
+    TypeToken<Map<String, List<Integer>>> inputType = new TypeToken<>() {};
 
     Map<String, List<Integer>> actualParsed;
     // Test all that all combinations of newline can be parsed and generate the same INPUT.

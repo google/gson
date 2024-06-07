@@ -43,7 +43,7 @@ public class TypeVariableTest {
     arrayList.add(2);
     arrayList.add(3);
     bar1.map.put("key1", arrayList);
-    bar1.map.put("key2", new ArrayList<Integer>());
+    bar1.map.put("key2", new ArrayList<>());
     String json = gson.toJson(bar1);
 
     Bar bar2 = gson.fromJson(json, Bar.class);

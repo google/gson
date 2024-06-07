@@ -118,7 +118,7 @@ public final class StreamingTypeAdaptersTest {
 
   private void usePersonNameAdapter() {
     TypeAdapter<Person> personNameAdapter =
-        new TypeAdapter<Person>() {
+        new TypeAdapter<>() {
           @Override
           public Person read(JsonReader in) throws IOException {
             String name = in.nextString();
@@ -181,7 +181,7 @@ public final class StreamingTypeAdaptersTest {
   @Test
   public void testNullSafe() {
     TypeAdapter<Person> typeAdapter =
-        new TypeAdapter<Person>() {
+        new TypeAdapter<>() {
           @Override
           public Person read(JsonReader in) throws IOException {
             List<String> values = Splitter.on(',').splitToList(in.nextString());

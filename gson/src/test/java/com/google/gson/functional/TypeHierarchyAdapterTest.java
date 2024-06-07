@@ -201,7 +201,7 @@ public final class TypeHierarchyAdapterTest {
         result = new Employee();
       }
       result.userid = context.deserialize(object.get("userid"), String.class);
-      result.startDate = context.<Long>deserialize(object.get("startDate"), long.class);
+      result.startDate = context.deserialize(object.get("startDate"), long.class);
       return result;
     }
   }
