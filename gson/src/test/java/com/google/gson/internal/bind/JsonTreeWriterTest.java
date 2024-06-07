@@ -18,7 +18,6 @@ package com.google.gson.internal.bind;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -93,11 +92,7 @@ public final class JsonTreeWriterTest {
     writer.value("A");
     writer.endArray();
     writer.close();
-    try {
-      writer.beginArray();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    assertThrows(IllegalStateException.class, () -> writer.beginArray());
   }
 
   @Test
@@ -105,12 +100,8 @@ public final class JsonTreeWriterTest {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setStrictness(Strictness.LENIENT);
     writer.beginArray();
-    try {
-      writer.close();
-      fail();
-    } catch (IOException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Incomplete document");
-    }
+    var e = assertThrows(IOException.class, () -> writer.close());
+    assertThat(e).hasMessageThat().isEqualTo("Incomplete document");
   }
 
   @Test
@@ -234,36 +225,12 @@ public final class JsonTreeWriterTest {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setStrictness(Strictness.LEGACY_STRICT);
     writer.beginArray();
-    try {
-      writer.value(Float.NaN);
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      writer.value(Float.NEGATIVE_INFINITY);
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      writer.value(Float.POSITIVE_INFINITY);
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      writer.value(Double.NaN);
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      writer.value(Double.NEGATIVE_INFINITY);
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      writer.value(Double.POSITIVE_INFINITY);
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> writer.value(Float.NaN));
+    assertThrows(IllegalArgumentException.class, () -> writer.value(Float.NEGATIVE_INFINITY));
+    assertThrows(IllegalArgumentException.class, () -> writer.value(Float.POSITIVE_INFINITY));
+    assertThrows(IllegalArgumentException.class, () -> writer.value(Double.NaN));
+    assertThrows(IllegalArgumentException.class, () -> writer.value(Double.NEGATIVE_INFINITY));
+    assertThrows(IllegalArgumentException.class, () -> writer.value(Double.POSITIVE_INFINITY));
   }
 
   @Test
@@ -271,47 +238,25 @@ public final class JsonTreeWriterTest {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setStrictness(Strictness.LEGACY_STRICT);
     writer.beginArray();
-    try {
-      writer.value(Float.valueOf(Float.NaN));
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      writer.value(Float.valueOf(Float.NEGATIVE_INFINITY));
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      writer.value(Float.valueOf(Float.POSITIVE_INFINITY));
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      writer.value(Double.valueOf(Double.NaN));
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      writer.value(Double.valueOf(Double.NEGATIVE_INFINITY));
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      writer.value(Double.valueOf(Double.POSITIVE_INFINITY));
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> writer.value(Float.valueOf(Float.NaN)));
+    assertThrows(
+        IllegalArgumentException.class, () -> writer.value(Float.valueOf(Float.NEGATIVE_INFINITY)));
+    assertThrows(
+        IllegalArgumentException.class, () -> writer.value(Float.valueOf(Float.POSITIVE_INFINITY)));
+    assertThrows(IllegalArgumentException.class, () -> writer.value(Double.valueOf(Double.NaN)));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> writer.value(Double.valueOf(Double.NEGATIVE_INFINITY)));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> writer.value(Double.valueOf(Double.POSITIVE_INFINITY)));
   }
 
   @Test
   public void testJsonValue() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginArray();
-    try {
-      writer.jsonValue("test");
-      fail();
-    } catch (UnsupportedOperationException expected) {
-    }
+    assertThrows(UnsupportedOperationException.class, () -> writer.jsonValue("test"));
   }
 
   /**

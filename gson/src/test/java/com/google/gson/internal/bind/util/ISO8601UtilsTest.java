@@ -50,8 +50,8 @@ public class ISO8601UtilsTest {
     calendar.set(2018, Calendar.JUNE, 25);
     Date date = calendar.getTime();
     String dateStr = ISO8601Utils.format(date);
-    String expectedDate = "2018-06-25";
-    assertThat(dateStr).startsWith(expectedDate);
+    String expectedDate = "2018-06-25T00:00:00Z";
+    assertThat(dateStr).isEqualTo(expectedDate);
   }
 
   @Test

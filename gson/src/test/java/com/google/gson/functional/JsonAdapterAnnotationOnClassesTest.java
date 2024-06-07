@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
@@ -78,7 +78,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   @Test
   public void testRegisteredAdapterOverridesJsonAdapter() {
     TypeAdapter<A> typeAdapter =
-        new TypeAdapter<A>() {
+        new TypeAdapter<>() {
           @Override
           public void write(JsonWriter out, A value) throws IOException {
             out.value("registeredAdapter");
@@ -98,7 +98,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   @Test
   public void testRegisteredSerializerOverridesJsonAdapter() {
     JsonSerializer<A> serializer =
-        new JsonSerializer<A>() {
+        new JsonSerializer<>() {
           @Override
           public JsonElement serialize(A src, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive("registeredSerializer");
@@ -115,7 +115,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   @Test
   public void testRegisteredDeserializerOverridesJsonAdapter() {
     JsonDeserializer<A> deserializer =
-        new JsonDeserializer<A>() {
+        new JsonDeserializer<>() {
           @Override
           public A deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
               throws JsonParseException {
@@ -131,11 +131,9 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   @Test
   public void testIncorrectTypeAdapterFails() {
-    try {
-      String json = new Gson().toJson(new ClassWithIncorrectJsonAdapter("bar"));
-      fail(json);
-    } catch (ClassCastException expected) {
-    }
+    Gson gson = new Gson();
+    ClassWithIncorrectJsonAdapter obj = new ClassWithIncorrectJsonAdapter("bar");
+    assertThrows(ClassCastException.class, () -> gson.toJson(obj));
   }
 
   @Test
@@ -172,8 +170,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     assertThat(gson.fromJson("null", WithNullReturningFactory.class)).isNull();
     assertThat(gson.toJson(null, WithNullReturningFactory.class)).isEqualTo("null");
 
-    TypeToken<WithNullReturningFactory<String>> stringTypeArg =
-        new TypeToken<WithNullReturningFactory<String>>() {};
+    TypeToken<WithNullReturningFactory<String>> stringTypeArg = new TypeToken<>() {};
     WithNullReturningFactory<?> deserialized = gson.fromJson("\"a\"", stringTypeArg);
     assertThat(deserialized.t).isEqualTo("custom-read:a");
     assertThat(gson.fromJson("null", stringTypeArg)).isNull();
@@ -183,8 +180,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     // Factory should return `null` for this type and Gson should fall back to reflection-based
     // adapter
-    TypeToken<WithNullReturningFactory<Integer>> numberTypeArg =
-        new TypeToken<WithNullReturningFactory<Integer>>() {};
+    TypeToken<WithNullReturningFactory<Integer>> numberTypeArg = new TypeToken<>() {};
     deserialized = gson.fromJson("{\"t\":1}", numberTypeArg);
     assertThat(deserialized.t).isEqualTo(1);
     assertThat(gson.toJson(new WithNullReturningFactory<>(2), numberTypeArg.getType()))
@@ -268,7 +264,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     static final class JsonAdapterFactory implements TypeAdapterFactory {
       @Override
       public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
-        return new TypeAdapter<T>() {
+        return new TypeAdapter<>() {
           @Override
           public void write(JsonWriter out, T value) throws IOException {
             out.value("jsonAdapterFactory");
@@ -373,15 +369,20 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   @Test
   public void testIncorrectJsonAdapterType() {
-    try {
-      new Gson().toJson(new D());
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    Gson gson = new Gson();
+    WithInvalidAdapterClass obj = new WithInvalidAdapterClass();
+    var e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(obj));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Invalid attempt to bind an instance of java.lang.Integer as a @JsonAdapter for "
+                + WithInvalidAdapterClass.class.getName()
+                + ". @JsonAdapter value must be a TypeAdapter, TypeAdapterFactory, JsonSerializer"
+                + " or JsonDeserializer.");
   }
 
   @JsonAdapter(Integer.class)
-  private static final class D {
+  private static final class WithInvalidAdapterClass {
     @SuppressWarnings("unused")
     final String value = "a";
   }
@@ -425,7 +426,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
         TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
 
-        return new TypeAdapter<T>() {
+        return new TypeAdapter<>() {
           @Override
           public T read(JsonReader in) throws IOException {
             // Perform custom deserialization
@@ -475,7 +476,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     static class Factory implements TypeAdapterFactory {
       @Override
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-        return new TypeAdapter<T>() {
+        return new TypeAdapter<>() {
           // suppress Error Prone warning; should be clear that `Factory` refers to enclosing class
           @SuppressWarnings("SameNameButDifferent")
           private TypeAdapter<T> delegate() {
@@ -667,7 +668,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
 
-        return new TypeAdapter<T>() {
+        return new TypeAdapter<>() {
           @Override
           public T read(JsonReader in) throws IOException {
             // Perform custom deserialization

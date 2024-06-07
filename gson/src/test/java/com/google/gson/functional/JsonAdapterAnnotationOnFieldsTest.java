@@ -147,7 +147,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   private static class GizmoPartTypeAdapterFactory implements TypeAdapterFactory {
     @Override
     public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
-      return new TypeAdapter<T>() {
+      return new TypeAdapter<>() {
         @Override
         public void write(JsonWriter out, T value) throws IOException {
           out.value("GizmoPartTypeAdapterFactory");
@@ -303,7 +303,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static final class LongToStringTypeAdapterFactory implements TypeAdapterFactory {
     static final TypeAdapter<Long> ADAPTER =
-        new TypeAdapter<Long>() {
+        new TypeAdapter<>() {
           @Override
           public void write(JsonWriter out, Long value) throws IOException {
             out.value(value.toString());
@@ -352,7 +352,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   private static class Gizmo2PartTypeAdapterFactory implements TypeAdapterFactory {
     @Override
     public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
-      return new TypeAdapter<T>() {
+      return new TypeAdapter<>() {
         @Override
         public void write(JsonWriter out, T value) throws IOException {
           out.value("GizmoPartTypeAdapterFactory");

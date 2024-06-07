@@ -18,7 +18,6 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -494,11 +493,8 @@ public class PrimitiveTest {
 
   @Test
   public void testBadValueForBigIntegerDeserialization() {
-    try {
-      gson.fromJson("15.099", BigInteger.class);
-      fail("BigInteger can not be decimal values.");
-    } catch (JsonSyntaxException expected) {
-    }
+    // BigInteger can not be decimal values
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("15.099", BigInteger.class));
   }
 
   @Test
@@ -527,164 +523,162 @@ public class PrimitiveTest {
   }
 
   private static String extractElementFromArray(String json) {
-    return json.substring(json.indexOf('[') + 1, json.indexOf(']'));
+    return json.substring(json.indexOf('[') + 1, json.lastIndexOf(']'));
   }
 
   @Test
   public void testDoubleNaNSerializationNotSupportedByDefault() {
-    try {
-      double nan = Double.NaN;
-      gson.toJson(nan);
-      fail("Gson should not accept NaN for serialization");
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      gson.toJson(Double.NaN);
-      fail("Gson should not accept NaN for serialization");
-    } catch (IllegalArgumentException expected) {
-    }
+    String expectedMessage =
+        "NaN is not a valid double value as per JSON specification. To override this behavior,"
+            + " use GsonBuilder.serializeSpecialFloatingPointValues() method.";
+
+    var e =
+        assertThrows(IllegalArgumentException.class, () -> gson.toJson(Double.NaN, double.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(Double.NaN, Double.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
   }
 
   @Test
   public void testDoubleNaNSerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    double nan = Double.NaN;
-    assertThat(gson.toJson(nan)).isEqualTo("NaN");
-    assertThat(gson.toJson(Double.NaN)).isEqualTo("NaN");
+    assertThat(gson.toJson(Double.NaN, double.class)).isEqualTo("NaN");
+    assertThat(gson.toJson(Double.NaN, Double.class)).isEqualTo("NaN");
   }
 
   @Test
   public void testDoubleNaNDeserialization() {
-    assertThat(gson.fromJson("NaN", Double.class)).isNaN();
     assertThat(gson.fromJson("NaN", double.class)).isNaN();
+    assertThat(gson.fromJson("NaN", Double.class)).isNaN();
   }
 
   @Test
   public void testFloatNaNSerializationNotSupportedByDefault() {
-    try {
-      float nan = Float.NaN;
-      gson.toJson(nan);
-      fail("Gson should not accept NaN for serialization");
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      gson.toJson(Float.NaN);
-      fail("Gson should not accept NaN for serialization");
-    } catch (IllegalArgumentException expected) {
-    }
+    String expectedMessage =
+        "NaN is not a valid double value as per JSON specification. To override this behavior,"
+            + " use GsonBuilder.serializeSpecialFloatingPointValues() method.";
+
+    var e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(Float.NaN, float.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(Float.NaN, Float.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
   }
 
   @Test
   public void testFloatNaNSerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    float nan = Float.NaN;
-    assertThat(gson.toJson(nan)).isEqualTo("NaN");
-    assertThat(gson.toJson(Float.NaN)).isEqualTo("NaN");
+    assertThat(gson.toJson(Float.NaN, float.class)).isEqualTo("NaN");
+    assertThat(gson.toJson(Float.NaN, Float.class)).isEqualTo("NaN");
   }
 
   @Test
   public void testFloatNaNDeserialization() {
-    assertThat(gson.fromJson("NaN", Float.class)).isNaN();
     assertThat(gson.fromJson("NaN", float.class)).isNaN();
+    assertThat(gson.fromJson("NaN", Float.class)).isNaN();
   }
 
   @Test
   public void testBigDecimalNaNDeserializationNotSupported() {
-    try {
-      gson.fromJson("NaN", BigDecimal.class);
-      fail("Gson should not accept NaN for deserialization by default.");
-    } catch (JsonSyntaxException expected) {
-    }
+    // Gson should not accept NaN for deserialization of BigDecimal
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("NaN", BigDecimal.class));
   }
 
   @Test
   public void testDoubleInfinitySerializationNotSupportedByDefault() {
-    try {
-      double infinity = Double.POSITIVE_INFINITY;
-      gson.toJson(infinity);
-      fail("Gson should not accept positive infinity for serialization by default.");
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      gson.toJson(Double.POSITIVE_INFINITY);
-      fail("Gson should not accept positive infinity for serialization by default.");
-    } catch (IllegalArgumentException expected) {
-    }
+    String expectedMessage =
+        "Infinity is not a valid double value as per JSON specification. To override this"
+            + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.";
+
+    var e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Double.POSITIVE_INFINITY, double.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Double.POSITIVE_INFINITY, Double.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
   }
 
   @Test
   public void testDoubleInfinitySerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    double infinity = Double.POSITIVE_INFINITY;
-    assertThat(gson.toJson(infinity)).isEqualTo("Infinity");
-    assertThat(gson.toJson(Double.POSITIVE_INFINITY)).isEqualTo("Infinity");
+    assertThat(gson.toJson(Double.POSITIVE_INFINITY, double.class)).isEqualTo("Infinity");
+    assertThat(gson.toJson(Double.POSITIVE_INFINITY, Double.class)).isEqualTo("Infinity");
   }
 
   @Test
   public void testDoubleInfinityDeserialization() {
-    assertThat(gson.fromJson("Infinity", Double.class)).isPositiveInfinity();
     assertThat(gson.fromJson("Infinity", double.class)).isPositiveInfinity();
+    assertThat(gson.fromJson("Infinity", Double.class)).isPositiveInfinity();
   }
 
   @Test
   public void testFloatInfinitySerializationNotSupportedByDefault() {
-    try {
-      float infinity = Float.POSITIVE_INFINITY;
-      gson.toJson(infinity);
-      fail("Gson should not accept positive infinity for serialization by default");
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      gson.toJson(Float.POSITIVE_INFINITY);
-      fail("Gson should not accept positive infinity for serialization by default");
-    } catch (IllegalArgumentException expected) {
-    }
+    String expectedMessage =
+        "Infinity is not a valid double value as per JSON specification. To override this"
+            + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.";
+
+    var e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Float.POSITIVE_INFINITY, float.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Float.POSITIVE_INFINITY, Float.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
   }
 
   @Test
   public void testFloatInfinitySerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    float infinity = Float.POSITIVE_INFINITY;
-    assertThat(gson.toJson(infinity)).isEqualTo("Infinity");
-    assertThat(gson.toJson(Float.POSITIVE_INFINITY)).isEqualTo("Infinity");
+    assertThat(gson.toJson(Float.POSITIVE_INFINITY, float.class)).isEqualTo("Infinity");
+    assertThat(gson.toJson(Float.POSITIVE_INFINITY, Float.class)).isEqualTo("Infinity");
   }
 
   @Test
   public void testFloatInfinityDeserialization() {
-    assertThat(gson.fromJson("Infinity", Float.class)).isPositiveInfinity();
     assertThat(gson.fromJson("Infinity", float.class)).isPositiveInfinity();
+    assertThat(gson.fromJson("Infinity", Float.class)).isPositiveInfinity();
   }
 
   @Test
   public void testBigDecimalInfinityDeserializationNotSupported() {
-    try {
-      gson.fromJson("Infinity", BigDecimal.class);
-      fail("Gson should not accept positive infinity for deserialization with BigDecimal");
-    } catch (JsonSyntaxException expected) {
-    }
+    // Gson should not accept positive infinity for deserialization of BigDecimal
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("Infinity", BigDecimal.class));
   }
 
   @Test
   public void testNegativeInfinitySerializationNotSupportedByDefault() {
-    try {
-      double negativeInfinity = Double.NEGATIVE_INFINITY;
-      gson.toJson(negativeInfinity);
-      fail("Gson should not accept negative infinity for serialization by default");
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      gson.toJson(Double.NEGATIVE_INFINITY);
-      fail("Gson should not accept negative infinity for serialization by default");
-    } catch (IllegalArgumentException expected) {
-    }
+    String expectedMessage =
+        "-Infinity is not a valid double value as per JSON specification. To override this"
+            + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.";
+
+    var e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Double.NEGATIVE_INFINITY, double.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Double.NEGATIVE_INFINITY, Double.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
   }
 
   @Test
   public void testNegativeInfinitySerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    double negativeInfinity = Double.NEGATIVE_INFINITY;
-    assertThat(gson.toJson(negativeInfinity)).isEqualTo("-Infinity");
-    assertThat(gson.toJson(Double.NEGATIVE_INFINITY)).isEqualTo("-Infinity");
+    assertThat(gson.toJson(Double.NEGATIVE_INFINITY, double.class)).isEqualTo("-Infinity");
+    assertThat(gson.toJson(Double.NEGATIVE_INFINITY, Double.class)).isEqualTo("-Infinity");
   }
 
   @Test
@@ -695,25 +689,28 @@ public class PrimitiveTest {
 
   @Test
   public void testNegativeInfinityFloatSerializationNotSupportedByDefault() {
-    try {
-      float negativeInfinity = Float.NEGATIVE_INFINITY;
-      gson.toJson(negativeInfinity);
-      fail("Gson should not accept negative infinity for serialization by default");
-    } catch (IllegalArgumentException expected) {
-    }
-    try {
-      gson.toJson(Float.NEGATIVE_INFINITY);
-      fail("Gson should not accept negative infinity for serialization by default");
-    } catch (IllegalArgumentException expected) {
-    }
+    String expectedMessage =
+        "-Infinity is not a valid double value as per JSON specification. To override this"
+            + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.";
+
+    var e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Float.NEGATIVE_INFINITY, float.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Float.NEGATIVE_INFINITY, Float.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
   }
 
   @Test
   public void testNegativeInfinityFloatSerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    float negativeInfinity = Float.NEGATIVE_INFINITY;
-    assertThat(gson.toJson(negativeInfinity)).isEqualTo("-Infinity");
-    assertThat(gson.toJson(Float.NEGATIVE_INFINITY)).isEqualTo("-Infinity");
+    assertThat(gson.toJson(Float.NEGATIVE_INFINITY, float.class)).isEqualTo("-Infinity");
+    assertThat(gson.toJson(Float.NEGATIVE_INFINITY, Float.class)).isEqualTo("-Infinity");
   }
 
   @Test
@@ -724,11 +721,8 @@ public class PrimitiveTest {
 
   @Test
   public void testBigDecimalNegativeInfinityDeserializationNotSupported() {
-    try {
-      gson.fromJson("-Infinity", BigDecimal.class);
-      fail("Gson should not accept positive infinity for deserialization");
-    } catch (JsonSyntaxException expected) {
-    }
+    // Gson should not accept negative infinity for deserialization of BigDecimal
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("-Infinity", BigDecimal.class));
   }
 
   @Test

@@ -17,7 +17,7 @@
 package com.google.gson.internal;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -44,33 +44,17 @@ public class StreamsTest {
     writer.append(',');
 
     writer.write("chars".toCharArray());
-    try {
-      writer.write((char[]) null);
-      fail();
-    } catch (NullPointerException e) {
-    }
+    assertThrows(NullPointerException.class, () -> writer.write((char[]) null));
 
     writer.write("chars".toCharArray(), 1, 2);
-    try {
-      writer.write((char[]) null, 1, 2);
-      fail();
-    } catch (NullPointerException e) {
-    }
+    assertThrows(NullPointerException.class, () -> writer.write((char[]) null, 1, 2));
     writer.append(',');
 
     writer.write("string");
-    try {
-      writer.write((String) null);
-      fail();
-    } catch (NullPointerException e) {
-    }
+    assertThrows(NullPointerException.class, () -> writer.write((String) null));
 
     writer.write("string", 1, 2);
-    try {
-      writer.write((String) null, 1, 2);
-      fail();
-    } catch (NullPointerException e) {
-    }
+    assertThrows(NullPointerException.class, () -> writer.write((String) null, 1, 2));
 
     String actualOutput = stringBuilder.toString();
     assertThat(actualOutput).isEqualTo("a\u1234testnullcdul,a\u1234\u1234,charsha,stringtr");

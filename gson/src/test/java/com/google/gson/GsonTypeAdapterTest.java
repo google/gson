@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
@@ -45,30 +45,20 @@ public class GsonTypeAdapterTest {
   }
 
   @Test
-  public void testDefaultTypeAdapterThrowsParseException() throws Exception {
-    try {
-      gson.fromJson("{\"abc\":123}", BigInteger.class);
-      fail("Should have thrown a JsonParseException");
-    } catch (JsonParseException expected) {
-    }
+  public void testDefaultTypeAdapterThrowsParseException() {
+    assertThrows(JsonParseException.class, () -> gson.fromJson("{\"abc\":123}", BigInteger.class));
   }
 
   @Test
-  public void testTypeAdapterThrowsException() throws Exception {
-    try {
-      gson.toJson(new AtomicLong(0));
-      fail("Type Adapter should have thrown an exception");
-    } catch (IllegalStateException expected) {
-    }
+  public void testTypeAdapterThrowsException() {
+    Exception e = assertThrows(IllegalStateException.class, () -> gson.toJson(new AtomicLong(0)));
+    assertThat(e).isSameInstanceAs(ExceptionTypeAdapter.thrownException);
 
     // Verify that serializer is made null-safe, i.e. it is not called for null
     assertThat(gson.toJson(null, AtomicLong.class)).isEqualTo("null");
 
-    try {
-      gson.fromJson("123", AtomicLong.class);
-      fail("Type Adapter should have thrown an exception");
-    } catch (JsonParseException expected) {
-    }
+    e = assertThrows(JsonParseException.class, () -> gson.fromJson("123", AtomicLong.class));
+    assertThat(e).hasCauseThat().isSameInstanceAs(ExceptionTypeAdapter.thrownException);
 
     // Verify that deserializer is made null-safe, i.e. it is not called for null
     assertThat(gson.fromJson(JsonNull.INSTANCE, AtomicLong.class)).isNull();
@@ -97,16 +87,20 @@ public class GsonTypeAdapterTest {
 
   private static class ExceptionTypeAdapter
       implements JsonSerializer<AtomicLong>, JsonDeserializer<AtomicLong> {
+    @SuppressWarnings("StaticAssignmentOfThrowable")
+    static final IllegalStateException thrownException =
+        new IllegalStateException("test-exception");
+
     @Override
     public JsonElement serialize(AtomicLong src, Type typeOfSrc, JsonSerializationContext context) {
-      throw new IllegalStateException();
+      throw thrownException;
     }
 
     @Override
     public AtomicLong deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      throw new IllegalStateException();
+      throw thrownException;
     }
   }
 
@@ -158,7 +152,7 @@ public class GsonTypeAdapterTest {
       boolean registerAbstractHierarchyDeserializer,
       Object instance) {
     JsonDeserializer<Abstract> deserializer =
-        new JsonDeserializer<Abstract>() {
+        new JsonDeserializer<>() {
           @Override
           public Abstract deserialize(
               JsonElement json, Type typeOfT, JsonDeserializationContext context)

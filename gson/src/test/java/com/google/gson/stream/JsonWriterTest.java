@@ -18,7 +18,6 @@ package com.google.gson.stream;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 import com.google.gson.FormattingStyle;
 import com.google.gson.Strictness;
@@ -151,12 +150,8 @@ public final class JsonWriterTest {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginObject();
     jsonWriter.name("a");
-    try {
-      jsonWriter.name("a");
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Already wrote a name, expecting a value.");
-    }
+    var e = assertThrows(IllegalStateException.class, () -> jsonWriter.name("a"));
+    assertThat(e).hasMessageThat().isEqualTo("Already wrote a name, expecting a value.");
   }
 
   @Test
@@ -165,12 +160,8 @@ public final class JsonWriterTest {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginObject();
     jsonWriter.name("a");
-    try {
-      jsonWriter.endObject();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Dangling name: a");
-    }
+    var e = assertThrows(IllegalStateException.class, () -> jsonWriter.endObject());
+    assertThat(e).hasMessageThat().isEqualTo("Dangling name: a");
   }
 
   @Test
@@ -178,12 +169,8 @@ public final class JsonWriterTest {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginObject();
-    try {
-      jsonWriter.value(true);
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Nesting problem.");
-    }
+    var e = assertThrows(IllegalStateException.class, () -> jsonWriter.value(true));
+    assertThat(e).hasMessageThat().isEqualTo("Nesting problem.");
   }
 
   @Test
@@ -228,12 +215,8 @@ public final class JsonWriterTest {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginArray();
     jsonWriter.beginObject();
-    try {
-      jsonWriter.endArray();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Nesting problem.");
-    }
+    var e = assertThrows(IllegalStateException.class, () -> jsonWriter.endArray());
+    assertThat(e).hasMessageThat().isEqualTo("Nesting problem.");
   }
 
   @Test
@@ -242,12 +225,8 @@ public final class JsonWriterTest {
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginArray();
     jsonWriter.beginArray();
-    try {
-      jsonWriter.endObject();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("Nesting problem.");
-    }
+    var e = assertThrows(IllegalStateException.class, () -> jsonWriter.endObject());
+    assertThat(e).hasMessageThat().isEqualTo("Nesting problem.");
   }
 
   @Test
@@ -255,11 +234,7 @@ public final class JsonWriterTest {
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
     jsonWriter.beginObject();
-    try {
-      jsonWriter.name(null);
-      fail();
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(NullPointerException.class, () -> jsonWriter.name(null));
   }
 
   @Test
@@ -609,17 +584,16 @@ public final class JsonWriterTest {
 
     for (String malformedNumber : malformedNumbers) {
       JsonWriter jsonWriter = new JsonWriter(new StringWriter());
-      try {
-        jsonWriter.value(new LazilyParsedNumber(malformedNumber));
-        fail("Should have failed writing malformed number: " + malformedNumber);
-      } catch (IllegalArgumentException e) {
-        assertThat(e)
-            .hasMessageThat()
-            .isEqualTo(
-                "String created by class com.google.gson.internal.LazilyParsedNumber is not a valid"
-                    + " JSON number: "
-                    + malformedNumber);
-      }
+      var e =
+          assertThrows(
+              IllegalArgumentException.class,
+              () -> jsonWriter.value(new LazilyParsedNumber(malformedNumber)));
+      assertThat(e)
+          .hasMessageThat()
+          .isEqualTo(
+              "String created by class com.google.gson.internal.LazilyParsedNumber is not a valid"
+                  + " JSON number: "
+                  + malformedNumber);
     }
   }
 
@@ -899,26 +873,19 @@ public final class JsonWriterTest {
     writer.beginArray();
     writer.endArray();
     writer.close();
-    try {
-      writer.beginArray();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      writer.endArray();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      writer.beginObject();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      writer.endObject();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+
+    String expectedMessage = "JsonWriter is closed.";
+    var e = assertThrows(IllegalStateException.class, () -> writer.beginArray());
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e = assertThrows(IllegalStateException.class, () -> writer.endArray());
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e = assertThrows(IllegalStateException.class, () -> writer.beginObject());
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e = assertThrows(IllegalStateException.class, () -> writer.endObject());
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
   }
 
   @Test
@@ -928,11 +895,8 @@ public final class JsonWriterTest {
     writer.beginArray();
     writer.endArray();
     writer.close();
-    try {
-      writer.name("a");
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    var e = assertThrows(IllegalStateException.class, () -> writer.name("a"));
+    assertThat(e).hasMessageThat().isEqualTo("JsonWriter is closed.");
   }
 
   @Test
@@ -942,11 +906,8 @@ public final class JsonWriterTest {
     writer.beginArray();
     writer.endArray();
     writer.close();
-    try {
-      writer.value("a");
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    var e = assertThrows(IllegalStateException.class, () -> writer.value("a"));
+    assertThat(e).hasMessageThat().isEqualTo("JsonWriter is closed.");
   }
 
   @Test
@@ -956,11 +917,8 @@ public final class JsonWriterTest {
     writer.beginArray();
     writer.endArray();
     writer.close();
-    try {
-      writer.flush();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    var e = assertThrows(IllegalStateException.class, () -> writer.flush());
+    assertThat(e).hasMessageThat().isEqualTo("JsonWriter is closed.");
   }
 
   @Test

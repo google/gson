@@ -16,7 +16,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -49,17 +49,12 @@ public class UncategorizedTest {
 
   @Test
   public void testInvalidJsonDeserializationFails() throws Exception {
-    try {
-      gson.fromJson("adfasdf1112,,,\":", BagOfPrimitives.class);
-      fail("Bad JSON should throw a ParseException");
-    } catch (JsonParseException expected) {
-    }
+    assertThrows(
+        JsonParseException.class, () -> gson.fromJson("adfasdf1112,,,\":", BagOfPrimitives.class));
 
-    try {
-      gson.fromJson("{adfasdf1112,,,\":}", BagOfPrimitives.class);
-      fail("Bad JSON should throw a ParseException");
-    } catch (JsonParseException expected) {
-    }
+    assertThrows(
+        JsonParseException.class,
+        () -> gson.fromJson("{adfasdf1112,,,\":}", BagOfPrimitives.class));
   }
 
   @Test

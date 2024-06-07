@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeTrue;
 
 import com.google.gson.Gson;
@@ -79,16 +79,12 @@ public class ReflectionAccessTest {
 
     try {
       Gson gson = new Gson();
-      try {
-        // Getting reflection based adapter should fail
-        gson.getAdapter(clazz);
-        fail();
-      } catch (SecurityException e) {
-        assertThat(e).hasMessageThat().isEqualTo("Gson: no-member-access");
-      }
+      // Getting reflection based adapter should fail
+      var e = assertThrows(SecurityException.class, () -> gson.getAdapter(clazz));
+      assertThat(e).hasMessageThat().isEqualTo("Gson: no-member-access");
 
       final AtomicBoolean wasReadCalled = new AtomicBoolean(false);
-      gson =
+      Gson gson2 =
           new GsonBuilder()
               .registerTypeAdapter(
                   clazz,
@@ -107,8 +103,8 @@ public class ReflectionAccessTest {
                   })
               .create();
 
-      assertThat(gson.toJson(null, clazz)).isEqualTo("\"custom-write\"");
-      assertThat(gson.fromJson("{}", clazz)).isNull();
+      assertThat(gson2.toJson(null, clazz)).isEqualTo("\"custom-write\"");
+      assertThat(gson2.fromJson("{}", clazz)).isNull();
       assertThat(wasReadCalled.get()).isTrue();
     } finally {
       System.setSecurityManager(original);

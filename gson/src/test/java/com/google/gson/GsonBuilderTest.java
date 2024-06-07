@@ -18,7 +18,6 @@ package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -39,7 +38,7 @@ import org.junit.Test;
  */
 public class GsonBuilderTest {
   private static final TypeAdapter<Object> NULL_TYPE_ADAPTER =
-      new TypeAdapter<Object>() {
+      new TypeAdapter<>() {
         @Override
         public void write(JsonWriter out, Object value) {
           throw new AssertionError();
@@ -203,19 +202,17 @@ public class GsonBuilderTest {
   @Test
   public void testDisableJdkUnsafe() {
     Gson gson = new GsonBuilder().disableJdkUnsafe().create();
-    try {
-      gson.fromJson("{}", ClassWithoutNoArgsConstructor.class);
-      fail("Expected exception");
-    } catch (JsonIOException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Unable to create instance of class"
-                  + " com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; usage of JDK"
-                  + " Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this"
-                  + " type, adding a no-args constructor, or enabling usage of JDK Unsafe may fix"
-                  + " this problem.");
-    }
+    var e =
+        assertThrows(
+            JsonIOException.class, () -> gson.fromJson("{}", ClassWithoutNoArgsConstructor.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Unable to create instance of class"
+                + " com.google.gson.GsonBuilderTest$ClassWithoutNoArgsConstructor; usage of JDK"
+                + " Unsafe is disabled. Registering an InstanceCreator or a TypeAdapter for this"
+                + " type, adding a no-args constructor, or enabling usage of JDK Unsafe may fix"
+                + " this problem.");
   }
 
   private static class ClassWithoutNoArgsConstructor {
@@ -226,19 +223,11 @@ public class GsonBuilderTest {
   @Test
   public void testSetVersionInvalid() {
     GsonBuilder builder = new GsonBuilder();
-    try {
-      builder.setVersion(Double.NaN);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Invalid version: NaN");
-    }
+    var e = assertThrows(IllegalArgumentException.class, () -> builder.setVersion(Double.NaN));
+    assertThat(e).hasMessageThat().isEqualTo("Invalid version: NaN");
 
-    try {
-      builder.setVersion(-0.1);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Invalid version: -0.1");
-    }
+    e = assertThrows(IllegalArgumentException.class, () -> builder.setVersion(-0.1));
+    assertThat(e).hasMessageThat().isEqualTo("Invalid version: -0.1");
   }
 
   @Test

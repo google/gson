@@ -17,7 +17,7 @@
 package com.google.gson.internal.bind;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -60,26 +60,20 @@ public final class JsonElementReaderTest {
     JsonTreeReader reader = new JsonTreeReader(element);
     reader.setStrictness(Strictness.LEGACY_STRICT);
     reader.beginArray();
-    try {
-      reader.nextDouble();
-      fail();
-    } catch (MalformedJsonException e) {
-      assertThat(e).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: NaN");
-    }
+
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextDouble());
+    assertThat(e).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: NaN");
+
     assertThat(reader.nextString()).isEqualTo("NaN");
-    try {
-      reader.nextDouble();
-      fail();
-    } catch (MalformedJsonException e) {
-      assertThat(e).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: -Infinity");
-    }
+
+    e = assertThrows(MalformedJsonException.class, () -> reader.nextDouble());
+    assertThat(e).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: -Infinity");
+
     assertThat(reader.nextString()).isEqualTo("-Infinity");
-    try {
-      reader.nextDouble();
-      fail();
-    } catch (MalformedJsonException e) {
-      assertThat(e).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: Infinity");
-    }
+
+    e = assertThrows(MalformedJsonException.class, () -> reader.nextDouble());
+    assertThat(e).hasMessageThat().isEqualTo("JSON forbids NaN and infinities: Infinity");
+
     assertThat(reader.nextString()).isEqualTo("Infinity");
     reader.endArray();
   }
@@ -236,89 +230,28 @@ public final class JsonElementReaderTest {
     JsonElement element = JsonParser.parseString("[[],\"A\"]");
     JsonTreeReader reader = new JsonTreeReader(element);
     reader.beginArray();
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.nextNull();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.nextString();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.nextInt();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.nextLong();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.nextDouble();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.nextName();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.beginObject();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.endArray();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.endObject();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+
+    assertThrows(IllegalStateException.class, () -> reader.nextBoolean());
+    assertThrows(IllegalStateException.class, () -> reader.nextNull());
+    assertThrows(IllegalStateException.class, () -> reader.nextString());
+    assertThrows(IllegalStateException.class, () -> reader.nextInt());
+    assertThrows(IllegalStateException.class, () -> reader.nextLong());
+    assertThrows(IllegalStateException.class, () -> reader.nextDouble());
+    assertThrows(IllegalStateException.class, () -> reader.nextName());
+    assertThrows(IllegalStateException.class, () -> reader.beginObject());
+    assertThrows(IllegalStateException.class, () -> reader.endArray());
+    assertThrows(IllegalStateException.class, () -> reader.endObject());
+
     reader.beginArray();
     reader.endArray();
 
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.nextNull();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    try {
-      reader.nextInt();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
-    try {
-      reader.nextDouble();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
-    try {
-      reader.nextName();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    assertThrows(IllegalStateException.class, () -> reader.nextBoolean());
+    assertThrows(IllegalStateException.class, () -> reader.nextNull());
+    assertThrows(NumberFormatException.class, () -> reader.nextInt());
+    assertThrows(NumberFormatException.class, () -> reader.nextLong());
+    assertThrows(NumberFormatException.class, () -> reader.nextDouble());
+    assertThrows(IllegalStateException.class, () -> reader.nextName());
+
     assertThat(reader.nextString()).isEqualTo("A");
     reader.endArray();
   }
@@ -328,35 +261,23 @@ public final class JsonElementReaderTest {
     final JsonElement element = JsonParser.parseString("{\"A\": 1, \"B\" : {}, \"C\" : []}");
     JsonTreeReader reader = new JsonTreeReader(element);
     reader.beginObject();
-    try {
-      reader.nextJsonElement();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
-    String unused1 = reader.nextName();
-    assertThat(new JsonPrimitive(1)).isEqualTo(reader.nextJsonElement());
-    String unused2 = reader.nextName();
+
+    var e = assertThrows(IllegalStateException.class, () -> reader.nextJsonElement());
+    assertThat(e).hasMessageThat().isEqualTo("Unexpected NAME when reading a JsonElement.");
+    assertThat(reader.nextName()).isEqualTo("A");
+    assertThat(reader.nextJsonElement()).isEqualTo(new JsonPrimitive(1));
+
+    assertThat(reader.nextName()).isEqualTo("B");
     reader.beginObject();
-    try {
-      reader.nextJsonElement();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    assertThrows(IllegalStateException.class, () -> reader.nextJsonElement());
     reader.endObject();
-    String unused3 = reader.nextName();
+
+    assertThat(reader.nextName()).isEqualTo("C");
     reader.beginArray();
-    try {
-      reader.nextJsonElement();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    assertThrows(IllegalStateException.class, () -> reader.nextJsonElement());
     reader.endArray();
     reader.endObject();
-    try {
-      reader.nextJsonElement();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    assertThrows(IllegalStateException.class, () -> reader.nextJsonElement());
   }
 
   @Test
@@ -365,10 +286,7 @@ public final class JsonElementReaderTest {
     JsonTreeReader reader = new JsonTreeReader(element);
     reader.beginArray();
     reader.close();
-    try {
-      reader.peek();
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    var e = assertThrows(IllegalStateException.class, () -> reader.peek());
+    assertThat(e).hasMessageThat().isEqualTo("JsonReader is closed");
   }
 }

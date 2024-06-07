@@ -16,10 +16,8 @@
 
 package com.google.gson.typeadapters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -36,13 +34,12 @@ public final class RuntimeTypeAdapterFactoryTest {
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(rta).create();
 
     CreditCard original = new CreditCard("Jesse", 234);
-    assertEquals(
-        "{\"type\":\"CreditCard\",\"cvv\":234,\"ownerName\":\"Jesse\"}",
-        gson.toJson(original, BillingInstrument.class));
+    assertThat(gson.toJson(original, BillingInstrument.class))
+        .isEqualTo("{\"type\":\"CreditCard\",\"cvv\":234,\"ownerName\":\"Jesse\"}");
     BillingInstrument deserialized =
         gson.fromJson("{type:'CreditCard',cvv:234,ownerName:'Jesse'}", BillingInstrument.class);
-    assertEquals("Jesse", deserialized.ownerName);
-    assertTrue(deserialized instanceof CreditCard);
+    assertThat(deserialized.ownerName).isEqualTo("Jesse");
+    assertThat(deserialized).isInstanceOf(CreditCard.class);
   }
 
   @Test
@@ -57,12 +54,12 @@ public final class RuntimeTypeAdapterFactoryTest {
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(rta).create();
 
     CreditCard original = new CreditCard("Jesse", 234);
-    assertEquals(
-        "{\"type\":\"CreditCard\",\"cvv\":234,\"ownerName\":\"Jesse\"}", gson.toJson(original));
+    assertThat(gson.toJson(original))
+        .isEqualTo("{\"type\":\"CreditCard\",\"cvv\":234,\"ownerName\":\"Jesse\"}");
     BillingInstrument deserialized =
         gson.fromJson("{type:'CreditCard',cvv:234,ownerName:'Jesse'}", BillingInstrument.class);
-    assertEquals("Jesse", deserialized.ownerName);
-    assertTrue(deserialized instanceof CreditCard);
+    assertThat(deserialized.ownerName).isEqualTo("Jesse");
+    assertThat(deserialized).isInstanceOf(CreditCard.class);
   }
 
   @Test
@@ -73,52 +70,37 @@ public final class RuntimeTypeAdapterFactoryTest {
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(rta).create();
 
     BillingInstrument original = new BillingInstrument("Jesse");
-    assertEquals(
-        "{\"type\":\"BillingInstrument\",\"ownerName\":\"Jesse\"}",
-        gson.toJson(original, BillingInstrument.class));
+    assertThat(gson.toJson(original, BillingInstrument.class))
+        .isEqualTo("{\"type\":\"BillingInstrument\",\"ownerName\":\"Jesse\"}");
     BillingInstrument deserialized =
         gson.fromJson("{type:'BillingInstrument',ownerName:'Jesse'}", BillingInstrument.class);
-    assertEquals("Jesse", deserialized.ownerName);
+    assertThat(deserialized.ownerName).isEqualTo("Jesse");
   }
 
   @Test
   public void testNullBaseType() {
-    try {
-      RuntimeTypeAdapterFactory.of(null);
-      fail();
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(NullPointerException.class, () -> RuntimeTypeAdapterFactory.of(null));
   }
 
   @Test
   public void testNullTypeFieldName() {
-    try {
-      RuntimeTypeAdapterFactory.of(BillingInstrument.class, null);
-      fail();
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(
+        NullPointerException.class,
+        () -> RuntimeTypeAdapterFactory.of(BillingInstrument.class, null));
   }
 
   @Test
   public void testNullSubtype() {
     RuntimeTypeAdapterFactory<BillingInstrument> rta =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class);
-    try {
-      rta.registerSubtype(null);
-      fail();
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(NullPointerException.class, () -> rta.registerSubtype(null));
   }
 
   @Test
   public void testNullLabel() {
     RuntimeTypeAdapterFactory<BillingInstrument> rta =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class);
-    try {
-      rta.registerSubtype(CreditCard.class, null);
-      fail();
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(NullPointerException.class, () -> rta.registerSubtype(CreditCard.class, null));
   }
 
   @Test
@@ -126,11 +108,10 @@ public final class RuntimeTypeAdapterFactoryTest {
     RuntimeTypeAdapterFactory<BillingInstrument> rta =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class);
     rta.registerSubtype(CreditCard.class, "CC");
-    try {
-      rta.registerSubtype(CreditCard.class, "Visa");
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    var e =
+        assertThrows(
+            IllegalArgumentException.class, () -> rta.registerSubtype(CreditCard.class, "Visa"));
+    assertThat(e).hasMessageThat().isEqualTo("types and labels must be unique");
   }
 
   @Test
@@ -138,11 +119,10 @@ public final class RuntimeTypeAdapterFactoryTest {
     RuntimeTypeAdapterFactory<BillingInstrument> rta =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class);
     rta.registerSubtype(CreditCard.class, "CC");
-    try {
-      rta.registerSubtype(BankTransfer.class, "CC");
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    var e =
+        assertThrows(
+            IllegalArgumentException.class, () -> rta.registerSubtype(BankTransfer.class, "CC"));
+    assertThat(e).hasMessageThat().isEqualTo("types and labels must be unique");
   }
 
   @Test
@@ -150,11 +130,16 @@ public final class RuntimeTypeAdapterFactoryTest {
     TypeAdapterFactory billingAdapter =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
-    try {
-      gson.fromJson("{ownerName:'Jesse'}", BillingInstrument.class);
-      fail();
-    } catch (JsonParseException expected) {
-    }
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.fromJson("{ownerName:'Jesse'}", BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot deserialize "
+                + BillingInstrument.class
+                + " because it does not define a field named type");
   }
 
   @Test
@@ -162,11 +147,16 @@ public final class RuntimeTypeAdapterFactoryTest {
     TypeAdapterFactory billingAdapter =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
-    try {
-      gson.fromJson("{type:'CreditCard',ownerName:'Jesse'}", BillingInstrument.class);
-      fail();
-    } catch (JsonParseException expected) {
-    }
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.fromJson("{type:'CreditCard',ownerName:'Jesse'}", BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot deserialize "
+                + BillingInstrument.class
+                + " subtype named CreditCard; did you forget to register a subtype?");
   }
 
   @Test
@@ -174,11 +164,16 @@ public final class RuntimeTypeAdapterFactoryTest {
     TypeAdapterFactory billingAdapter =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
-    try {
-      gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class);
-      fail();
-    } catch (JsonParseException expected) {
-    }
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot serialize "
+                + CreditCard.class.getName()
+                + "; did you forget to register a subtype?");
   }
 
   @Test
@@ -187,11 +182,16 @@ public final class RuntimeTypeAdapterFactoryTest {
         RuntimeTypeAdapterFactory.of(BillingInstrument.class, "cvv")
             .registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
-    try {
-      gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class);
-      fail();
-    } catch (JsonParseException expected) {
-    }
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot serialize "
+                + CreditCard.class.getName()
+                + " because it already defines a field named cvv");
   }
 
   @Test
@@ -205,7 +205,7 @@ public final class RuntimeTypeAdapterFactoryTest {
         gson.toJson(new BillingInstrumentWrapper(null), BillingInstrumentWrapper.class);
     BillingInstrumentWrapper deserialized =
         gson.fromJson(serialized, BillingInstrumentWrapper.class);
-    assertNull(deserialized.instrument);
+    assertThat(deserialized.instrument).isNull();
   }
 
   static class BillingInstrumentWrapper {

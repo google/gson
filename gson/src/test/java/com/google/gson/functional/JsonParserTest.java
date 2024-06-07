@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -29,6 +29,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.reflect.TypeToken;
+import java.io.EOFException;
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -53,11 +54,8 @@ public class JsonParserTest {
 
   @Test
   public void testParseInvalidJson() {
-    try {
-      gson.fromJson("[[]", Object[].class);
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[]", Object[].class));
+    assertThat(e).hasCauseThat().isInstanceOf(EOFException.class);
   }
 
   @Test
@@ -77,11 +75,8 @@ public class JsonParserTest {
     obj.addProperty("intValue", 11);
     JsonArray array = new JsonArray();
     array.add(obj);
-    try {
-      gson.fromJson(array, BagOfPrimitives.class);
-      fail("BagOfPrimitives is not an array");
-    } catch (JsonParseException expected) {
-    }
+    // BagOfPrimitives should not be an array
+    assertThrows(JsonParseException.class, () -> gson.fromJson(array, BagOfPrimitives.class));
   }
 
   @Test
@@ -93,11 +88,8 @@ public class JsonParserTest {
     obj.addProperty("intValue", 11);
     obj.add("longValue", array);
 
-    try {
-      gson.fromJson(obj, BagOfPrimitives.class);
-      fail("BagOfPrimitives is not an array");
-    } catch (JsonParseException expected) {
-    }
+    // `longValue` should not be an array
+    assertThrows(JsonParseException.class, () -> gson.fromJson(obj, BagOfPrimitives.class));
   }
 
   @Test
@@ -112,11 +104,8 @@ public class JsonParserTest {
     obj.add("primitive1", primitive1);
     obj.add("primitive2", array);
 
-    try {
-      gson.fromJson(obj, Nested.class);
-      fail("Nested has field BagOfPrimitives which is not an array");
-    } catch (JsonParseException expected) {
-    }
+    // Nested has field BagOfPrimitives which is not an array
+    assertThrows(JsonParseException.class, () -> gson.fromJson(obj, Nested.class));
   }
 
   @Test
@@ -144,10 +133,10 @@ public class JsonParserTest {
   @Test
   public void testExtraCommasInMaps() {
     Type type = new TypeToken<Map<String, String>>() {}.getType();
-    try {
-      gson.fromJson("{a:b,}", type);
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{a:b,}", type));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected name at line 1 column 7 path $.\n");
   }
 }

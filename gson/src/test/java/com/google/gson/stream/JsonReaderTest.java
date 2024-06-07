@@ -27,7 +27,6 @@ import static com.google.gson.stream.JsonToken.NULL;
 import static com.google.gson.stream.JsonToken.NUMBER;
 import static com.google.gson.stream.JsonToken.STRING;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 import com.google.gson.Strictness;
 import java.io.EOFException;
@@ -77,7 +76,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testEscapedNewlineNotAllowedInStrictMode() throws IOException {
+  public void testEscapedNewlineNotAllowedInStrictMode() {
     String json = "\"\\\n\"";
     JsonReader reader = new JsonReader(reader(json));
     reader.setStrictness(Strictness.STRICT);
@@ -146,7 +145,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testCapitalizedTrueFailWhenStrict() throws IOException {
+  public void testCapitalizedTrueFailWhenStrict() {
     JsonReader reader = new JsonReader(reader("TRUE"));
     reader.setStrictness(Strictness.STRICT);
 
@@ -155,7 +154,7 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
 
     reader = new JsonReader(reader("True"));
     reader.setStrictness(Strictness.STRICT);
@@ -165,11 +164,11 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
   }
 
   @Test
-  public void testCapitalizedFalseFailWhenStrict() throws IOException {
+  public void testCapitalizedFalseFailWhenStrict() {
     JsonReader reader = new JsonReader(reader("FALSE"));
     reader.setStrictness(Strictness.STRICT);
 
@@ -178,7 +177,7 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
 
     reader = new JsonReader(reader("FaLse"));
     reader.setStrictness(Strictness.STRICT);
@@ -188,11 +187,11 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
   }
 
   @Test
-  public void testCapitalizedNullFailWhenStrict() throws IOException {
+  public void testCapitalizedNullFailWhenStrict() {
     JsonReader reader = new JsonReader(reader("NULL"));
     reader.setStrictness(Strictness.STRICT);
 
@@ -201,7 +200,7 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
 
     reader = new JsonReader(reader("nulL"));
     reader.setStrictness(Strictness.STRICT);
@@ -211,7 +210,7 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
   }
 
   @Test
@@ -449,40 +448,24 @@ public final class JsonReaderTest {
 
     JsonReader reader = new JsonReader(reader(json));
     reader.beginObject();
-    try {
-      reader.nextName();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Invalid escape sequence at line 2 column 8 path $.\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextName());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Invalid escape sequence at line 2 column 8 path $.\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @SuppressWarnings("unused")
   @Test
   public void testNulls() {
-    try {
-      new JsonReader(null);
-      fail();
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(NullPointerException.class, () -> new JsonReader(null));
   }
 
   @Test
-  public void testEmptyString() throws IOException {
-    try {
-      new JsonReader(reader("")).beginArray();
-      fail();
-    } catch (EOFException expected) {
-    }
-    try {
-      new JsonReader(reader("")).beginObject();
-      fail();
-    } catch (EOFException expected) {
-    }
+  public void testEmptyString() {
+    assertThrows(EOFException.class, () -> new JsonReader(reader("")).beginArray());
+    assertThrows(EOFException.class, () -> new JsonReader(reader("")).beginObject());
   }
 
   @Test
@@ -561,7 +544,7 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testEscapeCharacterQuoteInStrictMode() throws IOException {
+  public void testEscapeCharacterQuoteInStrictMode() {
     String json = "\"\\'\"";
     JsonReader reader = new JsonReader(reader(json));
     reader.setStrictness(Strictness.STRICT);
@@ -584,16 +567,12 @@ public final class JsonReaderTest {
     String json = "[\"\\u000g\"]";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
-    try {
-      reader.nextString();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Malformed Unicode escape \\u000g at line 1 column 5 path $[0]\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextString());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Malformed Unicode escape \\u000g at line 1 column 5 path $[0]\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
@@ -601,16 +580,12 @@ public final class JsonReaderTest {
     String json = "[\"\\u000";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
-    try {
-      reader.nextString();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Unterminated escape sequence at line 1 column 5 path $[0]\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextString());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Unterminated escape sequence at line 1 column 5 path $[0]\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
@@ -618,16 +593,12 @@ public final class JsonReaderTest {
     String json = "[\"\\";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
-    try {
-      reader.nextString();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Unterminated escape sequence at line 1 column 4 path $[0]\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextString());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Unterminated escape sequence at line 1 column 4 path $[0]\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
@@ -689,12 +660,8 @@ public final class JsonReaderTest {
     String json = "[NaN]";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
-    try {
-      reader.nextDouble();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 2 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextDouble());
+    assertStrictError(e, "line 1 column 2 path $[0]");
   }
 
   @Test
@@ -702,16 +669,12 @@ public final class JsonReaderTest {
     String json = "[\"NaN\"]";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
-    try {
-      reader.nextDouble();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "JSON forbids NaN and infinities: NaN at line 1 column 7 path $[0]\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextDouble());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "JSON forbids NaN and infinities: NaN at line 1 column 7 path $[0]\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
@@ -743,12 +706,8 @@ public final class JsonReaderTest {
     String json = "[NaN]";
     JsonReader reader = new JsonReader(reader(json));
     reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 2 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 2 path $[0]");
   }
 
   @Test
@@ -766,57 +725,40 @@ public final class JsonReaderTest {
     assertThat(reader.nextLong()).isEqualTo(-1L);
     assertThat(reader.nextInt()).isEqualTo(-1);
     assertThat(reader.nextDouble()).isEqualTo(-1.0);
-    try {
-      reader.nextInt();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
+
+    assertThrows(NumberFormatException.class, () -> reader.nextInt());
     assertThat(reader.nextLong()).isEqualTo(Long.MIN_VALUE);
-    try {
-      reader.nextInt();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
+
+    assertThrows(NumberFormatException.class, () -> reader.nextInt());
     assertThat(reader.nextLong()).isEqualTo(Long.MAX_VALUE);
+
     reader.endArray();
     assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
   }
 
   @Test
-  @Ignore(
-      "JsonReader advances after exception for invalid number was thrown; to be decided if that is"
-          + " acceptable")
   public void testNumberWithOctalPrefix() throws IOException {
-    String json = "[01]";
-    JsonReader reader = new JsonReader(reader(json));
-    reader.beginArray();
-    try {
-      reader.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 2 path $[0]");
-    }
-    try {
-      reader.nextInt();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "TODO");
-    }
-    try {
-      reader.nextLong();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "TODO");
-    }
-    try {
-      reader.nextDouble();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "TODO");
-    }
-    assertThat(reader.nextString()).isEqualTo("01");
-    reader.endArray();
-    assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+    String number = "01";
+    String expectedLocation = "line 1 column 1 path $";
+
+    var e = assertThrows(MalformedJsonException.class, () -> new JsonReader(reader(number)).peek());
+    assertStrictError(e, expectedLocation);
+
+    e = assertThrows(MalformedJsonException.class, () -> new JsonReader(reader(number)).nextInt());
+    assertStrictError(e, expectedLocation);
+
+    e = assertThrows(MalformedJsonException.class, () -> new JsonReader(reader(number)).nextLong());
+    assertStrictError(e, expectedLocation);
+
+    e =
+        assertThrows(
+            MalformedJsonException.class, () -> new JsonReader(reader(number)).nextDouble());
+    assertStrictError(e, expectedLocation);
+
+    e =
+        assertThrows(
+            MalformedJsonException.class, () -> new JsonReader(reader(number)).nextString());
+    assertStrictError(e, expectedLocation);
   }
 
   @Test
@@ -835,12 +777,10 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.peek()).isEqualTo(STRING);
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(expected, "a boolean", "STRING", "line 1 column 2 path $[0]");
-    }
+
+    var e = assertThrows(IllegalStateException.class, () -> reader.nextBoolean());
+    assertUnexpectedStructureError(e, "a boolean", "STRING", "line 1 column 2 path $[0]");
+
     assertThat(reader.nextString()).isEqualTo("truey");
     reader.endArray();
   }
@@ -897,14 +837,14 @@ public final class JsonReaderTest {
     assertThat(reader.nextString()).isEqualTo(s);
 
     JsonReader strictReader = new JsonReader(reader(s));
-    try {
-      strictReader.nextDouble();
-      fail("Should have failed reading " + s + " as double");
-    } catch (MalformedJsonException e) {
-      assertThat(e)
-          .hasMessageThat()
-          .startsWith("Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON");
-    }
+    var e =
+        assertThrows(
+            "Should have failed reading " + s + " as double",
+            MalformedJsonException.class,
+            () -> strictReader.nextDouble());
+    assertThat(e)
+        .hasMessageThat()
+        .startsWith("Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON");
   }
 
   @Test
@@ -913,11 +853,8 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.peek()).isEqualTo(STRING);
-    try {
-      reader.nextInt();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
+
+    assertThrows(NumberFormatException.class, () -> reader.nextInt());
     assertThat(reader.nextString()).isEqualTo("12.34e5x");
   }
 
@@ -945,11 +882,7 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.peek()).isEqualTo(NUMBER);
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
+    assertThrows(NumberFormatException.class, () -> reader.nextLong());
   }
 
   @Test
@@ -958,11 +891,7 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.peek()).isEqualTo(NUMBER);
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
+    assertThrows(NumberFormatException.class, () -> reader.nextLong());
   }
 
   /** Issue 1053, negative zero. */
@@ -986,11 +915,7 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.peek()).isEqualTo(NUMBER);
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException e) {
-    }
+    assertThrows(NumberFormatException.class, () -> reader.nextLong());
   }
 
   /**
@@ -1006,11 +931,7 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.peek()).isEqualTo(NUMBER);
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
+    assertThrows(NumberFormatException.class, () -> reader.nextLong());
     assertThat(reader.nextDouble()).isEqualTo(d);
   }
 
@@ -1036,11 +957,7 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.peek()).isEqualTo(NUMBER);
-    try {
-      reader.nextLong();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
+    assertThrows(NumberFormatException.class, () -> reader.nextLong());
     assertThat(reader.nextDouble()).isEqualTo(d);
   }
 
@@ -1072,16 +989,12 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("{\"a\":}"));
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.nextString();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Expected value at line 1 column 6 path $.a\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextString());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Expected value at line 1 column 6 path $.a\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
@@ -1090,11 +1003,7 @@ public final class JsonReaderTest {
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("a");
     assertThat(reader.nextBoolean()).isTrue();
-    try {
-      reader.nextName();
-      fail();
-    } catch (EOFException expected) {
-    }
+    assertThrows(EOFException.class, () -> reader.nextName());
   }
 
   @Test
@@ -1102,107 +1011,62 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("{\"a\":[]}"));
     reader.beginObject();
     reader.close();
-    try {
-      reader.nextName();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("JsonReader is closed");
-    }
+    var e = assertThrows(IllegalStateException.class, () -> reader.nextName());
+    assertThat(e).hasMessageThat().isEqualTo("JsonReader is closed");
 
-    reader = new JsonReader(reader("{\"a\":[]}"));
-    reader.close();
-    try {
-      reader.beginObject();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("JsonReader is closed");
-    }
+    JsonReader reader2 = new JsonReader(reader("{\"a\":[]}"));
+    reader2.close();
+    e = assertThrows(IllegalStateException.class, () -> reader2.beginObject());
+    assertThat(e).hasMessageThat().isEqualTo("JsonReader is closed");
 
-    reader = new JsonReader(reader("{\"a\":true}"));
-    reader.beginObject();
-    String unused1 = reader.nextName();
-    JsonToken unused2 = reader.peek();
-    reader.close();
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertThat(expected).hasMessageThat().isEqualTo("JsonReader is closed");
-    }
+    JsonReader reader3 = new JsonReader(reader("{\"a\":true}"));
+    reader3.beginObject();
+    String unused1 = reader3.nextName();
+    JsonToken unused2 = reader3.peek();
+    reader3.close();
+    e = assertThrows(IllegalStateException.class, () -> reader3.nextBoolean());
+    assertThat(e).hasMessageThat().isEqualTo("JsonReader is closed");
   }
 
   @Test
   public void testNextFailuresDoNotAdvance() throws IOException {
     JsonReader reader = new JsonReader(reader("{\"a\":true}"));
     reader.beginObject();
-    try {
-      String unused = reader.nextString();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(expected, "a string", "NAME", "line 1 column 3 path $.");
-    }
+
+    var e = assertThrows(IllegalStateException.class, () -> reader.nextString());
+    assertUnexpectedStructureError(e, "a string", "NAME", "line 1 column 3 path $.");
+
     assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      String unused = reader.nextName();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(expected, "a name", "BOOLEAN", "line 1 column 10 path $.a");
-    }
-    try {
-      reader.beginArray();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(
-          expected, "BEGIN_ARRAY", "BOOLEAN", "line 1 column 10 path $.a");
-    }
-    try {
-      reader.endArray();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(expected, "END_ARRAY", "BOOLEAN", "line 1 column 10 path $.a");
-    }
-    try {
-      reader.beginObject();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(
-          expected, "BEGIN_OBJECT", "BOOLEAN", "line 1 column 10 path $.a");
-    }
-    try {
-      reader.endObject();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(
-          expected, "END_OBJECT", "BOOLEAN", "line 1 column 10 path $.a");
-    }
+
+    e = assertThrows(IllegalStateException.class, () -> reader.nextName());
+    assertUnexpectedStructureError(e, "a name", "BOOLEAN", "line 1 column 10 path $.a");
+
+    e = assertThrows(IllegalStateException.class, () -> reader.beginArray());
+    assertUnexpectedStructureError(e, "BEGIN_ARRAY", "BOOLEAN", "line 1 column 10 path $.a");
+
+    e = assertThrows(IllegalStateException.class, () -> reader.endArray());
+    assertUnexpectedStructureError(e, "END_ARRAY", "BOOLEAN", "line 1 column 10 path $.a");
+
+    e = assertThrows(IllegalStateException.class, () -> reader.beginObject());
+    assertUnexpectedStructureError(e, "BEGIN_OBJECT", "BOOLEAN", "line 1 column 10 path $.a");
+
+    e = assertThrows(IllegalStateException.class, () -> reader.endObject());
+    assertUnexpectedStructureError(e, "END_OBJECT", "BOOLEAN", "line 1 column 10 path $.a");
+
     assertThat(reader.nextBoolean()).isTrue();
-    try {
-      reader.nextString();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(
-          expected, "a string", "END_OBJECT", "line 1 column 11 path $.a");
-    }
-    try {
-      reader.nextName();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(expected, "a name", "END_OBJECT", "line 1 column 11 path $.a");
-    }
-    try {
-      reader.beginArray();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(
-          expected, "BEGIN_ARRAY", "END_OBJECT", "line 1 column 11 path $.a");
-    }
-    try {
-      reader.endArray();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(
-          expected, "END_ARRAY", "END_OBJECT", "line 1 column 11 path $.a");
-    }
+
+    e = assertThrows(IllegalStateException.class, () -> reader.nextString());
+    assertUnexpectedStructureError(e, "a string", "END_OBJECT", "line 1 column 11 path $.a");
+
+    e = assertThrows(IllegalStateException.class, () -> reader.nextName());
+    assertUnexpectedStructureError(e, "a name", "END_OBJECT", "line 1 column 11 path $.a");
+
+    e = assertThrows(IllegalStateException.class, () -> reader.beginArray());
+    assertUnexpectedStructureError(e, "BEGIN_ARRAY", "END_OBJECT", "line 1 column 11 path $.a");
+
+    e = assertThrows(IllegalStateException.class, () -> reader.endArray());
+    assertUnexpectedStructureError(e, "END_ARRAY", "END_OBJECT", "line 1 column 11 path $.a");
+
     reader.endObject();
     assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
     reader.close();
@@ -1212,11 +1076,7 @@ public final class JsonReaderTest {
   public void testIntegerMismatchFailuresDoNotAdvance() throws IOException {
     JsonReader reader = new JsonReader(reader("[1.5]"));
     reader.beginArray();
-    try {
-      reader.nextInt();
-      fail();
-    } catch (NumberFormatException expected) {
-    }
+    assertThrows(NumberFormatException.class, () -> reader.nextInt());
     assertThat(reader.nextDouble()).isEqualTo(1.5d);
     reader.endArray();
   }
@@ -1225,24 +1085,16 @@ public final class JsonReaderTest {
   public void testStringNullIsNotNull() throws IOException {
     JsonReader reader = new JsonReader(reader("[\"null\"]"));
     reader.beginArray();
-    try {
-      reader.nextNull();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(expected, "null", "STRING", "line 1 column 3 path $[0]");
-    }
+    var e = assertThrows(IllegalStateException.class, () -> reader.nextNull());
+    assertUnexpectedStructureError(e, "null", "STRING", "line 1 column 3 path $[0]");
   }
 
   @Test
   public void testNullLiteralIsNotAString() throws IOException {
     JsonReader reader = new JsonReader(reader("[null]"));
     reader.beginArray();
-    try {
-      reader.nextString();
-      fail();
-    } catch (IllegalStateException expected) {
-      assertUnexpectedStructureError(expected, "a string", "NULL", "line 1 column 6 path $[0]");
-    }
+    var e = assertThrows(IllegalStateException.class, () -> reader.nextString());
+    assertUnexpectedStructureError(e, "a string", "NULL", "line 1 column 6 path $[0]");
   }
 
   @Test
@@ -1250,22 +1102,16 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("{\"a\"=true}"));
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 6 path $.a");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextBoolean());
+    assertStrictError(e, "line 1 column 6 path $.a");
 
-    reader = new JsonReader(reader("{\"a\"=>true}"));
-    reader.beginObject();
-    assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 6 path $.a");
-    }
+    JsonReader reader2 = new JsonReader(reader("{\"a\"=>true}"));
+    reader2.beginObject();
+
+    assertThat(reader2.nextName()).isEqualTo("a");
+
+    e = assertThrows(MalformedJsonException.class, () -> reader2.nextBoolean());
+    assertStrictError(e, "line 1 column 6 path $.a");
   }
 
   @Test
@@ -1288,22 +1134,15 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("{\"a\"=true}"));
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 6 path $.a");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 6 path $.a");
 
-    reader = new JsonReader(reader("{\"a\"=>true}"));
-    reader.beginObject();
-    assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 6 path $.a");
-    }
+    JsonReader reader2 = new JsonReader(reader("{\"a\"=>true}"));
+    reader2.beginObject();
+    assertThat(reader2.nextName()).isEqualTo("a");
+
+    e = assertThrows(MalformedJsonException.class, () -> reader2.skipValue());
+    assertStrictError(e, "line 1 column 6 path $.a");
   }
 
   @Test
@@ -1330,30 +1169,18 @@ public final class JsonReaderTest {
   public void testStrictComments() throws IOException {
     JsonReader reader = new JsonReader(reader("[// comment \n true]"));
     reader.beginArray();
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextBoolean());
+    assertStrictError(e, "line 1 column 3 path $[0]");
 
-    reader = new JsonReader(reader("[# comment \n true]"));
-    reader.beginArray();
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    JsonReader reader2 = new JsonReader(reader("[# comment \n true]"));
+    reader2.beginArray();
+    e = assertThrows(MalformedJsonException.class, () -> reader2.nextBoolean());
+    assertStrictError(e, "line 1 column 3 path $[0]");
 
-    reader = new JsonReader(reader("[/* comment */ true]"));
-    reader.beginArray();
-    try {
-      reader.nextBoolean();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    JsonReader reader3 = new JsonReader(reader("[/* comment */ true]"));
+    reader3.beginArray();
+    e = assertThrows(MalformedJsonException.class, () -> reader3.nextBoolean());
+    assertStrictError(e, "line 1 column 3 path $[0]");
   }
 
   @Test
@@ -1378,42 +1205,26 @@ public final class JsonReaderTest {
   public void testStrictCommentsWithSkipValue() throws IOException {
     JsonReader reader = new JsonReader(reader("[// comment \n true]"));
     reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 3 path $[0]");
 
-    reader = new JsonReader(reader("[# comment \n true]"));
-    reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    JsonReader reader2 = new JsonReader(reader("[# comment \n true]"));
+    reader2.beginArray();
+    e = assertThrows(MalformedJsonException.class, () -> reader2.skipValue());
+    assertStrictError(e, "line 1 column 3 path $[0]");
 
-    reader = new JsonReader(reader("[/* comment */ true]"));
-    reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    JsonReader reader3 = new JsonReader(reader("[/* comment */ true]"));
+    reader3.beginArray();
+    e = assertThrows(MalformedJsonException.class, () -> reader3.skipValue());
+    assertStrictError(e, "line 1 column 3 path $[0]");
   }
 
   @Test
   public void testStrictUnquotedNames() throws IOException {
     JsonReader reader = new JsonReader(reader("{a:true}"));
     reader.beginObject();
-    try {
-      reader.nextName();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $.");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextName());
+    assertStrictError(e, "line 1 column 3 path $.");
   }
 
   @Test
@@ -1428,24 +1239,16 @@ public final class JsonReaderTest {
   public void testStrictUnquotedNamesWithSkipValue() throws IOException {
     JsonReader reader = new JsonReader(reader("{a:true}"));
     reader.beginObject();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $.");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 3 path $.");
   }
 
   @Test
   public void testStrictSingleQuotedNames() throws IOException {
     JsonReader reader = new JsonReader(reader("{'a':true}"));
     reader.beginObject();
-    try {
-      reader.nextName();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $.");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextName());
+    assertStrictError(e, "line 1 column 3 path $.");
   }
 
   @Test
@@ -1460,36 +1263,24 @@ public final class JsonReaderTest {
   public void testStrictSingleQuotedNamesWithSkipValue() throws IOException {
     JsonReader reader = new JsonReader(reader("{'a':true}"));
     reader.beginObject();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $.");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 3 path $.");
   }
 
   @Test
   public void testStrictUnquotedStrings() throws IOException {
     JsonReader reader = new JsonReader(reader("[a]"));
     reader.beginArray();
-    try {
-      reader.nextString();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 2 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextString());
+    assertStrictError(e, "line 1 column 2 path $[0]");
   }
 
   @Test
   public void testStrictUnquotedStringsWithSkipValue() throws IOException {
     JsonReader reader = new JsonReader(reader("[a]"));
     reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 2 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 2 path $[0]");
   }
 
   @Test
@@ -1504,12 +1295,8 @@ public final class JsonReaderTest {
   public void testStrictSingleQuotedStrings() throws IOException {
     JsonReader reader = new JsonReader(reader("['a']"));
     reader.beginArray();
-    try {
-      reader.nextString();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextString());
+    assertStrictError(e, "line 1 column 3 path $[0]");
   }
 
   @Test
@@ -1524,24 +1311,16 @@ public final class JsonReaderTest {
   public void testStrictSingleQuotedStringsWithSkipValue() throws IOException {
     JsonReader reader = new JsonReader(reader("['a']"));
     reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 3 path $[0]");
   }
 
   @Test
   public void testStrictSemicolonDelimitedArray() throws IOException {
     JsonReader reader = new JsonReader(reader("[true;true]"));
     reader.beginArray();
-    try {
-      boolean unused = reader.nextBoolean();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 2 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextBoolean());
+    assertStrictError(e, "line 1 column 2 path $[0]");
   }
 
   @Test
@@ -1557,12 +1336,8 @@ public final class JsonReaderTest {
   public void testStrictSemicolonDelimitedArrayWithSkipValue() throws IOException {
     JsonReader reader = new JsonReader(reader("[true;true]"));
     reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 2 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 2 path $[0]");
   }
 
   @Test
@@ -1570,12 +1345,8 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("{\"a\":true;\"b\":true}"));
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      boolean unused = reader.nextBoolean();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 6 path $.a");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextBoolean());
+    assertStrictError(e, "line 1 column 6 path $.a");
   }
 
   @Test
@@ -1593,53 +1364,36 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("{\"a\":true;\"b\":true}"));
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("a");
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 6 path $.a");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 6 path $.a");
   }
 
   @Test
   public void testStrictUnnecessaryArraySeparators() throws IOException {
+    // The following calls `nextNull()` because a lenient JsonReader would treat redundant array
+    // separators as implicit JSON null
+
     JsonReader reader = new JsonReader(reader("[true,,true]"));
     reader.beginArray();
     assertThat(reader.nextBoolean()).isTrue();
-    try {
-      reader.nextNull();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 8 path $[1]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextNull());
+    assertStrictError(e, "line 1 column 8 path $[1]");
 
-    reader = new JsonReader(reader("[,true]"));
-    reader.beginArray();
-    try {
-      reader.nextNull();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    JsonReader reader2 = new JsonReader(reader("[,true]"));
+    reader2.beginArray();
+    e = assertThrows(MalformedJsonException.class, () -> reader2.nextNull());
+    assertStrictError(e, "line 1 column 3 path $[0]");
 
-    reader = new JsonReader(reader("[true,]"));
-    reader.beginArray();
-    assertThat(reader.nextBoolean()).isTrue();
-    try {
-      reader.nextNull();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 8 path $[1]");
-    }
+    JsonReader reader3 = new JsonReader(reader("[true,]"));
+    reader3.beginArray();
+    assertThat(reader3.nextBoolean()).isTrue();
+    e = assertThrows(MalformedJsonException.class, () -> reader3.nextNull());
+    assertStrictError(e, "line 1 column 8 path $[1]");
 
-    reader = new JsonReader(reader("[,]"));
-    reader.beginArray();
-    try {
-      reader.nextNull();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    JsonReader reader4 = new JsonReader(reader("[,]"));
+    reader4.beginArray();
+    e = assertThrows(MalformedJsonException.class, () -> reader4.nextNull());
+    assertStrictError(e, "line 1 column 3 path $[0]");
   }
 
   @Test
@@ -1648,6 +1402,7 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.nextBoolean()).isTrue();
+    // Redundant array separators are treated as implicit JSON null
     reader.nextNull();
     assertThat(reader.nextBoolean()).isTrue();
     reader.endArray();
@@ -1679,40 +1434,24 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("[true,,true]"));
     reader.beginArray();
     assertThat(reader.nextBoolean()).isTrue();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 8 path $[1]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 8 path $[1]");
 
-    reader = new JsonReader(reader("[,true]"));
-    reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    JsonReader reader2 = new JsonReader(reader("[,true]"));
+    reader2.beginArray();
+    e = assertThrows(MalformedJsonException.class, () -> reader2.skipValue());
+    assertStrictError(e, "line 1 column 3 path $[0]");
 
-    reader = new JsonReader(reader("[true,]"));
-    reader.beginArray();
-    assertThat(reader.nextBoolean()).isTrue();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 8 path $[1]");
-    }
+    JsonReader reader3 = new JsonReader(reader("[true,]"));
+    reader3.beginArray();
+    assertThat(reader3.nextBoolean()).isTrue();
+    e = assertThrows(MalformedJsonException.class, () -> reader3.skipValue());
+    assertStrictError(e, "line 1 column 8 path $[1]");
 
-    reader = new JsonReader(reader("[,]"));
-    reader.beginArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 3 path $[0]");
-    }
+    JsonReader reader4 = new JsonReader(reader("[,]"));
+    reader4.beginArray();
+    e = assertThrows(MalformedJsonException.class, () -> reader4.skipValue());
+    assertStrictError(e, "line 1 column 3 path $[0]");
   }
 
   @Test
@@ -1720,12 +1459,8 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("[] []"));
     reader.beginArray();
     reader.endArray();
-    try {
-      reader.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 5 path $");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
+    assertStrictError(e, "line 1 column 5 path $");
   }
 
   @Test
@@ -1745,12 +1480,8 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("[] []"));
     reader.beginArray();
     reader.endArray();
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 5 path $");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 5 path $");
   }
 
   @Test
@@ -1789,25 +1520,17 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testStrictNonExecutePrefix() throws IOException {
+  public void testStrictNonExecutePrefix() {
     JsonReader reader = new JsonReader(reader(")]}'\n []"));
-    try {
-      reader.beginArray();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 1 path $");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.beginArray());
+    assertStrictError(e, "line 1 column 1 path $");
   }
 
   @Test
-  public void testStrictNonExecutePrefixWithSkipValue() throws IOException {
+  public void testStrictNonExecutePrefixWithSkipValue() {
     JsonReader reader = new JsonReader(reader(")]}'\n []"));
-    try {
-      reader.skipValue();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 1 path $");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertStrictError(e, "line 1 column 1 path $");
   }
 
   @Test
@@ -1833,16 +1556,12 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader(")]}' []"));
     reader.setStrictness(Strictness.LENIENT);
     assertThat(reader.nextString()).isEqualTo(")");
-    try {
-      reader.nextString();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Unexpected value at line 1 column 3 path $\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextString());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Unexpected value at line 1 column 3 path $\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
@@ -1856,12 +1575,8 @@ public final class JsonReaderTest {
   public void testBomForbiddenAsOtherCharacterInDocument() throws IOException {
     JsonReader reader = new JsonReader(reader("[\ufeff]"));
     reader.beginArray();
-    try {
-      reader.endArray();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 2 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.endArray());
+    assertStrictError(e, "line 1 column 2 path $[0]");
   }
 
   @SuppressWarnings("UngroupedOverloads")
@@ -1922,34 +1637,26 @@ public final class JsonReaderTest {
     reader1.setStrictness(Strictness.LENIENT);
     reader1.beginArray();
     String unused1 = reader1.nextString();
-    try {
-      JsonToken unused2 = reader1.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              message
-                  + "\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader1.peek());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            message
+                + "\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
 
     // Also validate that it works when skipping.
     JsonReader reader2 = new JsonReader(reader(json));
     reader2.setStrictness(Strictness.LENIENT);
     reader2.beginArray();
     reader2.skipValue();
-    try {
-      JsonToken unused3 = reader2.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              message
-                  + "\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    e = assertThrows(MalformedJsonException.class, () -> reader2.peek());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            message
+                + "\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
@@ -1962,28 +1669,20 @@ public final class JsonReaderTest {
     reader.beginArray();
     int unused3 = reader.nextInt();
     int unused4 = reader.nextInt();
-    try {
-      JsonToken unused5 = reader.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Expected value at line 1 column 14 path $[1].a[2]\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Expected value at line 1 column 14 path $[1].a[2]\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
   public void testStrictVeryLongNumber() throws IOException {
     JsonReader reader = new JsonReader(reader("[0." + repeat('9', 8192) + "]"));
     reader.beginArray();
-    try {
-      reader.nextDouble();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertStrictError(expected, "line 1 column 2 path $[0]");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextDouble());
+    assertStrictError(e, "line 1 column 2 path $[0]");
   }
 
   @Test
@@ -2054,51 +1753,39 @@ public final class JsonReaderTest {
 
   // http://code.google.com/p/google-gson/issues/detail?id=409
   @Test
-  public void testStringEndingInSlash() throws IOException {
+  public void testStringEndingInSlash() {
     JsonReader reader = new JsonReader(reader("/"));
     reader.setStrictness(Strictness.LENIENT);
-    try {
-      reader.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Expected value at line 1 column 1 path $\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Expected value at line 1 column 1 path $\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
-  public void testDocumentWithCommentEndingInSlash() throws IOException {
+  public void testDocumentWithCommentEndingInSlash() {
     JsonReader reader = new JsonReader(reader("/* foo *//"));
     reader.setStrictness(Strictness.LENIENT);
-    try {
-      reader.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Expected value at line 1 column 10 path $\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Expected value at line 1 column 10 path $\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
-  public void testStringWithLeadingSlash() throws IOException {
+  public void testStringWithLeadingSlash() {
     JsonReader reader = new JsonReader(reader("/x"));
     reader.setStrictness(Strictness.LENIENT);
-    try {
-      reader.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Expected value at line 1 column 1 path $\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Expected value at line 1 column 1 path $\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
@@ -2108,16 +1795,12 @@ public final class JsonReaderTest {
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("a");
     assertThat(reader.nextString()).isEqualTo("android");
-    try {
-      reader.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Unterminated object at line 1 column 16 path $.a\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Unterminated object at line 1 column 16 path $.a\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
@@ -2155,11 +1838,7 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.nextString()).isEqualTo(string);
-    try {
-      reader.peek();
-      fail();
-    } catch (EOFException expected) {
-    }
+    assertThrows(EOFException.class, () -> reader.peek());
   }
 
   @Test
@@ -2240,16 +1919,12 @@ public final class JsonReaderTest {
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("a");
     assertThat(reader.nextString()).isEqualTo("b");
-    try {
-      reader.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Expected name at line 1 column 11 path $.a\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Expected name at line 1 column 11 path $.a\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   @Test
@@ -2259,16 +1934,12 @@ public final class JsonReaderTest {
     reader.beginObject();
     assertThat(reader.nextName()).isEqualTo("a");
     assertThat(reader.nextString()).isEqualTo("b");
-    try {
-      reader.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Expected name at line 1 column 11 path $.a\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Expected name at line 1 column 11 path $.a\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   private static String repeat(char c, int count) {
@@ -2333,16 +2004,12 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     reader.beginArray();
     assertThat(reader.peek()).isEqualTo(JsonToken.STRING);
-    try {
-      reader.nextString();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Unterminated string at line 1 column 9 path $[0]\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
-    }
+    var e = assertThrows(MalformedJsonException.class, () -> reader.nextString());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Unterminated string at line 1 column 9 path $[0]\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   /** Regression test for an issue with buffer filling and consumeNonExecutePrefix. */
@@ -2413,12 +2080,8 @@ public final class JsonReaderTest {
         reader.nextNull();
       } else if (expectation instanceof Class
           && Exception.class.isAssignableFrom((Class<?>) expectation)) {
-        try {
-          reader.peek();
-          fail();
-        } catch (Exception expected) {
-          assertThat(expected.getClass()).isEqualTo((Class<?>) expectation);
-        }
+        var expected = assertThrows(Exception.class, () -> reader.peek());
+        assertThat(expected.getClass()).isEqualTo((Class<?>) expectation);
       } else {
         throw new AssertionError("Unsupported expectation value: " + expectation);
       }

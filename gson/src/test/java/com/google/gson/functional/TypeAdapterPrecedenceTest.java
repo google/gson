@@ -140,7 +140,7 @@ public final class TypeAdapterPrecedenceTest {
   }
 
   private static JsonSerializer<Foo> newSerializer(final String name) {
-    return new JsonSerializer<Foo>() {
+    return new JsonSerializer<>() {
       @Override
       public JsonElement serialize(Foo src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(src.name + " via " + name);
@@ -149,7 +149,7 @@ public final class TypeAdapterPrecedenceTest {
   }
 
   private static JsonDeserializer<Foo> newDeserializer(final String name) {
-    return new JsonDeserializer<Foo>() {
+    return new JsonDeserializer<>() {
       @Override
       public Foo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         return new Foo(json.getAsString() + " via " + name);
@@ -158,7 +158,7 @@ public final class TypeAdapterPrecedenceTest {
   }
 
   private static TypeAdapter<Foo> newTypeAdapter(final String name) {
-    return new TypeAdapter<Foo>() {
+    return new TypeAdapter<>() {
       @Override
       public Foo read(JsonReader in) throws IOException {
         return new Foo(in.nextString() + " via " + name);

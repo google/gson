@@ -34,10 +34,9 @@ public class OSGiTest {
     Manifest mf = findManifest("com.google.gson");
     String importPkg = mf.getMainAttributes().getValue("Import-Package");
     assertWithMessage("Import-Package statement is there").that(importPkg).isNotNull();
-    assertSubstring(
-        "There should be com.google.gson.annotations dependency",
-        importPkg,
-        "com.google.gson.annotations");
+    assertWithMessage("There should be com.google.gson.annotations dependency")
+        .that(importPkg)
+        .contains("com.google.gson.annotations");
   }
 
   @Test
@@ -47,7 +46,7 @@ public class OSGiTest {
     assertWithMessage("Import-Package statement is there").that(importPkg).isNotNull();
     for (String dep : Splitter.on(',').split(importPkg)) {
       if (dep.contains("sun.misc")) {
-        assertSubstring("sun.misc import is optional", dep, "resolution:=optional");
+        assertWithMessage("sun.misc import is optional").that(dep).contains("resolution:=optional");
         return;
       }
     }
@@ -68,12 +67,5 @@ public class OSGiTest {
     }
     fail("Cannot find " + pkg + " OSGi bundle manifest among: " + urls);
     return null;
-  }
-
-  private static void assertSubstring(String msg, String wholeText, String subString) {
-    if (wholeText.contains(subString)) {
-      return;
-    }
-    fail(msg + ". Expecting " + subString + " but was: " + wholeText);
   }
 }

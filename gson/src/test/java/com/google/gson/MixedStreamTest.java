@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -82,17 +82,19 @@ public final class MixedStreamTest {
 
   @SuppressWarnings("deprecation") // for JsonReader.setLenient
   @Test
-  public void testReaderDoesNotMutateState() throws IOException {
+  public void testReadDoesNotMutateState() throws IOException {
     Gson gson = new Gson();
     JsonReader jsonReader = new JsonReader(new StringReader(CARS_JSON));
     jsonReader.beginArray();
 
     jsonReader.setLenient(false);
-    Car unused1 = gson.fromJson(jsonReader, Car.class);
+    Car deserialized = gson.fromJson(jsonReader, Car.class);
+    assertThat(deserialized).isNotNull();
     assertThat(jsonReader.isLenient()).isFalse();
 
     jsonReader.setLenient(true);
-    Car unused2 = gson.fromJson(jsonReader, Car.class);
+    deserialized = gson.fromJson(jsonReader, Car.class);
+    assertThat(deserialized).isNotNull();
     assertThat(jsonReader.isLenient()).isTrue();
   }
 
@@ -122,11 +124,7 @@ public final class MixedStreamTest {
     JsonReader jsonReader = new JsonReader(new StringReader(CARS_JSON));
     jsonReader.beginArray();
     jsonReader.beginObject();
-    try {
-      gson.fromJson(jsonReader, String.class);
-      fail();
-    } catch (JsonParseException expected) {
-    }
+    assertThrows(JsonParseException.class, () -> gson.fromJson(jsonReader, String.class));
   }
 
   @Test
@@ -134,11 +132,11 @@ public final class MixedStreamTest {
     Gson gson = new Gson();
     JsonReader jsonReader = new JsonReader(new StringReader(CARS_JSON));
     jsonReader.close();
-    try {
-      gson.fromJson(jsonReader, new TypeToken<List<Car>>() {}.getType());
-      fail();
-    } catch (JsonParseException expected) {
-    }
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.fromJson(jsonReader, new TypeToken<List<Car>>() {}.getType()));
+    assertThat(e).hasCauseThat().hasMessageThat().isEqualTo("JsonReader is closed");
   }
 
   @Test
@@ -146,11 +144,10 @@ public final class MixedStreamTest {
     Gson gson = new Gson();
     JsonWriter jsonWriter = new JsonWriter(new StringWriter());
     jsonWriter.beginObject();
-    try {
-      gson.toJson(BLUE_MUSTANG, Car.class, jsonWriter);
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    var e =
+        assertThrows(
+            IllegalStateException.class, () -> gson.toJson(BLUE_MUSTANG, Car.class, jsonWriter));
+    assertThat(e).hasMessageThat().isEqualTo("Nesting problem.");
   }
 
   @Test
@@ -160,21 +157,18 @@ public final class MixedStreamTest {
     jsonWriter.beginArray();
     jsonWriter.endArray();
     jsonWriter.close();
-    try {
-      gson.toJson(BLUE_MUSTANG, Car.class, jsonWriter);
-      fail();
-    } catch (IllegalStateException expected) {
-    }
+    var e =
+        assertThrows(
+            IllegalStateException.class, () -> gson.toJson(BLUE_MUSTANG, Car.class, jsonWriter));
+    assertThat(e).hasMessageThat().isEqualTo("JsonWriter is closed.");
   }
 
   @Test
   public void testWriteNulls() {
     Gson gson = new Gson();
-    try {
-      gson.toJson(new JsonPrimitive("hello"), (JsonWriter) null);
-      fail();
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(
+        NullPointerException.class,
+        () -> gson.toJson(new JsonPrimitive("hello"), (JsonWriter) null));
 
     StringWriter stringWriter = new StringWriter();
     gson.toJson(null, new JsonWriter(stringWriter));
@@ -184,16 +178,10 @@ public final class MixedStreamTest {
   @Test
   public void testReadNulls() {
     Gson gson = new Gson();
-    try {
-      gson.fromJson((JsonReader) null, Integer.class);
-      fail();
-    } catch (NullPointerException expected) {
-    }
-    try {
-      gson.fromJson(new JsonReader(new StringReader("true")), (Type) null);
-      fail();
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(NullPointerException.class, () -> gson.fromJson((JsonReader) null, Integer.class));
+    assertThrows(
+        NullPointerException.class,
+        () -> gson.fromJson(new JsonReader(new StringReader("true")), (Type) null));
   }
 
   @Test
@@ -232,11 +220,15 @@ public final class MixedStreamTest {
         .toJson(doubles, type, jsonWriter);
     assertThat(writer.toString()).isEqualTo("[NaN,-Infinity,Infinity,-0.0,0.5,0.0]");
 
-    try {
-      new Gson().toJson(doubles, type, new JsonWriter(new StringWriter()));
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    var e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new Gson().toJson(doubles, type, new JsonWriter(new StringWriter())));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "NaN is not a valid double value as per JSON specification. To override this behavior,"
+                + " use GsonBuilder.serializeSpecialFloatingPointValues() method.");
   }
 
   static final class Car {

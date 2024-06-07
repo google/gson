@@ -15,8 +15,7 @@
  */
 package com.google.gson.protobuf.functional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.base.CaseFormat;
 import com.google.gson.Gson;
@@ -71,19 +70,17 @@ public class ProtosWithComplexAndRepeatedFieldsTest {
             .addSimples(SimpleProto.newBuilder().setCount(3).build())
             .build();
     String json = gson.toJson(proto);
-    assertTrue(json.contains("[2,3]"));
-    assertTrue(json.contains("foo"));
-    assertTrue(json.contains("count"));
+    assertThat(json).isEqualTo("{\"numbers\":[2,3],\"simples\":[{\"msg\":\"foo\"},{\"count\":3}]}");
   }
 
   @Test
   public void testDeserializeRepeatedFieldsProto() {
     String json = "{numbers:[4,6],simples:[{msg:'bar'},{count:7}]}";
     ProtoWithRepeatedFields proto = gson.fromJson(json, ProtoWithRepeatedFields.class);
-    assertEquals(4, proto.getNumbers(0));
-    assertEquals(6, proto.getNumbers(1));
-    assertEquals("bar", proto.getSimples(0).getMsg());
-    assertEquals(7, proto.getSimples(1).getCount());
+    assertThat(proto.getNumbers(0)).isEqualTo(4);
+    assertThat(proto.getNumbers(1)).isEqualTo(6);
+    assertThat(proto.getSimples(0).getMsg()).isEqualTo("bar");
+    assertThat(proto.getSimples(1).getCount()).isEqualTo(7);
   }
 
   @Test
@@ -94,8 +91,9 @@ public class ProtosWithComplexAndRepeatedFieldsTest {
             .addNameThatTestsCaseFormat("bar")
             .build();
     final JsonObject json = upperCamelGson.toJsonTree(proto).getAsJsonObject();
-    assertEquals("foo", json.get("AnotherField").getAsString());
-    assertEquals("bar", json.get("NameThatTestsCaseFormat").getAsJsonArray().get(0).getAsString());
+    assertThat(json.get("AnotherField").getAsString()).isEqualTo("foo");
+    assertThat(json.get("NameThatTestsCaseFormat").getAsJsonArray().get(0).getAsString())
+        .isEqualTo("bar");
   }
 
   @Test
@@ -103,7 +101,7 @@ public class ProtosWithComplexAndRepeatedFieldsTest {
     final String json = "{NameThatTestsCaseFormat:['bar'],AnotherField:'foo'}";
     ProtoWithDifferentCaseFormat proto =
         upperCamelGson.fromJson(json, ProtoWithDifferentCaseFormat.class);
-    assertEquals("foo", proto.getAnotherField());
-    assertEquals("bar", proto.getNameThatTestsCaseFormat(0));
+    assertThat(proto.getAnotherField()).isEqualTo("foo");
+    assertThat(proto.getNameThatTestsCaseFormat(0)).isEqualTo("bar");
   }
 }

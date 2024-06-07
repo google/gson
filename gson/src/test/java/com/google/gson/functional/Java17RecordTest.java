@@ -17,7 +17,6 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -145,9 +144,9 @@ public final class Java17RecordTest {
 
   /** Tests behavior when the canonical constructor throws an exception */
   @Test
-  @SuppressWarnings("StaticAssignmentOfThrowable")
   public void testThrowingConstructor() {
     record LocalRecord(String s) {
+      @SuppressWarnings("StaticAssignmentOfThrowable")
       static final RuntimeException thrownException = new RuntimeException("Custom exception");
 
       @SuppressWarnings("unused")
@@ -156,20 +155,15 @@ public final class Java17RecordTest {
       }
     }
 
-    try {
-      gson.fromJson("{\"s\":\"value\"}", LocalRecord.class);
-      fail();
-    }
     // TODO: Adjust this once Gson throws more specific exception type
-    catch (RuntimeException e) {
-      assertThat(e)
-          .hasMessageThat()
-          .isEqualTo(
-              "Failed to invoke constructor '"
-                  + LocalRecord.class.getName()
-                  + "(String)' with args [value]");
-      assertThat(e).hasCauseThat().isSameInstanceAs(LocalRecord.thrownException);
-    }
+    var e = assertThrows(RuntimeException.class, () -> gson.fromJson("{\"s\":\"value\"}", LocalRecord.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Failed to invoke constructor '"
+                + LocalRecord.class.getName()
+                + "(String)' with args [value]");
+    assertThat(e).hasCauseThat().isSameInstanceAs(LocalRecord.thrownException);
   }
 
   @Test
@@ -186,9 +180,9 @@ public final class Java17RecordTest {
 
   /** Tests behavior when a record accessor method throws an exception */
   @Test
-  @SuppressWarnings("StaticAssignmentOfThrowable")
   public void testThrowingAccessor() {
     record LocalRecord(String s) {
+      @SuppressWarnings("StaticAssignmentOfThrowable")
       static final RuntimeException thrownException = new RuntimeException("Custom exception");
 
       @Override
@@ -197,15 +191,11 @@ public final class Java17RecordTest {
       }
     }
 
-    try {
-      gson.toJson(new LocalRecord("a"));
-      fail();
-    } catch (JsonIOException e) {
-      assertThat(e)
-          .hasMessageThat()
-          .isEqualTo("Accessor method '" + LocalRecord.class.getName() + "#s()' threw exception");
-      assertThat(e).hasCauseThat().isSameInstanceAs(LocalRecord.thrownException);
-    }
+    var e = assertThrows(JsonIOException.class, () -> gson.toJson(new LocalRecord("a")));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Accessor method '" + LocalRecord.class.getName() + "#s()' threw exception");
+    assertThat(e).hasCauseThat().isSameInstanceAs(LocalRecord.thrownException);
   }
 
   /** Tests behavior for a record without components */

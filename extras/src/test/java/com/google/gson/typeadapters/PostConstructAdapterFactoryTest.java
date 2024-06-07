@@ -16,8 +16,8 @@
 
 package com.google.gson.typeadapters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -33,12 +33,14 @@ public class PostConstructAdapterFactoryTest {
         new GsonBuilder().registerTypeAdapterFactory(new PostConstructAdapterFactory()).create();
     Sandwich unused =
         gson.fromJson("{\"bread\": \"white\", \"cheese\": \"cheddar\"}", Sandwich.class);
-    try {
-      gson.fromJson("{\"bread\": \"cheesey bread\", \"cheese\": \"swiss\"}", Sandwich.class);
-      fail();
-    } catch (IllegalArgumentException expected) {
-      assertEquals("too cheesey", expected.getMessage());
-    }
+
+    var e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                gson.fromJson(
+                    "{\"bread\": \"cheesey bread\", \"cheese\": \"swiss\"}", Sandwich.class));
+    assertThat(e).hasMessageThat().isEqualTo("too cheesey");
   }
 
   @Test
@@ -52,13 +54,13 @@ public class PostConstructAdapterFactoryTest {
 
     // Throws NullPointerException without the fix in https://github.com/google/gson/pull/1103
     String json = gson.toJson(sandwiches);
-    assertEquals(
-        "{\"sandwiches\":[{\"bread\":\"white\",\"cheese\":\"cheddar\"},"
-            + "{\"bread\":\"whole wheat\",\"cheese\":\"swiss\"}]}",
-        json);
+    assertThat(json)
+        .isEqualTo(
+            "{\"sandwiches\":[{\"bread\":\"white\",\"cheese\":\"cheddar\"},"
+                + "{\"bread\":\"whole wheat\",\"cheese\":\"swiss\"}]}");
 
     MultipleSandwiches sandwichesFromJson = gson.fromJson(json, MultipleSandwiches.class);
-    assertEquals(sandwiches, sandwichesFromJson);
+    assertThat(sandwichesFromJson).isEqualTo(sandwiches);
   }
 
   @SuppressWarnings({"overrides", "EqualsHashCode"}) // for missing hashCode() override

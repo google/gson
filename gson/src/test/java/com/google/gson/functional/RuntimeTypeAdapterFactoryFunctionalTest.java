@@ -174,7 +174,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
         subtypeToDelegate.put(entry.getValue(), delegate);
       }
 
-      return new TypeAdapter<R>() {
+      return new TypeAdapter<>() {
         @Override
         public R read(JsonReader in) {
           JsonElement jsonElement = Streams.parse(in);
