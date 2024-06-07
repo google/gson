@@ -82,7 +82,7 @@ public final class MixedStreamTest {
 
   @SuppressWarnings("deprecation") // for JsonReader.setLenient
   @Test
-  public void testReaderDoesNotMutateState() throws IOException {
+  public void testReadDoesNotMutateState() throws IOException {
     Gson gson = new Gson();
     JsonReader jsonReader = new JsonReader(new StringReader(CARS_JSON));
     jsonReader.beginArray();
@@ -100,7 +100,7 @@ public final class MixedStreamTest {
 
   @SuppressWarnings("deprecation") // for JsonWriter.setLenient
   @Test
-  public void testWriterDoesNotMutateState() throws IOException {
+  public void testWriteDoesNotMutateState() throws IOException {
     Gson gson = new Gson();
     JsonWriter jsonWriter = new JsonWriter(new StringWriter());
     jsonWriter.beginArray();

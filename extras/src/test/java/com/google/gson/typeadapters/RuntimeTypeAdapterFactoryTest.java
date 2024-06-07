@@ -130,9 +130,16 @@ public final class RuntimeTypeAdapterFactoryTest {
     TypeAdapterFactory billingAdapter =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
-    assertThrows(
-        JsonParseException.class,
-        () -> gson.fromJson("{ownerName:'Jesse'}", BillingInstrument.class));
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.fromJson("{ownerName:'Jesse'}", BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot deserialize "
+                + BillingInstrument.class
+                + " because it does not define a field named type");
   }
 
   @Test
@@ -140,9 +147,16 @@ public final class RuntimeTypeAdapterFactoryTest {
     TypeAdapterFactory billingAdapter =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
-    assertThrows(
-        JsonParseException.class,
-        () -> gson.fromJson("{type:'CreditCard',ownerName:'Jesse'}", BillingInstrument.class));
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.fromJson("{type:'CreditCard',ownerName:'Jesse'}", BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot deserialize "
+                + BillingInstrument.class
+                + " subtype named CreditCard; did you forget to register a subtype?");
   }
 
   @Test
@@ -150,9 +164,16 @@ public final class RuntimeTypeAdapterFactoryTest {
     TypeAdapterFactory billingAdapter =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
-    assertThrows(
-        JsonParseException.class,
-        () -> gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class));
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot serialize "
+                + CreditCard.class.getName()
+                + "; did you forget to register a subtype?");
   }
 
   @Test
@@ -161,9 +182,16 @@ public final class RuntimeTypeAdapterFactoryTest {
         RuntimeTypeAdapterFactory.of(BillingInstrument.class, "cvv")
             .registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
-    assertThrows(
-        JsonParseException.class,
-        () -> gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class));
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot serialize "
+                + CreditCard.class.getName()
+                + " because it already defines a field named cvv");
   }
 
   @Test

@@ -75,7 +75,7 @@ public class JsonParserTest {
     obj.addProperty("intValue", 11);
     JsonArray array = new JsonArray();
     array.add(obj);
-    // BagOfPrimitives is not an array
+    // BagOfPrimitives should not be an array
     assertThrows(JsonParseException.class, () -> gson.fromJson(array, BagOfPrimitives.class));
   }
 
@@ -137,6 +137,6 @@ public class JsonParserTest {
     assertThat(e)
         .hasCauseThat()
         .hasMessageThat()
-        .startsWith("Expected name at line 1 column 7 path $.");
+        .startsWith("Expected name at line 1 column 7 path $.\n");
   }
 }

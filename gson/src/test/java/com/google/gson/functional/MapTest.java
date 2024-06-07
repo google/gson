@@ -581,7 +581,7 @@ public class MapTest {
     assertThat(e)
         .hasCauseThat()
         .hasMessageThat()
-        .startsWith("Expected BEGIN_OBJECT but was STRING at line 1 column 3 path $");
+        .startsWith("Expected BEGIN_OBJECT but was STRING at line 1 column 3 path $.\n");
   }
 
   @Test

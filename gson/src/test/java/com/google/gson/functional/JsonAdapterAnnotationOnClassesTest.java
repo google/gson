@@ -372,12 +372,19 @@ public final class JsonAdapterAnnotationOnClassesTest {
   @Test
   public void testIncorrectJsonAdapterType() {
     Gson gson = new Gson();
-    D obj = new D();
-    assertThrows(IllegalArgumentException.class, () -> gson.toJson(obj));
+    WithInvalidAdapterClass obj = new WithInvalidAdapterClass();
+    var e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(obj));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Invalid attempt to bind an instance of java.lang.Integer as a @JsonAdapter for "
+                + WithInvalidAdapterClass.class.getName()
+                + ". @JsonAdapter value must be a TypeAdapter, TypeAdapterFactory, JsonSerializer"
+                + " or JsonDeserializer.");
   }
 
   @JsonAdapter(Integer.class)
-  private static final class D {
+  private static final class WithInvalidAdapterClass {
     @SuppressWarnings("unused")
     final String value = "a";
   }

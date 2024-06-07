@@ -165,7 +165,9 @@ public class ProtosWithAnnotationsTest {
   @Test
   public void testProtoWithAnnotations_deserializeUnrecognizedEnumValue() {
     String json = String.format("{  %n" + "   \"content\":\"UNRECOGNIZED\"%n" + "}");
-    assertThrows(JsonParseException.class, () -> gson.fromJson(json, InnerMessage.class));
+    var e = assertThrows(JsonParseException.class, () -> gson.fromJson(json, InnerMessage.class));
+    assertThat(e).hasMessageThat().isEqualTo("Error while parsing proto");
+    assertThat(e).hasCauseThat().hasMessageThat().isEqualTo("Unrecognized enum name: UNRECOGNIZED");
   }
 
   @Test
@@ -181,6 +183,16 @@ public class ProtosWithAnnotationsTest {
     assertThat(proto.getContent()).isEqualTo(InnerMessage.Type.IMAGE);
     rebuilt = gsonWithEnumNumbers.toJson(proto);
     assertThat(rebuilt).isEqualTo("{\"content\":2}");
+  }
+
+  @Test
+  public void testProtoWithAnnotations_deserializeUnrecognizedEnumNumber() {
+    String json = String.format("{  %n" + "   \"content\":\"99\"%n" + "}");
+    var e =
+        assertThrows(
+            JsonParseException.class, () -> gsonWithEnumNumbers.fromJson(json, InnerMessage.class));
+    assertThat(e).hasMessageThat().isEqualTo("Error while parsing proto");
+    assertThat(e).hasCauseThat().hasMessageThat().isEqualTo("Unrecognized enum value: 99");
   }
 
   @Test

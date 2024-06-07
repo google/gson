@@ -85,9 +85,11 @@ public final class InterceptorTest {
   @Test
   public void testMapKeyAndValues() {
     Type mapType = new TypeToken<Map<User, Address>>() {}.getType();
-    assertThrows(
-        JsonSyntaxException.class,
-        () -> gson.fromJson("[[{name:'bob',password:'pwd'},{}]]", mapType));
+    var e =
+        assertThrows(
+            JsonSyntaxException.class,
+            () -> gson.fromJson("[[{name:'bob',password:'pwd'},{}]]", mapType));
+    assertThat(e).hasMessageThat().isEqualTo("Address city, state and zip are required fields.");
 
     Map<User, Address> map =
         gson.fromJson(

@@ -154,7 +154,7 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
 
     reader = new JsonReader(reader("True"));
     reader.setStrictness(Strictness.STRICT);
@@ -164,7 +164,7 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
   }
 
   @Test
@@ -177,7 +177,7 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
 
     reader = new JsonReader(reader("FaLse"));
     reader.setStrictness(Strictness.STRICT);
@@ -187,7 +187,7 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
   }
 
   @Test
@@ -200,7 +200,7 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
 
     reader = new JsonReader(reader("nulL"));
     reader.setStrictness(Strictness.STRICT);
@@ -210,7 +210,7 @@ public final class JsonReaderTest {
         .hasMessageThat()
         .startsWith(
             "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON"
-                + " at line 1 column 1 path $");
+                + " at line 1 column 1 path $\n");
   }
 
   @Test
@@ -737,29 +737,28 @@ public final class JsonReaderTest {
   }
 
   @Test
-  @Ignore(
-      "JsonReader advances after exception for invalid number was thrown; to be decided if that is"
-          + " acceptable")
   public void testNumberWithOctalPrefix() throws IOException {
-    String json = "[01]";
-    JsonReader reader = new JsonReader(reader(json));
-    reader.beginArray();
+    String number = "01";
+    String expectedLocation = "line 1 column 1 path $";
 
-    var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
-    assertStrictError(e, "line 1 column 2 path $[0]");
+    var e = assertThrows(MalformedJsonException.class, () -> new JsonReader(reader(number)).peek());
+    assertStrictError(e, expectedLocation);
 
-    e = assertThrows(MalformedJsonException.class, () -> reader.nextInt());
-    assertStrictError(e, "TODO");
+    e = assertThrows(MalformedJsonException.class, () -> new JsonReader(reader(number)).nextInt());
+    assertStrictError(e, expectedLocation);
 
-    e = assertThrows(MalformedJsonException.class, () -> reader.nextLong());
-    assertStrictError(e, "TODO");
+    e = assertThrows(MalformedJsonException.class, () -> new JsonReader(reader(number)).nextLong());
+    assertStrictError(e, expectedLocation);
 
-    e = assertThrows(MalformedJsonException.class, () -> reader.nextDouble());
-    assertStrictError(e, "TODO");
+    e =
+        assertThrows(
+            MalformedJsonException.class, () -> new JsonReader(reader(number)).nextDouble());
+    assertStrictError(e, expectedLocation);
 
-    assertThat(reader.nextString()).isEqualTo("01");
-    reader.endArray();
-    assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+    e =
+        assertThrows(
+            MalformedJsonException.class, () -> new JsonReader(reader(number)).nextString());
+    assertStrictError(e, expectedLocation);
   }
 
   @Test
@@ -1372,8 +1371,7 @@ public final class JsonReaderTest {
   @Test
   public void testStrictUnnecessaryArraySeparators() throws IOException {
     // The following calls `nextNull()` because a lenient JsonReader would treat redundant array
-    // separators as
-    // implicit JSON null
+    // separators as implicit JSON null
 
     JsonReader reader = new JsonReader(reader("[true,,true]"));
     reader.beginArray();

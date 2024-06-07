@@ -227,9 +227,10 @@ public class JsonObjectAsMapTest {
     // Should contain entries in same order
     assertThat(new ArrayList<>(entrySet)).isEqualTo(expectedEntrySet);
 
+    // Entry set doesn't support insertions
     assertThrows(
         UnsupportedOperationException.class,
-        () -> entrySet.add(new SimpleEntry<String, JsonElement>("c", new JsonPrimitive(3))));
+        () -> entrySet.add(new SimpleEntry<>("c", new JsonPrimitive(3))));
 
     assertThat(entrySet.remove(new SimpleEntry<>("a", new JsonPrimitive(1)))).isTrue();
     assertThat(map.entrySet())

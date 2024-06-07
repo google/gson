@@ -873,10 +873,19 @@ public final class JsonWriterTest {
     writer.beginArray();
     writer.endArray();
     writer.close();
-    assertThrows(IllegalStateException.class, () -> writer.beginArray());
-    assertThrows(IllegalStateException.class, () -> writer.endArray());
-    assertThrows(IllegalStateException.class, () -> writer.beginObject());
-    assertThrows(IllegalStateException.class, () -> writer.endObject());
+
+    String expectedMessage = "JsonWriter is closed.";
+    var e = assertThrows(IllegalStateException.class, () -> writer.beginArray());
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e = assertThrows(IllegalStateException.class, () -> writer.endArray());
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e = assertThrows(IllegalStateException.class, () -> writer.beginObject());
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e = assertThrows(IllegalStateException.class, () -> writer.endObject());
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
   }
 
   @Test

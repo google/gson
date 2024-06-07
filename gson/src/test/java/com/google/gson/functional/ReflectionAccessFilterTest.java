@@ -471,8 +471,8 @@ public class ReflectionAccessFilterTest {
   }
 
   /**
-   * When trying to deserialize interface an exception for that should be thrown, even if {@link
-   * FilterResult#BLOCK_INACCESSIBLE} is used
+   * When trying to deserialize interface, an exception for the missing adapter should be thrown,
+   * even if {@link FilterResult#BLOCK_INACCESSIBLE} is used.
    */
   @Test
   public void testBlockInaccessibleInterface() {

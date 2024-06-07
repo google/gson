@@ -265,7 +265,7 @@ public final class JsonElementReaderTest {
     var e = assertThrows(IllegalStateException.class, () -> reader.nextJsonElement());
     assertThat(e).hasMessageThat().isEqualTo("Unexpected NAME when reading a JsonElement.");
     assertThat(reader.nextName()).isEqualTo("A");
-    assertThat(new JsonPrimitive(1)).isEqualTo(reader.nextJsonElement());
+    assertThat(reader.nextJsonElement()).isEqualTo(new JsonPrimitive(1));
 
     assertThat(reader.nextName()).isEqualTo("B");
     reader.beginObject();

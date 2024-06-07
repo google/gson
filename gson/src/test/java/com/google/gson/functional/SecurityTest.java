@@ -44,7 +44,10 @@ public class SecurityTest {
   public void testNonExecutableJsonSerialization() {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = gson.toJson(new BagOfPrimitives());
-    assertThat(json).startsWith(JSON_NON_EXECUTABLE_PREFIX);
+    assertThat(json)
+        .isEqualTo(
+            JSON_NON_EXECUTABLE_PREFIX
+                + "{\"longValue\":0,\"intValue\":0,\"booleanValue\":false,\"stringValue\":\"\"}");
   }
 
   @Test
@@ -59,7 +62,7 @@ public class SecurityTest {
   public void testJsonWithNonExectuableTokenSerialization() {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = gson.toJson(JSON_NON_EXECUTABLE_PREFIX);
-    assertThat(json).contains(")]}'\n");
+    assertThat(json).isEqualTo(JSON_NON_EXECUTABLE_PREFIX + "\")]}\\u0027\\n\"");
   }
 
   /**
@@ -69,9 +72,12 @@ public class SecurityTest {
   @Test
   public void testJsonWithNonExectuableTokenWithRegularGsonDeserialization() {
     Gson gson = gsonBuilder.create();
-    String json = JSON_NON_EXECUTABLE_PREFIX + "{stringValue:')]}\\u0027\\n'}";
+    // Note: Embedding non-executable prefix literally is only possible because Gson is lenient by
+    // default
+    String json =
+        JSON_NON_EXECUTABLE_PREFIX + "{stringValue:\"" + JSON_NON_EXECUTABLE_PREFIX + "\"}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
-    assertThat(target.stringValue).isEqualTo(")]}'\n");
+    assertThat(target.stringValue).isEqualTo(JSON_NON_EXECUTABLE_PREFIX);
   }
 
   /**
@@ -82,9 +88,15 @@ public class SecurityTest {
   public void testJsonWithNonExectuableTokenWithConfiguredGsonDeserialization() {
     // Gson should be able to deserialize a stream with non-exectuable token even if it is created
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
-    String json = JSON_NON_EXECUTABLE_PREFIX + "{intValue:2,stringValue:')]}\\u0027\\n'}";
+    // Note: Embedding non-executable prefix literally is only possible because Gson is lenient by
+    // default
+    String json =
+        JSON_NON_EXECUTABLE_PREFIX
+            + "{intValue:2,stringValue:\""
+            + JSON_NON_EXECUTABLE_PREFIX
+            + "\"}";
     BagOfPrimitives target = gson.fromJson(json, BagOfPrimitives.class);
-    assertThat(target.stringValue).isEqualTo(")]}'\n");
+    assertThat(target.stringValue).isEqualTo(JSON_NON_EXECUTABLE_PREFIX);
     assertThat(target.intValue).isEqualTo(2);
   }
 }
