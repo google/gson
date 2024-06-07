@@ -528,14 +528,15 @@ public class PrimitiveTest {
 
   @Test
   public void testDoubleNaNSerializationNotSupportedByDefault() {
-    var e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(Double.NaN));
+    var e =
+        assertThrows(IllegalArgumentException.class, () -> gson.toJson(Double.NaN, double.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
             "NaN is not a valid double value as per JSON specification. To override this behavior,"
                 + " use GsonBuilder.serializeSpecialFloatingPointValues() method.");
 
-    e = assertThrows(IllegalArgumentException.class, () -> gson.toJson((Double) Double.NaN));
+    e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(Double.NaN, Double.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -546,8 +547,8 @@ public class PrimitiveTest {
   @Test
   public void testDoubleNaNSerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    assertThat(gson.toJson(Double.NaN)).isEqualTo("NaN");
-    assertThat(gson.toJson((Double) Double.NaN)).isEqualTo("NaN");
+    assertThat(gson.toJson(Double.NaN, double.class)).isEqualTo("NaN");
+    assertThat(gson.toJson(Double.NaN, Double.class)).isEqualTo("NaN");
   }
 
   @Test
@@ -558,14 +559,14 @@ public class PrimitiveTest {
 
   @Test
   public void testFloatNaNSerializationNotSupportedByDefault() {
-    var e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(Float.NaN));
+    var e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(Float.NaN, float.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
             "NaN is not a valid double value as per JSON specification. To override this behavior,"
                 + " use GsonBuilder.serializeSpecialFloatingPointValues() method.");
 
-    e = assertThrows(IllegalArgumentException.class, () -> gson.toJson((Float) Float.NaN));
+    e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(Float.NaN, Float.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -576,8 +577,8 @@ public class PrimitiveTest {
   @Test
   public void testFloatNaNSerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    assertThat(gson.toJson(Float.NaN)).isEqualTo("NaN");
-    assertThat(gson.toJson((Float) Float.NaN)).isEqualTo("NaN");
+    assertThat(gson.toJson(Float.NaN, float.class)).isEqualTo("NaN");
+    assertThat(gson.toJson(Float.NaN, Float.class)).isEqualTo("NaN");
   }
 
   @Test
@@ -595,7 +596,9 @@ public class PrimitiveTest {
   @Test
   public void testDoubleInfinitySerializationNotSupportedByDefault() {
     var e =
-        assertThrows(IllegalArgumentException.class, () -> gson.toJson(Double.POSITIVE_INFINITY));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Double.POSITIVE_INFINITY, double.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -604,7 +607,8 @@ public class PrimitiveTest {
 
     e =
         assertThrows(
-            IllegalArgumentException.class, () -> gson.toJson((Double) Double.POSITIVE_INFINITY));
+            IllegalArgumentException.class,
+            () -> gson.toJson(Double.POSITIVE_INFINITY, Double.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -615,8 +619,8 @@ public class PrimitiveTest {
   @Test
   public void testDoubleInfinitySerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    assertThat(gson.toJson(Double.POSITIVE_INFINITY)).isEqualTo("Infinity");
-    assertThat(gson.toJson((Double) Double.POSITIVE_INFINITY)).isEqualTo("Infinity");
+    assertThat(gson.toJson(Double.POSITIVE_INFINITY, double.class)).isEqualTo("Infinity");
+    assertThat(gson.toJson(Double.POSITIVE_INFINITY, Double.class)).isEqualTo("Infinity");
   }
 
   @Test
@@ -628,7 +632,9 @@ public class PrimitiveTest {
   @Test
   public void testFloatInfinitySerializationNotSupportedByDefault() {
     var e =
-        assertThrows(IllegalArgumentException.class, () -> gson.toJson(Float.POSITIVE_INFINITY));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Float.POSITIVE_INFINITY, float.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -637,7 +643,8 @@ public class PrimitiveTest {
 
     e =
         assertThrows(
-            IllegalArgumentException.class, () -> gson.toJson((Float) Float.POSITIVE_INFINITY));
+            IllegalArgumentException.class,
+            () -> gson.toJson(Float.POSITIVE_INFINITY, Float.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -648,8 +655,8 @@ public class PrimitiveTest {
   @Test
   public void testFloatInfinitySerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    assertThat(gson.toJson(Float.POSITIVE_INFINITY)).isEqualTo("Infinity");
-    assertThat(gson.toJson((Float) Float.POSITIVE_INFINITY)).isEqualTo("Infinity");
+    assertThat(gson.toJson(Float.POSITIVE_INFINITY, float.class)).isEqualTo("Infinity");
+    assertThat(gson.toJson(Float.POSITIVE_INFINITY, Float.class)).isEqualTo("Infinity");
   }
 
   @Test
@@ -667,7 +674,9 @@ public class PrimitiveTest {
   @Test
   public void testNegativeInfinitySerializationNotSupportedByDefault() {
     var e =
-        assertThrows(IllegalArgumentException.class, () -> gson.toJson(Double.NEGATIVE_INFINITY));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Double.NEGATIVE_INFINITY, double.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -676,7 +685,8 @@ public class PrimitiveTest {
 
     e =
         assertThrows(
-            IllegalArgumentException.class, () -> gson.toJson((Double) Double.NEGATIVE_INFINITY));
+            IllegalArgumentException.class,
+            () -> gson.toJson(Double.NEGATIVE_INFINITY, Double.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -687,8 +697,8 @@ public class PrimitiveTest {
   @Test
   public void testNegativeInfinitySerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    assertThat(gson.toJson(Double.NEGATIVE_INFINITY)).isEqualTo("-Infinity");
-    assertThat(gson.toJson((Double) Double.NEGATIVE_INFINITY)).isEqualTo("-Infinity");
+    assertThat(gson.toJson(Double.NEGATIVE_INFINITY, double.class)).isEqualTo("-Infinity");
+    assertThat(gson.toJson(Double.NEGATIVE_INFINITY, Double.class)).isEqualTo("-Infinity");
   }
 
   @Test
@@ -700,7 +710,9 @@ public class PrimitiveTest {
   @Test
   public void testNegativeInfinityFloatSerializationNotSupportedByDefault() {
     var e =
-        assertThrows(IllegalArgumentException.class, () -> gson.toJson(Float.NEGATIVE_INFINITY));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gson.toJson(Float.NEGATIVE_INFINITY, float.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -709,7 +721,8 @@ public class PrimitiveTest {
 
     e =
         assertThrows(
-            IllegalArgumentException.class, () -> gson.toJson((Float) Float.NEGATIVE_INFINITY));
+            IllegalArgumentException.class,
+            () -> gson.toJson(Float.NEGATIVE_INFINITY, Float.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -720,8 +733,8 @@ public class PrimitiveTest {
   @Test
   public void testNegativeInfinityFloatSerialization() {
     Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-    assertThat(gson.toJson(Float.NEGATIVE_INFINITY)).isEqualTo("-Infinity");
-    assertThat(gson.toJson((Float) Float.NEGATIVE_INFINITY)).isEqualTo("-Infinity");
+    assertThat(gson.toJson(Float.NEGATIVE_INFINITY, float.class)).isEqualTo("-Infinity");
+    assertThat(gson.toJson(Float.NEGATIVE_INFINITY, Float.class)).isEqualTo("-Infinity");
   }
 
   @Test
