@@ -114,7 +114,7 @@ public class ReflectionAccessTest {
   private static JsonIOException assertInaccessibleException(String json, Class<?> toDeserialize) {
     Gson gson = new Gson();
     try {
-      gson.fromJson(json, toDeserialize);
+      Object unused = gson.fromJson(json, toDeserialize);
       throw new AssertionError(
           "Missing exception; test has to be run with `--illegal-access=deny`");
     } catch (JsonSyntaxException e) {

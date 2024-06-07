@@ -56,7 +56,7 @@ public class CollectionsDeserializationBenchmark {
   /** Benchmark to measure Gson performance for deserializing an object */
   public void timeCollectionsDefault(int reps) {
     for (int i = 0; i < reps; ++i) {
-      gson.fromJson(json, LIST_TYPE_TOKEN);
+      List<BagOfPrimitives> unused = gson.fromJson(json, LIST_TYPE_TOKEN);
     }
   }
 

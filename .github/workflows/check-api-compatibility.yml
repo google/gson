@@ -8,9 +8,18 @@ jobs:
   check-api-compatibility:
     runs-on: ubuntu-latest
 
+    # This setup tries to determine API incompatibility only for the changes introduced by the
+    # pull request. It does this by first checking out the 'old' version and installing it into
+    # the local Maven repository before then using japicmp to compare it to the current changes.
+    #
+    # Alternatively it would also be possible to compare against the last release version instead.
+    #
+    # Both approaches have their advantages and disadvantages, see description of
+    # https://github.com/google/gson/pull/2692 for details.
+
     steps:
-      - name: Checkout old version
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b  # v4.1.4
+      - name: Check out old version
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29  # v4.1.6
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: 'gson-old-japicmp'
@@ -26,12 +35,12 @@ jobs:
         run: |
           cd gson-old-japicmp
           # Set dummy version
-          mvn --batch-mode --no-transfer-progress org.codehaus.mojo:versions-maven-plugin:2.11.0:set -DnewVersion=JAPICMP-OLD
+          mvn --batch-mode --no-transfer-progress org.codehaus.mojo:versions-maven-plugin:2.16.2:set "-DnewVersion=0.0.0-JAPICMP-OLD"
           # Install artifacts with dummy version in local repository; used later by Maven plugin for comparison
           mvn --batch-mode --no-transfer-progress install -DskipTests
 
-      - name: Checkout new version
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b  # v4.1.4
+      - name: Check out new version
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29  # v4.1.6
 
       - name: Check API compatibility
         id: check-compatibility

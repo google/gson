@@ -249,7 +249,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
       @Override
       public A read(JsonReader in) throws IOException {
-        in.nextString();
+        String unused = in.nextString();
         return new A("jsonAdapter");
       }
     }
@@ -275,7 +275,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
           @SuppressWarnings("unchecked")
           @Override
           public T read(JsonReader in) throws IOException {
-            in.nextString();
+            String unused = in.nextString();
             return (T) new C("jsonAdapterFactory");
           }
         };
@@ -327,7 +327,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     public User read(JsonReader in) throws IOException {
       // implement read: split name into firstName and lastName
       in.beginObject();
-      in.nextName();
+      String unused = in.nextName();
       List<String> nameParts = Splitter.on(" ").splitToList(in.nextString());
       in.endObject();
       return new User(nameParts.get(0), nameParts.get(1));
@@ -346,7 +346,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     @Override
     public NullableClass read(JsonReader in) throws IOException {
-      in.nextString();
+      String unused = in.nextString();
       return new NullableClass();
     }
   }

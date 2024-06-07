@@ -20,4 +20,5 @@
  *
  * @author Inderjeet Singh, Joel Leitch, Jesse Wilson
  */
+@com.google.errorprone.annotations.CheckReturnValue
 package com.google.gson.internal;

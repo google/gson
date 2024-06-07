@@ -31,6 +31,9 @@
     <!-- Make the build reproducible, see root `pom.xml` -->
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2024-05-19T18:54:10Z</project.build.outputTimestamp>
+
+    <!-- Overwrite property from parent; this module is currently not deployed -->
+    <gson.isInternalModule>true</gson.isInternalModule>
   </properties>
 
   <licenses>
@@ -68,21 +71,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <configuration>
-            <!-- Currently not deployed -->
-            <skip>true</skip>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
 
   <developers>
     <developer>

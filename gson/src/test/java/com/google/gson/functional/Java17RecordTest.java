@@ -323,7 +323,7 @@ public final class Java17RecordTest {
   @Test
   public void testStaticFieldDeserialization() {
     // By default Gson should ignore static fields
-    gson.fromJson("{\"s\":\"custom\"}", RecordWithStaticField.class);
+    RecordWithStaticField unused = gson.fromJson("{\"s\":\"custom\"}", RecordWithStaticField.class);
     assertThat(RecordWithStaticField.s).isEqualTo("initial");
 
     Gson gson =

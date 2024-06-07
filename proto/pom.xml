@@ -15,7 +15,6 @@
   limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.google.code.gson</groupId>
@@ -32,7 +31,10 @@
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2024-05-19T18:54:10Z</project.build.outputTimestamp>
 
-    <protobufVersion>4.26.1</protobufVersion>
+    <protobufVersion>4.27.0</protobufVersion>
+
+    <!-- Overwrite property from parent; this module is currently not deployed -->
+    <gson.isInternalModule>true</gson.isInternalModule>
   </properties>
 
   <licenses>
@@ -58,7 +60,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.1.0-jre</version>
+      <version>33.2.1-jre</version>
     </dependency>
 
     <dependency>
@@ -101,19 +103,6 @@
         </executions>
       </plugin>
     </plugins>
-
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <configuration>
-            <!-- Not deployed -->
-            <skip>true</skip>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 
   <developers>
