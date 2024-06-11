@@ -89,6 +89,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
     private EnumSerialization enumSerialization;
     private CaseFormat protoFormat;
     private CaseFormat jsonFormat;
+    private boolean shouldUseJsonNameFieldOption;
 
     private Builder(
         EnumSerialization enumSerialization,
@@ -98,6 +99,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
       this.serializedEnumValueExtensions = new HashSet<>();
       setEnumSerialization(enumSerialization);
       setFieldNameSerializationFormat(fromFieldNameFormat, toFieldNameFormat);
+      this.shouldUseJsonNameFieldOption = false;
     }
 
     @CanIgnoreReturnValue
@@ -174,13 +176,37 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
       return this;
     }
 
+    /**
+     * Sets or unsets a flag that, when set, causes the adapter to use the `json_name` field option
+     * from a proto field for serialization. This `json_name` option is an annotation applied to
+     * proto fields that cannot be read from the descriptor's options
+     * (`FieldDescriptor::getOptions`) as it is only available via `FieldDescriptor::getJsonName`.
+     *
+     * <p>This flag is subordinate to any custom serialized name extensions added to this adapter.
+     * In other words, serialized name extensions take precedence over this setting. For example, a
+     * field defined like:
+     *
+     * <pre>
+     * string client_app_id = 1 [json_name = "foo", (serialized_name) = "bar"];
+     * </pre>
+     *
+     * ...will be serialized as '{@code bar}' if `shouldUseJsonNameFieldOption` is set to `true` and
+     * the '{@code serialized_name}' annotation is added to the adapter.
+     */
+    @CanIgnoreReturnValue
+    public Builder setShouldUseJsonNameFieldOption(boolean shouldUseJsonNameFieldOption) {
+      this.shouldUseJsonNameFieldOption = shouldUseJsonNameFieldOption;
+      return this;
+    }
+
     public ProtoTypeAdapter build() {
       return new ProtoTypeAdapter(
           enumSerialization,
           protoFormat,
           jsonFormat,
           serializedNameExtensions,
-          serializedEnumValueExtensions);
+          serializedEnumValueExtensions,
+          shouldUseJsonNameFieldOption);
     }
   }
 
@@ -203,18 +229,21 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
   private final CaseFormat jsonFormat;
   private final Set<Extension<FieldOptions, String>> serializedNameExtensions;
   private final Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions;
+  private final boolean shouldUseJsonNameFieldOption;
 
   private ProtoTypeAdapter(
       EnumSerialization enumSerialization,
       CaseFormat protoFormat,
       CaseFormat jsonFormat,
       Set<Extension<FieldOptions, String>> serializedNameExtensions,
-      Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions) {
+      Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions,
+      boolean shouldUseJsonNameFieldOption) {
     this.enumSerialization = enumSerialization;
     this.protoFormat = protoFormat;
     this.jsonFormat = jsonFormat;
     this.serializedNameExtensions = serializedNameExtensions;
     this.serializedEnumValueExtensions = serializedEnumValueExtensions;
+    this.shouldUseJsonNameFieldOption = shouldUseJsonNameFieldOption;
   }
 
   @Override
@@ -325,6 +354,9 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
       if (options.hasExtension(extension)) {
         return options.getExtension(extension);
       }
+    }
+    if (fieldDescriptor.toProto().hasJsonName() && shouldUseJsonNameFieldOption) {
+      return fieldDescriptor.getJsonName();
     }
     return protoFormat.to(jsonFormat, fieldDescriptor.getName());
   }
