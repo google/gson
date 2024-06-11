@@ -224,7 +224,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
 
     for (Map.Entry<FieldDescriptor, Object> fieldPair : fields.entrySet()) {
       final FieldDescriptor desc = fieldPair.getKey();
-      String name = getCustSerializedName(desc.getOptions(), desc.getName());
+      String name = getCustSerializedName(desc);
 
       if (desc.getType() == ENUM_TYPE) {
         // Enum collections are also returned as ENUM_TYPE
@@ -272,8 +272,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
           (Descriptor) getCachedMethod(protoClass, "getDescriptor").invoke(null);
       // Call setters on all of the available fields
       for (FieldDescriptor fieldDescriptor : protoDescriptor.getFields()) {
-        String jsonFieldName =
-            getCustSerializedName(fieldDescriptor.getOptions(), fieldDescriptor.getName());
+        String jsonFieldName = getCustSerializedName(fieldDescriptor);
 
         JsonElement jsonElement = jsonObject.get(jsonFieldName);
         if (jsonElement != null && !jsonElement.isJsonNull()) {
@@ -317,16 +316,17 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
   }
 
   /**
-   * Retrieves the custom field name from the given options, and if not found, returns the specified
-   * default name.
+   * Retrieves the custom field name for a given FieldDescriptor via its field options, falling back
+   * to its name as a default.
    */
-  private String getCustSerializedName(FieldOptions options, String defaultName) {
+  private String getCustSerializedName(FieldDescriptor fieldDescriptor) {
+    FieldOptions options = fieldDescriptor.getOptions();
     for (Extension<FieldOptions, String> extension : serializedNameExtensions) {
       if (options.hasExtension(extension)) {
         return options.getExtension(extension);
       }
     }
-    return protoFormat.to(jsonFormat, defaultName);
+    return protoFormat.to(jsonFormat, fieldDescriptor.getName());
   }
 
   /**
