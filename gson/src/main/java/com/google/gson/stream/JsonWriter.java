@@ -638,15 +638,17 @@ public class JsonWriter implements Closeable, Flushable {
 
     writeDeferredName();
     String string = value.toString();
-    if (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN")) {
-      if (strictness != Strictness.LENIENT) {
-        throw new IllegalArgumentException("Numeric values must be finite, but was " + string);
-      }
-    } else {
-      Class<? extends Number> numberClass = value.getClass();
+    Class<? extends Number> numberClass = value.getClass();
+
+    if (!alwaysCreatesValidJsonNumber(numberClass)) {
       // Validate that string is valid before writing it directly to JSON output
-      if (!isTrustedNumberType(numberClass)
-          && !VALID_JSON_NUMBER_PATTERN.matcher(string).matches()) {
+      if (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN")) {
+        if (strictness != Strictness.LENIENT) {
+          throw new IllegalArgumentException("Numeric values must be finite, but was " + string);
+        }
+      } else if (!(numberClass == Float.class
+          || numberClass == Double.class
+          || VALID_JSON_NUMBER_PATTERN.matcher(string).matches())) {
         throw new IllegalArgumentException(
             "String created by " + numberClass + " is not a valid JSON number: " + string);
       }
@@ -725,17 +727,12 @@ public class JsonWriter implements Closeable, Flushable {
     stackSize = 0;
   }
 
-  /**
-   * Returns whether the {@code toString()} of {@code c} can be trusted to return a valid JSON
-   * number.
-   */
-  private static boolean isTrustedNumberType(Class<? extends Number> c) {
-    // Note: Don't consider LazilyParsedNumber trusted because it could contain
-    // an arbitrary malformed string
+  /** Returns whether the {@code toString()} of {@code c} will always return a valid JSON number. */
+  private static boolean alwaysCreatesValidJsonNumber(Class<? extends Number> c) {
+    // Does not include Float or Double because their value can be NaN or Infinity
+    // Does not include LazilyParsedNumber because it could contain a malformed string
     return c == Integer.class
         || c == Long.class
-        || c == Double.class
-        || c == Float.class
         || c == Byte.class
         || c == Short.class
         || c == BigDecimal.class
