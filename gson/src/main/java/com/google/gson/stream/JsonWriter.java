@@ -646,9 +646,9 @@ public class JsonWriter implements Closeable, Flushable {
         if (strictness != Strictness.LENIENT) {
           throw new IllegalArgumentException("Numeric values must be finite, but was " + string);
         }
-      } else if (!(numberClass == Float.class
-          || numberClass == Double.class
-          || VALID_JSON_NUMBER_PATTERN.matcher(string).matches())) {
+      } else if (numberClass != Float.class
+          && numberClass != Double.class
+          && !VALID_JSON_NUMBER_PATTERN.matcher(string).matches()) {
         throw new IllegalArgumentException(
             "String created by " + numberClass + " is not a valid JSON number: " + string);
       }
