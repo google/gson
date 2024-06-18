@@ -308,4 +308,15 @@ public class EnumTest {
       return toString;
     }
   }
+
+  /**
+   * Verifies that the enum adapter works for a public JDK enum class and no {@code
+   * InaccessibleObjectException} is thrown, despite using reflection internally to account for the
+   * constant names possibly being obfuscated.
+   */
+  @Test
+  public void testJdkEnum() {
+    assertThat(gson.toJson(Thread.State.NEW)).isEqualTo("\"NEW\"");
+    assertThat(gson.fromJson("\"NEW\"", Thread.State.class)).isEqualTo(Thread.State.NEW);
+  }
 }

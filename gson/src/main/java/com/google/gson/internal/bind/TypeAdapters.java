@@ -43,8 +43,6 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -962,27 +960,17 @@ public final class TypeAdapters {
       try {
         // Uses reflection to find enum constants to work around name mismatches for obfuscated
         // classes
-        // Reflection access might throw SecurityException, therefore run this in privileged
-        // context; should be acceptable because this only retrieves enum constants, but does not
-        // expose anything else
-        Field[] constantFields =
-            AccessController.doPrivileged(
-                new PrivilegedAction<Field[]>() {
-                  @Override
-                  public Field[] run() {
-                    Field[] fields = classOfT.getDeclaredFields();
-                    ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
-                    for (Field f : fields) {
-                      if (f.isEnumConstant()) {
-                        constantFieldsList.add(f);
-                      }
-                    }
+        Field[] fields = classOfT.getDeclaredFields();
+        ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
+        for (Field f : fields) {
+          if (f.isEnumConstant()) {
+            constantFieldsList.add(f);
+          }
+        }
 
-                    Field[] constantFields = constantFieldsList.toArray(new Field[0]);
-                    AccessibleObject.setAccessible(constantFields, true);
-                    return constantFields;
-                  }
-                });
+        Field[] constantFields = constantFieldsList.toArray(new Field[0]);
+        AccessibleObject.setAccessible(constantFields, true);
+
         for (Field constantField : constantFields) {
           @SuppressWarnings("unchecked")
           T constant = (T) constantField.get(null);
