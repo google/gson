@@ -177,10 +177,11 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
     }
 
     /**
-     * Sets or unsets a flag that, when set, causes the adapter to use the `json_name` field option
-     * from a proto field for serialization. This `json_name` option is an annotation applied to
-     * proto fields that cannot be read from the descriptor's options
-     * (`FieldDescriptor::getOptions`) as it is only available via `FieldDescriptor::getJsonName`.
+     * Sets or unsets a flag (default false) that, when set, causes the adapter to use the {@code
+     * json_name} field option from a proto field for serialization. Unlike other field options that
+     * can be defined as annotations on a proto field, {@code json_name} cannot be accessed via a
+     * proto field's {@link FieldDescriptor#getOptions} and registered via {@link
+     * ProtoTypeAdapter.Builder#addSerializedNameExtension}.
      *
      * <p>This flag is subordinate to any custom serialized name extensions added to this adapter.
      * In other words, serialized name extensions take precedence over this setting. For example, a
@@ -190,8 +191,8 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
      * string client_app_id = 1 [json_name = "foo", (serialized_name) = "bar"];
      * </pre>
      *
-     * ...will be serialized as '{@code bar}' if `shouldUseJsonNameFieldOption` is set to `true` and
-     * the '{@code serialized_name}' annotation is added to the adapter.
+     * ...will be serialized as '{@code bar}' if {@code shouldUseJsonNameFieldOption} is set to
+     * {@code true} and the '{@code serialized_name}' annotation is added to the adapter.
      *
      * @since $next-version$
      */
@@ -357,7 +358,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
         return options.getExtension(extension);
       }
     }
-    if (fieldDescriptor.toProto().hasJsonName() && shouldUseJsonNameFieldOption) {
+    if (shouldUseJsonNameFieldOption && fieldDescriptor.toProto().hasJsonName()) {
       return fieldDescriptor.getJsonName();
     }
     return protoFormat.to(jsonFormat, fieldDescriptor.getName());

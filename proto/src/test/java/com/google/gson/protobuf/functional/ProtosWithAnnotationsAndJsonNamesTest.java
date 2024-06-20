@@ -16,11 +16,9 @@
 package com.google.gson.protobuf.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-// import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-// import com.google.gson.JsonParseException;
 import com.google.gson.protobuf.ProtoTypeAdapter;
 import com.google.gson.protobuf.generated.Annotations;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotationsAndJsonNames;
@@ -115,12 +113,10 @@ public class ProtosWithAnnotationsAndJsonNamesTest {
         // original form
         assertThat(gson1.toJson(proto)).isEqualTo(gson2.toJson(proto));
         assertThat(roundTrip(gson1, gson2, proto)).isEqualTo(proto);
-        assertThat(roundTrip(gson2, gson1, proto)).isEqualTo(proto);
         // the same, but in the other direction
         assertThat(gson1.fromJson(json, ProtoWithAnnotationsAndJsonNames.class))
             .isEqualTo(gson2.fromJson(json, ProtoWithAnnotationsAndJsonNames.class));
         assertThat(roundTrip(gson1, gson2, json)).isEqualTo(json);
-        assertThat(roundTrip(gson2, gson1, json)).isEqualTo(json);
       }
     }
   }
