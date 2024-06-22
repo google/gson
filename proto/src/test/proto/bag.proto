@@ -70,3 +70,10 @@ message ProtoWithAnnotations {
   optional InnerMessage inner_message_1 = 3;
   optional InnerMessage inner_message_2 = 4;
 }
+
+message ProtoWithAnnotationsAndJsonNames {
+  optional string neither = 1;
+  optional string json_name_only = 2 [json_name = "aaa"];
+  optional string annotation_only = 3 [(serialized_name) = "bbb"];
+  optional string both = 4 [json_name = "ccc", (serialized_name) = "ddd"];
+}
