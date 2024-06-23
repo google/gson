@@ -19,7 +19,7 @@
 
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson-parent</artifactId>
-  <version>2.10.2-SNAPSHOT</version>
+  <version>2.11.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Gson Parent</name>
@@ -28,8 +28,9 @@
 
   <modules>
     <module>gson</module>
-    <module>graal-native-image-test</module>
-    <module>shrinker-test</module>
+    <module>test-jpms</module>
+    <module>test-graal-native-image</module>
+    <module>test-shrinker</module>
     <module>extras</module>
     <module>metrics</module>
     <module>proto</module>
@@ -42,7 +43,13 @@
 
     <!-- Make the build reproducible, see https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
     <!-- Automatically updated by Maven Release Plugin -->
-    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2024-05-19T18:54:10Z</project.build.outputTimestamp>
+
+    <!-- These properties are to be overwritten by the Maven modules -->
+    <!-- Whether this module is an integration test module -->
+    <gson.isTestModule>false</gson.isTestModule>
+    <!-- Whether this module is internal and currently not deployed -->
+    <gson.isInternalModule>${gson.isTestModule}</gson.isInternalModule>
   </properties>
 
   <!-- These attributes specify that the URLs should be inherited by the modules as is, to avoid constructing
@@ -93,7 +100,7 @@
       <dependency>
         <groupId>com.google.truth</groupId>
         <artifactId>truth</artifactId>
-        <version>1.4.1</version>
+        <version>1.4.2</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -103,7 +110,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.4.1</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <id>enforce-versions</id>
@@ -194,7 +201,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-artifact-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.5.1</version>
         <executions>
           <execution>
             <goals>
@@ -213,7 +220,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.12.1</version>
+          <version>3.13.0</version>
           <configuration>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
@@ -293,7 +300,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.25.0</version>
+                <version>2.28.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -301,8 +308,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.6.3</version>
+          <version>3.7.0</version>
           <configuration>
+            <skip>${gson.isTestModule}</skip>
+
             <!-- Specify newer JDK as target to allow linking to newer Java API, and to generate
               module overview in Javadoc for Gson's module descriptor -->
             <release>11</release>
@@ -334,22 +343,39 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.4.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.1.2</version>
+          <configuration>
+            <skip>${gson.isTestModule}</skip>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.3.1</version>
+          <configuration>
+            <skipSource>${gson.isTestModule}</skipSource>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.2.4</version>
+          <configuration>
+            <skip>${gson.isTestModule}</skip>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.2</version>
+          <configuration>
+            <skip>${gson.isInternalModule}</skip>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -442,21 +468,21 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.18.5</version>
+          <version>0.21.2</version>
           <configuration>
+            <skip>${gson.isTestModule}</skip>
+
             <oldVersion>
               <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>${project.artifactId}</artifactId>
                 <!-- This is set by the GitHub workflow -->
-                <version>JAPICMP-OLD</version>
+                <version>0.0.0-JAPICMP-OLD</version>
               </dependency>
             </oldVersion>
-            <newVersion>
-              <file>
-                <path>${project.build.directory}/${project.build.finalName}.${project.packaging}</path>
-              </file>
-            </newVersion>
+
+            <!-- 'new version' is automatically the version currently being build -->
+
             <parameter>
               <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
               <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
@@ -485,6 +511,8 @@
                 <goal>check</goal>
               </goals>
               <configuration>
+                <skip>${gson.isTestModule}</skip>
+
                 <signature>
                   <!-- Note: In case Android compatibility impedes Gson development too much in the
                     future, could consider switching to https://github.com/open-toast/gummy-bears

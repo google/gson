@@ -34,7 +34,7 @@ import java.util.Objects;
  * @see GsonBuilder#setFormattingStyle(FormattingStyle)
  * @see JsonWriter#setFormattingStyle(FormattingStyle)
  * @see <a href="https://en.wikipedia.org/wiki/Newline">Wikipedia Newline article</a>
- * @since $next-version$
+ * @since 2.11.0
  */
 public class FormattingStyle {
   private final String newline;
@@ -90,6 +90,7 @@ public class FormattingStyle {
    *
    * @param newline the string value that will be used as newline.
    * @return a newly created {@link FormattingStyle}
+   * @see #getNewline()
    */
   public FormattingStyle withNewline(String newline) {
     return new FormattingStyle(newline, this.indent, this.spaceAfterSeparators);
@@ -98,10 +99,11 @@ public class FormattingStyle {
   /**
    * Creates a {@link FormattingStyle} with the specified indent string.
    *
-   * <p>Only combinations of spaces and tabs allowed in indent.
+   * <p>Only combinations of spaces and tabs are allowed in indent.
    *
    * @param indent the string value that will be used as indent.
    * @return a newly created {@link FormattingStyle}
+   * @see #getIndent()
    */
   public FormattingStyle withIndent(String indent) {
     return new FormattingStyle(this.newline, indent, this.spaceAfterSeparators);
@@ -117,6 +119,7 @@ public class FormattingStyle {
    *
    * @param spaceAfterSeparators whether to output a space after {@code ','} and {@code ':'}.
    * @return a newly created {@link FormattingStyle}
+   * @see #usesSpaceAfterSeparators()
    */
   public FormattingStyle withSpaceAfterSeparators(boolean spaceAfterSeparators) {
     return new FormattingStyle(this.newline, this.indent, spaceAfterSeparators);
@@ -126,6 +129,7 @@ public class FormattingStyle {
    * Returns the string value that will be used as a newline.
    *
    * @return the newline value.
+   * @see #withNewline(String)
    */
   public String getNewline() {
     return this.newline;
@@ -135,12 +139,17 @@ public class FormattingStyle {
    * Returns the string value that will be used as indent.
    *
    * @return the indent value.
+   * @see #withIndent(String)
    */
   public String getIndent() {
     return this.indent;
   }
 
-  /** Returns whether a space will be used after {@code ','} and {@code ':'}. */
+  /**
+   * Returns whether a space will be used after {@code ','} and {@code ':'}.
+   *
+   * @see #withSpaceAfterSeparators(boolean)
+   */
   public boolean usesSpaceAfterSeparators() {
     return this.spaceAfterSeparators;
   }

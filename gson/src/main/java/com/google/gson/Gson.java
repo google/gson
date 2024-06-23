@@ -232,7 +232,7 @@ public final class Gson {
    *       through {@link GsonBuilder#registerTypeAdapter(Type, Object)}.
    *   <li>The default Date format is same as {@link java.text.DateFormat#DEFAULT}. This format
    *       ignores the millisecond portion of the date during serialization. You can change this by
-   *       invoking {@link GsonBuilder#setDateFormat(int)} or {@link
+   *       invoking {@link GsonBuilder#setDateFormat(int, int)} or {@link
    *       GsonBuilder#setDateFormat(String)}.
    *   <li>By default, Gson ignores the {@link com.google.gson.annotations.Expose} annotation. You
    *       can enable Gson to serialize/deserialize only those fields marked with this annotation
@@ -930,7 +930,8 @@ public final class Gson {
     Strictness oldStrictness = writer.getStrictness();
     if (this.strictness != null) {
       writer.setStrictness(this.strictness);
-    } else if (writer.getStrictness() != Strictness.STRICT) {
+    } else if (writer.getStrictness() == Strictness.LEGACY_STRICT) {
+      // For backward compatibility change to LENIENT if writer has default strictness LEGACY_STRICT
       writer.setStrictness(Strictness.LENIENT);
     }
 
@@ -1013,7 +1014,8 @@ public final class Gson {
 
     if (this.strictness != null) {
       writer.setStrictness(this.strictness);
-    } else if (writer.getStrictness() != Strictness.STRICT) {
+    } else if (writer.getStrictness() == Strictness.LEGACY_STRICT) {
+      // For backward compatibility change to LENIENT if writer has default strictness LEGACY_STRICT
       writer.setStrictness(Strictness.LENIENT);
     }
 
@@ -1347,7 +1349,8 @@ public final class Gson {
 
     if (this.strictness != null) {
       reader.setStrictness(this.strictness);
-    } else if (reader.getStrictness() != Strictness.STRICT) {
+    } else if (reader.getStrictness() == Strictness.LEGACY_STRICT) {
+      // For backward compatibility change to LENIENT if reader has default strictness LEGACY_STRICT
       reader.setStrictness(Strictness.LENIENT);
     }
 

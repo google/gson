@@ -72,7 +72,7 @@ public final class GsonTest {
         new Gson(
             CUSTOM_EXCLUDER,
             CUSTOM_FIELD_NAMING_STRATEGY,
-            new HashMap<Type, InstanceCreator<?>>(),
+            new HashMap<>(),
             true,
             false,
             true,
@@ -85,12 +85,12 @@ public final class GsonTest {
             null,
             DateFormat.DEFAULT,
             DateFormat.DEFAULT,
-            new ArrayList<TypeAdapterFactory>(),
-            new ArrayList<TypeAdapterFactory>(),
-            new ArrayList<TypeAdapterFactory>(),
+            new ArrayList<>(),
+            new ArrayList<>(),
+            new ArrayList<>(),
             CUSTOM_OBJECT_TO_NUMBER_STRATEGY,
             CUSTOM_NUMBER_TO_NUMBER_STRATEGY,
-            Collections.<ReflectionAccessFilter>emptyList());
+            Collections.emptyList());
 
     assertThat(gson.excluder).isEqualTo(CUSTOM_EXCLUDER);
     assertThat(gson.fieldNamingStrategy()).isEqualTo(CUSTOM_FIELD_NAMING_STRATEGY);
@@ -104,7 +104,7 @@ public final class GsonTest {
         new Gson(
             CUSTOM_EXCLUDER,
             CUSTOM_FIELD_NAMING_STRATEGY,
-            new HashMap<Type, InstanceCreator<?>>(),
+            new HashMap<>(),
             true,
             false,
             true,
@@ -117,12 +117,12 @@ public final class GsonTest {
             null,
             DateFormat.DEFAULT,
             DateFormat.DEFAULT,
-            new ArrayList<TypeAdapterFactory>(),
-            new ArrayList<TypeAdapterFactory>(),
-            new ArrayList<TypeAdapterFactory>(),
+            new ArrayList<>(),
+            new ArrayList<>(),
+            new ArrayList<>(),
             CUSTOM_OBJECT_TO_NUMBER_STRATEGY,
             CUSTOM_NUMBER_TO_NUMBER_STRATEGY,
-            Collections.<ReflectionAccessFilter>emptyList());
+            Collections.emptyList());
 
     Gson clone =
         original.newBuilder().registerTypeAdapter(int.class, new TestTypeAdapter()).create();

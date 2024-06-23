@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Modifier;
@@ -40,14 +40,9 @@ public class FieldAttributesTest {
     fieldAttributes = new FieldAttributes(Foo.class.getField("bar"));
   }
 
-  @SuppressWarnings("unused")
   @Test
   public void testNullField() {
-    try {
-      new FieldAttributes(null);
-      fail("Field parameter can not be null");
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(NullPointerException.class, () -> new FieldAttributes(null));
   }
 
   @Test

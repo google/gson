@@ -16,7 +16,7 @@
 package com.google.gson.protobuf.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.base.CaseFormat;
 import com.google.gson.Gson;
@@ -28,7 +28,7 @@ import com.google.gson.protobuf.generated.Annotations;
 import com.google.gson.protobuf.generated.Bag.OuterMessage;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations;
 import com.google.gson.protobuf.generated.Bag.ProtoWithAnnotations.InnerMessage;
-import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.GeneratedMessage;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,18 +51,18 @@ public class ProtosWithAnnotationsTest {
             .addSerializedEnumValueExtension(Annotations.serializedValue);
     gson =
         new GsonBuilder()
-            .registerTypeHierarchyAdapter(GeneratedMessageV3.class, protoTypeAdapter.build())
+            .registerTypeHierarchyAdapter(GeneratedMessage.class, protoTypeAdapter.build())
             .create();
     gsonWithEnumNumbers =
         new GsonBuilder()
             .registerTypeHierarchyAdapter(
-                GeneratedMessageV3.class,
+                GeneratedMessage.class,
                 protoTypeAdapter.setEnumSerialization(EnumSerialization.NUMBER).build())
             .create();
     gsonWithLowerHyphen =
         new GsonBuilder()
             .registerTypeHierarchyAdapter(
-                GeneratedMessageV3.class,
+                GeneratedMessage.class,
                 protoTypeAdapter
                     .setFieldNameSerializationFormat(
                         CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_HYPHEN)
@@ -165,12 +165,9 @@ public class ProtosWithAnnotationsTest {
   @Test
   public void testProtoWithAnnotations_deserializeUnrecognizedEnumValue() {
     String json = String.format("{  %n" + "   \"content\":\"UNRECOGNIZED\"%n" + "}");
-    try {
-      gson.fromJson(json, InnerMessage.class);
-      assertWithMessage("Should have thrown").fail();
-    } catch (JsonParseException e) {
-      // expected
-    }
+    var e = assertThrows(JsonParseException.class, () -> gson.fromJson(json, InnerMessage.class));
+    assertThat(e).hasMessageThat().isEqualTo("Error while parsing proto");
+    assertThat(e).hasCauseThat().hasMessageThat().isEqualTo("Unrecognized enum name: UNRECOGNIZED");
   }
 
   @Test
@@ -186,6 +183,16 @@ public class ProtosWithAnnotationsTest {
     assertThat(proto.getContent()).isEqualTo(InnerMessage.Type.IMAGE);
     rebuilt = gsonWithEnumNumbers.toJson(proto);
     assertThat(rebuilt).isEqualTo("{\"content\":2}");
+  }
+
+  @Test
+  public void testProtoWithAnnotations_deserializeUnrecognizedEnumNumber() {
+    String json = String.format("{  %n" + "   \"content\":\"99\"%n" + "}");
+    var e =
+        assertThrows(
+            JsonParseException.class, () -> gsonWithEnumNumbers.fromJson(json, InnerMessage.class));
+    assertThat(e).hasMessageThat().isEqualTo("Error while parsing proto");
+    assertThat(e).hasCauseThat().hasMessageThat().isEqualTo("Unrecognized enum value: 99");
   }
 
   @Test

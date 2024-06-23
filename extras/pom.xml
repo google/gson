@@ -19,7 +19,7 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.10.2-SNAPSHOT</version>
+    <version>2.11.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>gson-extras</artifactId>
@@ -30,7 +30,10 @@
   <properties>
     <!-- Make the build reproducible, see root `pom.xml` -->
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
-    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2024-05-19T18:54:10Z</project.build.outputTimestamp>
+
+    <!-- Overwrite property from parent; this module is currently not deployed -->
+    <gson.isInternalModule>true</gson.isInternalModule>
   </properties>
 
   <licenses>
@@ -62,22 +65,12 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <configuration>
-            <!-- Currently not deployed -->
-            <skip>true</skip>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
 
   <developers>
     <developer>

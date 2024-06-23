@@ -29,6 +29,7 @@ import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Param;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
@@ -195,19 +196,19 @@ public final class ParseBenchmark {
             reader.endObject();
             break;
           case NAME:
-            reader.nextName();
+            String unusedName = reader.nextName();
             break;
           case BOOLEAN:
-            reader.nextBoolean();
+            boolean unusedBoolean = reader.nextBoolean();
             break;
           case NULL:
             reader.nextNull();
             break;
           case NUMBER:
-            reader.nextLong();
+            long unusedLong = reader.nextLong();
             break;
           case STRING:
-            reader.nextString();
+            String unusedString = reader.nextString();
             break;
           case END_DOCUMENT:
             return;
@@ -247,7 +248,7 @@ public final class ParseBenchmark {
             depth--;
             break;
           case FIELD_NAME:
-            jp.getCurrentName();
+            jp.currentName();
             break;
           case VALUE_STRING:
             jp.getText();
@@ -274,7 +275,7 @@ public final class ParseBenchmark {
   private static class GsonDomParser implements Parser {
     @Override
     public void parse(char[] data, Document document) throws Exception {
-      JsonParser.parseReader(new CharArrayReader(data));
+      JsonElement unused = JsonParser.parseReader(new CharArrayReader(data));
     }
   }
 
@@ -284,7 +285,7 @@ public final class ParseBenchmark {
 
     @Override
     public void parse(char[] data, Document document) throws Exception {
-      gson.fromJson(new CharArrayReader(data), document.gsonType);
+      Object unused = gson.fromJson(new CharArrayReader(data), document.gsonType);
     }
   }
 

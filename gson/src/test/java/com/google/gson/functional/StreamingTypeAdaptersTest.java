@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
@@ -118,7 +118,7 @@ public final class StreamingTypeAdaptersTest {
 
   private void usePersonNameAdapter() {
     TypeAdapter<Person> personNameAdapter =
-        new TypeAdapter<Person>() {
+        new TypeAdapter<>() {
           @Override
           public Person read(JsonReader in) throws IOException {
             String name = in.nextString();
@@ -181,7 +181,7 @@ public final class StreamingTypeAdaptersTest {
   @Test
   public void testNullSafe() {
     TypeAdapter<Person> typeAdapter =
-        new TypeAdapter<Person>() {
+        new TypeAdapter<>() {
           @Override
           public Person read(JsonReader in) throws IOException {
             List<String> values = Splitter.on(',').splitToList(in.nextString());
@@ -193,36 +193,32 @@ public final class StreamingTypeAdaptersTest {
             out.value(person.name + "," + person.age);
           }
         };
+
     Gson gson = new GsonBuilder().registerTypeAdapter(Person.class, typeAdapter).create();
     Truck truck = new Truck();
     truck.horsePower = 1.0D;
     truck.passengers = new ArrayList<>();
     truck.passengers.add(null);
     truck.passengers.add(new Person("jesse", 30));
-    try {
-      gson.toJson(truck, Truck.class);
-      fail();
-    } catch (NullPointerException expected) {
-    }
+    assertThrows(NullPointerException.class, () -> gson.toJson(truck, Truck.class));
+
     String json = "{horsePower:1.0,passengers:[null,'jesse,30']}";
-    try {
-      gson.fromJson(json, Truck.class);
-      fail();
-    } catch (JsonSyntaxException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "java.lang.IllegalStateException: Expected a string but was NULL at line 1 column 33"
-                  + " path $.passengers[0]\n"
-                  + "See https://github.com/google/gson/blob/main/Troubleshooting.md#adapter-not-null-safe");
-    }
-    gson = new GsonBuilder().registerTypeAdapter(Person.class, typeAdapter.nullSafe()).create();
-    assertThat(gson.toJson(truck, Truck.class))
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson(json, Truck.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "java.lang.IllegalStateException: Expected a string but was NULL at line 1 column 33"
+                + " path $.passengers[0]\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#adapter-not-null-safe");
+
+    Gson gson2 =
+        new GsonBuilder().registerTypeAdapter(Person.class, typeAdapter.nullSafe()).create();
+    assertThat(gson2.toJson(truck, Truck.class))
         .isEqualTo("{\"horsePower\":1.0,\"passengers\":[null,\"jesse,30\"]}");
-    truck = gson.fromJson(json, Truck.class);
-    assertThat(truck.horsePower).isEqualTo(1.0D);
-    assertThat(truck.passengers.get(0)).isNull();
-    assertThat(truck.passengers.get(1).name).isEqualTo("jesse");
+    Truck deserialized = gson2.fromJson(json, Truck.class);
+    assertThat(deserialized.horsePower).isEqualTo(1.0D);
+    assertThat(deserialized.passengers.get(0)).isNull();
+    assertThat(deserialized.passengers.get(1).name).isEqualTo("jesse");
   }
 
   @Test

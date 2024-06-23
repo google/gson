@@ -66,7 +66,7 @@ import java.util.Objects;
  *     .registerTypeAdapter(Id.class, new IdTypeAdapter())
  *     .enableComplexMapKeySerialization()
  *     .serializeNulls()
- *     .setDateFormat(DateFormat.LONG)
+ *     .setDateFormat(DateFormat.LONG, DateFormat.LONG)
  *     .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
  *     .setPrettyPrinting()
  *     .setVersion(1.0)
@@ -522,7 +522,7 @@ public final class GsonBuilder {
    *
    * @param formattingStyle the formatting style to use.
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
-   * @since $next-version$
+   * @since 2.11.0
    */
   @CanIgnoreReturnValue
   public GsonBuilder setFormattingStyle(FormattingStyle formattingStyle) {
@@ -560,7 +560,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern.
    * @see JsonReader#setStrictness(Strictness)
    * @see JsonWriter#setStrictness(Strictness)
-   * @since $next-version$
+   * @since 2.11.0
    */
   @CanIgnoreReturnValue
   public GsonBuilder setStrictness(Strictness strictness) {
@@ -583,16 +583,16 @@ public final class GsonBuilder {
 
   /**
    * Configures Gson to serialize {@code Date} objects according to the pattern provided. You can
-   * call this method or {@link #setDateFormat(int)} multiple times, but only the last invocation
-   * will be used to decide the serialization format.
+   * call this method or {@link #setDateFormat(int, int)} multiple times, but only the last
+   * invocation will be used to decide the serialization format.
    *
    * <p>The date format will be used to serialize and deserialize {@link java.util.Date} and in case
    * the {@code java.sql} module is present, also {@link java.sql.Timestamp} and {@link
    * java.sql.Date}.
    *
    * <p>Note that this pattern must abide by the convention provided by {@code SimpleDateFormat}
-   * class. See the documentation in {@link java.text.SimpleDateFormat} for more information on
-   * valid date and time patterns.
+   * class. See the documentation in {@link SimpleDateFormat} for more information on valid date and
+   * time patterns.
    *
    * @param pattern the pattern that dates will be serialized/deserialized to/from; can be {@code
    *     null} to reset the pattern
@@ -624,12 +624,17 @@ public final class GsonBuilder {
    * DateFormat} class, such as {@link DateFormat#MEDIUM}. See the documentation of the {@link
    * DateFormat} class for more information on the valid style constants.
    *
+   * @deprecated Counterintuitively, despite this method taking only a 'date style' Gson will use a
+   *     format which includes both date and time, with the 'time style' being the last value set by
+   *     {@link #setDateFormat(int, int)}. Therefore prefer using {@link #setDateFormat(int, int)}
+   *     and explicitly provide the desired 'time style'.
    * @param dateStyle the predefined date style that date objects will be serialized/deserialized
    *     to/from
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @throws IllegalArgumentException if the style is invalid
    * @since 1.2
    */
+  @Deprecated
   @CanIgnoreReturnValue
   public GsonBuilder setDateFormat(int dateStyle) {
     this.dateStyle = checkDateFormatStyle(dateStyle);
@@ -678,7 +683,9 @@ public final class GsonBuilder {
    *
    * <p>This registers the type specified and no other types: you must manually register related
    * types! For example, applications registering {@code boolean.class} should also register {@code
-   * Boolean.class}.
+   * Boolean.class}. And when registering an adapter for a class which has subclasses, you might
+   * also want to register the adapter for subclasses, or use {@link
+   * #registerTypeHierarchyAdapter(Class, Object)} instead.
    *
    * <p>{@link JsonSerializer} and {@link JsonDeserializer} are made "{@code null}-safe". This means
    * when trying to serialize {@code null}, Gson will write a JSON {@code null} and the serializer
@@ -692,6 +699,7 @@ public final class GsonBuilder {
    * @return a reference to this {@code GsonBuilder} object to fulfill the "Builder" pattern
    * @throws IllegalArgumentException if the type adapter being registered is for {@code Object}
    *     class or {@link JsonElement} or any of its subclasses
+   * @see #registerTypeHierarchyAdapter(Class, Object)
    */
   @CanIgnoreReturnValue
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
@@ -728,7 +736,7 @@ public final class GsonBuilder {
   }
 
   /**
-   * Register a factory for type adapters. Registering a factory is useful when the type adapter
+   * Registers a factory for type adapters. Registering a factory is useful when the type adapter
    * needs to be configured based on the type of the field being processed. Gson is designed to
    * handle a large number of factories, so you should consider registering them to be at par with
    * registering an individual type adapter.
@@ -916,7 +924,7 @@ public final class GsonBuilder {
             SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(datePattern);
         sqlDateAdapterFactory = SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(datePattern);
       }
-    } else if (dateStyle != DateFormat.DEFAULT && timeStyle != DateFormat.DEFAULT) {
+    } else if (dateStyle != DateFormat.DEFAULT || timeStyle != DateFormat.DEFAULT) {
       dateAdapterFactory =
           DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(dateStyle, timeStyle);
 

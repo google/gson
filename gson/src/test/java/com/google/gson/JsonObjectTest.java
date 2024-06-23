@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.testing.EqualsTester;
 import com.google.gson.common.MoreAsserts;
@@ -75,14 +75,12 @@ public class JsonObjectTest {
   @Test
   public void testAddingNullOrEmptyPropertyName() {
     JsonObject jsonObj = new JsonObject();
-    try {
-      jsonObj.add(null, JsonNull.INSTANCE);
-      fail("Should not allow null property names.");
-    } catch (NullPointerException expected) {
-    }
+    // Should not allow null property names
+    assertThrows(NullPointerException.class, () -> jsonObj.add(null, JsonNull.INSTANCE));
 
     jsonObj.add("", JsonNull.INSTANCE);
     jsonObj.add("   \t", JsonNull.INSTANCE);
+    assertThat(jsonObj.keySet()).containsExactly("", "   \t");
   }
 
   @Test
@@ -308,15 +306,11 @@ public class JsonObjectTest {
     assertThat(new ArrayList<>(o.entrySet())).isEqualTo(expectedEntriesList);
 
     Entry<String, JsonElement> entry = o.entrySet().iterator().next();
-    try {
-      // null value is not permitted, only JsonNull is supported
-      // This intentionally deviates from the behavior of the other JsonObject methods which
-      // implicitly convert null -> JsonNull, to match more closely the contract of Map.Entry
-      entry.setValue(null);
-      fail();
-    } catch (NullPointerException e) {
-      assertThat(e).hasMessageThat().isEqualTo("value == null");
-    }
+    // null value is not permitted, only JsonNull is supported
+    // This intentionally deviates from the behavior of the other JsonObject methods which
+    // implicitly convert null -> JsonNull, to match more closely the contract of Map.Entry
+    var e = assertThrows(NullPointerException.class, () -> entry.setValue(null));
+    assertThat(e).hasMessageThat().isEqualTo("value == null");
     assertThat(entry.getValue()).isNotNull();
 
     o.addProperty("key1", 1);
@@ -343,5 +337,22 @@ public class JsonObjectTest {
       assertThat(o.size()).isEqualTo(i - 1);
       assertThat(new ArrayList<>(o.entrySet())).isEqualTo(new ArrayList<>(expectedEntriesQueue));
     }
+  }
+
+  @Test
+  public void testToString() {
+    JsonObject object = new JsonObject();
+    assertThat(object.toString()).isEqualTo("{}");
+
+    object.add("a", JsonNull.INSTANCE);
+    object.addProperty("b\0", Float.NaN);
+    JsonArray nestedArray = new JsonArray();
+    nestedArray.add('"');
+    object.add("c", nestedArray);
+    JsonObject nestedObject = new JsonObject();
+    nestedObject.addProperty("n\0", 1);
+    object.add("d", nestedObject);
+    assertThat(object.toString())
+        .isEqualTo("{\"a\":null,\"b\\u0000\":NaN,\"c\":[\"\\\"\"],\"d\":{\"n\\u0000\":1}}");
   }
 }

@@ -16,7 +16,7 @@
 package com.google.gson.internal.bind;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -128,18 +128,13 @@ public class JsonTreeReaderTest {
 
     JsonTreeReader reader = new JsonTreeReader(array);
     reader.beginArray();
-    try {
-      // Should fail due to custom JsonElement subclass
-      reader.peek();
-      fail();
-    } catch (MalformedJsonException expected) {
-      assertThat(expected)
-          .hasMessageThat()
-          .isEqualTo(
-              "Custom JsonElement subclass "
-                  + CustomSubclass.class.getName()
-                  + " is not supported");
-    }
+
+    // Should fail due to custom JsonElement subclass
+    var e = assertThrows(MalformedJsonException.class, () -> reader.peek());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Custom JsonElement subclass " + CustomSubclass.class.getName() + " is not supported");
   }
 
   /**

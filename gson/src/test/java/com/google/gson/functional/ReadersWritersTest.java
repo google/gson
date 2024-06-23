@@ -16,7 +16,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Gson;
@@ -32,6 +32,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Map;
 import org.junit.Before;
@@ -130,20 +131,24 @@ public class ReadersWritersTest {
 
   @Test
   public void testTypeMismatchThrowsJsonSyntaxExceptionForStrings() {
-    try {
-      gson.fromJson("true", new TypeToken<Map<String, String>>() {}.getType());
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+    Type type = new TypeToken<Map<String, String>>() {}.getType();
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("true", type));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected BEGIN_OBJECT but was BOOLEAN");
   }
 
   @Test
   public void testTypeMismatchThrowsJsonSyntaxExceptionForReaders() {
-    try {
-      gson.fromJson(new StringReader("true"), new TypeToken<Map<String, String>>() {}.getType());
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+    Type type = new TypeToken<Map<String, String>>() {}.getType();
+    var e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson(new StringReader("true"), type));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected BEGIN_OBJECT but was BOOLEAN");
   }
 
   /**

@@ -24,14 +24,6 @@ public class PreJava9DateFormatProvider {
   private PreJava9DateFormatProvider() {}
 
   /**
-   * Returns the same DateFormat as {@code DateFormat.getDateInstance(style, Locale.US)} in Java 8
-   * or below.
-   */
-  public static DateFormat getUsDateFormat(int style) {
-    return new SimpleDateFormat(getDateFormatPattern(style), Locale.US);
-  }
-
-  /**
    * Returns the same DateFormat as {@code DateFormat.getDateTimeInstance(dateStyle, timeStyle,
    * Locale.US)} in Java 8 or below.
    */
@@ -39,21 +31,6 @@ public class PreJava9DateFormatProvider {
     String pattern =
         getDatePartOfDateTimePattern(dateStyle) + " " + getTimePartOfDateTimePattern(timeStyle);
     return new SimpleDateFormat(pattern, Locale.US);
-  }
-
-  private static String getDateFormatPattern(int style) {
-    switch (style) {
-      case DateFormat.SHORT:
-        return "M/d/yy";
-      case DateFormat.MEDIUM:
-        return "MMM d, y";
-      case DateFormat.LONG:
-        return "MMMM d, y";
-      case DateFormat.FULL:
-        return "EEEE, MMMM d, y";
-      default:
-        throw new IllegalArgumentException("Unknown DateFormat style: " + style);
-    }
   }
 
   private static String getDatePartOfDateTimePattern(int dateStyle) {

@@ -17,7 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.testing.EqualsTester;
 import com.google.gson.common.MoreAsserts;
@@ -62,11 +62,8 @@ public final class JsonArrayTest {
   @Test
   public void testRemove() {
     JsonArray array = new JsonArray();
-    try {
-      array.remove(0);
-      fail();
-    } catch (IndexOutOfBoundsException expected) {
-    }
+    assertThrows(IndexOutOfBoundsException.class, () -> array.remove(0));
+
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);
     assertThat(array.remove(a)).isTrue();
@@ -81,11 +78,8 @@ public final class JsonArrayTest {
   @Test
   public void testSet() {
     JsonArray array = new JsonArray();
-    try {
-      array.set(0, new JsonPrimitive(1));
-      fail();
-    } catch (IndexOutOfBoundsException expected) {
-    }
+    assertThrows(IndexOutOfBoundsException.class, () -> array.set(0, new JsonPrimitive(1)));
+
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);
 
@@ -144,77 +138,44 @@ public final class JsonArrayTest {
                 + "\"key3\":\"value3\","
                 + "\"key4\":\"value4\""
                 + "}"));
-    try {
-      jsonArray.getAsBoolean();
-      fail("expected getBoolean to fail");
-    } catch (UnsupportedOperationException e) {
-      assertThat(e).hasMessageThat().isEqualTo("JsonObject");
-    }
-    try {
-      jsonArray.get(-1);
-      fail("expected get to fail");
-    } catch (IndexOutOfBoundsException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Index -1 out of bounds for length 1");
-    }
-    try {
-      jsonArray.getAsString();
-      fail("expected getString to fail");
-    } catch (UnsupportedOperationException e) {
-      assertThat(e).hasMessageThat().isEqualTo("JsonObject");
-    }
+
+    Exception e = assertThrows(UnsupportedOperationException.class, () -> jsonArray.getAsBoolean());
+    assertThat(e).hasMessageThat().isEqualTo("JsonObject");
+
+    e = assertThrows(IndexOutOfBoundsException.class, () -> jsonArray.get(-1));
+    assertThat(e).hasMessageThat().isEqualTo("Index -1 out of bounds for length 1");
+
+    e = assertThrows(UnsupportedOperationException.class, () -> jsonArray.getAsString());
+    assertThat(e).hasMessageThat().isEqualTo("JsonObject");
 
     jsonArray.remove(0);
     jsonArray.add("hello");
-    try {
-      jsonArray.getAsDouble();
-      fail("expected getDouble to fail");
-    } catch (NumberFormatException e) {
-      assertThat(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
-    }
-    try {
-      jsonArray.getAsInt();
-      fail("expected getInt to fail");
-    } catch (NumberFormatException e) {
-      assertThat(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
-    }
-    try {
-      jsonArray.get(0).getAsJsonArray();
-      fail("expected getJSONArray to fail");
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Not a JSON Array: \"hello\"");
-    }
-    try {
-      jsonArray.getAsJsonObject();
-      fail("expected getJSONObject to fail");
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Not a JSON Object: [\"hello\"]");
-    }
-    try {
-      jsonArray.getAsLong();
-      fail("expected getLong to fail");
-    } catch (NumberFormatException e) {
-      assertThat(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
-    }
+    e = assertThrows(NumberFormatException.class, () -> jsonArray.getAsDouble());
+    assertThat(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
+
+    e = assertThrows(NumberFormatException.class, () -> jsonArray.getAsInt());
+    assertThat(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
+
+    e = assertThrows(IllegalStateException.class, () -> jsonArray.get(0).getAsJsonArray());
+    assertThat(e).hasMessageThat().isEqualTo("Not a JSON Array: \"hello\"");
+
+    e = assertThrows(IllegalStateException.class, () -> jsonArray.getAsJsonObject());
+    assertThat(e).hasMessageThat().isEqualTo("Not a JSON Object: [\"hello\"]");
+
+    e = assertThrows(NumberFormatException.class, () -> jsonArray.getAsLong());
+    assertThat(e).hasMessageThat().isEqualTo("For input string: \"hello\"");
   }
 
   @Test
   public void testGetAs_WrongArraySize() {
     JsonArray jsonArray = new JsonArray();
-    try {
-      jsonArray.getAsByte();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Array must have size 1, but has size 0");
-    }
+    var e = assertThrows(IllegalStateException.class, () -> jsonArray.getAsByte());
+    assertThat(e).hasMessageThat().isEqualTo("Array must have size 1, but has size 0");
 
     jsonArray.add(true);
     jsonArray.add(false);
-    try {
-      jsonArray.getAsByte();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Array must have size 1, but has size 2");
-    }
+    e = assertThrows(IllegalStateException.class, () -> jsonArray.getAsByte());
+    assertThat(e).hasMessageThat().isEqualTo("Array must have size 1, but has size 2");
   }
 
   @Test
@@ -375,5 +336,22 @@ public final class JsonArrayTest {
 
     assertThat(jsonArray.toString())
         .isEqualTo("[\"a\",\"a\",true,true,1212,1212,34.34,34.34,null,null]");
+  }
+
+  @Test
+  public void testToString() {
+    JsonArray array = new JsonArray();
+    assertThat(array.toString()).isEqualTo("[]");
+
+    array.add(JsonNull.INSTANCE);
+    array.add(Float.NaN);
+    array.add("a\0");
+    JsonArray nestedArray = new JsonArray();
+    nestedArray.add('"');
+    array.add(nestedArray);
+    JsonObject nestedObject = new JsonObject();
+    nestedObject.addProperty("n\0", 1);
+    array.add(nestedObject);
+    assertThat(array.toString()).isEqualTo("[null,NaN,\"a\\u0000\",[\"\\\"\"],{\"n\\u0000\":1}]");
   }
 }

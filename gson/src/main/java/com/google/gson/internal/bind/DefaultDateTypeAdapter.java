@@ -104,17 +104,8 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
       return createFactory(new DefaultDateTypeAdapter<>(this, datePattern));
     }
 
-    public final TypeAdapterFactory createAdapterFactory(int style) {
-      return createFactory(new DefaultDateTypeAdapter<>(this, style));
-    }
-
     public final TypeAdapterFactory createAdapterFactory(int dateStyle, int timeStyle) {
       return createFactory(new DefaultDateTypeAdapter<>(this, dateStyle, timeStyle));
-    }
-
-    public final TypeAdapterFactory createDefaultsAdapterFactory() {
-      return createFactory(
-          new DefaultDateTypeAdapter<>(this, DateFormat.DEFAULT, DateFormat.DEFAULT));
     }
   }
 
@@ -131,17 +122,6 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
     dateFormats.add(new SimpleDateFormat(datePattern, Locale.US));
     if (!Locale.getDefault().equals(Locale.US)) {
       dateFormats.add(new SimpleDateFormat(datePattern));
-    }
-  }
-
-  private DefaultDateTypeAdapter(DateType<T> dateType, int style) {
-    this.dateType = Objects.requireNonNull(dateType);
-    dateFormats.add(DateFormat.getDateInstance(style, Locale.US));
-    if (!Locale.getDefault().equals(Locale.US)) {
-      dateFormats.add(DateFormat.getDateInstance(style));
-    }
-    if (JavaVersion.isJava9OrLater()) {
-      dateFormats.add(PreJava9DateFormatProvider.getUsDateFormat(style));
     }
   }
 

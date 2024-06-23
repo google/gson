@@ -26,6 +26,9 @@ import java.util.Objects;
  * A class representing a JSON primitive value. A primitive value is either a String, a Java
  * primitive, or a Java primitive wrapper type.
  *
+ * <p>See the {@link JsonElement} documentation for details on how to convert {@code JsonPrimitive}
+ * and generally any {@code JsonElement} from and to JSON.
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */

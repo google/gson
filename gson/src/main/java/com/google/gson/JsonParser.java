@@ -27,6 +27,45 @@ import java.io.StringReader;
 /**
  * A parser to parse JSON into a parse tree of {@link JsonElement}s.
  *
+ * <p>The JSON data is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode}.
+ *
+ * <p>Here's an example of parsing from a string:
+ *
+ * <pre>
+ * String json = "{\"key\": \"value\"}";
+ * JsonElement jsonElement = JsonParser.parseString(json);
+ * JsonObject jsonObject = jsonElement.getAsJsonObject();
+ * </pre>
+ *
+ * <p>It can also parse from a reader:
+ *
+ * <pre>
+ * try (Reader reader = new FileReader("my-data.json", StandardCharsets.UTF_8)) {
+ *   JsonElement jsonElement = JsonParser.parseReader(reader);
+ *   JsonObject jsonObject = jsonElement.getAsJsonObject();
+ * }
+ * </pre>
+ *
+ * <p>If you want to parse from a {@link JsonReader} for more customized parsing requirements, the
+ * following example demonstrates how to achieve it:
+ *
+ * <pre>
+ * String json = "{\"skipObj\": {\"skipKey\": \"skipValue\"}, \"obj\": {\"key\": \"value\"}}";
+ * try (JsonReader jsonReader = new JsonReader(new StringReader(json))) {
+ *   jsonReader.beginObject();
+ *   while (jsonReader.hasNext()) {
+ *     String fieldName = jsonReader.nextName();
+ *     if (fieldName.equals("skipObj")) {
+ *       jsonReader.skipValue();
+ *     } else {
+ *       JsonElement jsonElement = JsonParser.parseReader(jsonReader);
+ *       JsonObject jsonObject = jsonElement.getAsJsonObject();
+ *     }
+ *   }
+ *   jsonReader.endObject();
+ * }
+ * </pre>
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @since 1.3
@@ -87,9 +126,10 @@ public final class JsonParser {
    * methods, no exception is thrown if the JSON data has multiple top-level JSON elements, or if
    * there is trailing data.
    *
-   * <p>The JSON data is parsed in {@linkplain JsonReader#setStrictness(Strictness) lenient mode},
-   * regardless of the strictness setting of the provided reader. The strictness setting of the
-   * reader is restored once this method returns.
+   * <p>If the {@linkplain JsonReader#getStrictness() strictness of the reader} is {@link
+   * Strictness#STRICT}, that strictness will be used for parsing. Otherwise the strictness will be
+   * temporarily changed to {@link Strictness#LENIENT} and will be restored once this method
+   * returns.
    *
    * @throws JsonParseException if there is an IOException or if the specified text is not valid
    *     JSON
@@ -98,7 +138,10 @@ public final class JsonParser {
   public static JsonElement parseReader(JsonReader reader)
       throws JsonIOException, JsonSyntaxException {
     Strictness strictness = reader.getStrictness();
-    reader.setStrictness(Strictness.LENIENT);
+    if (strictness == Strictness.LEGACY_STRICT) {
+      // For backward compatibility change to LENIENT if reader has default strictness LEGACY_STRICT
+      reader.setStrictness(Strictness.LENIENT);
+    }
     try {
       return Streams.parse(reader);
     } catch (StackOverflowError e) {

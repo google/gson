@@ -120,11 +120,11 @@ public class ParameterizedTypesTest {
             .create();
     MyParameterizedType<Integer> intTarget = new MyParameterizedType<>(10);
     String json = gson.toJson(intTarget, ptIntegerType);
-    assertThat(json).isEqualTo(MyParameterizedTypeAdapter.<Integer>getExpectedJson(intTarget));
+    assertThat(json).isEqualTo(MyParameterizedTypeAdapter.getExpectedJson(intTarget));
 
     MyParameterizedType<String> stringTarget = new MyParameterizedType<>("abc");
     json = gson.toJson(stringTarget, ptStringType);
-    assertThat(json).isEqualTo(MyParameterizedTypeAdapter.<String>getExpectedJson(stringTarget));
+    assertThat(json).isEqualTo(MyParameterizedTypeAdapter.getExpectedJson(stringTarget));
   }
 
   @Test
@@ -140,12 +140,12 @@ public class ParameterizedTypesTest {
             .create();
 
     MyParameterizedType<Integer> src = new MyParameterizedType<>(10);
-    String json = MyParameterizedTypeAdapter.<Integer>getExpectedJson(src);
+    String json = MyParameterizedTypeAdapter.getExpectedJson(src);
     MyParameterizedType<Integer> intTarget = gson.fromJson(json, ptIntegerType);
     assertThat(intTarget.value).isEqualTo(10);
 
     MyParameterizedType<String> srcStr = new MyParameterizedType<>("abc");
-    json = MyParameterizedTypeAdapter.<String>getExpectedJson(srcStr);
+    json = MyParameterizedTypeAdapter.getExpectedJson(srcStr);
     MyParameterizedType<String> stringTarget = gson.fromJson(json, ptStringType);
     assertThat(stringTarget.value).isEqualTo("abc");
   }
@@ -515,7 +515,7 @@ public class ParameterizedTypesTest {
 
   @Test
   public void testGsonFromJsonTypeToken() {
-    TypeToken<List<Quantity>> typeToken = new TypeToken<List<Quantity>>() {};
+    TypeToken<List<Quantity>> typeToken = new TypeToken<>() {};
     Type type = typeToken.getType();
 
     {

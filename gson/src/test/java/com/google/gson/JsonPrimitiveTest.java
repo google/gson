@@ -18,7 +18,7 @@ package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.common.MoreAsserts;
 import java.math.BigDecimal;
@@ -35,26 +35,10 @@ public class JsonPrimitiveTest {
   @SuppressWarnings("unused")
   @Test
   public void testNulls() {
-    try {
-      new JsonPrimitive((Boolean) null);
-      fail();
-    } catch (NullPointerException ignored) {
-    }
-    try {
-      new JsonPrimitive((Number) null);
-      fail();
-    } catch (NullPointerException ignored) {
-    }
-    try {
-      new JsonPrimitive((String) null);
-      fail();
-    } catch (NullPointerException ignored) {
-    }
-    try {
-      new JsonPrimitive((Character) null);
-      fail();
-    } catch (NullPointerException ignored) {
-    }
+    assertThrows(NullPointerException.class, () -> new JsonPrimitive((Boolean) null));
+    assertThrows(NullPointerException.class, () -> new JsonPrimitive((Number) null));
+    assertThrows(NullPointerException.class, () -> new JsonPrimitive((String) null));
+    assertThrows(NullPointerException.class, () -> new JsonPrimitive((Character) null));
   }
 
   @Test
@@ -107,12 +91,8 @@ public class JsonPrimitiveTest {
   @Test
   public void testAsNumber_Boolean() {
     JsonPrimitive json = new JsonPrimitive(true);
-    try {
-      json.getAsNumber();
-      fail();
-    } catch (UnsupportedOperationException e) {
-      assertThat(e).hasMessageThat().isEqualTo("Primitive is neither a number nor a string");
-    }
+    var e = assertThrows(UnsupportedOperationException.class, () -> json.getAsNumber());
+    assertThat(e).hasMessageThat().isEqualTo("Primitive is neither a number nor a string");
   }
 
   @SuppressWarnings("deprecation")
@@ -131,14 +111,11 @@ public class JsonPrimitiveTest {
     json = new JsonPrimitive(true);
     assertThat(json.getAsString()).isEqualTo("true");
 
-    json = new JsonPrimitive("");
-    assertThat(json.getAsString()).isEqualTo("");
-    try {
-      json.getAsCharacter();
-      fail();
-    } catch (UnsupportedOperationException e) {
-      assertThat(e).hasMessageThat().isEqualTo("String value is empty");
-    }
+    JsonPrimitive emptyString = new JsonPrimitive("");
+    assertThat(emptyString.getAsString()).isEqualTo("");
+
+    var e = assertThrows(UnsupportedOperationException.class, () -> emptyString.getAsCharacter());
+    assertThat(e).hasMessageThat().isEqualTo("String value is empty");
   }
 
   @Test
@@ -148,11 +125,8 @@ public class JsonPrimitiveTest {
     assertThat(json.getAsBigDecimal()).isEqualTo(new BigDecimal("1E+7"));
     assertThat(json.getAsDouble()).isEqualTo(1E+7);
 
-    try {
-      json.getAsInt();
-      fail("Integers can not handle exponents like this.");
-    } catch (NumberFormatException expected) {
-    }
+    // Integers can not handle exponents like this
+    assertThrows(NumberFormatException.class, () -> json.getAsInt());
   }
 
   @Test
@@ -260,12 +234,34 @@ public class JsonPrimitiveTest {
   }
 
   @Test
-  public void testValidJsonOnToString() {
+  public void testToString() {
     JsonPrimitive json = new JsonPrimitive("Some\nEscaped\nValue");
     assertThat(json.toString()).isEqualTo("\"Some\\nEscaped\\nValue\"");
 
+    json = new JsonPrimitive("");
+    assertThat(json.toString()).isEqualTo("\"\"");
+
     json = new JsonPrimitive(new BigDecimal("1.333"));
     assertThat(json.toString()).isEqualTo("1.333");
+
+    // Preserves trailing 0
+    json = new JsonPrimitive(new BigDecimal("1.0000"));
+    assertThat(json.toString()).isEqualTo("1.0000");
+
+    json = new JsonPrimitive(Float.NaN);
+    assertThat(json.toString()).isEqualTo("NaN");
+
+    json = new JsonPrimitive(Double.NEGATIVE_INFINITY);
+    assertThat(json.toString()).isEqualTo("-Infinity");
+
+    json = new JsonPrimitive('a');
+    assertThat(json.toString()).isEqualTo("\"a\"");
+
+    json = new JsonPrimitive('\0');
+    assertThat(json.toString()).isEqualTo("\"\\u0000\"");
+
+    json = new JsonPrimitive(true);
+    assertThat(json.toString()).isEqualTo("true");
   }
 
   @Test

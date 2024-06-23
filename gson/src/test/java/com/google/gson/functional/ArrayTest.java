@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -62,11 +62,9 @@ public class ArrayTest {
   @Test
   public void testInvalidArrayDeserialization() {
     String json = "[1, 2 3, 4, 5]";
-    try {
-      gson.fromJson(json, int[].class);
-      fail("Gson should not deserialize array elements with missing ,");
-    } catch (JsonParseException expected) {
-    }
+    // Gson should not deserialize array elements with missing ','
+    var e = assertThrows(JsonParseException.class, () -> gson.fromJson(json, int[].class));
+    assertThat(e).hasCauseThat().hasMessageThat().startsWith("Unterminated array");
   }
 
   @Test

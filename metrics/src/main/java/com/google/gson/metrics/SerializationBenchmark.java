@@ -45,7 +45,7 @@ public class SerializationBenchmark {
 
   public void timeObjectSerialization(int reps) {
     for (int i = 0; i < reps; ++i) {
-      gson.toJson(bag);
+      String unused = gson.toJson(bag);
     }
   }
 }

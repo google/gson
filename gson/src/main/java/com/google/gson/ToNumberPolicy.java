@@ -68,20 +68,28 @@ public enum ToNumberPolicy implements ToNumberStrategy {
     @Override
     public Number readNumber(JsonReader in) throws IOException, JsonParseException {
       String value = in.nextString();
-      try {
-        return Long.parseLong(value);
-      } catch (NumberFormatException longE) {
+      if (value.indexOf('.') >= 0) {
+        return parseAsDouble(value, in);
+      } else {
         try {
-          Double d = Double.valueOf(value);
-          if ((d.isInfinite() || d.isNaN()) && !in.isLenient()) {
-            throw new MalformedJsonException(
-                "JSON forbids NaN and infinities: " + d + "; at path " + in.getPreviousPath());
-          }
-          return d;
-        } catch (NumberFormatException doubleE) {
-          throw new JsonParseException(
-              "Cannot parse " + value + "; at path " + in.getPreviousPath(), doubleE);
+          return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+          return parseAsDouble(value, in);
         }
+      }
+    }
+
+    private Number parseAsDouble(String value, JsonReader in) throws IOException {
+      try {
+        Double d = Double.valueOf(value);
+        if ((d.isInfinite() || d.isNaN()) && !in.isLenient()) {
+          throw new MalformedJsonException(
+              "JSON forbids NaN and infinities: " + d + "; at path " + in.getPreviousPath());
+        }
+        return d;
+      } catch (NumberFormatException e) {
+        throw new JsonParseException(
+            "Cannot parse " + value + "; at path " + in.getPreviousPath(), e);
       }
     }
   },

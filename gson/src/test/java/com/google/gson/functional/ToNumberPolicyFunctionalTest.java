@@ -17,7 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -118,11 +118,13 @@ public class ToNumberPolicyFunctionalTest {
 
   @Test
   public void testCustomStrategiesCannotAffectConcreteDeclaredNumbers() {
+    UnsupportedOperationException customException =
+        new UnsupportedOperationException("test-exception");
     ToNumberStrategy fail =
         new ToNumberStrategy() {
           @Override
           public Byte readNumber(JsonReader in) {
-            throw new UnsupportedOperationException();
+            throw customException;
           }
         };
     Gson gson =
@@ -130,15 +132,17 @@ public class ToNumberPolicyFunctionalTest {
     List<Object> numbers =
         gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Byte>>() {}.getType());
     assertThat(numbers).containsExactly(null, (byte) 10, (byte) 20, (byte) 30).inOrder();
-    try {
-      gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Object>>() {}.getType());
-      fail();
-    } catch (UnsupportedOperationException ex) {
-    }
-    try {
-      gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Number>>() {}.getType());
-      fail();
-    } catch (UnsupportedOperationException ex) {
-    }
+
+    var e =
+        assertThrows(
+            UnsupportedOperationException.class,
+            () -> gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Object>>() {}.getType()));
+    assertThat(e).isSameInstanceAs(customException);
+
+    e =
+        assertThrows(
+            UnsupportedOperationException.class,
+            () -> gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Number>>() {}.getType()));
+    assertThat(e).isSameInstanceAs(customException);
   }
 }
