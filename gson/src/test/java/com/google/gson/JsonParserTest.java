@@ -94,23 +94,17 @@ public class JsonParserTest {
     assertThat(array.get(2).getAsString()).isEqualTo("stringValue");
   }
 
-  private static String repeat(String s, int times) {
-    StringBuilder stringBuilder = new StringBuilder(s.length() * times);
-    for (int i = 0; i < times; i++) {
-      stringBuilder.append(s);
-    }
-    return stringBuilder.toString();
-  }
-
   /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */
   @Test
   public void testParseDeeplyNestedArrays() throws IOException {
     int times = 10000;
     // [[[ ... ]]]
-    String json = repeat("[", times) + repeat("]", times);
+    String json = "[".repeat(times) + "]".repeat(times);
+    JsonReader jsonReader = new JsonReader(new StringReader(json));
+    jsonReader.setNestingLimit(Integer.MAX_VALUE);
 
     int actualTimes = 0;
-    JsonArray current = JsonParser.parseString(json).getAsJsonArray();
+    JsonArray current = JsonParser.parseReader(jsonReader).getAsJsonArray();
     while (true) {
       actualTimes++;
       if (current.isEmpty()) {
@@ -127,10 +121,12 @@ public class JsonParserTest {
   public void testParseDeeplyNestedObjects() throws IOException {
     int times = 10000;
     // {"a":{"a": ... {"a":null} ... }}
-    String json = repeat("{\"a\":", times) + "null" + repeat("}", times);
+    String json = "{\"a\":".repeat(times) + "null" + "}".repeat(times);
+    JsonReader jsonReader = new JsonReader(new StringReader(json));
+    jsonReader.setNestingLimit(Integer.MAX_VALUE);
 
     int actualTimes = 0;
-    JsonObject current = JsonParser.parseString(json).getAsJsonObject();
+    JsonObject current = JsonParser.parseReader(jsonReader).getAsJsonObject();
     while (true) {
       assertThat(current.size()).isEqualTo(1);
       actualTimes++;

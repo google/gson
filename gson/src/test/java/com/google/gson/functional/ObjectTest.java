@@ -33,6 +33,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.ArrayOfObjects;
 import com.google.gson.common.TestTypes.BagOfPrimitiveWrappers;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
@@ -43,6 +44,7 @@ import com.google.gson.common.TestTypes.ClassWithTransientFields;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.PrimitiveArray;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -766,5 +768,30 @@ public class ObjectTest {
     public ClassWithThrowingConstructor() {
       throw thrownException;
     }
+  }
+
+  @Test
+  public void testDeeplyNested() {
+    int defaultLimit = 255;
+    // json = {"r":{"r": ... {"r":null} ... }}
+    String json = "{\"r\":".repeat(defaultLimit) + "null" + "}".repeat(defaultLimit);
+    RecursiveClass deserialized = gson.fromJson(json, RecursiveClass.class);
+    assertThat(deserialized).isNotNull();
+    assertThat(deserialized.r).isNotNull();
+
+    // json = {"r":{"r": ... {"r":null} ... }}
+    String json2 = "{\"r\":".repeat(defaultLimit + 1) + "null" + "}".repeat(defaultLimit + 1);
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson(json2, RecursiveClass.class));
+    assertThat(e).hasCauseThat().isInstanceOf(MalformedJsonException.class);
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .isEqualTo(
+            "Nesting limit 255 reached at line 1 column 1277 path $" + ".r".repeat(defaultLimit));
+  }
+
+  private static class RecursiveClass {
+    RecursiveClass r;
   }
 }
