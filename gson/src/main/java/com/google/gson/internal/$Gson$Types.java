@@ -392,23 +392,24 @@ public final class $Gson$Types {
         ParameterizedType original = (ParameterizedType) toResolve;
         Type ownerType = original.getOwnerType();
         Type newOwnerType = resolve(context, contextRawType, ownerType, visitedTypeVariables);
-        boolean changed = !equal(newOwnerType, ownerType);
+        boolean ownerChanged = !equal(newOwnerType, ownerType);
 
         Type[] args = original.getActualTypeArguments();
+        boolean argsChanged = false;
         for (int t = 0, length = args.length; t < length; t++) {
           Type resolvedTypeArgument =
               resolve(context, contextRawType, args[t], visitedTypeVariables);
           if (!equal(resolvedTypeArgument, args[t])) {
-            if (!changed) {
+            if (!argsChanged) {
               args = args.clone();
-              changed = true;
+              argsChanged = true;
             }
             args[t] = resolvedTypeArgument;
           }
         }
 
         toResolve =
-            changed
+            ownerChanged || argsChanged
                 ? newParameterizedTypeWithOwner(newOwnerType, original.getRawType(), args)
                 : original;
         break;
