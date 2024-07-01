@@ -263,7 +263,7 @@
       <plugin>
         <groupId>org.moditect</groupId>
         <artifactId>moditect-maven-plugin</artifactId>
-        <version>1.2.1.Final</version>
+        <version>1.2.2.Final</version>
         <executions>
           <execution>
             <id>add-module-info</id>
