@@ -131,6 +131,27 @@
             <goals>
               <goal>bnd-process</goal>
             </goals>
+            <configuration>
+              <bnd><![CDATA[
+                Bundle-SymbolicName: com.google.gson
+                Bundle-Name: ${project.name}
+                Bundle-Description: ${project.description}
+                Bundle-Vendor: Google Gson Project
+                Bundle-ContactAddress: ${project.parent.url}
+
+                # Optional dependency for JDK's sun.misc.Unsafe
+                # https://bnd.bndtools.org/chapters/920-faq.html#remove-unwanted-imports-
+                Import-Package: sun.misc;resolution:=optional, *
+
+                -removeheaders: Private-Package
+
+                -exportcontents:\
+                    com.google.gson,\
+                    com.google.gson.annotations,\
+                    com.google.gson.reflect,\
+                    com.google.gson.stream
+              ]]></bnd>
+            </configuration>
           </execution>
         </executions>
       </plugin>
