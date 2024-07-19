@@ -18,7 +18,9 @@ package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -64,24 +66,18 @@ public final class ObjectTypeAdapterTest {
     assertThat(adapter.toJson(new Object())).isEqualTo("{}");
   }
 
-  private static String repeat(String s, int times) {
-    StringBuilder stringBuilder = new StringBuilder(s.length() * times);
-    for (int i = 0; i < times; i++) {
-      stringBuilder.append(s);
-    }
-    return stringBuilder.toString();
-  }
-
   /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */
   @SuppressWarnings("unchecked")
   @Test
   public void testDeserializeDeeplyNestedArrays() throws IOException {
     int times = 10000;
     // [[[ ... ]]]
-    String json = repeat("[", times) + repeat("]", times);
+    String json = "[".repeat(times) + "]".repeat(times);
+    JsonReader jsonReader = new JsonReader(new StringReader(json));
+    jsonReader.setNestingLimit(Integer.MAX_VALUE);
 
     int actualTimes = 0;
-    List<List<?>> current = (List<List<?>>) adapter.fromJson(json);
+    List<List<?>> current = (List<List<?>>) adapter.read(jsonReader);
     while (true) {
       actualTimes++;
       if (current.isEmpty()) {
@@ -99,10 +95,12 @@ public final class ObjectTypeAdapterTest {
   public void testDeserializeDeeplyNestedObjects() throws IOException {
     int times = 10000;
     // {"a":{"a": ... {"a":null} ... }}
-    String json = repeat("{\"a\":", times) + "null" + repeat("}", times);
+    String json = "{\"a\":".repeat(times) + "null" + "}".repeat(times);
+    JsonReader jsonReader = new JsonReader(new StringReader(json));
+    jsonReader.setNestingLimit(Integer.MAX_VALUE);
 
     int actualTimes = 0;
-    Map<String, Map<?, ?>> current = (Map<String, Map<?, ?>>) adapter.fromJson(json);
+    Map<String, Map<?, ?>> current = (Map<String, Map<?, ?>>) adapter.read(jsonReader);
     while (current != null) {
       assertThat(current).hasSize(1);
       actualTimes++;

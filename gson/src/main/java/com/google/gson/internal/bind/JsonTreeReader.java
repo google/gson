@@ -51,10 +51,15 @@ public final class JsonTreeReader extends JsonReader {
       };
   private static final Object SENTINEL_CLOSED = new Object();
 
-  /*
-   * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
-   */
+  /** The nesting stack. Using a manual array rather than an ArrayList saves 20%. */
   private Object[] stack = new Object[32];
+
+  /**
+   * The used size of {@link #stack}; the value at {@code stackSize - 1} is the value last placed on
+   * the stack. {@code stackSize} might differ from the nesting depth, because the stack also
+   * contains temporary additional objects, for example for a JsonArray it contains the JsonArray
+   * object as well as the corresponding iterator.
+   */
   private int stackSize = 0;
 
   /*

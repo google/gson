@@ -19,6 +19,7 @@ package com.google.gson.stream;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
+import com.google.gson.TypeAdapter;
 import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.TroubleshootingGuide;
 import com.google.gson.internal.bind.JsonTreeReader;
@@ -70,6 +71,7 @@ import java.util.Objects;
  *
  * <ul>
  *   <li>{@link #setStrictness(Strictness)}, the default is {@link Strictness#LEGACY_STRICT}
+ *   <li>{@link #setNestingLimit(int)}, the default is {@value #DEFAULT_NESTING_LIMIT}
  * </ul>
  *
  * The default configuration of {@code JsonReader} instances used internally by the {@link Gson}
@@ -250,6 +252,10 @@ public class JsonReader implements Closeable {
   private final Reader in;
 
   private Strictness strictness = Strictness.LEGACY_STRICT;
+  // Default nesting limit is based on
+  // https://github.com/square/moshi/blob/parent-1.15.0/moshi/src/main/java/com/squareup/moshi/JsonReader.java#L228-L230
+  private static final int DEFAULT_NESTING_LIMIT = 255;
+  private int nestingLimit = DEFAULT_NESTING_LIMIT;
 
   static final int BUFFER_SIZE = 1024;
 
@@ -286,10 +292,9 @@ public class JsonReader implements Closeable {
    */
   private String peekedString;
 
-  /*
-   * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
-   */
+  /** The nesting stack. Using a manual array rather than an ArrayList saves 20%. */
   private int[] stack = new int[32];
+
   private int stackSize = 0;
 
   {
@@ -409,6 +414,41 @@ public class JsonReader implements Closeable {
    */
   public final Strictness getStrictness() {
     return strictness;
+  }
+
+  /**
+   * Sets the nesting limit of this reader.
+   *
+   * <p>The nesting limit defines how many JSON arrays or objects may be open at the same time. For
+   * example a nesting limit of 0 means no arrays or objects may be opened at all, a nesting limit
+   * of 1 means one array or object may be open at the same time, and so on. So a nesting limit of 3
+   * allows reading the JSON data <code>[{"a":[true]}]</code>, but for a nesting limit of 2 it would
+   * fail at the inner {@code [true]}.
+   *
+   * <p>The nesting limit can help to protect against a {@link StackOverflowError} when recursive
+   * {@link TypeAdapter} implementations process deeply nested JSON data.
+   *
+   * <p>The default nesting limit is {@value #DEFAULT_NESTING_LIMIT}.
+   *
+   * @throws IllegalArgumentException if the nesting limit is negative.
+   * @since $next-version$
+   * @see #getNestingLimit()
+   */
+  public final void setNestingLimit(int limit) {
+    if (limit < 0) {
+      throw new IllegalArgumentException("Invalid nesting limit: " + limit);
+    }
+    this.nestingLimit = limit;
+  }
+
+  /**
+   * Returns the nesting limit of this reader.
+   *
+   * @since $next-version$
+   * @see #setNestingLimit(int)
+   */
+  public final int getNestingLimit() {
+    return nestingLimit;
   }
 
   /**
@@ -1408,7 +1448,13 @@ public class JsonReader implements Closeable {
     pathIndices[stackSize - 1]++;
   }
 
-  private void push(int newTop) {
+  private void push(int newTop) throws MalformedJsonException {
+    // - 1 because stack contains as first element either EMPTY_DOCUMENT or NONEMPTY_DOCUMENT
+    if (stackSize - 1 >= nestingLimit) {
+      throw new MalformedJsonException(
+          "Nesting limit " + nestingLimit + " reached" + locationString());
+    }
+
     if (stackSize == stack.length) {
       int newLength = stackSize * 2;
       stack = Arrays.copyOf(stack, newLength);

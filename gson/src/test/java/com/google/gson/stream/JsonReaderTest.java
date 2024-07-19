@@ -1751,6 +1751,83 @@ public final class JsonReaderTest {
     assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
   }
 
+  @Test
+  public void testNestingLimitDefault() throws IOException {
+    int defaultLimit = 255;
+    String json = repeat('[', defaultLimit + 1);
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.getNestingLimit()).isEqualTo(defaultLimit);
+
+    for (int i = 0; i < defaultLimit; i++) {
+      reader.beginArray();
+    }
+    MalformedJsonException e =
+        assertThrows(MalformedJsonException.class, () -> reader.beginArray());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Nesting limit 255 reached at line 1 column 257 path $" + "[0]".repeat(defaultLimit));
+  }
+
+  // Note: The column number reported in the expected exception messages is slightly off and points
+  // behind instead of directly at the '[' or '{'
+  @Test
+  public void testNestingLimit() throws IOException {
+    JsonReader reader = new JsonReader(reader("[{\"a\":1}]"));
+    reader.setNestingLimit(2);
+    assertThat(reader.getNestingLimit()).isEqualTo(2);
+    reader.beginArray();
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("a");
+    assertThat(reader.nextInt()).isEqualTo(1);
+    reader.endObject();
+    reader.endArray();
+
+    JsonReader reader2 = new JsonReader(reader("[{\"a\":[]}]"));
+    reader2.setNestingLimit(2);
+    reader2.beginArray();
+    reader2.beginObject();
+    assertThat(reader2.nextName()).isEqualTo("a");
+    MalformedJsonException e =
+        assertThrows(MalformedJsonException.class, () -> reader2.beginArray());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Nesting limit 2 reached at line 1 column 8 path $[0].a");
+
+    JsonReader reader3 = new JsonReader(reader("[]"));
+    reader3.setNestingLimit(0);
+    e = assertThrows(MalformedJsonException.class, () -> reader3.beginArray());
+    assertThat(e).hasMessageThat().isEqualTo("Nesting limit 0 reached at line 1 column 2 path $");
+
+    JsonReader reader4 = new JsonReader(reader("[]"));
+    reader4.setNestingLimit(0);
+    // Currently also checked when skipping values
+    e = assertThrows(MalformedJsonException.class, () -> reader4.skipValue());
+    assertThat(e).hasMessageThat().isEqualTo("Nesting limit 0 reached at line 1 column 2 path $");
+
+    JsonReader reader5 = new JsonReader(reader("1"));
+    reader5.setNestingLimit(0);
+    // Reading value other than array or object should be allowed
+    assertThat(reader5.nextInt()).isEqualTo(1);
+
+    // Test multiple top-level arrays
+    JsonReader reader6 = new JsonReader(reader("[] [[]]"));
+    reader6.setStrictness(Strictness.LENIENT);
+    reader6.setNestingLimit(1);
+    reader6.beginArray();
+    reader6.endArray();
+    reader6.beginArray();
+    e = assertThrows(MalformedJsonException.class, () -> reader6.beginArray());
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Nesting limit 1 reached at line 1 column 6 path $[0]");
+
+    JsonReader reader7 = new JsonReader(reader("[]"));
+    IllegalArgumentException argException =
+        assertThrows(IllegalArgumentException.class, () -> reader7.setNestingLimit(-1));
+    assertThat(argException).hasMessageThat().isEqualTo("Invalid nesting limit: -1");
+  }
+
   // http://code.google.com/p/google-gson/issues/detail?id=409
   @Test
   public void testStringEndingInSlash() {
