@@ -1766,7 +1766,12 @@ public final class JsonReaderTest {
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
-            "Nesting limit 255 reached at line 1 column 257 path $" + "[0]".repeat(defaultLimit));
+            "Nesting limit "
+                + defaultLimit
+                + " reached at line 1 column "
+                + (defaultLimit + 2)
+                + " path $"
+                + "[0]".repeat(defaultLimit));
   }
 
   // Note: The column number reported in the expected exception messages is slightly off and points
