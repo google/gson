@@ -254,7 +254,7 @@ public class JsonReader implements Closeable {
   private Strictness strictness = Strictness.LEGACY_STRICT;
   // Default nesting limit is based on
   // https://github.com/square/moshi/blob/parent-1.15.0/moshi/src/main/java/com/squareup/moshi/JsonReader.java#L228-L230
-  private static final int DEFAULT_NESTING_LIMIT = 255;
+  static final int DEFAULT_NESTING_LIMIT = 255;
   private int nestingLimit = DEFAULT_NESTING_LIMIT;
 
   static final int BUFFER_SIZE = 1024;

@@ -1753,7 +1753,7 @@ public final class JsonReaderTest {
 
   @Test
   public void testNestingLimitDefault() throws IOException {
-    int defaultLimit = 255;
+    int defaultLimit = JsonReader.DEFAULT_NESTING_LIMIT;
     String json = repeat('[', defaultLimit + 1);
     JsonReader reader = new JsonReader(reader(json));
     assertThat(reader.getNestingLimit()).isEqualTo(defaultLimit);
