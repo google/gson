@@ -50,7 +50,7 @@
     <dependency>
       <groupId>com.google.errorprone</groupId>
       <artifactId>error_prone_annotations</artifactId>
-      <version>2.28.0</version>
+      <version>2.29.2</version>
     </dependency>
 
     <dependency>
@@ -222,7 +222,7 @@
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-core</artifactId>
-            <version>9.1.4</version>
+            <version>9.1.5</version>
           </dependency>
         </dependencies>
         <configuration>
