@@ -282,6 +282,7 @@ public final class TypeTokenTest {
                 + GenericWithMultiBound.class);
 
     class Outer {
+      @SuppressWarnings("ClassCanBeStatic")
       class NonStaticInner<T> {}
     }
 
@@ -344,6 +345,7 @@ public final class TypeTokenTest {
   public void testTypeTokenTypeVariable() throws Exception {
     // Put the test code inside generic class to be able to access `T`
     class Enclosing<T> {
+      @SuppressWarnings("ClassCanBeStatic")
       class Inner {}
 
       void test() {
