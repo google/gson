@@ -324,13 +324,15 @@ public final class Gson {
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
-    factories.add(ObjectTypeAdapter.getFactory(objectToNumberStrategy));
+    factories.add(ObjectTypeAdapter.getFactory(objectToNumberStrategy, true));
 
     // the excluder must precede all adapters that handle user-defined types
     factories.add(excluder);
 
     // users' type adapters
     factories.addAll(factoriesToBeAdded);
+
+    factories.add(ObjectTypeAdapter.getFactory(objectToNumberStrategy, false));
 
     // type adapters for basic platform types
     factories.add(TypeAdapters.STRING_FACTORY);

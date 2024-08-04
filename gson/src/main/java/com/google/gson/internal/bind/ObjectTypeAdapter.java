@@ -27,6 +27,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -39,7 +41,7 @@ import java.util.Map;
  */
 public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   /** Gson default factory using {@link ToNumberPolicy#DOUBLE}. */
-  private static final TypeAdapterFactory DOUBLE_FACTORY = newFactory(ToNumberPolicy.DOUBLE);
+  private static final TypeAdapterFactory DOUBLE_FACTORY = newFactory(ToNumberPolicy.DOUBLE, true);
 
   private final Gson gson;
   private final ToNumberStrategy toNumberStrategy;
@@ -49,24 +51,41 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     this.toNumberStrategy = toNumberStrategy;
   }
 
-  private static TypeAdapterFactory newFactory(final ToNumberStrategy toNumberStrategy) {
+  private static TypeAdapterFactory newFactory(
+      final ToNumberStrategy toNumberStrategy, final boolean skipTypeVariable) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
       @Override
       public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-        if (type.getRawType() == Object.class) {
+        if (type.getRawType() == Object.class
+            && (!skipTypeVariable || !isTypeVariableWithBound(type.getType()))) {
           return (TypeAdapter<T>) new ObjectTypeAdapter(gson, toNumberStrategy);
         }
         return null;
+      }
+
+      private boolean isTypeVariableWithBound(Type type) {
+        if (type instanceof TypeVariable<?>) {
+          TypeVariable<?> tv = (TypeVariable<?>) type;
+          Type bound = tv.getBounds()[0];
+          return bound != Object.class && bound instanceof Class<?>;
+        } else {
+          return false;
+        }
       }
     };
   }
 
   public static TypeAdapterFactory getFactory(ToNumberStrategy toNumberStrategy) {
+    return getFactory(toNumberStrategy, false);
+  }
+
+  public static TypeAdapterFactory getFactory(
+      ToNumberStrategy toNumberStrategy, boolean skipTypeVariable) {
     if (toNumberStrategy == ToNumberPolicy.DOUBLE) {
       return DOUBLE_FACTORY;
     } else {
-      return newFactory(toNumberStrategy);
+      return newFactory(toNumberStrategy, skipTypeVariable);
     }
   }
 
