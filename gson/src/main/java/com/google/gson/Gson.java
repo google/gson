@@ -26,7 +26,9 @@ import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter;
+import com.google.gson.internal.bind.EnumTypeAdapter;
 import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
+import com.google.gson.internal.bind.JsonElementTypeAdapter;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.internal.bind.MapTypeAdapterFactory;
@@ -323,7 +325,7 @@ public final class Gson {
     List<TypeAdapterFactory> factories = new ArrayList<>();
 
     // built-in type adapters that cannot be overridden
-    factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
+    factories.add(JsonElementTypeAdapter.FACTORY);
     factories.add(ObjectTypeAdapter.getFactory(objectToNumberStrategy));
 
     // the excluder must precede all adapters that handle user-defined types
@@ -386,7 +388,7 @@ public final class Gson {
     factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
     this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
     factories.add(jsonAdapterFactory);
-    factories.add(TypeAdapters.ENUM_FACTORY);
+    factories.add(EnumTypeAdapter.FACTORY);
     factories.add(
         new ReflectiveTypeAdapterFactory(
             constructorConstructor,
