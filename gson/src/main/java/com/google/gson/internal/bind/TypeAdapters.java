@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
@@ -804,6 +805,30 @@ public final class TypeAdapters {
       };
 
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
+
+  /*
+   * The following adapter and factory fields are only deprecated for now because external projects
+   * might be using them, despite being part of Gson's internal implementation
+   */
+
+  /**
+   * @deprecated {@code TypeAdapters} is an internal Gson class. To obtain the adapter for {@link
+   *     JsonElement} and subclasses use instead:
+   *     <pre>{@code
+   * TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
+   * }</pre>
+   */
+  @Deprecated
+  public static final TypeAdapter<JsonElement> JSON_ELEMENT = JsonElementTypeAdapter.ADAPTER;
+
+  /**
+   * @deprecated {@code TypeAdapters} is an internal Gson class. To obtain the adapter for a
+   *     specific enum class use instead:
+   *     <pre>{@code
+   * TypeAdapter<MyEnum> adapter = gson.getAdapter(MyEnum.class);
+   * }</pre>
+   */
+  @Deprecated public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
