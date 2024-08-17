@@ -30,7 +30,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-/** Adapt an array of objects. */
+/** Adapter for arrays. */
 public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   public static final TypeAdapterFactory FACTORY =
       new TypeAdapterFactory() {

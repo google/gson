@@ -21,7 +21,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.internal.bind.JsonElementTypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -43,7 +43,7 @@ public final class Streams {
     try {
       JsonToken unused = reader.peek();
       isEmpty = false;
-      return TypeAdapters.JSON_ELEMENT.read(reader);
+      return JsonElementTypeAdapter.ADAPTER.read(reader);
     } catch (EOFException e) {
       /*
        * For compatibility with JSON 1.5 and earlier, we return a JsonNull for
@@ -65,7 +65,7 @@ public final class Streams {
 
   /** Writes the JSON element to the writer, recursively. */
   public static void write(JsonElement element, JsonWriter writer) throws IOException {
-    TypeAdapters.JSON_ELEMENT.write(writer, element);
+    JsonElementTypeAdapter.ADAPTER.write(writer, element);
   }
 
   public static Writer writerForAppendable(Appendable appendable) {

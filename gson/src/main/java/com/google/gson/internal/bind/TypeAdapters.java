@@ -17,16 +17,11 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.NumberLimits;
 import com.google.gson.internal.TroubleshootingGuide;
@@ -35,32 +30,29 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Currency;
-import java.util.Deque;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-/** Type adapters for basic types. */
+/**
+ * Type adapters for basic types. More complex adapters exist as separate classes in the enclosing
+ * package.
+ */
 public final class TypeAdapters {
   private TypeAdapters() {
     throw new UnsupportedOperationException();
@@ -814,218 +806,40 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
-  public static final TypeAdapter<JsonElement> JSON_ELEMENT =
-      new TypeAdapter<JsonElement>() {
-        /**
-         * Tries to begin reading a JSON array or JSON object, returning {@code null} if the next
-         * element is neither of those.
-         */
-        private JsonElement tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
-          switch (peeked) {
-            case BEGIN_ARRAY:
-              in.beginArray();
-              return new JsonArray();
-            case BEGIN_OBJECT:
-              in.beginObject();
-              return new JsonObject();
-            default:
-              return null;
-          }
-        }
+  /*
+   * The following adapter and factory fields have not been removed yet and are only deprecated
+   * for now because external projects might be using them, despite being part of Gson's internal
+   * implementation.
+   */
 
-        /** Reads a {@link JsonElement} which cannot have any nested elements */
-        private JsonElement readTerminal(JsonReader in, JsonToken peeked) throws IOException {
-          switch (peeked) {
-            case STRING:
-              return new JsonPrimitive(in.nextString());
-            case NUMBER:
-              String number = in.nextString();
-              return new JsonPrimitive(new LazilyParsedNumber(number));
-            case BOOLEAN:
-              return new JsonPrimitive(in.nextBoolean());
-            case NULL:
-              in.nextNull();
-              return JsonNull.INSTANCE;
-            default:
-              // When read(JsonReader) is called with JsonReader in invalid state
-              throw new IllegalStateException("Unexpected token: " + peeked);
-          }
-        }
+  /**
+   * @deprecated {@code TypeAdapters} is an internal Gson class. To obtain the adapter for {@link
+   *     JsonElement} and subclasses use instead:
+   *     <pre>{@code
+   * TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
+   * }</pre>
+   */
+  @Deprecated
+  public static final TypeAdapter<JsonElement> JSON_ELEMENT = JsonElementTypeAdapter.ADAPTER;
 
-        @Override
-        public JsonElement read(JsonReader in) throws IOException {
-          if (in instanceof JsonTreeReader) {
-            return ((JsonTreeReader) in).nextJsonElement();
-          }
+  /**
+   * @deprecated {@code TypeAdapters} is an internal Gson class. To obtain the adapter for {@link
+   *     JsonElement} and subclasses use instead:
+   *     <pre>{@code
+   * TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
+   * }</pre>
+   */
+  @Deprecated
+  public static final TypeAdapterFactory JSON_ELEMENT_FACTORY = JsonElementTypeAdapter.FACTORY;
 
-          // Either JsonArray or JsonObject
-          JsonElement current;
-          JsonToken peeked = in.peek();
-
-          current = tryBeginNesting(in, peeked);
-          if (current == null) {
-            return readTerminal(in, peeked);
-          }
-
-          Deque<JsonElement> stack = new ArrayDeque<>();
-
-          while (true) {
-            while (in.hasNext()) {
-              String name = null;
-              // Name is only used for JSON object members
-              if (current instanceof JsonObject) {
-                name = in.nextName();
-              }
-
-              peeked = in.peek();
-              JsonElement value = tryBeginNesting(in, peeked);
-              boolean isNesting = value != null;
-
-              if (value == null) {
-                value = readTerminal(in, peeked);
-              }
-
-              if (current instanceof JsonArray) {
-                ((JsonArray) current).add(value);
-              } else {
-                ((JsonObject) current).add(name, value);
-              }
-
-              if (isNesting) {
-                stack.addLast(current);
-                current = value;
-              }
-            }
-
-            // End current element
-            if (current instanceof JsonArray) {
-              in.endArray();
-            } else {
-              in.endObject();
-            }
-
-            if (stack.isEmpty()) {
-              return current;
-            } else {
-              // Continue with enclosing element
-              current = stack.removeLast();
-            }
-          }
-        }
-
-        @Override
-        public void write(JsonWriter out, JsonElement value) throws IOException {
-          if (value == null || value.isJsonNull()) {
-            out.nullValue();
-          } else if (value.isJsonPrimitive()) {
-            JsonPrimitive primitive = value.getAsJsonPrimitive();
-            if (primitive.isNumber()) {
-              out.value(primitive.getAsNumber());
-            } else if (primitive.isBoolean()) {
-              out.value(primitive.getAsBoolean());
-            } else {
-              out.value(primitive.getAsString());
-            }
-
-          } else if (value.isJsonArray()) {
-            out.beginArray();
-            for (JsonElement e : value.getAsJsonArray()) {
-              write(out, e);
-            }
-            out.endArray();
-
-          } else if (value.isJsonObject()) {
-            out.beginObject();
-            for (Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
-              out.name(e.getKey());
-              write(out, e.getValue());
-            }
-            out.endObject();
-
-          } else {
-            throw new IllegalArgumentException("Couldn't write " + value.getClass());
-          }
-        }
-      };
-
-  public static final TypeAdapterFactory JSON_ELEMENT_FACTORY =
-      newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
-
-  private static final class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
-    private final Map<String, T> nameToConstant = new HashMap<>();
-    private final Map<String, T> stringToConstant = new HashMap<>();
-    private final Map<T, String> constantToName = new HashMap<>();
-
-    public EnumTypeAdapter(final Class<T> classOfT) {
-      try {
-        // Uses reflection to find enum constants to work around name mismatches for obfuscated
-        // classes
-        Field[] fields = classOfT.getDeclaredFields();
-        ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
-        for (Field f : fields) {
-          if (f.isEnumConstant()) {
-            constantFieldsList.add(f);
-          }
-        }
-
-        Field[] constantFields = constantFieldsList.toArray(new Field[0]);
-        AccessibleObject.setAccessible(constantFields, true);
-
-        for (Field constantField : constantFields) {
-          @SuppressWarnings("unchecked")
-          T constant = (T) constantField.get(null);
-          String name = constant.name();
-          String toStringVal = constant.toString();
-
-          SerializedName annotation = constantField.getAnnotation(SerializedName.class);
-          if (annotation != null) {
-            name = annotation.value();
-            for (String alternate : annotation.alternate()) {
-              nameToConstant.put(alternate, constant);
-            }
-          }
-          nameToConstant.put(name, constant);
-          stringToConstant.put(toStringVal, constant);
-          constantToName.put(constant, name);
-        }
-      } catch (IllegalAccessException e) {
-        throw new AssertionError(e);
-      }
-    }
-
-    @Override
-    public T read(JsonReader in) throws IOException {
-      if (in.peek() == JsonToken.NULL) {
-        in.nextNull();
-        return null;
-      }
-      String key = in.nextString();
-      T constant = nameToConstant.get(key);
-      return (constant == null) ? stringToConstant.get(key) : constant;
-    }
-
-    @Override
-    public void write(JsonWriter out, T value) throws IOException {
-      out.value(value == null ? null : constantToName.get(value));
-    }
-  }
-
-  public static final TypeAdapterFactory ENUM_FACTORY =
-      new TypeAdapterFactory() {
-        @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-          Class<? super T> rawType = typeToken.getRawType();
-          if (!Enum.class.isAssignableFrom(rawType) || rawType == Enum.class) {
-            return null;
-          }
-          if (!rawType.isEnum()) {
-            rawType = rawType.getSuperclass(); // handle anonymous subclasses
-          }
-          @SuppressWarnings({"rawtypes", "unchecked"})
-          TypeAdapter<T> adapter = (TypeAdapter<T>) new EnumTypeAdapter(rawType);
-          return adapter;
-        }
-      };
+  /**
+   * @deprecated {@code TypeAdapters} is an internal Gson class. To obtain the adapter for a
+   *     specific enum class use instead:
+   *     <pre>{@code
+   * TypeAdapter<MyEnum> adapter = gson.getAdapter(MyEnum.class);
+   * }</pre>
+   */
+  @Deprecated public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
