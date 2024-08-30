@@ -289,24 +289,34 @@ public abstract class TypeAdapter<T> {
    * Note that we didn't need to check for nulls in our type adapter after we used nullSafe.
    */
   public final TypeAdapter<T> nullSafe() {
-    return new TypeAdapter<T>() {
-      @Override
-      public void write(JsonWriter out, T value) throws IOException {
-        if (value == null) {
-          out.nullValue();
-        } else {
-          TypeAdapter.this.write(out, value);
-        }
-      }
+    if (!(this instanceof TypeAdapter.NullSafeTypeAdapter)) {
+      return new NullSafeTypeAdapter();
+    }
+    return this;
+  }
 
-      @Override
-      public T read(JsonReader reader) throws IOException {
-        if (reader.peek() == JsonToken.NULL) {
-          reader.nextNull();
-          return null;
-        }
-        return TypeAdapter.this.read(reader);
+  private final class NullSafeTypeAdapter extends TypeAdapter<T> {
+    @Override
+    public void write(JsonWriter out, T value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+      } else {
+        TypeAdapter.this.write(out, value);
       }
-    };
+    }
+
+    @Override
+    public T read(JsonReader reader) throws IOException {
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+        return null;
+      }
+      return TypeAdapter.this.read(reader);
+    }
+
+    @Override
+    public String toString() {
+      return "NullSafeTypeAdapter[" + TypeAdapter.this + "]";
+    }
   }
 }

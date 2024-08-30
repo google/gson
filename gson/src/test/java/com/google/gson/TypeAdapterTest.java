@@ -28,22 +28,49 @@ import org.junit.Test;
 public class TypeAdapterTest {
   @Test
   public void testNullSafe() throws IOException {
-    TypeAdapter<String> adapter =
-        new TypeAdapter<String>() {
-          @Override
-          public void write(JsonWriter out, String value) {
-            throw new AssertionError("unexpected call");
-          }
-
-          @Override
-          public String read(JsonReader in) {
-            throw new AssertionError("unexpected call");
-          }
-        }.nullSafe();
+    TypeAdapter<String> adapter = assertionErrorAdapter.nullSafe();
 
     assertThat(adapter.toJson(null)).isEqualTo("null");
     assertThat(adapter.fromJson("null")).isNull();
   }
+
+  @Test
+  public void testNullSafe_ReturningSameInstanceOnceNullSafe() {
+    TypeAdapter<?> nullSafeAdapter = assertionErrorAdapter.nullSafe();
+
+    assertThat(nullSafeAdapter.nullSafe()).isSameInstanceAs(nullSafeAdapter);
+    assertThat(nullSafeAdapter.nullSafe().nullSafe()).isSameInstanceAs(nullSafeAdapter);
+    assertThat(nullSafeAdapter.nullSafe().nullSafe().nullSafe()).isSameInstanceAs(nullSafeAdapter);
+  }
+
+  @Test
+  public void testNullSafe_ToString() {
+    TypeAdapter<?> adapter = assertionErrorAdapter;
+
+    assertThat(adapter.toString()).isEqualTo("assertionErrorAdapter");
+    assertThat(adapter.nullSafe().toString())
+        .isEqualTo("NullSafeTypeAdapter[assertionErrorAdapter]");
+    assertThat(adapter.nullSafe().nullSafe().toString())
+        .isEqualTo("NullSafeTypeAdapter[assertionErrorAdapter]");
+  }
+
+  private static final TypeAdapter<String> assertionErrorAdapter =
+      new TypeAdapter<>() {
+        @Override
+        public void write(JsonWriter out, String value) {
+          throw new AssertionError("unexpected call");
+        }
+
+        @Override
+        public String read(JsonReader in) {
+          throw new AssertionError("unexpected call");
+        }
+
+        @Override
+        public String toString() {
+          return "assertionErrorAdapter";
+        }
+      };
 
   /**
    * Tests behavior when {@link TypeAdapter#write(JsonWriter, Object)} manually throws {@link
