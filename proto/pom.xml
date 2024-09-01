@@ -31,7 +31,7 @@
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2024-05-19T18:54:10Z</project.build.outputTimestamp>
 
-    <protobufVersion>4.27.3</protobufVersion>
+    <protobufVersion>4.28.0</protobufVersion>
 
     <!-- Overwrite property from parent; this module is currently not deployed -->
     <gson.isInternalModule>true</gson.isInternalModule>
@@ -60,7 +60,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.2.1-jre</version>
+      <version>33.3.0-jre</version>
     </dependency>
 
     <dependency>
