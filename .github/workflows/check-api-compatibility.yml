@@ -25,7 +25,7 @@ jobs:
           path: 'gson-old-japicmp'
 
       - name: Set up JDK 11
-        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9  # v4.2.1
+        uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018  # v4.2.2
         with:
           distribution: 'temurin'
           java-version: '11'
@@ -48,7 +48,7 @@ jobs:
           mvn --batch-mode --fail-at-end --no-transfer-progress package japicmp:cmp -DskipTests
 
       - name: Upload API differences artifacts
-        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b  # v4.3.4
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874  # v4.4.0
         # Run on workflow success (in that case differences report might include added methods and classes)
         # or when API compatibility check failed
         if: success() || ( failure() && steps.check-compatibility.outcome == 'failure' )
