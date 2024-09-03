@@ -27,7 +27,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,17 +59,21 @@ public class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
       // Uses reflection to find enum constants to work around name mismatches for obfuscated
       // classes
       Field[] fields = classOfT.getDeclaredFields();
-      ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
+      int constantCount = 0;
       for (Field f : fields) {
+        // Filter out non-constant fields, replacing elements as we go
         if (f.isEnumConstant()) {
-          constantFieldsList.add(f);
+          fields[constantCount++] = f;
         }
       }
 
-      Field[] constantFields = constantFieldsList.toArray(new Field[0]);
-      AccessibleObject.setAccessible(constantFields, true);
+      // Trim the array to the new length. Every enum type can be expected to have at least
+      // one declared field which is not an enum constant, namely the implicit $VALUES array
+      fields = Arrays.copyOf(fields, constantCount);
 
-      for (Field constantField : constantFields) {
+      AccessibleObject.setAccessible(fields, true);
+
+      for (Field constantField : fields) {
         @SuppressWarnings("unchecked")
         T constant = (T) constantField.get(null);
         String name = constant.name();
