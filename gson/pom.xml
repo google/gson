@@ -147,7 +147,7 @@
 
                 -exportcontents:\
                     com.google.gson,\
-                    com.google.gson.annotations,\
+                    com.google.gson.annotations;-noimport:=true,\
                     com.google.gson.reflect,\
                     com.google.gson.stream
               ]]></bnd>
