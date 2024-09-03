@@ -67,7 +67,8 @@ public class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
         }
       }
 
-      // Trim the array to the new length
+      // Trim the array to the new length. Every enum type can be expected to have at least
+      // one declared field which is not an enum constant, namely the implicit $VALUES array
       fields = Arrays.copyOf(fields, constantCount);
 
       AccessibleObject.setAccessible(fields, true);
