@@ -59,20 +59,20 @@ public class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
       // Uses reflection to find enum constants to work around name mismatches for obfuscated
       // classes
       Field[] fields = classOfT.getDeclaredFields();
-      Field[] constantFields = new Field[fields.length];
       int constantCount = 0;
       for (Field f : fields) {
+        // Filter out non-constant fields, replacing elements as we go
         if (f.isEnumConstant()) {
-          constantFields[constantCount++] = f;
+          fields[constantCount++] = f;
         }
       }
 
-      // Truncate the constantFields array
-      constantFields = Arrays.copyOf(constantFields, constantCount);
+      // Trim the array to the new length
+      fields = Arrays.copyOf(fields, constantCount);
 
-      AccessibleObject.setAccessible(constantFields, true);
+      AccessibleObject.setAccessible(fields, true);
 
-      for (Field constantField : constantFields) {
+      for (Field constantField : fields) {
         @SuppressWarnings("unchecked")
         T constant = (T) constantField.get(null);
         String name = constant.name();
