@@ -27,7 +27,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,14 +59,17 @@ public class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
       // Uses reflection to find enum constants to work around name mismatches for obfuscated
       // classes
       Field[] fields = classOfT.getDeclaredFields();
-      ArrayList<Field> constantFieldsList = new ArrayList<>(fields.length);
+      Field[] constantFields = new Field[fields.length];
+      int constantCount = 0;
       for (Field f : fields) {
         if (f.isEnumConstant()) {
-          constantFieldsList.add(f);
+          constantFields[constantCount++] = f;
         }
       }
 
-      Field[] constantFields = constantFieldsList.toArray(new Field[0]);
+      // Truncate the constantFields array
+      constantFields = Arrays.copyOf(constantFields, constantCount);
+
       AccessibleObject.setAccessible(constantFields, true);
 
       for (Field constantField : constantFields) {
