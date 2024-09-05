@@ -15,16 +15,16 @@
  */
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
+
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonStreamParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
-
 import com.google.gson.reflect.TypeToken;
-import java.util.Map;
-import junit.framework.TestCase;
-
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -32,6 +32,11 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Map;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for the support of {@link Reader}s and {@link Writer}s.
@@ -39,71 +44,78 @@ import java.io.Writer;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class ReadersWritersTest extends TestCase {
+public class ReadersWritersTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
-  public void testWriterForSerialization() throws Exception {
+  @Test
+  public void testWriterForSerialization() {
     Writer writer = new StringWriter();
     BagOfPrimitives src = new BagOfPrimitives();
     gson.toJson(src, writer);
-    assertEquals(src.getExpectedJson(), writer.toString());
+    assertThat(writer.toString()).isEqualTo(src.getExpectedJson());
   }
 
-  public void testReaderForDeserialization() throws Exception {
+  @Test
+  public void testReaderForDeserialization() {
     BagOfPrimitives expected = new BagOfPrimitives();
     Reader json = new StringReader(expected.getExpectedJson());
     BagOfPrimitives actual = gson.fromJson(json, BagOfPrimitives.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
+  @Test
   public void testTopLevelNullObjectSerializationWithWriter() {
     StringWriter writer = new StringWriter();
     gson.toJson(null, writer);
-    assertEquals("null", writer.toString());
+    assertThat(writer.toString()).isEqualTo("null");
   }
 
+  @Test
   public void testTopLevelNullObjectDeserializationWithReader() {
     StringReader reader = new StringReader("null");
     Integer nullIntObject = gson.fromJson(reader, Integer.class);
-    assertNull(nullIntObject);
+    assertThat(nullIntObject).isNull();
   }
 
+  @Test
   public void testTopLevelNullObjectSerializationWithWriterAndSerializeNulls() {
     Gson gson = new GsonBuilder().serializeNulls().create();
     StringWriter writer = new StringWriter();
     gson.toJson(null, writer);
-    assertEquals("null", writer.toString());
+    assertThat(writer.toString()).isEqualTo("null");
   }
 
+  @Test
   public void testTopLevelNullObjectDeserializationWithReaderAndSerializeNulls() {
     Gson gson = new GsonBuilder().serializeNulls().create();
     StringReader reader = new StringReader("null");
     Integer nullIntObject = gson.fromJson(reader, Integer.class);
-    assertNull(nullIntObject);
+    assertThat(nullIntObject).isNull();
   }
 
+  @Test
   public void testReadWriteTwoStrings() throws IOException {
-    Gson gson= new Gson();
-    CharArrayWriter writer= new CharArrayWriter();
+    Gson gson = new Gson();
+    CharArrayWriter writer = new CharArrayWriter();
     writer.write(gson.toJson("one").toCharArray());
     writer.write(gson.toJson("two").toCharArray());
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
     JsonStreamParser parser = new JsonStreamParser(reader);
     String actualOne = gson.fromJson(parser.next(), String.class);
-    assertEquals("one", actualOne);
+    assertThat(actualOne).isEqualTo("one");
     String actualTwo = gson.fromJson(parser.next(), String.class);
-    assertEquals("two", actualTwo);
+    assertThat(actualTwo).isEqualTo("two");
   }
 
+  @Test
   public void testReadWriteTwoObjects() throws IOException {
-    Gson gson= new Gson();
-    CharArrayWriter writer= new CharArrayWriter();
+    Gson gson = new Gson();
+    CharArrayWriter writer = new CharArrayWriter();
     BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
     writer.write(gson.toJson(expectedOne).toCharArray());
     BagOfPrimitives expectedTwo = new BagOfPrimitives(2, 2, false, "two");
@@ -111,25 +123,81 @@ public class ReadersWritersTest extends TestCase {
     CharArrayReader reader = new CharArrayReader(writer.toCharArray());
     JsonStreamParser parser = new JsonStreamParser(reader);
     BagOfPrimitives actualOne = gson.fromJson(parser.next(), BagOfPrimitives.class);
-    assertEquals("one", actualOne.stringValue);
+    assertThat(actualOne.stringValue).isEqualTo("one");
     BagOfPrimitives actualTwo = gson.fromJson(parser.next(), BagOfPrimitives.class);
-    assertEquals("two", actualTwo.stringValue);
-    assertFalse(parser.hasNext());
+    assertThat(actualTwo.stringValue).isEqualTo("two");
+    assertThat(parser.hasNext()).isFalse();
   }
 
+  @Test
   public void testTypeMismatchThrowsJsonSyntaxExceptionForStrings() {
-    try {
-      gson.fromJson("true", new TypeToken<Map<String, String>>() {}.getType());
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+    Type type = new TypeToken<Map<String, String>>() {}.getType();
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("true", type));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected BEGIN_OBJECT but was BOOLEAN");
   }
 
+  @Test
   public void testTypeMismatchThrowsJsonSyntaxExceptionForReaders() {
-    try {
-      gson.fromJson(new StringReader("true"), new TypeToken<Map<String, String>>() {}.getType());
-      fail();
-    } catch (JsonSyntaxException expected) {
+    Type type = new TypeToken<Map<String, String>>() {}.getType();
+    var e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson(new StringReader("true"), type));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected BEGIN_OBJECT but was BOOLEAN");
+  }
+
+  /**
+   * Verifies that passing an {@link Appendable} which is not an instance of {@link Writer} to
+   * {@code Gson.toJson} works correctly.
+   */
+  @Test
+  public void testToJsonAppendable() {
+    class CustomAppendable implements Appendable {
+      final StringBuilder stringBuilder = new StringBuilder();
+      int toStringCallCount = 0;
+
+      @CanIgnoreReturnValue
+      @Override
+      public Appendable append(char c) throws IOException {
+        stringBuilder.append(c);
+        return this;
+      }
+
+      @CanIgnoreReturnValue
+      @Override
+      public Appendable append(CharSequence csq) throws IOException {
+        if (csq == null) {
+          csq = "null"; // Requirement by Writer.append
+        }
+        append(csq, 0, csq.length());
+        return this;
+      }
+
+      @CanIgnoreReturnValue
+      @Override
+      public Appendable append(CharSequence csq, int start, int end) throws IOException {
+        if (csq == null) {
+          csq = "null"; // Requirement by Writer.append
+        }
+
+        // According to doc, toString() must return string representation
+        String s = csq.toString();
+        toStringCallCount++;
+        stringBuilder.append(s, start, end);
+        return this;
+      }
     }
+
+    CustomAppendable appendable = new CustomAppendable();
+    gson.toJson(Arrays.asList("test", 123, true), appendable);
+    // Make sure CharSequence.toString() was called at least two times to verify that
+    // CurrentWrite.cachedString is properly overwritten when char array changes
+    assertThat(appendable.toStringCallCount).isAtLeast(2);
+    assertThat(appendable.stringBuilder.toString()).isEqualTo("[\"test\",123,true]");
   }
 }

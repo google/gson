@@ -3,4 +3,21 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "monthly"
+    groups:
+      # Name is used for branch name and pull request title
+      maven:
+        patterns:
+        # Create a single pull request for all dependencies and plugins
+        - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      # Name is used for branch name and pull request title
+      github-actions:
+        patterns:
+        # Create a single pull request for all actions
+        - "*"

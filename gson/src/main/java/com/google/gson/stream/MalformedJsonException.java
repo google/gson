@@ -16,11 +16,12 @@
 
 package com.google.gson.stream;
 
+import com.google.gson.Strictness;
 import java.io.IOException;
 
 /**
- * Thrown when a reader encounters malformed JSON. Some syntax errors can be
- * ignored by calling {@link JsonReader#setLenient(boolean)}.
+ * Thrown when a reader encounters malformed JSON. Some syntax errors can be ignored by using {@link
+ * Strictness#LENIENT} for {@link JsonReader#setStrictness(Strictness)}.
  */
 public final class MalformedJsonException extends IOException {
   private static final long serialVersionUID = 1L;

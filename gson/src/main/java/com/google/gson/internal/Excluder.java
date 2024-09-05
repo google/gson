@@ -24,6 +24,7 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
+import com.google.gson.internal.reflect.ReflectionHelper;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -35,14 +36,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This class selects which fields and types to omit. It is configurable,
- * supporting version attributes {@link Since} and {@link Until}, modifiers,
- * synthetic fields, anonymous and local classes, inner classes, and fields with
- * the {@link Expose} annotation.
+ * This class selects which fields and types to omit. It is configurable, supporting version
+ * attributes {@link Since} and {@link Until}, modifiers, synthetic fields, anonymous and local
+ * classes, inner classes, and fields with the {@link Expose} annotation.
  *
- * <p>This class is a type adapter factory; types that are excluded will be
- * adapted to null. It may delegate to another type adapter if only one
- * direction is excluded.
+ * <p>This class is a type adapter factory; types that are excluded will be adapted to null. It may
+ * delegate to another type adapter if only one direction is excluded.
  *
  * @author Joel Leitch
  * @author Jesse Wilson
@@ -58,7 +57,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private List<ExclusionStrategy> serializationStrategies = Collections.emptyList();
   private List<ExclusionStrategy> deserializationStrategies = Collections.emptyList();
 
-  @Override protected Excluder clone() {
+  @Override
+  protected Excluder clone() {
     try {
       return (Excluder) super.clone();
     } catch (CloneNotSupportedException e) {
@@ -93,8 +93,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     return result;
   }
 
-  public Excluder withExclusionStrategy(ExclusionStrategy exclusionStrategy,
-      boolean serialization, boolean deserialization) {
+  public Excluder withExclusionStrategy(
+      ExclusionStrategy exclusionStrategy, boolean serialization, boolean deserialization) {
     Excluder result = clone();
     if (serialization) {
       result.serializationStrategies = new ArrayList<>(serializationStrategies);
@@ -107,22 +107,26 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     return result;
   }
 
-  @Override public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
+  @Override
+  public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
-    boolean excludeClass = excludeClassChecks(rawType);
 
-    final boolean skipSerialize = excludeClass || excludeClassInStrategy(rawType, true);
-    final boolean skipDeserialize = excludeClass ||  excludeClassInStrategy(rawType, false);
+    final boolean skipSerialize = excludeClass(rawType, true);
+    final boolean skipDeserialize = excludeClass(rawType, false);
 
     if (!skipSerialize && !skipDeserialize) {
       return null;
     }
 
     return new TypeAdapter<T>() {
-      /** The delegate is lazily created because it may not be needed, and creating it may fail. */
-      private TypeAdapter<T> delegate;
+      /**
+       * The delegate is lazily created because it may not be needed, and creating it may fail.
+       * Field has to be {@code volatile} because {@link Gson} guarantees to be thread-safe.
+       */
+      private volatile TypeAdapter<T> delegate;
 
-      @Override public T read(JsonReader in) throws IOException {
+      @Override
+      public T read(JsonReader in) throws IOException {
         if (skipDeserialize) {
           in.skipValue();
           return null;
@@ -130,7 +134,8 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
         return delegate().read(in);
       }
 
-      @Override public void write(JsonWriter out, T value) throws IOException {
+      @Override
+      public void write(JsonWriter out, T value) throws IOException {
         if (skipSerialize) {
           out.nullValue();
           return;
@@ -139,10 +144,10 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       }
 
       private TypeAdapter<T> delegate() {
+        // A race might lead to `delegate` being assigned by multiple threads but the last
+        // assignment will stick
         TypeAdapter<T> d = delegate;
-        return d != null
-            ? d
-            : (delegate = gson.getDelegateAdapter(Excluder.this, type));
+        return d != null ? d : (delegate = gson.getDelegateAdapter(Excluder.this, type));
       }
     };
   }
@@ -168,11 +173,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       }
     }
 
-    if (!serializeInnerClasses && isInnerClass(field.getType())) {
-      return true;
-    }
-
-    if (isAnonymousOrNonStaticLocal(field.getType())) {
+    if (excludeClass(field.getType(), serialize)) {
       return true;
     }
 
@@ -189,48 +190,46 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     return false;
   }
 
-  private boolean excludeClassChecks(Class<?> clazz) {
-      if (version != Excluder.IGNORE_VERSIONS && !isValidVersion(clazz.getAnnotation(Since.class), clazz.getAnnotation(Until.class))) {
-          return true;
-      }
-
-      if (!serializeInnerClasses && isInnerClass(clazz)) {
-          return true;
-      }
-
-      if (isAnonymousOrNonStaticLocal(clazz)) {
-          return true;
-      }
-
-      return false;
-  }
-
+  // public for unit tests; can otherwise be private
   public boolean excludeClass(Class<?> clazz, boolean serialize) {
-      return excludeClassChecks(clazz) ||
-              excludeClassInStrategy(clazz, serialize);
-  }
+    if (version != Excluder.IGNORE_VERSIONS
+        && !isValidVersion(clazz.getAnnotation(Since.class), clazz.getAnnotation(Until.class))) {
+      return true;
+    }
 
-  private boolean excludeClassInStrategy(Class<?> clazz, boolean serialize) {
-      List<ExclusionStrategy> list = serialize ? serializationStrategies : deserializationStrategies;
-      for (ExclusionStrategy exclusionStrategy : list) {
-          if (exclusionStrategy.shouldSkipClass(clazz)) {
-              return true;
-          }
+    if (!serializeInnerClasses && isInnerClass(clazz)) {
+      return true;
+    }
+
+    /*
+     * Exclude anonymous and local classes because they can have synthetic fields capturing enclosing
+     * values which makes serialization and deserialization unreliable.
+     * Don't exclude anonymous enum subclasses because enum types have a built-in adapter.
+     *
+     * Exclude only for deserialization; for serialization allow because custom adapter might be
+     * used; if no custom adapter exists reflection-based adapter otherwise excludes value.
+     *
+     * Cannot allow deserialization reliably here because some custom adapters like Collection adapter
+     * fall back to creating instances using Unsafe, which would likely lead to runtime exceptions
+     * for anonymous and local classes if they capture values.
+     */
+    if (!serialize
+        && !Enum.class.isAssignableFrom(clazz)
+        && ReflectionHelper.isAnonymousOrNonStaticLocal(clazz)) {
+      return true;
+    }
+
+    List<ExclusionStrategy> list = serialize ? serializationStrategies : deserializationStrategies;
+    for (ExclusionStrategy exclusionStrategy : list) {
+      if (exclusionStrategy.shouldSkipClass(clazz)) {
+        return true;
       }
-      return false;
+    }
+    return false;
   }
 
-  private boolean isAnonymousOrNonStaticLocal(Class<?> clazz) {
-    return !Enum.class.isAssignableFrom(clazz) && !isStatic(clazz)
-        && (clazz.isAnonymousClass() || clazz.isLocalClass());
-  }
-
-  private boolean isInnerClass(Class<?> clazz) {
-    return clazz.isMemberClass() && !isStatic(clazz);
-  }
-
-  private boolean isStatic(Class<?> clazz) {
-    return (clazz.getModifiers() & Modifier.STATIC) != 0;
+  private static boolean isInnerClass(Class<?> clazz) {
+    return clazz.isMemberClass() && !ReflectionHelper.isStatic(clazz);
   }
 
   private boolean isValidVersion(Since since, Until until) {
@@ -240,9 +239,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private boolean isValidSince(Since annotation) {
     if (annotation != null) {
       double annotationVersion = annotation.value();
-      if (annotationVersion > version) {
-        return false;
-      }
+      return version >= annotationVersion;
     }
     return true;
   }
@@ -250,9 +247,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   private boolean isValidUntil(Until annotation) {
     if (annotation != null) {
       double annotationVersion = annotation.value();
-      if (annotationVersion <= version) {
-        return false;
-      }
+      return version < annotationVersion;
     }
     return true;
   }

@@ -15,11 +15,8 @@
  */
 package com.google.gson.functional;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import junit.framework.TestCase;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,6 +25,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.ClassOverridingEquals;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests related to circular reference detection and error reporting.
@@ -35,80 +37,85 @@ import com.google.gson.common.TestTypes.ClassOverridingEquals;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class CircularReferenceTest extends TestCase {
+public class CircularReferenceTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
-  public void testCircularSerialization() throws Exception {
+  @Test
+  public void testCircularSerialization() {
     ContainsReferenceToSelfType a = new ContainsReferenceToSelfType();
     ContainsReferenceToSelfType b = new ContainsReferenceToSelfType();
     a.children.add(b);
     b.children.add(a);
-    try {
-      gson.toJson(a);
-      fail("Circular types should not get printed!");
-    } catch (StackOverflowError expected) {
-    }
+    // Circular types should not get printed
+    assertThrows(StackOverflowError.class, () -> gson.toJson(a));
   }
 
-  public void testSelfReferenceIgnoredInSerialization() throws Exception {
+  @Test
+  public void testSelfReferenceIgnoredInSerialization() {
     ClassOverridingEquals objA = new ClassOverridingEquals();
     objA.ref = objA;
 
     String json = gson.toJson(objA);
-    assertFalse(json.contains("ref")); // self-reference is ignored
+    assertThat(json).doesNotContain("ref"); // self-reference is ignored
   }
 
-  public void testSelfReferenceArrayFieldSerialization() throws Exception {
+  @Test
+  public void testSelfReferenceArrayFieldSerialization() {
     ClassWithSelfReferenceArray objA = new ClassWithSelfReferenceArray();
-    objA.children = new ClassWithSelfReferenceArray[]{objA};
+    objA.children = new ClassWithSelfReferenceArray[] {objA};
 
-    try {
-      gson.toJson(objA);
-      fail("Circular reference to self can not be serialized!");
-    } catch (StackOverflowError expected) {
-    }
+    // Circular reference to self can not be serialized
+    assertThrows(StackOverflowError.class, () -> gson.toJson(objA));
   }
 
-  public void testSelfReferenceCustomHandlerSerialization() throws Exception {
+  @Test
+  public void testSelfReferenceCustomHandlerSerialization() {
     ClassWithSelfReference obj = new ClassWithSelfReference();
     obj.child = obj;
-    Gson gson = new GsonBuilder().registerTypeAdapter(ClassWithSelfReference.class, new JsonSerializer<ClassWithSelfReference>() {
-      @Override public JsonElement serialize(ClassWithSelfReference src, Type typeOfSrc,
-          JsonSerializationContext context) {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("property", "value");
-        obj.add("child", context.serialize(src.child));
-        return obj;
-      }
-    }).create();
-    try {
-      gson.toJson(obj);
-      fail("Circular reference to self can not be serialized!");
-    } catch (StackOverflowError expected) {
-    }
+    Gson gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                ClassWithSelfReference.class,
+                new JsonSerializer<ClassWithSelfReference>() {
+                  @Override
+                  public JsonElement serialize(
+                      ClassWithSelfReference src,
+                      Type typeOfSrc,
+                      JsonSerializationContext context) {
+                    JsonObject obj = new JsonObject();
+                    obj.addProperty("property", "value");
+                    obj.add("child", context.serialize(src.child));
+                    return obj;
+                  }
+                })
+            .create();
+
+    // Circular reference to self can not be serialized
+    assertThrows(StackOverflowError.class, () -> gson.toJson(obj));
   }
 
-  public void testDirectedAcyclicGraphSerialization() throws Exception {
+  @Test
+  public void testDirectedAcyclicGraphSerialization() {
     ContainsReferenceToSelfType a = new ContainsReferenceToSelfType();
     ContainsReferenceToSelfType b = new ContainsReferenceToSelfType();
     ContainsReferenceToSelfType c = new ContainsReferenceToSelfType();
     a.children.add(b);
     a.children.add(c);
     b.children.add(c);
-    assertNotNull(gson.toJson(a));
+    assertThat(gson.toJson(a)).isNotNull();
   }
 
-  public void testDirectedAcyclicGraphDeserialization() throws Exception {
+  @Test
+  public void testDirectedAcyclicGraphDeserialization() {
     String json = "{\"children\":[{\"children\":[{\"children\":[]}]},{\"children\":[]}]}";
     ContainsReferenceToSelfType target = gson.fromJson(json, ContainsReferenceToSelfType.class);
-    assertNotNull(target);
-    assertEquals(2, target.children.size());
+    assertThat(target).isNotNull();
+    assertThat(target.children).hasSize(2);
   }
 
   private static class ContainsReferenceToSelfType {

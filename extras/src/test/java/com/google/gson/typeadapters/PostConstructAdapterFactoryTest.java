@@ -16,99 +16,112 @@
 
 package com.google.gson.typeadapters;
 
-import javax.annotation.PostConstruct;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import junit.framework.TestCase;
-
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import org.junit.Test;
 
-public class PostConstructAdapterFactoryTest extends TestCase {
-    public void test() throws Exception {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new PostConstructAdapterFactory())
-                .create();
+public class PostConstructAdapterFactoryTest {
+  @Test
+  public void test() throws Exception {
+    Gson gson =
+        new GsonBuilder().registerTypeAdapterFactory(new PostConstructAdapterFactory()).create();
+    Sandwich unused =
         gson.fromJson("{\"bread\": \"white\", \"cheese\": \"cheddar\"}", Sandwich.class);
-        try {
-            gson.fromJson("{\"bread\": \"cheesey bread\", \"cheese\": \"swiss\"}", Sandwich.class);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertEquals("too cheesey", expected.getMessage());
-        }
+
+    var e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                gson.fromJson(
+                    "{\"bread\": \"cheesey bread\", \"cheese\": \"swiss\"}", Sandwich.class));
+    assertThat(e).hasMessageThat().isEqualTo("too cheesey");
+  }
+
+  @Test
+  public void testList() {
+    MultipleSandwiches sandwiches =
+        new MultipleSandwiches(
+            Arrays.asList(new Sandwich("white", "cheddar"), new Sandwich("whole wheat", "swiss")));
+
+    Gson gson =
+        new GsonBuilder().registerTypeAdapterFactory(new PostConstructAdapterFactory()).create();
+
+    // Throws NullPointerException without the fix in https://github.com/google/gson/pull/1103
+    String json = gson.toJson(sandwiches);
+    assertThat(json)
+        .isEqualTo(
+            "{\"sandwiches\":[{\"bread\":\"white\",\"cheese\":\"cheddar\"},"
+                + "{\"bread\":\"whole wheat\",\"cheese\":\"swiss\"}]}");
+
+    MultipleSandwiches sandwichesFromJson = gson.fromJson(json, MultipleSandwiches.class);
+    assertThat(sandwichesFromJson).isEqualTo(sandwiches);
+  }
+
+  @SuppressWarnings({"overrides", "EqualsHashCode"}) // for missing hashCode() override
+  static class Sandwich {
+    public String bread;
+    public String cheese;
+
+    public Sandwich(String bread, String cheese) {
+      this.bread = bread;
+      this.cheese = cheese;
     }
 
-    public void testList() {
-        MultipleSandwiches sandwiches = new MultipleSandwiches(Arrays.asList(
-            new Sandwich("white", "cheddar"),
-            new Sandwich("whole wheat", "swiss")));
-
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PostConstructAdapterFactory()).create();
-
-        // Throws NullPointerException without the fix in https://github.com/google/gson/pull/1103
-        String json = gson.toJson(sandwiches);
-        assertEquals("{\"sandwiches\":[{\"bread\":\"white\",\"cheese\":\"cheddar\"},{\"bread\":\"whole wheat\",\"cheese\":\"swiss\"}]}", json);
-
-        MultipleSandwiches sandwichesFromJson = gson.fromJson(json, MultipleSandwiches.class);
-        assertEquals(sandwiches, sandwichesFromJson);
+    @PostConstruct
+    private void validate() {
+      if (bread.equals("cheesey bread") && cheese != null) {
+        throw new IllegalArgumentException("too cheesey");
+      }
     }
 
-    static class Sandwich {
-        public String bread;
-        public String cheese;
+    @Override
+    public boolean equals(Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!(o instanceof Sandwich)) {
+        return false;
+      }
+      final Sandwich other = (Sandwich) o;
+      if (this.bread == null ? other.bread != null : !this.bread.equals(other.bread)) {
+        return false;
+      }
+      if (this.cheese == null ? other.cheese != null : !this.cheese.equals(other.cheese)) {
+        return false;
+      }
+      return true;
+    }
+  }
 
-        public Sandwich(String bread, String cheese) {
-            this.bread = bread;
-            this.cheese = cheese;
-        }
+  @SuppressWarnings({"overrides", "EqualsHashCode"}) // for missing hashCode() override
+  static class MultipleSandwiches {
+    public List<Sandwich> sandwiches;
 
-        @PostConstruct private void validate() {
-            if (bread.equals("cheesey bread") && cheese != null) {
-                throw new IllegalArgumentException("too cheesey");
-            }
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == this) {
-                return true;
-            }
-            if (!(o instanceof Sandwich)) {
-                return false;
-            }
-            final Sandwich other = (Sandwich) o;
-            if (this.bread == null ? other.bread != null : !this.bread.equals(other.bread)) {
-                return false;
-            }
-            if (this.cheese == null ? other.cheese != null : !this.cheese.equals(other.cheese)) {
-                return false;
-            }
-            return true;
-        }
+    public MultipleSandwiches(List<Sandwich> sandwiches) {
+      this.sandwiches = sandwiches;
     }
 
-    static class MultipleSandwiches {
-        public List<Sandwich> sandwiches;
-
-        public MultipleSandwiches(List<Sandwich> sandwiches) {
-            this.sandwiches = sandwiches;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == this) {
-                return true;
-            }
-            if (!(o instanceof MultipleSandwiches)) {
-                return false;
-            }
-            final MultipleSandwiches other = (MultipleSandwiches) o;
-            if (this.sandwiches == null ? other.sandwiches != null : !this.sandwiches.equals(other.sandwiches)) {
-                return false;
-            }
-            return true;
-        }
+    @Override
+    public boolean equals(Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!(o instanceof MultipleSandwiches)) {
+        return false;
+      }
+      final MultipleSandwiches other = (MultipleSandwiches) o;
+      if (this.sandwiches == null
+          ? other.sandwiches != null
+          : !this.sandwiches.equals(other.sandwiches)) {
+        return false;
+      }
+      return true;
     }
+  }
 }

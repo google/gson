@@ -16,14 +16,15 @@
 
 package com.google.gson;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for {@code ParameterizedType}s created by the {@link $Gson$Types} class.
@@ -31,27 +32,28 @@ import java.util.List;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class ParameterizedTypeTest extends TestCase {
+public class ParameterizedTypeTest {
   private ParameterizedType ourType;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     ourType = $Gson$Types.newParameterizedTypeWithOwner(null, List.class, String.class);
   }
 
-  public void testOurTypeFunctionality() throws Exception {
+  @Test
+  public void testOurTypeFunctionality() {
     Type parameterizedType = new TypeToken<List<String>>() {}.getType();
-    assertNull(ourType.getOwnerType());
-    assertEquals(String.class, ourType.getActualTypeArguments()[0]);
-    assertEquals(List.class, ourType.getRawType());
-    assertEquals(parameterizedType, ourType);
-    assertEquals(parameterizedType.hashCode(), ourType.hashCode());
+    assertThat(ourType.getOwnerType()).isNull();
+    assertThat(ourType.getActualTypeArguments()[0]).isSameInstanceAs(String.class);
+    assertThat(ourType.getRawType()).isSameInstanceAs(List.class);
+    assertThat(ourType).isEqualTo(parameterizedType);
+    assertThat(ourType.hashCode()).isEqualTo(parameterizedType.hashCode());
   }
 
-  public void testNotEquals() throws Exception {
+  @Test
+  public void testNotEquals() {
     Type differentParameterizedType = new TypeToken<List<Integer>>() {}.getType();
-    assertFalse(differentParameterizedType.equals(ourType));
-    assertFalse(ourType.equals(differentParameterizedType));
+    assertThat(differentParameterizedType.equals(ourType)).isFalse();
+    assertThat(ourType.equals(differentParameterizedType)).isFalse();
   }
 }

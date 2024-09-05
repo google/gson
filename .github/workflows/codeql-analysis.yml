@@ -4,9 +4,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   schedule:
     # Run every Monday at 16:10
     - cron: '10 16 * * 1'
@@ -25,30 +25,29 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018  # v4.2.2
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'maven'
 
     # Initializes the CodeQL tools for scanning
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@4dd16135b69a43b6c8efb853346f8437d92d3c93  # v3.26.6
       with:
         languages: ${{ matrix.language }}
         # Run all security queries and maintainability and reliability queries
         queries: +security-and-quality
-
-    - name: Cache local Maven repository
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
 
     # Only compile main sources, but ignore test sources because findings for them might not
     # be that relevant (though GitHub security view also allows filtering by source type)
     # Can replace this with github/codeql-action/autobuild action to run complete build
     - name: Compile sources
       run: |
-        mvn compile --batch-mode
+        mvn compile --batch-mode --no-transfer-progress
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@4dd16135b69a43b6c8efb853346f8437d92d3c93  # v3.26.6

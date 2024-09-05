@@ -20,7 +20,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 /**
  * Do sneaky things to allocate objects without invoking their constructors.
@@ -32,37 +31,21 @@ public abstract class UnsafeAllocator {
   public abstract <T> T newInstance(Class<T> c) throws Exception;
 
   /**
-   * Check if the class can be instantiated by Unsafe allocator. If the instance has interface or abstract modifiers
-   * return an exception message.
-   * @param c instance of the class to be checked
-   * @return if instantiable {@code null}, else a non-{@code null} exception message
-   */
-  static String checkInstantiable(Class<?> c) {
-    int modifiers = c.getModifiers();
-    if (Modifier.isInterface(modifiers)) {
-      return "Interfaces can't be instantiated! Register an InstanceCreator "
-          + "or a TypeAdapter for this type. Interface name: " + c.getName();
-    }
-    if (Modifier.isAbstract(modifiers)) {
-      return "Abstract classes can't be instantiated! Register an InstanceCreator "
-          + "or a TypeAdapter for this type. Class name: " + c.getName();
-    }
-    return null;
-  }
-
-  /**
-   * Asserts that the class is instantiable. This check should have already occurred
-   * in {@link ConstructorConstructor}; this check here acts as safeguard since trying
-   * to use Unsafe for non-instantiable classes might crash the JVM on some devices.
+   * Asserts that the class is instantiable. This check should have already occurred in {@link
+   * ConstructorConstructor}; this check here acts as safeguard since trying to use Unsafe for
+   * non-instantiable classes might crash the JVM on some devices.
    */
   private static void assertInstantiable(Class<?> c) {
-    String exceptionMessage = checkInstantiable(c);
+    String exceptionMessage = ConstructorConstructor.checkInstantiable(c);
     if (exceptionMessage != null) {
-      throw new AssertionError("UnsafeAllocator is used for non-instantiable type: " + exceptionMessage);
+      throw new AssertionError(
+          "UnsafeAllocator is used for non-instantiable type: " + exceptionMessage);
     }
   }
 
-  public static UnsafeAllocator create() {
+  public static final UnsafeAllocator INSTANCE = create();
+
+  private static UnsafeAllocator create() {
     // try JVM
     // public class Unsafe {
     //   public Object allocateInstance(Class<?> type);
@@ -82,6 +65,7 @@ public abstract class UnsafeAllocator {
         }
       };
     } catch (Exception ignored) {
+      // OK: try the next way
     }
 
     // try dalvikvm, post-gingerbread
@@ -90,12 +74,12 @@ public abstract class UnsafeAllocator {
     //   private static native Object newInstance(Class<?> instantiationClass, int methodId);
     // }
     try {
-      Method getConstructorId = ObjectStreamClass.class
-          .getDeclaredMethod("getConstructorId", Class.class);
+      Method getConstructorId =
+          ObjectStreamClass.class.getDeclaredMethod("getConstructorId", Class.class);
       getConstructorId.setAccessible(true);
       final int constructorId = (Integer) getConstructorId.invoke(null, Object.class);
-      final Method newInstance = ObjectStreamClass.class
-          .getDeclaredMethod("newInstance", Class.class, int.class);
+      final Method newInstance =
+          ObjectStreamClass.class.getDeclaredMethod("newInstance", Class.class, int.class);
       newInstance.setAccessible(true);
       return new UnsafeAllocator() {
         @Override
@@ -106,6 +90,7 @@ public abstract class UnsafeAllocator {
         }
       };
     } catch (Exception ignored) {
+      // OK: try the next way
     }
 
     // try dalvikvm, pre-gingerbread
@@ -114,8 +99,8 @@ public abstract class UnsafeAllocator {
     //     Class<?> instantiationClass, Class<?> constructorClass);
     // }
     try {
-      final Method newInstance = ObjectInputStream.class
-          .getDeclaredMethod("newInstance", Class.class, Class.class);
+      final Method newInstance =
+          ObjectInputStream.class.getDeclaredMethod("newInstance", Class.class, Class.class);
       newInstance.setAccessible(true);
       return new UnsafeAllocator() {
         @Override
@@ -126,14 +111,18 @@ public abstract class UnsafeAllocator {
         }
       };
     } catch (Exception ignored) {
+      // OK: try the next way
     }
 
     // give up
     return new UnsafeAllocator() {
       @Override
       public <T> T newInstance(Class<T> c) {
-        throw new UnsupportedOperationException("Cannot allocate " + c + ". Usage of JDK sun.misc.Unsafe is enabled, "
-            + "but it could not be used. Make sure your runtime is configured correctly.");
+        throw new UnsupportedOperationException(
+            "Cannot allocate "
+                + c
+                + ". Usage of JDK sun.misc.Unsafe is enabled, but it could not be used."
+                + " Make sure your runtime is configured correctly.");
       }
     };
   }

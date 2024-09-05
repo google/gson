@@ -15,56 +15,57 @@
  */
 package com.google.gson.regression;
 
-import java.io.InputStream;
+import static com.google.common.truth.Truth.assertWithMessage;
+import static org.junit.Assert.fail;
+
+import com.google.common.base.Splitter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.Manifest;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class OSGiTest {
+  @Test
+  public void testComGoogleGsonAnnotationsPackage() throws Exception {
+    Manifest mf = findManifest("com.google.gson");
+    String importPkg = mf.getMainAttributes().getValue("Import-Package");
+    assertWithMessage("Import-Package statement is there").that(importPkg).isNotNull();
+    assertWithMessage("There should be no com.google.gson.annotations dependency")
+        .that(importPkg)
+        .doesNotContain("com.google.gson.annotations");
+  }
 
-public class OSGiTest extends TestCase {
-    public void testComGoogleGsonAnnotationsPackage() throws Exception {
-        Manifest mf = findManifest("com.google.gson");
-        String importPkg = mf.getMainAttributes().getValue("Import-Package");
-        assertNotNull("Import-Package statement is there", importPkg);
-        assertSubstring("There should be com.google.gson.annotations dependency", importPkg, "com.google.gson.annotations");
+  @Test
+  public void testSunMiscImportPackage() throws Exception {
+    Manifest mf = findManifest("com.google.gson");
+    String importPkg = mf.getMainAttributes().getValue("Import-Package");
+    assertWithMessage("Import-Package statement is there").that(importPkg).isNotNull();
+    for (String dep : Splitter.on(',').split(importPkg)) {
+      if (dep.contains("sun.misc")) {
+        assertWithMessage("sun.misc import is optional").that(dep).contains("resolution:=optional");
+        return;
+      }
     }
+    fail("There should be sun.misc dependency, but was: " + importPkg);
+  }
 
-    public void testSunMiscImportPackage() throws Exception {
-        Manifest mf = findManifest("com.google.gson");
-        String importPkg = mf.getMainAttributes().getValue("Import-Package");
-        assertNotNull("Import-Package statement is there", importPkg);
-        for (String dep : importPkg.split(",")) {
-            if (dep.contains("sun.misc")) {
-                assertSubstring("sun.misc import is optional", dep, "resolution:=optional");
-                return;
-            }
-        }
-        fail("There should be sun.misc dependency, but was: " + importPkg);
+  private Manifest findManifest(String pkg) throws IOException {
+    List<URL> urls = new ArrayList<>();
+    for (URL u :
+        Collections.list(getClass().getClassLoader().getResources("META-INF/MANIFEST.MF"))) {
+      InputStream is = u.openStream();
+      Manifest mf = new Manifest(is);
+      is.close();
+      if (pkg.equals(mf.getMainAttributes().getValue("Bundle-SymbolicName"))) {
+        return mf;
+      }
+      urls.add(u);
     }
-
-    private Manifest findManifest(String pkg) throws IOException {
-        List<URL> urls = new ArrayList<>();
-        for (URL u : Collections.list(getClass().getClassLoader().getResources("META-INF/MANIFEST.MF"))) {
-            InputStream is = u.openStream();
-            Manifest mf = new Manifest(is);
-            is.close();
-            if (pkg.equals(mf.getMainAttributes().getValue("Bundle-SymbolicName"))) {
-                return mf;
-            }
-            urls.add(u);
-        }
-        fail("Cannot find " + pkg + " OSGi bundle manifest among: " + urls);
-        return null;
-    }
-
-    private static void assertSubstring(String msg, String wholeText, String subString) {
-        if (wholeText.contains(subString)) {
-            return;
-        }
-        fail(msg + ". Expecting " + subString + " but was: " + wholeText);
-    }
+    fail("Cannot find " + pkg + " OSGi bundle manifest among: " + urls);
+    return null;
+  }
 }
