@@ -34,9 +34,9 @@ public class OSGiTest {
     Manifest mf = findManifest("com.google.gson");
     String importPkg = mf.getMainAttributes().getValue("Import-Package");
     assertWithMessage("Import-Package statement is there").that(importPkg).isNotNull();
-    assertWithMessage("There should be com.google.gson.annotations dependency")
+    assertWithMessage("There should be no com.google.gson.annotations dependency")
         .that(importPkg)
-        .contains("com.google.gson.annotations");
+        .doesNotContain("com.google.gson.annotations");
   }
 
   @Test
