@@ -175,7 +175,7 @@ public final class GsonTest {
                 + " but got instance of class java.lang.Integer\n"
                 + "Verify that the adapter was registed for the correct type.");
 
-    // Returning boxed object should be allowed (e.g. returning `Integer` for `int`)
+    // Returning boxed primitive should be allowed (e.g. returning `Integer` for `int`)
     Gson gson2 = new GsonBuilder().registerTypeAdapter(int.class, new IntegerAdapter()).create();
     assertThat(gson2.fromJson("0", int.class)).isEqualTo(3);
 

@@ -179,16 +179,11 @@ public class ConstructorConstructorTest {
 
     // But when explicitly requesting a `LinkedHashMap<String, ...>` should use JDK `LinkedHashMap`
     actual =
-        constructorConstructor
-            .get(TypeToken.getParameterized(LinkedHashMap.class, String.class, Integer.class))
-            .construct();
+        constructorConstructor.get(new TypeToken<LinkedHashMap<String, Integer>>() {}).construct();
     assertThat(actual).isInstanceOf(LinkedHashMap.class);
 
     // For all Map types with non-String key, should use JDK `LinkedHashMap` by default
-    actual =
-        constructorConstructor
-            .get(TypeToken.getParameterized(Map.class, Integer.class, Integer.class))
-            .construct();
+    actual = constructorConstructor.get(new TypeToken<Map<Integer, Integer>>() {}).construct();
     assertThat(actual).isInstanceOf(LinkedHashMap.class);
   }
 
