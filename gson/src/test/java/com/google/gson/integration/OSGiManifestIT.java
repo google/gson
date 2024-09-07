@@ -160,11 +160,12 @@ public class OSGiManifestIT {
         Collections.list(getClass().getClassLoader().getResources("META-INF/MANIFEST.MF"));
 
     for (URL manifestResource : manifestResources) {
-      InputStream is = manifestResource.openStream();
-      Manifest mf = new Manifest(is);
-      is.close();
-      if (bundleName.equals(mf.getMainAttributes().getValue("Bundle-SymbolicName"))) {
-        return new ManifestData(manifestResource, mf);
+      Manifest manifest;
+      try (InputStream is = manifestResource.openStream()) {
+        manifest = new Manifest(is);
+      }
+      if (bundleName.equals(manifest.getMainAttributes().getValue("Bundle-SymbolicName"))) {
+        return new ManifestData(manifestResource, manifest);
       }
     }
 
