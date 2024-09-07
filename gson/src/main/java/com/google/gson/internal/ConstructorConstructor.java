@@ -399,8 +399,7 @@ public final class ConstructorConstructor {
     if (typeArguments.length == 0) {
       return false;
     }
-    // Consider String and supertypes of it
-    return TypeToken.get(typeArguments[0]).getRawType().isAssignableFrom(String.class);
+    return $Gson$Types.getRawType(typeArguments[0]) == String.class;
   }
 
   // Suppress Error Prone false positive: Pattern is reported for overridden methods, see

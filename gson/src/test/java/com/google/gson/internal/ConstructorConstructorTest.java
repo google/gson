@@ -159,32 +159,33 @@ public class ConstructorConstructorTest {
 
   @Test
   public void testStringMapCreation() {
-    // When creating raw `Map` should use Gson's `LinkedTreeMap`, assuming keys _could_ be String
+    // When creating raw Map should use Gson's LinkedTreeMap, assuming keys could be String
     Object actual = constructorConstructor.get(TypeToken.get(Map.class)).construct();
     assertThat(actual).isInstanceOf(LinkedTreeMap.class);
 
-    // When creating a `Map<String, ...>` (or where key type is supertype of `String`) should use
-    // Gson's `LinkedTreeMap`
-    Class<?>[] stringTypes = {String.class, CharSequence.class, Object.class};
-    for (Class<?> stringType : stringTypes) {
-      actual =
-          constructorConstructor
-              .get(TypeToken.getParameterized(Map.class, stringType, Integer.class))
-              .construct();
-      assertWithMessage(
-              "Failed for key type " + stringType + "; created instance of " + actual.getClass())
-          .that(actual)
-          .isInstanceOf(LinkedTreeMap.class);
-    }
+    // When creating a `Map<String, ...>` should use Gson's LinkedTreeMap
+    actual = constructorConstructor.get(new TypeToken<Map<String, Integer>>() {}).construct();
+    assertThat(actual).isInstanceOf(LinkedTreeMap.class);
 
-    // But when explicitly requesting a `LinkedHashMap<String, ...>` should use JDK `LinkedHashMap`
+    // But when explicitly requesting a JDK `LinkedHashMap<String, ...>` should use LinkedHashMap
     actual =
         constructorConstructor.get(new TypeToken<LinkedHashMap<String, Integer>>() {}).construct();
     assertThat(actual).isInstanceOf(LinkedHashMap.class);
 
-    // For all Map types with non-String key, should use JDK `LinkedHashMap` by default
-    actual = constructorConstructor.get(new TypeToken<Map<Integer, Integer>>() {}).construct();
-    assertThat(actual).isInstanceOf(LinkedHashMap.class);
+    // For all Map types with non-String key, should use JDK LinkedHashMap by default
+    // This is also done to avoid ClassCastException later, because Gson's LinkedTreeMap requires
+    // that keys are Comparable
+    Class<?>[] nonStringTypes = {Integer.class, CharSequence.class, Object.class};
+    for (Class<?> keyType : nonStringTypes) {
+      actual =
+          constructorConstructor
+              .get(TypeToken.getParameterized(Map.class, keyType, Integer.class))
+              .construct();
+      assertWithMessage(
+              "Failed for key type " + keyType + "; created instance of " + actual.getClass())
+          .that(actual)
+          .isInstanceOf(LinkedHashMap.class);
+    }
   }
 
   private enum MyEnum {}

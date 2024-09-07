@@ -230,15 +230,13 @@ public class MapTest {
 
   @Test
   public void testMapStringSupertypeKeyDeserialization() {
-    // Uses `Object` (= supertype of String) as Map key
+    // Should only use Gson's LinkedTreeMap for String as key, but not for supertypes (e.g. Object)
     Type typeOfMap = new TypeToken<Map<Object, Integer>>() {}.getType();
     Map<?, ?> map = gson.fromJson("{\"a\":1}", typeOfMap);
 
-    assertWithMessage(
-            "Map<Object, ...> should use LinkedTreeMap to protect against DoS in older JDK"
-                + " versions")
+    assertWithMessage("Map<Object, ...> should not use Gson Map implementation")
         .that(map)
-        .isInstanceOf(LinkedTreeMap.class);
+        .isNotInstanceOf(LinkedTreeMap.class);
 
     Map<?, ?> expectedMap = Collections.singletonMap("a", 1);
     assertThat(map).isEqualTo(expectedMap);
@@ -249,7 +247,8 @@ public class MapTest {
     Type typeOfMap = new TypeToken<Map<Integer, Integer>>() {}.getType();
     Map<?, ?> map = gson.fromJson("{\"1\":1}", typeOfMap);
 
-    assertThat("non-Map<String, ...> should not use Gson Map implementation")
+    assertWithMessage("Map<Integer, ...> should not use Gson Map implementation")
+        .that(map)
         .isNotInstanceOf(LinkedTreeMap.class);
 
     Map<?, ?> expectedMap = Collections.singletonMap(1, 1);
