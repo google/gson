@@ -1368,7 +1368,7 @@ public final class Gson {
                 + typeOfT.getRawType()
                 + " but got instance of "
                 + object.getClass()
-                + "\nVerify that the adapter was registed for the correct type.");
+                + "\nVerify that the adapter was registered for the correct type.");
       }
       return object;
     } catch (EOFException e) {

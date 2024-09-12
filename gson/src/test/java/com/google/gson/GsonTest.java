@@ -173,7 +173,7 @@ public final class GsonTest {
         .isEqualTo(
             "Type adapter 'custom-adapter' returned wrong type; requested class java.lang.Boolean"
                 + " but got instance of class java.lang.Integer\n"
-                + "Verify that the adapter was registed for the correct type.");
+                + "Verify that the adapter was registered for the correct type.");
 
     // Returning boxed primitive should be allowed (e.g. returning `Integer` for `int`)
     Gson gson2 = new GsonBuilder().registerTypeAdapter(int.class, new IntegerAdapter()).create();
