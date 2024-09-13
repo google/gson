@@ -33,10 +33,10 @@ import java.util.Deque;
 import java.util.Map;
 
 /** Adapter for {@link JsonElement} and subclasses. */
-public class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
-  public static final JsonElementTypeAdapter ADAPTER = new JsonElementTypeAdapter();
+class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
+  static final JsonElementTypeAdapter ADAPTER = new JsonElementTypeAdapter();
 
-  public static final TypeAdapterFactory FACTORY =
+  static final TypeAdapterFactory FACTORY =
       TypeAdapters.newTypeHierarchyFactory(JsonElement.class, ADAPTER);
 
   private JsonElementTypeAdapter() {}

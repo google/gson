@@ -806,12 +806,6 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
-  /*
-   * The following adapter and factory fields have not been removed yet and are only deprecated
-   * for now because external projects might be using them, despite being part of Gson's internal
-   * implementation.
-   */
-
   /**
    * @deprecated {@code TypeAdapters} is an internal Gson class. To obtain the adapter for {@link
    *     JsonElement} and subclasses use instead:
