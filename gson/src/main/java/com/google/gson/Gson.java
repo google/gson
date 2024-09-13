@@ -323,9 +323,7 @@ public final class Gson {
     List<TypeAdapterFactory> factories = new ArrayList<>();
 
     // built-in type adapters that cannot be overridden
-    @SuppressWarnings("deprecation")
-    TypeAdapterFactory jsonElementFactory = TypeAdapters.JSON_ELEMENT_FACTORY;
-    factories.add(jsonElementFactory);
+    factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
     factories.add(ObjectTypeAdapter.getFactory(objectToNumberStrategy));
 
     // the excluder must precede all adapters that handle user-defined types
@@ -388,9 +386,7 @@ public final class Gson {
     factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
     this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
     factories.add(jsonAdapterFactory);
-    @SuppressWarnings("deprecation")
-    TypeAdapterFactory enumFactory = TypeAdapters.ENUM_FACTORY;
-    factories.add(enumFactory);
+    factories.add(TypeAdapters.ENUM_FACTORY);
     factories.add(
         new ReflectiveTypeAdapterFactory(
             constructorConstructor,

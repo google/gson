@@ -43,9 +43,7 @@ public final class Streams {
     try {
       JsonToken unused = reader.peek();
       isEmpty = false;
-      @SuppressWarnings("deprecation")
-      JsonElement element = TypeAdapters.JSON_ELEMENT.read(reader);
-      return element;
+      return TypeAdapters.JSON_ELEMENT.read(reader);
     } catch (EOFException e) {
       /*
        * For compatibility with JSON 1.5 and earlier, we return a JsonNull for
@@ -66,7 +64,6 @@ public final class Streams {
   }
 
   /** Writes the JSON element to the writer, recursively. */
-  @SuppressWarnings("deprecation")
   public static void write(JsonElement element, JsonWriter writer) throws IOException {
     TypeAdapters.JSON_ELEMENT.write(writer, element);
   }
