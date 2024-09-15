@@ -809,7 +809,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = JsonElementTypeAdapter.ADAPTER;
 
   public static final TypeAdapterFactory JSON_ELEMENT_FACTORY =
-      TypeAdapters.newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
+      newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
 
