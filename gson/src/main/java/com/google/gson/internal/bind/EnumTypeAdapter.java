@@ -32,8 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Adapter for enum classes (but not for the base class {@code java.lang.Enum}). */
-public class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
-  public static final TypeAdapterFactory FACTORY =
+class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
+  static final TypeAdapterFactory FACTORY =
       new TypeAdapterFactory() {
         @Override
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {

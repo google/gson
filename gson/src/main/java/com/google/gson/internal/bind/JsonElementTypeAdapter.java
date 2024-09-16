@@ -22,7 +22,6 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -33,11 +32,8 @@ import java.util.Deque;
 import java.util.Map;
 
 /** Adapter for {@link JsonElement} and subclasses. */
-public class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
-  public static final JsonElementTypeAdapter ADAPTER = new JsonElementTypeAdapter();
-
-  public static final TypeAdapterFactory FACTORY =
-      TypeAdapters.newTypeHierarchyFactory(JsonElement.class, ADAPTER);
+class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
+  static final JsonElementTypeAdapter ADAPTER = new JsonElementTypeAdapter();
 
   private JsonElementTypeAdapter() {}
 
