@@ -43,7 +43,8 @@ Maven:
 
 ### Requirements
 #### Minimum Java version
-- Gson 2.9.0 and newer: Java 7
+- Gson 2.12.0 and newer: Java 8
+- Gson 2.9.0 to 2.11.0: Java 7
 - Gson 2.8.9 and older: Java 6
 
 Despite supporting older Java versions, Gson also provides a JPMS module descriptor (module name `com.google.gson`) for users of Java 9 or newer.
