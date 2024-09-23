@@ -128,8 +128,8 @@ public class ReflectionHelper {
     return stringBuilder.toString();
   }
 
-  // Ideally parameter type would be java.lang.reflect.Executable, but that was added in Android API
-  // level 26
+  // Ideally parameter type would be java.lang.reflect.Executable, but that was added
+  // in Android API level 26
   private static void appendExecutableParameters(
       AccessibleObject executable, StringBuilder stringBuilder) {
     stringBuilder.append('(');

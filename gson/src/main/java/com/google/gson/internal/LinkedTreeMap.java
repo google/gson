@@ -43,7 +43,13 @@ import java.util.Set;
 @SuppressWarnings("serial") // ignore warning about missing serialVersionUID
 public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Serializable {
   @SuppressWarnings({"unchecked", "rawtypes"}) // to avoid Comparable<Comparable<Comparable<...>>>
-  private static final Comparator<Comparable> NATURAL_ORDER = Comparator.naturalOrder();
+  private static final Comparator<Comparable> NATURAL_ORDER =
+      new Comparator<Comparable>() {
+        @Override
+        public int compare(Comparable a, Comparable b) {
+          return a.compareTo(b);
+        }
+      };
 
   private final Comparator<? super K> comparator;
   private final boolean allowNullValues;
