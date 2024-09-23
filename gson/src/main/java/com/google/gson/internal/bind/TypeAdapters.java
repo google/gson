@@ -815,7 +815,7 @@ public final class TypeAdapters {
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
-      final TypeToken<TT> type, final TypeAdapter<TT> typeAdapter) {
+      TypeToken<TT> type, TypeAdapter<TT> typeAdapter) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
@@ -826,8 +826,7 @@ public final class TypeAdapters {
   }
 
   @SuppressWarnings("TypeParameterNaming")
-  public static <TT> TypeAdapterFactory newFactory(
-      final Class<TT> type, final TypeAdapter<TT> typeAdapter) {
+  public static <TT> TypeAdapterFactory newFactory(Class<TT> type, TypeAdapter<TT> typeAdapter) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
@@ -844,7 +843,7 @@ public final class TypeAdapters {
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
-      final Class<TT> unboxed, final Class<TT> boxed, final TypeAdapter<? super TT> typeAdapter) {
+      Class<TT> unboxed, Class<TT> boxed, TypeAdapter<? super TT> typeAdapter) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
@@ -868,9 +867,7 @@ public final class TypeAdapters {
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactoryForMultipleTypes(
-      final Class<TT> base,
-      final Class<? extends TT> sub,
-      final TypeAdapter<? super TT> typeAdapter) {
+      Class<TT> base, Class<? extends TT> sub, TypeAdapter<? super TT> typeAdapter) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
@@ -897,12 +894,12 @@ public final class TypeAdapters {
    * that the deserialized type matches the type requested.
    */
   public static <T1> TypeAdapterFactory newTypeHierarchyFactory(
-      final Class<T1> clazz, final TypeAdapter<T1> typeAdapter) {
+      Class<T1> clazz, TypeAdapter<T1> typeAdapter) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
       @Override
       public <T2> TypeAdapter<T2> create(Gson gson, TypeToken<T2> typeToken) {
-        final Class<? super T2> requestedType = typeToken.getRawType();
+        Class<? super T2> requestedType = typeToken.getRawType();
         if (!clazz.isAssignableFrom(requestedType)) {
           return null;
         }

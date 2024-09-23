@@ -252,9 +252,9 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
       return null;
     }
 
-    final TypeAdapter<JsonElement> jsonElementAdapter = gson.getAdapter(JsonElement.class);
-    final Map<String, TypeAdapter<?>> labelToDelegate = new LinkedHashMap<>();
-    final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate = new LinkedHashMap<>();
+    TypeAdapter<JsonElement> jsonElementAdapter = gson.getAdapter(JsonElement.class);
+    Map<String, TypeAdapter<?>> labelToDelegate = new LinkedHashMap<>();
+    Map<Class<?>, TypeAdapter<?>> subtypeToDelegate = new LinkedHashMap<>();
     for (Map.Entry<String, Class<?>> entry : labelToSubtype.entrySet()) {
       TypeAdapter<?> delegate = gson.getDelegateAdapter(this, TypeToken.get(entry.getValue()));
       labelToDelegate.put(entry.getKey(), delegate);

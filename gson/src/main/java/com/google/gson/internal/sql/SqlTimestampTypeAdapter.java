@@ -34,7 +34,7 @@ class SqlTimestampTypeAdapter extends TypeAdapter<Timestamp> {
         @Override
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
           if (typeToken.getRawType() == Timestamp.class) {
-            final TypeAdapter<Date> dateTypeAdapter = gson.getAdapter(Date.class);
+            TypeAdapter<Date> dateTypeAdapter = gson.getAdapter(Date.class);
             return (TypeAdapter<T>) new SqlTimestampTypeAdapter(dateTypeAdapter);
           } else {
             return null;

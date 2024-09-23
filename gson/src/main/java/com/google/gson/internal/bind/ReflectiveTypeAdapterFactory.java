@@ -103,7 +103,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, final TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     Class<? super T> raw = type.getRawType();
 
     if (!Object.class.isAssignableFrom(raw)) {
@@ -175,18 +175,18 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private BoundField createBoundField(
-      final Gson context,
-      final Field field,
-      final Method accessor,
-      final String serializedName,
-      final TypeToken<?> fieldType,
-      final boolean serialize,
-      final boolean blockInaccessible) {
+      Gson context,
+      Field field,
+      Method accessor,
+      String serializedName,
+      TypeToken<?> fieldType,
+      boolean serialize,
+      boolean blockInaccessible) {
 
-    final boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
+    boolean isPrimitive = Primitives.isPrimitive(fieldType.getRawType());
 
     int modifiers = field.getModifiers();
-    final boolean isStaticFinalField = Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers);
+    boolean isStaticFinalField = Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers);
 
     JsonAdapter annotation = field.getAnnotation(JsonAdapter.class);
     TypeAdapter<?> mapped = null;
@@ -196,14 +196,14 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           jsonAdapterFactory.getTypeAdapter(
               constructorConstructor, context, fieldType, annotation, false);
     }
-    final boolean jsonAdapterPresent = mapped != null;
+    boolean jsonAdapterPresent = mapped != null;
     if (mapped == null) {
       mapped = context.getAdapter(fieldType);
     }
 
     @SuppressWarnings("unchecked")
-    final TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) mapped;
-    final TypeAdapter<Object> writeTypeAdapter;
+    TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) mapped;
+    TypeAdapter<Object> writeTypeAdapter;
     if (serialize) {
       writeTypeAdapter =
           jsonAdapterPresent

@@ -78,7 +78,7 @@ public class TypeAdapterTest {
    */
   @Test
   public void testToJson_ThrowingIOException() {
-    final IOException exception = new IOException("test");
+    IOException exception = new IOException("test");
     TypeAdapter<Integer> adapter =
         new TypeAdapter<>() {
           @Override

@@ -254,17 +254,17 @@ public class GsonBuilderTest {
 
   @Test
   public void testSetStrictness() throws IOException {
-    final Strictness STRICTNESS = Strictness.STRICT;
+    Strictness strictness = Strictness.STRICT;
     GsonBuilder builder = new GsonBuilder();
-    builder.setStrictness(STRICTNESS);
+    builder.setStrictness(strictness);
     Gson gson = builder.create();
-    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(STRICTNESS);
-    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(STRICTNESS);
+    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(strictness);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(strictness);
   }
 
   @Test
   public void testRegisterTypeAdapterForObjectAndJsonElements() {
-    final String ERROR_MESSAGE = "Cannot override built-in adapter for ";
+    String errorMessage = "Cannot override built-in adapter for ";
     Type[] types = {
       Object.class, JsonElement.class, JsonArray.class,
     };
@@ -274,13 +274,13 @@ public class GsonBuilderTest {
           assertThrows(
               IllegalArgumentException.class,
               () -> gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER));
-      assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
+      assertThat(e).hasMessageThat().isEqualTo(errorMessage + type);
     }
   }
 
   @Test
   public void testRegisterTypeHierarchyAdapterJsonElements() {
-    final String ERROR_MESSAGE = "Cannot override built-in adapter for ";
+    String errorMessage = "Cannot override built-in adapter for ";
     Class<?>[] types = {
       JsonElement.class, JsonArray.class,
     };
@@ -291,7 +291,7 @@ public class GsonBuilderTest {
               IllegalArgumentException.class,
               () -> gsonBuilder.registerTypeHierarchyAdapter(type, NULL_TYPE_ADAPTER));
 
-      assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
+      assertThat(e).hasMessageThat().isEqualTo(errorMessage + type);
     }
     // But registering type hierarchy adapter for Object should be allowed
     gsonBuilder.registerTypeHierarchyAdapter(Object.class, NULL_TYPE_ADAPTER);

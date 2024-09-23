@@ -85,7 +85,7 @@ public class ReflectionAccessFilterHelper {
       // TODO: Ideally should use Multi-Release JAR for this version specific code
       if (JavaVersion.isJava9OrLater()) {
         try {
-          final Method canAccessMethod =
+          Method canAccessMethod =
               AccessibleObject.class.getDeclaredMethod("canAccess", Object.class);
           accessChecker =
               new AccessChecker() {

@@ -520,7 +520,7 @@ public class MapTest {
 
     Gson tempGson = new Gson();
     String subTypeJson = tempGson.toJson(subType);
-    final JsonElement baseTypeJsonElement = tempGson.toJsonTree(subType, TestTypes.Base.class);
+    JsonElement baseTypeJsonElement = tempGson.toJsonTree(subType, TestTypes.Base.class);
     String baseTypeJson = tempGson.toJson(baseTypeJsonElement);
     String expected =
         "{\"bases\":{\"Test\":" + baseTypeJson + "},\"subs\":{\"Test\":" + subTypeJson + "}}";

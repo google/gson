@@ -252,10 +252,10 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
   @Override
   public JsonElement serialize(Message src, Type typeOfSrc, JsonSerializationContext context) {
     JsonObject ret = new JsonObject();
-    final Map<FieldDescriptor, Object> fields = src.getAllFields();
+    Map<FieldDescriptor, Object> fields = src.getAllFields();
 
     for (Map.Entry<FieldDescriptor, Object> fieldPair : fields.entrySet()) {
-      final FieldDescriptor desc = fieldPair.getKey();
+      FieldDescriptor desc = fieldPair.getKey();
       String name = getCustSerializedName(desc);
 
       if (desc.getType() == ENUM_TYPE) {
