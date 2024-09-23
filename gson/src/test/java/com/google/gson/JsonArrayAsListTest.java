@@ -22,7 +22,11 @@ import static org.junit.Assert.assertThrows;
 import com.google.gson.common.MoreAsserts;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.junit.Test;
 
 /** Tests for {@link JsonArray#asList()}. */
@@ -198,6 +202,67 @@ public class JsonArrayAsListTest {
     assertThat(list.lastIndexOf(new JsonPrimitive(1))).isEqualTo(1);
     assertThat(list.lastIndexOf(new JsonPrimitive(2))).isEqualTo(-1);
     assertThat(list.lastIndexOf(null)).isEqualTo(-1);
+  }
+
+  private <T> List<T> spliteratorToList(Spliterator<T> spliterator) {
+    return StreamSupport.stream(spliterator, false).collect(Collectors.toList());
+  }
+
+  @Test
+  public void testSpliterator() {
+    JsonArray a = new JsonArray();
+    a.add(1);
+    a.add(3);
+    a.add(2);
+
+    List<JsonElement> list = a.asList();
+    List<JsonElement> values = spliteratorToList(list.spliterator());
+    assertThat(values)
+        .containsExactly(new JsonPrimitive(1), new JsonPrimitive(3), new JsonPrimitive(2))
+        .inOrder();
+
+    list = new JsonArray().asList();
+    assertThat(spliteratorToList(list.spliterator())).isEmpty();
+  }
+
+  @Test
+  public void testSort() {
+    JsonArray a = new JsonArray();
+    a.add(1);
+    a.add(3);
+    a.add(2);
+
+    List<JsonElement> list = a.asList();
+    // JsonElement does not implement Comparable
+    assertThrows(ClassCastException.class, () -> list.sort(null));
+
+    list.sort(Comparator.comparingInt(JsonElement::getAsInt));
+    assertThat(list)
+        .containsExactly(new JsonPrimitive(1), new JsonPrimitive(2), new JsonPrimitive(3))
+        .inOrder();
+    assertThat(a)
+        .containsExactly(new JsonPrimitive(1), new JsonPrimitive(2), new JsonPrimitive(3))
+        .inOrder();
+  }
+
+  @Test
+  public void testReplaceAll() {
+    JsonArray a = new JsonArray();
+    a.add(1);
+    a.add(3);
+    a.add(2);
+
+    List<JsonElement> list = a.asList();
+    list.replaceAll(element -> new JsonPrimitive(-element.getAsInt()));
+    assertThat(list)
+        .containsExactly(new JsonPrimitive(-1), new JsonPrimitive(-3), new JsonPrimitive(-2))
+        .inOrder();
+    assertThat(a)
+        .containsExactly(new JsonPrimitive(-1), new JsonPrimitive(-3), new JsonPrimitive(-2))
+        .inOrder();
+
+    var e = assertThrows(NullPointerException.class, () -> list.replaceAll(element -> null));
+    assertThat(e).hasMessageThat().isEqualTo("Element must be non-null");
   }
 
   @Test

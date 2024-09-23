@@ -19,9 +19,11 @@ package com.google.gson.internal;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.RandomAccess;
+import java.util.Spliterator;
 
 /**
  * {@link List} which wraps another {@code List} but prevents insertion of {@code null} elements.
@@ -108,6 +110,16 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   }
 
   @Override
+  public Spliterator<E> spliterator() {
+    return delegate.spliterator();
+  }
+
+  @Override
+  public void sort(Comparator<? super E> c) {
+    delegate.sort(c);
+  }
+
+  @Override
   public Object[] toArray() {
     return delegate.toArray();
   }
@@ -126,6 +138,4 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   public int hashCode() {
     return delegate.hashCode();
   }
-
-  // TODO: Once Gson targets Java 8 also override List.sort
 }

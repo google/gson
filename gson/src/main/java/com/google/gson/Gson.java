@@ -538,7 +538,7 @@ public final class Gson {
     };
   }
 
-  private static TypeAdapter<AtomicLong> atomicLongAdapter(final TypeAdapter<Number> longAdapter) {
+  private static TypeAdapter<AtomicLong> atomicLongAdapter(TypeAdapter<Number> longAdapter) {
     return new TypeAdapter<AtomicLong>() {
       @Override
       public void write(JsonWriter out, AtomicLong value) throws IOException {
@@ -554,7 +554,7 @@ public final class Gson {
   }
 
   private static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(
-      final TypeAdapter<Number> longAdapter) {
+      TypeAdapter<Number> longAdapter) {
     return new TypeAdapter<AtomicLongArray>() {
       @Override
       public void write(JsonWriter out, AtomicLongArray value) throws IOException {
