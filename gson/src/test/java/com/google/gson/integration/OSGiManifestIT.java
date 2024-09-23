@@ -144,8 +144,7 @@ public class OSGiManifestIT {
 
   @Test
   public void testRequireCapability() {
-    // When building with JDK >= 21, the minimum target version is Java 8
-    String expectedJavaVersion = Runtime.version().feature() < 21 ? "1.7" : "1.8";
+    String expectedJavaVersion = "1.8";
 
     // Defines the minimum required Java version
     assertThat(getAttribute("Require-Capability"))
