@@ -280,7 +280,6 @@
                 -Xep:UngroupedOverloads:WARN <!-- required by style guide -->
                 -Xep:UnnecessarilyFullyQualified
                 -Xep:UnnecessarilyUsedValue
-                -Xep:UnnecessaryAnonymousClass
                 -Xep:UnnecessaryBoxedVariable:WARN
                 -Xep:UnnecessaryDefaultInEnumSwitch
                 -Xep:UnnecessaryFinal
