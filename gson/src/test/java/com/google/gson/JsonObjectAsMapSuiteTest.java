@@ -35,9 +35,8 @@ public class JsonObjectAsMapSuiteTest {
     public Map<String, JsonElement> create(Object... elements) {
       JsonObject object = new JsonObject();
       for (Object element : elements) {
-        @SuppressWarnings("unchecked")
-        var entry = (Entry<String, JsonElement>) element;
-        object.add(entry.getKey(), entry.getValue());
+        var entry = (Entry<?, ?>) element;
+        object.add((String) entry.getKey(), (JsonElement) entry.getValue());
       }
       return object.asMap();
     }
