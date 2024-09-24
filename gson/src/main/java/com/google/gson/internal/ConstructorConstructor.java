@@ -95,13 +95,13 @@ public final class ConstructorConstructor {
   }
 
   public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
-    final Type type = typeToken.getType();
-    final Class<? super T> rawType = typeToken.getRawType();
+    Type type = typeToken.getType();
+    Class<? super T> rawType = typeToken.getRawType();
 
     // first try an instance creator
 
     @SuppressWarnings("unchecked") // types must agree
-    final InstanceCreator<T> typeCreator = (InstanceCreator<T>) instanceCreators.get(type);
+    InstanceCreator<T> typeCreator = (InstanceCreator<T>) instanceCreators.get(type);
     if (typeCreator != null) {
       return new ObjectConstructor<T>() {
         @Override
@@ -113,7 +113,7 @@ public final class ConstructorConstructor {
 
     // Next try raw type match for instance creators
     @SuppressWarnings("unchecked") // types must agree
-    final InstanceCreator<T> rawTypeCreator = (InstanceCreator<T>) instanceCreators.get(rawType);
+    InstanceCreator<T> rawTypeCreator = (InstanceCreator<T>) instanceCreators.get(rawType);
     if (rawTypeCreator != null) {
       return new ObjectConstructor<T>() {
         @Override
@@ -145,7 +145,7 @@ public final class ConstructorConstructor {
 
     // Check whether type is instantiable; otherwise ReflectionAccessFilter recommendation
     // of adjusting filter suggested below is irrelevant since it would not solve the problem
-    final String exceptionMessage = checkInstantiable(rawType);
+    String exceptionMessage = checkInstantiable(rawType);
     if (exceptionMessage != null) {
       return new ObjectConstructor<T>() {
         @Override
@@ -161,7 +161,7 @@ public final class ConstructorConstructor {
       // finally try unsafe
       return newUnsafeAllocator(rawType);
     } else {
-      final String message =
+      String message =
           "Unable to create instance of "
               + rawType
               + "; ReflectionAccessFilter does not permit using reflection or Unsafe. Register an"
@@ -181,7 +181,7 @@ public final class ConstructorConstructor {
    * constructor.
    */
   private static <T> ObjectConstructor<T> newSpecialCollectionConstructor(
-      final Type type, Class<? super T> rawType) {
+      Type type, Class<? super T> rawType) {
     if (EnumSet.class.isAssignableFrom(rawType)) {
       return new ObjectConstructor<T>() {
         @Override
@@ -233,7 +233,7 @@ public final class ConstructorConstructor {
       return null;
     }
 
-    final Constructor<? super T> constructor;
+    Constructor<? super T> constructor;
     try {
       constructor = rawType.getDeclaredConstructor();
     } catch (NoSuchMethodException e) {
@@ -249,7 +249,7 @@ public final class ConstructorConstructor {
                     || Modifier.isPublic(constructor.getModifiers())));
 
     if (!canAccess) {
-      final String message =
+      String message =
           "Unable to invoke no-args constructor of "
               + rawType
               + ";"
@@ -267,7 +267,7 @@ public final class ConstructorConstructor {
     // Only try to make accessible if allowed; in all other cases checks above should
     // have verified that constructor is accessible
     if (filterResult == FilterResult.ALLOW) {
-      final String exceptionMessage = ReflectionHelper.tryMakeAccessible(constructor);
+      String exceptionMessage = ReflectionHelper.tryMakeAccessible(constructor);
       if (exceptionMessage != null) {
         /*
          * Create ObjectConstructor which throws exception.
@@ -323,7 +323,7 @@ public final class ConstructorConstructor {
   /** Constructors for common interface types like Map and List and their subtypes. */
   @SuppressWarnings("unchecked") // use runtime checks to guarantee that 'T' is what it is
   private static <T> ObjectConstructor<T> newDefaultImplementationConstructor(
-      final Type type, Class<? super T> rawType) {
+      Type type, Class<? super T> rawType) {
 
     /*
      * IMPORTANT: Must only create instances for classes with public no-args constructor.
@@ -409,7 +409,7 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private <T> ObjectConstructor<T> newUnsafeAllocator(final Class<? super T> rawType) {
+  private <T> ObjectConstructor<T> newUnsafeAllocator(Class<? super T> rawType) {
     if (useJdkUnsafe) {
       return new ObjectConstructor<T>() {
         @Override
@@ -444,8 +444,8 @@ public final class ConstructorConstructor {
             " Or adjust your R8 configuration to keep the no-args constructor of the class.";
       }
 
-      // Explicit final variable to allow usage in the anonymous class below
-      final String exceptionMessageF = exceptionMessage;
+      // Separate effectively final variable to allow usage in the anonymous class below
+      String exceptionMessageF = exceptionMessage;
 
       return new ObjectConstructor<T>() {
         @Override

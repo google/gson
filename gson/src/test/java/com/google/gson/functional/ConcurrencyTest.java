@@ -71,9 +71,9 @@ public class ConcurrencyTest {
    */
   @Test
   public void testMultiThreadSerialization() throws InterruptedException {
-    final CountDownLatch startLatch = new CountDownLatch(1);
-    final CountDownLatch finishedLatch = new CountDownLatch(10);
-    final AtomicReference<Throwable> error = new AtomicReference<>(null);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch finishedLatch = new CountDownLatch(10);
+    AtomicReference<Throwable> error = new AtomicReference<>(null);
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
       executor.execute(
@@ -106,9 +106,9 @@ public class ConcurrencyTest {
    */
   @Test
   public void testMultiThreadDeserialization() throws InterruptedException {
-    final CountDownLatch startLatch = new CountDownLatch(1);
-    final CountDownLatch finishedLatch = new CountDownLatch(10);
-    final AtomicReference<Throwable> error = new AtomicReference<>(null);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch finishedLatch = new CountDownLatch(10);
+    AtomicReference<Throwable> error = new AtomicReference<>(null);
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
       executor.execute(

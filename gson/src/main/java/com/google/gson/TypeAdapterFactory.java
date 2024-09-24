@@ -117,7 +117,7 @@ import com.google.gson.reflect.TypeToken;
  *   }
  *
  *   private <E> TypeAdapter<Multiset<E>> newMultisetAdapter(
- *       final TypeAdapter<E> elementAdapter) {
+ *       TypeAdapter<E> elementAdapter) {
  *     return new TypeAdapter<Multiset<E>>() {
  *       public void write(JsonWriter out, Multiset<E> value) throws IOException {
  *         if (value == null) {

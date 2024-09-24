@@ -282,14 +282,14 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   JsonElement nextJsonElement() throws IOException {
-    final JsonToken peeked = peek();
+    JsonToken peeked = peek();
     if (peeked == JsonToken.NAME
         || peeked == JsonToken.END_ARRAY
         || peeked == JsonToken.END_OBJECT
         || peeked == JsonToken.END_DOCUMENT) {
       throw new IllegalStateException("Unexpected " + peeked + " when reading a JsonElement.");
     }
-    final JsonElement element = (JsonElement) peekStack();
+    JsonElement element = (JsonElement) peekStack();
     skipValue();
     return element;
   }

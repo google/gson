@@ -49,7 +49,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     this.toNumberStrategy = toNumberStrategy;
   }
 
-  private static TypeAdapterFactory newFactory(final ToNumberStrategy toNumberStrategy) {
+  private static TypeAdapterFactory newFactory(ToNumberStrategy toNumberStrategy) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
       @Override

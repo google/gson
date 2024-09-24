@@ -258,7 +258,7 @@ public final class JsonElementReaderTest {
 
   @Test
   public void testNextJsonElement() throws IOException {
-    final JsonElement element = JsonParser.parseString("{\"A\": 1, \"B\" : {}, \"C\" : []}");
+    JsonElement element = JsonParser.parseString("{\"A\": 1, \"B\" : {}, \"C\" : []}");
     JsonTreeReader reader = new JsonTreeReader(element);
     reader.beginObject();
 

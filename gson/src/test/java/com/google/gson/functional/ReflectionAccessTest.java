@@ -60,8 +60,8 @@ public class ReflectionAccessTest {
     // Class.getDeclaredFields()
     Class<?> clazz = loadClassWithDifferentClassLoader(ClassWithPrivateMembers.class);
 
-    final Permission accessDeclaredMembers = new RuntimePermission("accessDeclaredMembers");
-    final Permission suppressAccessChecks = new ReflectPermission("suppressAccessChecks");
+    Permission accessDeclaredMembers = new RuntimePermission("accessDeclaredMembers");
+    Permission suppressAccessChecks = new ReflectPermission("suppressAccessChecks");
     SecurityManager original = System.getSecurityManager();
     SecurityManager restrictiveManager =
         new SecurityManager() {
@@ -83,7 +83,7 @@ public class ReflectionAccessTest {
       var e = assertThrows(SecurityException.class, () -> gson.getAdapter(clazz));
       assertThat(e).hasMessageThat().isEqualTo("Gson: no-member-access");
 
-      final AtomicBoolean wasReadCalled = new AtomicBoolean(false);
+      AtomicBoolean wasReadCalled = new AtomicBoolean(false);
       Gson gson2 =
           new GsonBuilder()
               .registerTypeAdapter(

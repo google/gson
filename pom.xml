@@ -127,9 +127,9 @@
                 <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
                 <requireJavaVersion>
                   <!-- Other plugins of this build require at least JDK 11 -->
-                  <!-- Fail fast when building with JDK > 17 because it causes build failures,
-                    see https://github.com/google/gson/issues/2501 -->
-                  <version>[11,18)</version>
+                  <!-- Disallow newer JDK versions; they might introduce new lints, drop support for
+                    older compiler Java target versions or cause issues for some Maven plugins -->
+                  <version>[11,22)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -280,10 +280,9 @@
                 -Xep:UngroupedOverloads:WARN <!-- required by style guide -->
                 -Xep:UnnecessarilyFullyQualified
                 -Xep:UnnecessarilyUsedValue
-                -Xep:UnnecessaryAnonymousClass:OFF <!-- disabled: requires Java 8 -->
                 -Xep:UnnecessaryBoxedVariable:WARN
                 -Xep:UnnecessaryDefaultInEnumSwitch
-                -Xep:UnnecessaryFinal:OFF <!-- disabled: requires Java 8 -->
+                -Xep:UnnecessaryFinal
                 -Xep:UnnecessaryStaticImport:WARN <!-- required by style guide -->
                 -Xep:UnusedException
                 -Xep:UrlInSee

@@ -88,7 +88,7 @@ public class PostConstructAdapterFactoryTest {
       if (!(o instanceof Sandwich)) {
         return false;
       }
-      final Sandwich other = (Sandwich) o;
+      Sandwich other = (Sandwich) o;
       if (this.bread == null ? other.bread != null : !this.bread.equals(other.bread)) {
         return false;
       }
@@ -115,7 +115,7 @@ public class PostConstructAdapterFactoryTest {
       if (!(o instanceof MultipleSandwiches)) {
         return false;
       }
-      final MultipleSandwiches other = (MultipleSandwiches) o;
+      MultipleSandwiches other = (MultipleSandwiches) o;
       if (this.sandwiches == null
           ? other.sandwiches != null
           : !this.sandwiches.equals(other.sandwiches)) {

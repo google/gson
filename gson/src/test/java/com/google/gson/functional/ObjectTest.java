@@ -488,7 +488,7 @@ public class ObjectTest {
 
   @Test
   public void testInnerClassDeserialization() {
-    final Parent p = new Parent();
+    Parent p = new Parent();
     Gson gson =
         new GsonBuilder()
             .registerTypeAdapter(

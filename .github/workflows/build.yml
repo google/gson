@@ -10,12 +10,7 @@ jobs:
     name: "Build on JDK ${{ matrix.java }}"
     strategy:
       matrix:
-        java: [ 11, 17 ]
-        # Custom JDK 21 configuration
-        include:
-          - java: 21
-            # Disable Enforcer check which (intentionally) prevents using JDK 21 for building
-            extra-mvn-args: -Denforcer.fail=false
+        java: [ 11, 17, 21 ]
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +23,7 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
-        run: mvn --batch-mode --no-transfer-progress verify javadoc:jar ${{ matrix.extra-mvn-args || '' }}
+        run: mvn --batch-mode --no-transfer-progress verify javadoc:jar
 
   native-image-test:
     name: "GraalVM Native Image test"

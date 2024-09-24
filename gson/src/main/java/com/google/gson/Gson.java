@@ -538,7 +538,7 @@ public final class Gson {
     };
   }
 
-  private static TypeAdapter<AtomicLong> atomicLongAdapter(final TypeAdapter<Number> longAdapter) {
+  private static TypeAdapter<AtomicLong> atomicLongAdapter(TypeAdapter<Number> longAdapter) {
     return new TypeAdapter<AtomicLong>() {
       @Override
       public void write(JsonWriter out, AtomicLong value) throws IOException {
@@ -554,7 +554,7 @@ public final class Gson {
   }
 
   private static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(
-      final TypeAdapter<Number> longAdapter) {
+      TypeAdapter<Number> longAdapter) {
     return new TypeAdapter<AtomicLongArray>() {
       @Override
       public void write(JsonWriter out, AtomicLongArray value) throws IOException {
@@ -682,7 +682,7 @@ public final class Gson {
    *   public int numReads = 0;
    *   public int numWrites = 0;
    *   public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-   *     final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
+   *     TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
    *     return new TypeAdapter<T>() {
    *       public void write(JsonWriter out, T value) throws IOException {
    *         ++numWrites;

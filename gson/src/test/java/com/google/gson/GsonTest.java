@@ -28,7 +28,6 @@ import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -49,13 +48,7 @@ public final class GsonTest {
   private static final Excluder CUSTOM_EXCLUDER =
       Excluder.DEFAULT.excludeFieldsWithoutExposeAnnotation().disableInnerClassSerialization();
 
-  private static final FieldNamingStrategy CUSTOM_FIELD_NAMING_STRATEGY =
-      new FieldNamingStrategy() {
-        @Override
-        public String translateName(Field f) {
-          return "foo";
-        }
-      };
+  private static final FieldNamingStrategy CUSTOM_FIELD_NAMING_STRATEGY = f -> "foo";
 
   private static final ToNumberStrategy CUSTOM_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
   private static final ToNumberStrategy CUSTOM_NUMBER_TO_NUMBER_STRATEGY =
@@ -164,9 +157,9 @@ public final class GsonTest {
       }
     }
 
-    final AtomicInteger adapterInstancesCreated = new AtomicInteger(0);
-    final AtomicReference<TypeAdapter<?>> threadAdapter = new AtomicReference<>();
-    final Class<?> requestedType = Number.class;
+    AtomicInteger adapterInstancesCreated = new AtomicInteger(0);
+    AtomicReference<TypeAdapter<?>> threadAdapter = new AtomicReference<>();
+    Class<?> requestedType = Number.class;
 
     Gson gson =
         new GsonBuilder()
@@ -175,7 +168,7 @@ public final class GsonTest {
                   private volatile boolean isFirstCall = true;
 
                   @Override
-                  public <T> TypeAdapter<T> create(final Gson gson, TypeToken<T> type) {
+                  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
                     if (isFirstCall) {
                       isFirstCall = false;
 
@@ -253,10 +246,10 @@ public final class GsonTest {
       }
     }
 
-    final CountDownLatch isThreadWaiting = new CountDownLatch(1);
-    final CountDownLatch canThreadProceed = new CountDownLatch(1);
+    CountDownLatch isThreadWaiting = new CountDownLatch(1);
+    CountDownLatch canThreadProceed = new CountDownLatch(1);
 
-    final Gson gson =
+    Gson gson =
         new GsonBuilder()
             .registerTypeAdapterFactory(
                 new TypeAdapterFactory() {
@@ -298,7 +291,7 @@ public final class GsonTest {
                 })
             .create();
 
-    final AtomicReference<TypeAdapter<?>> otherThreadAdapter = new AtomicReference<>();
+    AtomicReference<TypeAdapter<?>> otherThreadAdapter = new AtomicReference<>();
     Thread thread =
         new Thread() {
           @Override

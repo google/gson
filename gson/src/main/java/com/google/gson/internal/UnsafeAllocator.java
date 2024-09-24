@@ -54,8 +54,8 @@ public abstract class UnsafeAllocator {
       Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
       Field f = unsafeClass.getDeclaredField("theUnsafe");
       f.setAccessible(true);
-      final Object unsafe = f.get(null);
-      final Method allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
+      Object unsafe = f.get(null);
+      Method allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
       return new UnsafeAllocator() {
         @Override
         @SuppressWarnings("unchecked")
@@ -77,8 +77,8 @@ public abstract class UnsafeAllocator {
       Method getConstructorId =
           ObjectStreamClass.class.getDeclaredMethod("getConstructorId", Class.class);
       getConstructorId.setAccessible(true);
-      final int constructorId = (Integer) getConstructorId.invoke(null, Object.class);
-      final Method newInstance =
+      int constructorId = (Integer) getConstructorId.invoke(null, Object.class);
+      Method newInstance =
           ObjectStreamClass.class.getDeclaredMethod("newInstance", Class.class, int.class);
       newInstance.setAccessible(true);
       return new UnsafeAllocator() {
@@ -99,7 +99,7 @@ public abstract class UnsafeAllocator {
     //     Class<?> instantiationClass, Class<?> constructorClass);
     // }
     try {
-      final Method newInstance =
+      Method newInstance =
           ObjectInputStream.class.getDeclaredMethod("newInstance", Class.class, Class.class);
       newInstance.setAccessible(true);
       return new UnsafeAllocator() {
