@@ -48,7 +48,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.11.0</version>
+      <version>5.11.1</version>
       <scope>test</scope>
     </dependency>
 
@@ -118,7 +118,7 @@
           <plugin>
             <groupId>org.graalvm.buildtools</groupId>
             <artifactId>native-maven-plugin</artifactId>
-            <version>0.10.2</version>
+            <version>0.10.3</version>
             <extensions>true</extensions>
             <executions>
               <execution>
