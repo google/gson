@@ -534,11 +534,11 @@
   </build>
 
   <profiles>
-    <!-- Disable Error Prone in Java 15 -->
+    <!-- Disable Error Prone before Java 17 -->
     <profile>
-      <id>jdk15</id>
+      <id>disable-error-prone</id>
       <activation>
-        <jdk>15</jdk>
+        <jdk>[,17)</jdk>
       </activation>
       <build>
         <plugins>
