@@ -45,6 +45,7 @@ import org.junit.Test;
  * Running Maven's {@code clean} phase is necessary due to a <a
  * href="https://github.com/bndtools/bnd/issues/6221">bnd-maven-plugin bug</a>.
  */
+@SuppressWarnings("MemberName") // test name does not conform to Google Style
 public class OSGiManifestIT {
   private static class ManifestData {
     public final URL url;
