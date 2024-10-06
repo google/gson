@@ -145,8 +145,7 @@ public final class ParseBenchmark {
   }
 
   private static String resourceToString(String fileName) throws Exception {
-    ZipFile zipFile = new ZipFile(getResourceFile("/ParseBenchmarkData.zip"));
-    try {
+    try (ZipFile zipFile = new ZipFile(getResourceFile("/ParseBenchmarkData.zip"))) {
       ZipEntry zipEntry = zipFile.getEntry(fileName);
       Reader reader =
           new InputStreamReader(zipFile.getInputStream(zipEntry), StandardCharsets.UTF_8);
@@ -158,9 +157,6 @@ public final class ParseBenchmark {
       }
       reader.close();
       return writer.toString();
-
-    } finally {
-      zipFile.close();
     }
   }
 
