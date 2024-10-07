@@ -64,16 +64,21 @@ public class BagOfPrimitivesDeserializationBenchmark {
       String stringValue = null;
       while (jr.hasNext()) {
         String name = jr.nextName();
-        if (name.equals("longValue")) {
-          longValue = jr.nextLong();
-        } else if (name.equals("intValue")) {
-          intValue = jr.nextInt();
-        } else if (name.equals("booleanValue")) {
-          booleanValue = jr.nextBoolean();
-        } else if (name.equals("stringValue")) {
-          stringValue = jr.nextString();
-        } else {
-          throw new IOException("Unexpected name: " + name);
+        switch (name) {
+          case "longValue":
+            longValue = jr.nextLong();
+            break;
+          case "intValue":
+            intValue = jr.nextInt();
+            break;
+          case "booleanValue":
+            booleanValue = jr.nextBoolean();
+            break;
+          case "stringValue":
+            stringValue = jr.nextString();
+            break;
+          default:
+            throw new IOException("Unexpected name: " + name);
         }
       }
       jr.endObject();
