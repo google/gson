@@ -187,11 +187,13 @@ public class VersioningTest {
     int b = B;
   }
 
+  @SuppressWarnings("MemberName")
   private static class Version1_1 extends Version1 {
     @Since(1.1)
     int c = C;
   }
 
+  @SuppressWarnings("MemberName")
   @Since(1.2)
   private static class Version1_2 extends Version1_1 {
     @SuppressWarnings("unused")

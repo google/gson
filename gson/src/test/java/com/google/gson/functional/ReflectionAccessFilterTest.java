@@ -18,7 +18,6 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assume.assumeNotNull;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -81,12 +80,12 @@ public class ReflectionAccessFilterTest {
 
     // But serialization should succeed for classes with only public fields.
     // Not many JDK classes have mutable public fields, thank goodness, but java.awt.Point does.
-    Class<?> pointClass = null;
+    Class<?> pointClass;
     try {
       pointClass = Class.forName("java.awt.Point");
     } catch (ClassNotFoundException ignored) {
+      return; // If not found then we don't have AWT and the rest of the test can be skipped.
     }
-    assumeNotNull(pointClass);
     Constructor<?> pointConstructor = pointClass.getConstructor(int.class, int.class);
     Object point = pointConstructor.newInstance(1, 2);
     String json = gson.toJson(point);

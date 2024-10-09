@@ -35,6 +35,7 @@ import java.util.TimeZone;
  */
 // Date parsing code from Jackson databind ISO8601Utils.java
 // https://github.com/FasterXML/jackson-databind/blob/2.8/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
+@SuppressWarnings("MemberName") // legacy class name
 public class ISO8601Utils {
   private ISO8601Utils() {}
 

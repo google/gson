@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import org.junit.Test;
 
+@SuppressWarnings("MemberName") // class name
 public class ISO8601UtilsTest {
 
   private static TimeZone utcTimeZone() {
