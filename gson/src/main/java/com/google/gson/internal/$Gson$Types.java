@@ -42,6 +42,7 @@ import java.util.Properties;
  * @author Bob Lee
  * @author Jesse Wilson
  */
+@SuppressWarnings("MemberName") // legacy class name
 public final class $Gson$Types {
   static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 

@@ -31,6 +31,7 @@ import java.util.Objects;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@SuppressWarnings("MemberName") // legacy class name
 public final class $Gson$Preconditions {
   private $Gson$Preconditions() {
     throw new UnsupportedOperationException();

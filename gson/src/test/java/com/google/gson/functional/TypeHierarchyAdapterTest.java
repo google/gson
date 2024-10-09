@@ -222,6 +222,7 @@ public final class TypeHierarchyAdapterTest {
     Employee[] minions;
   }
 
+  @SuppressWarnings("MemberName")
   static class CEO extends Manager {
     Employee assistant;
   }

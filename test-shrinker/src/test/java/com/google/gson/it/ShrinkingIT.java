@@ -40,6 +40,7 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 /** Integration test verifying behavior of shrunken and obfuscated JARs. */
+@SuppressWarnings("MemberName") // class name must end with 'IT' for Maven Failsafe Plugin
 @RunWith(Parameterized.class)
 public class ShrinkingIT {
   // These JAR files are prepared by the Maven build
