@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Properties;
 import org.junit.Test;
 
 @SuppressWarnings("ClassNamedLikeTypeParameter") // for dummy classes A, B, ...
@@ -132,5 +133,18 @@ public final class GsonTypesTest {
     public <T> T method() {
       return null;
     }
+  }
+
+  @Test
+  public void testGetMapKeyAndValueTypesForPropertiesSubclass() throws Exception {
+    class CustomProperties extends Properties {
+      private static final long serialVersionUID = 4112578634029874840L;
+    }
+
+    Type[] types =
+        $Gson$Types.getMapKeyAndValueTypes(CustomProperties.class, CustomProperties.class);
+
+    assertThat(types[0]).isEqualTo(String.class);
+    assertThat(types[1]).isEqualTo(String.class);
   }
 }
