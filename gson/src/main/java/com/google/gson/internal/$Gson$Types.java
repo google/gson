@@ -328,8 +328,8 @@ public final class $Gson$Types {
      * class should extend Hashtable<String, String>, but it's declared to
      * extend Hashtable<Object, Object>.
      */
-    if (context == Properties.class) {
-      return new Type[] {String.class, String.class}; // TODO: test subclasses of Properties!
+    if (Properties.class.isAssignableFrom(contextRawType)) {
+      return new Type[] {String.class, String.class};
     }
 
     Type mapType = getSupertype(context, contextRawType, Map.class);
