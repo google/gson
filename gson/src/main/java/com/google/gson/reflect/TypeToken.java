@@ -440,7 +440,8 @@ public class TypeToken<T> {
       }
     }
 
-    return new TypeToken<>($Gson$Types.newParameterizedTypeWithOwner(null, rawType, typeArguments));
+    return new TypeToken<>(
+        $Gson$Types.newParameterizedTypeWithOwner(null, rawClass, typeArguments));
   }
 
   /**
