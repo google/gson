@@ -21,13 +21,13 @@
 
 # Keep class TypeToken (respectively its generic signature) if present
 -if class com.google.gson.reflect.TypeToken
--keep,allowobfuscation class com.google.gson.reflect.TypeToken
+-keep,allowobfuscation class com.google.gson.reflect.TypeToken{<init>();)
 
 # Keep any (anonymous) classes extending TypeToken
--keep,allowobfuscation class * extends com.google.gson.reflect.TypeToken
+-keep,allowobfuscation class * extends com.google.gson.reflect.TypeToken{<init>();)
 
 # Keep classes with @JsonAdapter annotation
--keep,allowobfuscation,allowoptimization @com.google.gson.annotations.JsonAdapter class *
+-keep,allowobfuscation,allowoptimization @com.google.gson.annotations.JsonAdapter class *{<init>();)
 
 # Keep fields with any other Gson annotation
 # Also allow obfuscation, assuming that users will additionally use @SerializedName or
