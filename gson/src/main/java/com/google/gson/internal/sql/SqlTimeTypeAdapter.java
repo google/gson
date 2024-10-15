@@ -26,16 +26,13 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.sql.Time;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /**
- * Adapter for java.sql.Time. Although this class appears stateless, it is not. DateFormat captures
- * its time zone and locale when it is created, which gives this class state. DateFormat isn't
- * thread safe either, so this class has to synchronize its read and write methods.
+ * Adapter for java.sql.Time. Although this class appears stateless, it is not. DateTimeFormatter
+ * captures its time zone and locale when it is created, which gives this class state.
  */
 @SuppressWarnings("JavaUtilDate")
 final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
@@ -50,7 +47,7 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
         }
       };
 
-  private final DateFormat format = new SimpleDateFormat("hh:mm:ss a");
+  private final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("hh:mm:ss a");
 
   private SqlTimeTypeAdapter() {}
 
@@ -60,18 +57,16 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
       in.nextNull();
       return null;
     }
+
     String s = in.nextString();
-    synchronized (this) {
-      TimeZone originalTimeZone = format.getTimeZone(); // Save the original time zone
-      try {
-        Date date = format.parse(s);
-        return new Time(date.getTime());
-      } catch (ParseException e) {
-        throw new JsonSyntaxException(
-            "Failed parsing '" + s + "' as SQL Time; at path " + in.getPreviousPath(), e);
-      } finally {
-        format.setTimeZone(originalTimeZone); // Restore the original time zone
-      }
+
+    try {
+      LocalTime localTime = LocalTime.parse(s, FORMATTER);
+
+      return Time.valueOf(localTime);
+    } catch (DateTimeParseException e) {
+      throw new JsonSyntaxException(
+          "Failed parsing '" + s + "' as SQL Time; at path " + in.getPreviousPath(), e);
     }
   }
 
@@ -81,10 +76,9 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
       out.nullValue();
       return;
     }
-    String timeString;
-    synchronized (this) {
-      timeString = format.format(value);
-    }
+
+    String timeString = value.toLocalTime().format(FORMATTER);
+
     out.value(timeString);
   }
 }

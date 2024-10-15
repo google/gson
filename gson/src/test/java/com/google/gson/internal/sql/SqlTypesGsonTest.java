@@ -104,7 +104,7 @@ public class SqlTypesGsonTest {
 
   @Test
   public void testDefaultSqlTimeDeserialization() {
-    String json = "'1:18:02 PM'";
+    String json = "'01:18:02 PM'";
     Time extracted = gson.fromJson(json, Time.class);
     DefaultTypeAdaptersTest.assertEqualsTime(extracted, 13, 18, 2);
   }
