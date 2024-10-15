@@ -115,6 +115,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
    * List of 1 or more different date formats used for de-serialization attempts. The first of them
    * is used for serialization as well.
    */
+  // TODO: It might be worth looking at the possibility of making a DateTimeFormatter list
   private final List<DateFormat> dateFormats = new ArrayList<>();
 
   private DefaultDateTypeAdapter(DateType<T> dateType, String datePattern) {
@@ -179,7 +180,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
     }
 
     try {
-      return ISO8601Utils.parse(s, new ParsePosition(0));
+      return Date.from(ISO8601Utils.parse(s, new ParsePosition(0)));
     } catch (ParseException e) {
       throw new JsonSyntaxException(
           "Failed parsing '" + s + "' as Date; at path " + in.getPreviousPath(), e);
