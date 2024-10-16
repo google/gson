@@ -12,7 +12,7 @@ Technically it would also be possible to directly configure Native Image test ex
 
 ## Reflection metadata
 
-Native Image creation requires configuring which class members are accessed using reflection, see the [GraalVM documentation](https://www.graalvm.org/22.3/reference-manual/native-image/metadata/#specifying-reflection-metadata-in-json).
+Native Image creation requires configuring which class members are accessed using reflection, see the [GraalVM documentation](https://www.graalvm.org/jdk21/reference-manual/native-image/metadata/#specifying-reflection-metadata-in-json).
 
 The file [`reflect-config.json`](./src/test/resources/META-INF/native-image/reflect-config.json) contains this reflection metadata.
 
