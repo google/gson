@@ -103,24 +103,14 @@ public final class ConstructorConstructor {
     @SuppressWarnings("unchecked") // types must agree
     InstanceCreator<T> typeCreator = (InstanceCreator<T>) instanceCreators.get(type);
     if (typeCreator != null) {
-      return new ObjectConstructor<T>() {
-        @Override
-        public T construct() {
-          return typeCreator.createInstance(type);
-        }
-      };
+      return () -> typeCreator.createInstance(type);
     }
 
     // Next try raw type match for instance creators
     @SuppressWarnings("unchecked") // types must agree
     InstanceCreator<T> rawTypeCreator = (InstanceCreator<T>) instanceCreators.get(rawType);
     if (rawTypeCreator != null) {
-      return new ObjectConstructor<T>() {
-        @Override
-        public T construct() {
-          return rawTypeCreator.createInstance(type);
-        }
-      };
+      return () -> rawTypeCreator.createInstance(type);
     }
 
     // First consider special constructors before checking for no-args constructors
@@ -147,11 +137,8 @@ public final class ConstructorConstructor {
     // of adjusting filter suggested below is irrelevant since it would not solve the problem
     String exceptionMessage = checkInstantiable(rawType);
     if (exceptionMessage != null) {
-      return new ObjectConstructor<T>() {
-        @Override
-        public T construct() {
-          throw new JsonIOException(exceptionMessage);
-        }
+      return () -> {
+        throw new JsonIOException(exceptionMessage);
       };
     }
 
@@ -167,11 +154,8 @@ public final class ConstructorConstructor {
               + "; ReflectionAccessFilter does not permit using reflection or Unsafe. Register an"
               + " InstanceCreator or a TypeAdapter for this type or adjust the access filter to"
               + " allow using reflection.";
-      return new ObjectConstructor<T>() {
-        @Override
-        public T construct() {
-          throw new JsonIOException(message);
-        }
+      return () -> {
+        throw new JsonIOException(message);
       };
     }
   }
@@ -183,42 +167,36 @@ public final class ConstructorConstructor {
   private static <T> ObjectConstructor<T> newSpecialCollectionConstructor(
       Type type, Class<? super T> rawType) {
     if (EnumSet.class.isAssignableFrom(rawType)) {
-      return new ObjectConstructor<T>() {
-        @Override
-        public T construct() {
-          if (type instanceof ParameterizedType) {
-            Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
-            if (elementType instanceof Class) {
-              @SuppressWarnings({"unchecked", "rawtypes"})
-              T set = (T) EnumSet.noneOf((Class) elementType);
-              return set;
-            } else {
-              throw new JsonIOException("Invalid EnumSet type: " + type.toString());
-            }
+      return () -> {
+        if (type instanceof ParameterizedType) {
+          Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+          if (elementType instanceof Class) {
+            @SuppressWarnings({"unchecked", "rawtypes"})
+            T set = (T) EnumSet.noneOf((Class) elementType);
+            return set;
           } else {
             throw new JsonIOException("Invalid EnumSet type: " + type.toString());
           }
+        } else {
+          throw new JsonIOException("Invalid EnumSet type: " + type.toString());
         }
       };
     }
     // Only support creation of EnumMap, but not of custom subtypes; for them type parameters
     // and constructor parameter might have completely different meaning
     else if (rawType == EnumMap.class) {
-      return new ObjectConstructor<T>() {
-        @Override
-        public T construct() {
-          if (type instanceof ParameterizedType) {
-            Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
-            if (elementType instanceof Class) {
-              @SuppressWarnings({"unchecked", "rawtypes"})
-              T map = (T) new EnumMap((Class) elementType);
-              return map;
-            } else {
-              throw new JsonIOException("Invalid EnumMap type: " + type.toString());
-            }
+      return () -> {
+        if (type instanceof ParameterizedType) {
+          Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+          if (elementType instanceof Class) {
+            @SuppressWarnings({"unchecked", "rawtypes"})
+            T map = (T) new EnumMap((Class) elementType);
+            return map;
           } else {
             throw new JsonIOException("Invalid EnumMap type: " + type.toString());
           }
+        } else {
+          throw new JsonIOException("Invalid EnumMap type: " + type.toString());
         }
       };
     }
@@ -256,11 +234,8 @@ public final class ConstructorConstructor {
               + " constructor is not accessible and ReflectionAccessFilter does not permit making"
               + " it accessible. Register an InstanceCreator or a TypeAdapter for this type, change"
               + " the visibility of the constructor or adjust the access filter.";
-      return new ObjectConstructor<T>() {
-        @Override
-        public T construct() {
-          throw new JsonIOException(message);
-        }
+      return () -> {
+        throw new JsonIOException(message);
       };
     }
 
@@ -277,45 +252,39 @@ public final class ConstructorConstructor {
          * (compared to directly throwing exception here), e.g. when runtime type
          * of object is inaccessible, but compile-time type is accessible.
          */
-        return new ObjectConstructor<T>() {
-          @Override
-          public T construct() {
-            // New exception is created every time to avoid keeping reference
-            // to exception with potentially long stack trace, causing a
-            // memory leak
-            throw new JsonIOException(exceptionMessage);
-          }
+        return () -> {
+          // New exception is created every time to avoid keeping reference
+          // to exception with potentially long stack trace, causing a
+          // memory leak
+          throw new JsonIOException(exceptionMessage);
         };
       }
     }
 
-    return new ObjectConstructor<T>() {
-      @Override
-      public T construct() {
-        try {
-          @SuppressWarnings("unchecked") // T is the same raw type as is requested
-          T newInstance = (T) constructor.newInstance();
-          return newInstance;
-        }
-        // Note: InstantiationException should be impossible because check at start of method made
-        // sure that class is not abstract
-        catch (InstantiationException e) {
-          throw new RuntimeException(
-              "Failed to invoke constructor '"
-                  + ReflectionHelper.constructorToString(constructor)
-                  + "' with no args",
-              e);
-        } catch (InvocationTargetException e) {
-          // TODO: don't wrap if cause is unchecked?
-          // TODO: JsonParseException ?
-          throw new RuntimeException(
-              "Failed to invoke constructor '"
-                  + ReflectionHelper.constructorToString(constructor)
-                  + "' with no args",
-              e.getCause());
-        } catch (IllegalAccessException e) {
-          throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
-        }
+    return () -> {
+      try {
+        @SuppressWarnings("unchecked") // T is the same raw type as is requested
+        T newInstance = (T) constructor.newInstance();
+        return newInstance;
+      }
+      // Note: InstantiationException should be impossible because check at start of method made
+      // sure that class is not abstract
+      catch (InstantiationException e) {
+        throw new RuntimeException(
+            "Failed to invoke constructor '"
+                + ReflectionHelper.constructorToString(constructor)
+                + "' with no args",
+            e);
+      } catch (InvocationTargetException e) {
+        // TODO: don't wrap if cause is unchecked?
+        // TODO: JsonParseException ?
+        throw new RuntimeException(
+            "Failed to invoke constructor '"
+                + ReflectionHelper.constructorToString(constructor)
+                + "' with no args",
+            e.getCause());
+      } catch (IllegalAccessException e) {
+        throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
       }
     };
   }
@@ -335,74 +304,29 @@ public final class ConstructorConstructor {
 
     if (Collection.class.isAssignableFrom(rawType)) {
       if (SortedSet.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override
-          public T construct() {
-            return (T) new TreeSet<>();
-          }
-        };
+        return () -> (T) new TreeSet<>();
       } else if (Set.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override
-          public T construct() {
-            return (T) new LinkedHashSet<>();
-          }
-        };
+        return () -> (T) new LinkedHashSet<>();
       } else if (Queue.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override
-          public T construct() {
-            return (T) new ArrayDeque<>();
-          }
-        };
+        return () -> (T) new ArrayDeque<>();
       } else {
-        return new ObjectConstructor<T>() {
-          @Override
-          public T construct() {
-            return (T) new ArrayList<>();
-          }
-        };
+        return () -> (T) new ArrayList<>();
       }
     }
 
     if (Map.class.isAssignableFrom(rawType)) {
       if (ConcurrentNavigableMap.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override
-          public T construct() {
-            return (T) new ConcurrentSkipListMap<>();
-          }
-        };
+        return () -> (T) new ConcurrentSkipListMap<>();
       } else if (ConcurrentMap.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override
-          public T construct() {
-            return (T) new ConcurrentHashMap<>();
-          }
-        };
+        return () -> (T) new ConcurrentHashMap<>();
       } else if (SortedMap.class.isAssignableFrom(rawType)) {
-        return new ObjectConstructor<T>() {
-          @Override
-          public T construct() {
-            return (T) new TreeMap<>();
-          }
-        };
+        return () -> (T) new TreeMap<>();
       } else if (type instanceof ParameterizedType
           && !String.class.isAssignableFrom(
               TypeToken.get(((ParameterizedType) type).getActualTypeArguments()[0]).getRawType())) {
-        return new ObjectConstructor<T>() {
-          @Override
-          public T construct() {
-            return (T) new LinkedHashMap<>();
-          }
-        };
+        return () -> (T) new LinkedHashMap<>();
       } else {
-        return new ObjectConstructor<T>() {
-          @Override
-          public T construct() {
-            return (T) new LinkedTreeMap<>();
-          }
-        };
+        return () -> (T) new LinkedTreeMap<>();
       }
     }
 
@@ -411,21 +335,18 @@ public final class ConstructorConstructor {
 
   private <T> ObjectConstructor<T> newUnsafeAllocator(Class<? super T> rawType) {
     if (useJdkUnsafe) {
-      return new ObjectConstructor<T>() {
-        @Override
-        public T construct() {
-          try {
-            @SuppressWarnings("unchecked")
-            T newInstance = (T) UnsafeAllocator.INSTANCE.newInstance(rawType);
-            return newInstance;
-          } catch (Exception e) {
-            throw new RuntimeException(
-                ("Unable to create instance of "
-                    + rawType
-                    + ". Registering an InstanceCreator or a TypeAdapter for this type, or adding a"
-                    + " no-args constructor may fix this problem."),
-                e);
-          }
+      return () -> {
+        try {
+          @SuppressWarnings("unchecked")
+          T newInstance = (T) UnsafeAllocator.INSTANCE.newInstance(rawType);
+          return newInstance;
+        } catch (Exception e) {
+          throw new RuntimeException(
+              ("Unable to create instance of "
+                  + rawType
+                  + ". Registering an InstanceCreator or a TypeAdapter for this type, or adding a"
+                  + " no-args constructor may fix this problem."),
+              e);
         }
       };
     } else {
@@ -444,14 +365,11 @@ public final class ConstructorConstructor {
             " Or adjust your R8 configuration to keep the no-args constructor of the class.";
       }
 
-      // Separate effectively final variable to allow usage in the anonymous class below
+      // Separate effectively final variable to allow usage in the lambda below
       String exceptionMessageF = exceptionMessage;
 
-      return new ObjectConstructor<T>() {
-        @Override
-        public T construct() {
-          throw new JsonIOException(exceptionMessageF);
-        }
+      return () -> {
+        throw new JsonIOException(exceptionMessageF);
       };
     }
   }
