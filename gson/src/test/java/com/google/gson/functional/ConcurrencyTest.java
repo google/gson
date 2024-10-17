@@ -112,23 +112,20 @@ public class ConcurrencyTest {
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
       executor.execute(
-          new Runnable() {
-            @Override
-            public void run() {
-              try {
-                startLatch.await();
-                for (int i = 0; i < 10; i++) {
-                  MyObject deserialized =
-                      gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
-                  assertThat(deserialized.a).isEqualTo("hello");
-                  assertThat(deserialized.b).isEqualTo("world");
-                  assertThat(deserialized.i).isEqualTo(1);
-                }
-              } catch (Throwable t) {
-                error.set(t);
-              } finally {
-                finishedLatch.countDown();
+          () -> {
+            try {
+              startLatch.await();
+              for (int i = 0; i < 10; i++) {
+                MyObject deserialized =
+                    gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+                assertThat(deserialized.a).isEqualTo("hello");
+                assertThat(deserialized.b).isEqualTo("world");
+                assertThat(deserialized.i).isEqualTo(1);
               }
+            } catch (Throwable t) {
+              error.set(t);
+            } finally {
+              finishedLatch.countDown();
             }
           });
     }

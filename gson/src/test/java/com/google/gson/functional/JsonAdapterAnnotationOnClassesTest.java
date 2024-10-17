@@ -26,7 +26,6 @@ import com.google.gson.InstanceCreator;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -98,12 +97,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   @Test
   public void testRegisteredSerializerOverridesJsonAdapter() {
     JsonSerializer<A> serializer =
-        new JsonSerializer<>() {
-          @Override
-          public JsonElement serialize(A src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive("registeredSerializer");
-          }
-        };
+        (src, typeOfSrc, context) -> new JsonPrimitive("registeredSerializer");
     Gson gson = new GsonBuilder().registerTypeAdapter(A.class, serializer).create();
     String json = gson.toJson(new A("abcd"));
     assertThat(json).isEqualTo("\"registeredSerializer\"");
@@ -114,14 +108,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   /** The deserializer overrides Json adapter, but for serializer the jsonAdapter is used. */
   @Test
   public void testRegisteredDeserializerOverridesJsonAdapter() {
-    JsonDeserializer<A> deserializer =
-        new JsonDeserializer<>() {
-          @Override
-          public A deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-              throws JsonParseException {
-            return new A("registeredDeserializer");
-          }
-        };
+    JsonDeserializer<A> deserializer = (json, typeOfT, context) -> new A("registeredDeserializer");
     Gson gson = new GsonBuilder().registerTypeAdapter(A.class, deserializer).create();
     String json = gson.toJson(new A("abcd"));
     assertThat(json).isEqualTo("\"jsonAdapter\"");

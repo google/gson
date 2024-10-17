@@ -23,7 +23,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.BaseSerializer;
@@ -31,7 +30,6 @@ import com.google.gson.common.TestTypes.ClassWithBaseArrayField;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Sub;
 import com.google.gson.common.TestTypes.SubSerializer;
-import java.lang.reflect.Type;
 import org.junit.Test;
 
 /**
@@ -98,14 +96,7 @@ public class CustomSerializerTest {
     Gson gson =
         new GsonBuilder()
             .registerTypeAdapter(
-                Base.class,
-                new JsonSerializer<Base>() {
-                  @Override
-                  public JsonElement serialize(
-                      Base src, Type typeOfSrc, JsonSerializationContext context) {
-                    return null;
-                  }
-                })
+                Base.class, (JsonSerializer<Base>) (src, typeOfSrc, context) -> null)
             .create();
     JsonElement json = gson.toJsonTree(new Base());
     assertThat(json.isJsonNull()).isTrue();

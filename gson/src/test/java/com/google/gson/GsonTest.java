@@ -28,7 +28,6 @@ import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -486,23 +485,15 @@ public final class GsonTest {
             out.value("custom-adapter");
           }
         });
+
     gsonBuilder.registerTypeHierarchyAdapter(
         CustomClass2.class,
-        new JsonSerializer<CustomClass2>() {
-          @Override
-          public JsonElement serialize(
-              CustomClass2 src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive("custom-hierarchy-adapter");
-          }
-        });
+        (JsonSerializer<CustomClass2>)
+            (src, typeOfSrc, context) -> new JsonPrimitive("custom-hierarchy-adapter"));
+
     gsonBuilder.registerTypeAdapter(
         CustomClass3.class,
-        new InstanceCreator<CustomClass3>() {
-          @Override
-          public CustomClass3 createInstance(Type type) {
-            return new CustomClass3("custom-instance");
-          }
-        });
+        (InstanceCreator<CustomClass3>) type -> new CustomClass3("custom-instance"));
 
     assertDefaultGson(gson);
     // New GsonBuilder created from `gson` should not have been affected by changes either
@@ -549,21 +540,11 @@ public final class GsonTest {
                 })
             .registerTypeHierarchyAdapter(
                 CustomClass2.class,
-                new JsonSerializer<CustomClass2>() {
-                  @Override
-                  public JsonElement serialize(
-                      CustomClass2 src, Type typeOfSrc, JsonSerializationContext context) {
-                    return new JsonPrimitive("custom-hierarchy-adapter");
-                  }
-                })
+                (JsonSerializer<CustomClass2>)
+                    (src, typeOfSrc, context) -> new JsonPrimitive("custom-hierarchy-adapter"))
             .registerTypeAdapter(
                 CustomClass3.class,
-                new InstanceCreator<CustomClass3>() {
-                  @Override
-                  public CustomClass3 createInstance(Type type) {
-                    return new CustomClass3("custom-instance");
-                  }
-                })
+                (InstanceCreator<CustomClass3>) type -> new CustomClass3("custom-instance"))
             .create();
 
     assertCustomGson(gson);
@@ -585,21 +566,11 @@ public final class GsonTest {
         });
     gsonBuilder.registerTypeHierarchyAdapter(
         CustomClass2.class,
-        new JsonSerializer<CustomClass2>() {
-          @Override
-          public JsonElement serialize(
-              CustomClass2 src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive("overwritten custom-hierarchy-adapter");
-          }
-        });
+        (JsonSerializer<CustomClass2>)
+            (src, typeOfSrc, context) -> new JsonPrimitive("overwritten custom-hierarchy-adapter"));
     gsonBuilder.registerTypeAdapter(
         CustomClass3.class,
-        new InstanceCreator<CustomClass3>() {
-          @Override
-          public CustomClass3 createInstance(Type type) {
-            return new CustomClass3("overwritten custom-instance");
-          }
-        });
+        (InstanceCreator<CustomClass3>) type -> new CustomClass3("overwritten custom-instance"));
 
     // `gson` object should not have been affected by changes to new GsonBuilder
     assertCustomGson(gson);
