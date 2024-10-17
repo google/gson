@@ -24,7 +24,6 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
@@ -57,13 +56,7 @@ public class GsonBuilderTest {
     assertThat(gson).isNotNull();
     assertThat(builder.create()).isNotNull();
 
-    builder.setFieldNamingStrategy(
-        new FieldNamingStrategy() {
-          @Override
-          public String translateName(Field f) {
-            return "test";
-          }
-        });
+    builder.setFieldNamingStrategy(f -> "test");
 
     Gson otherGson = builder.create();
     assertThat(otherGson).isNotNull();
@@ -94,23 +87,15 @@ public class GsonBuilderTest {
             out.value("custom-adapter");
           }
         });
+
     gsonBuilder.registerTypeHierarchyAdapter(
         CustomClass2.class,
-        new JsonSerializer<CustomClass2>() {
-          @Override
-          public JsonElement serialize(
-              CustomClass2 src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive("custom-hierarchy-adapter");
-          }
-        });
+        (JsonSerializer<CustomClass2>)
+            (src, typeOfSrc, context) -> new JsonPrimitive("custom-hierarchy-adapter"));
+
     gsonBuilder.registerTypeAdapter(
         CustomClass3.class,
-        new InstanceCreator<CustomClass3>() {
-          @Override
-          public CustomClass3 createInstance(Type type) {
-            return new CustomClass3("custom-instance");
-          }
-        });
+        (InstanceCreator<CustomClass3>) type -> new CustomClass3("custom-instance"));
 
     assertDefaultGson(gson);
     // New GsonBuilder created from `gson` should not have been affected by changes

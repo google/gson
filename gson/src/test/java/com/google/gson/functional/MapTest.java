@@ -27,7 +27,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes;
@@ -311,14 +310,7 @@ public class MapTest {
   public void testMapSubclassDeserialization() {
     Gson gson =
         new GsonBuilder()
-            .registerTypeAdapter(
-                MyMap.class,
-                new InstanceCreator<MyMap>() {
-                  @Override
-                  public MyMap createInstance(Type type) {
-                    return new MyMap();
-                  }
-                })
+            .registerTypeAdapter(MyMap.class, (InstanceCreator<MyMap>) type -> new MyMap())
             .create();
     String json = "{\"a\":1,\"b\":2}";
     MyMap map = gson.fromJson(json, MyMap.class);
@@ -334,17 +326,14 @@ public class MapTest {
         new GsonBuilder()
             .registerTypeAdapter(
                 type,
-                new JsonSerializer<Map<String, Long>>() {
-                  @Override
-                  public JsonElement serialize(
-                      Map<String, Long> src, Type typeOfSrc, JsonSerializationContext context) {
-                    JsonArray array = new JsonArray();
-                    for (long value : src.values()) {
-                      array.add(new JsonPrimitive(value));
-                    }
-                    return array;
-                  }
-                })
+                (JsonSerializer<Map<String, Long>>)
+                    (src, typeOfSrc, context) -> {
+                      JsonArray array = new JsonArray();
+                      for (long value : src.values()) {
+                        array.add(new JsonPrimitive(value));
+                      }
+                      return array;
+                    })
             .create();
 
     Map<String, Long> src = new LinkedHashMap<>();
@@ -526,13 +515,7 @@ public class MapTest {
         "{\"bases\":{\"Test\":" + baseTypeJson + "},\"subs\":{\"Test\":" + subTypeJson + "}}";
 
     JsonSerializer<TestTypes.Base> baseTypeAdapter =
-        new JsonSerializer<>() {
-          @Override
-          public JsonElement serialize(
-              TestTypes.Base src, Type typeOfSrc, JsonSerializationContext context) {
-            return baseTypeJsonElement;
-          }
-        };
+        (src, typeOfSrc, context) -> baseTypeJsonElement;
 
     Gson gson =
         new GsonBuilder()

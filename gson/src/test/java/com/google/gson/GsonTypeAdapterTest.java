@@ -152,13 +152,8 @@ public class GsonTypeAdapterTest {
       boolean registerAbstractHierarchyDeserializer,
       Object instance) {
     JsonDeserializer<Abstract> deserializer =
-        new JsonDeserializer<>() {
-          @Override
-          public Abstract deserialize(
-              JsonElement json, Type typeOfT, JsonDeserializationContext context)
-              throws JsonParseException {
-            throw new AssertionError();
-          }
+        (json, typeOfT, context) -> {
+          throw new AssertionError();
         };
     GsonBuilder builder = new GsonBuilder();
     if (registerAbstractDeserializer) {
