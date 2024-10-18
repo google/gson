@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -229,13 +228,8 @@ public class NullObjectAndFieldTest {
         new GsonBuilder()
             .registerTypeAdapter(
                 ObjectWithField.class,
-                new JsonSerializer<ObjectWithField>() {
-                  @Override
-                  public JsonElement serialize(
-                      ObjectWithField src, Type typeOfSrc, JsonSerializationContext context) {
-                    return context.serialize(null);
-                  }
-                })
+                (JsonSerializer<ObjectWithField>)
+                    (src, typeOfSrc, context) -> context.serialize(null))
             .create();
     ObjectWithField target = new ObjectWithField();
     target.value = "value1";
@@ -249,13 +243,8 @@ public class NullObjectAndFieldTest {
         new GsonBuilder()
             .registerTypeAdapter(
                 ObjectWithField.class,
-                new JsonDeserializer<ObjectWithField>() {
-                  @Override
-                  public ObjectWithField deserialize(
-                      JsonElement json, Type type, JsonDeserializationContext context) {
-                    return context.deserialize(null, type);
-                  }
-                })
+                (JsonDeserializer<ObjectWithField>)
+                    (json, type, context) -> context.deserialize(null, type))
             .create();
     String json = "{value:'value1'}";
     ObjectWithField target = gson.fromJson(json, ObjectWithField.class);
