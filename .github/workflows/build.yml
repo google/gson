@@ -34,7 +34,7 @@ jobs:
       - name: "Set up GraalVM"
         uses: graalvm/setup-graalvm@6f327093bb6a42fe5eac053d21b168c46aa46f22  # v1.2.4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'graalvm'
           # According to documentation in graalvm/setup-graalvm this is used to avoid rate-limiting issues
           github-token: ${{ secrets.GITHUB_TOKEN }}
