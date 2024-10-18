@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.junit.Test;
 
@@ -89,13 +90,8 @@ public class PostConstructAdapterFactoryTest {
         return false;
       }
       Sandwich other = (Sandwich) o;
-      if (this.bread == null ? other.bread != null : !this.bread.equals(other.bread)) {
-        return false;
-      }
-      if (this.cheese == null ? other.cheese != null : !this.cheese.equals(other.cheese)) {
-        return false;
-      }
-      return true;
+
+      return Objects.equals(this.bread, other.bread) && Objects.equals(this.cheese, other.cheese);
     }
   }
 
@@ -116,12 +112,8 @@ public class PostConstructAdapterFactoryTest {
         return false;
       }
       MultipleSandwiches other = (MultipleSandwiches) o;
-      if (this.sandwiches == null
-          ? other.sandwiches != null
-          : !this.sandwiches.equals(other.sandwiches)) {
-        return false;
-      }
-      return true;
+
+      return Objects.equals(this.sandwiches, other.sandwiches);
     }
   }
 }
