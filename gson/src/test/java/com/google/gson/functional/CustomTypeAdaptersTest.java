@@ -236,7 +236,9 @@ public class CustomTypeAdaptersTest {
     Gson gson =
         new GsonBuilder()
             .registerTypeAdapter(
-                boolean.class, (JsonSerializer<Boolean>) (s, t, c) -> new JsonPrimitive(s ? 1 : 0))
+                boolean.class,
+                (JsonSerializer<Boolean>)
+                    (value, type, context) -> new JsonPrimitive(value ? 1 : 0))
             .create();
     assertThat(gson.toJson(true, boolean.class)).isEqualTo("1");
     assertThat(gson.toJson(true, Boolean.class)).isEqualTo("true");
@@ -248,7 +250,7 @@ public class CustomTypeAdaptersTest {
         new GsonBuilder()
             .registerTypeAdapter(
                 boolean.class,
-                (JsonDeserializer<Boolean>) (json, t, context) -> json.getAsInt() != 0)
+                (JsonDeserializer<Boolean>) (json, type, context) -> json.getAsInt() != 0)
             .create();
     assertThat(gson.fromJson("1", boolean.class)).isEqualTo(Boolean.TRUE);
     assertThat(gson.fromJson("true", Boolean.class)).isEqualTo(Boolean.TRUE);
