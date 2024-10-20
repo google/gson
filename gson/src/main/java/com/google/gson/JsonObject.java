@@ -164,7 +164,7 @@ public final class JsonObject extends JsonElement {
    * @since 2.10.1
    */
   public boolean isEmpty() {
-    return members.size() == 0;
+    return members.isEmpty();
   }
 
   /**
