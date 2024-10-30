@@ -270,15 +270,13 @@ public final class ConstructorConstructor {
       // Note: InstantiationException should be impossible because check at start of method made
       // sure that class is not abstract
       catch (InstantiationException e) {
-        throw new RuntimeException(
+        throw new JsonIOException(
             "Failed to invoke constructor '"
                 + ReflectionHelper.constructorToString(constructor)
                 + "' with no args",
             e);
       } catch (InvocationTargetException e) {
-        // TODO: don't wrap if cause is unchecked?
-        // TODO: JsonParseException ?
-        throw new RuntimeException(
+        throw new JsonIOException(
             "Failed to invoke constructor '"
                 + ReflectionHelper.constructorToString(constructor)
                 + "' with no args",

@@ -727,10 +727,9 @@ public class ObjectTest {
 
   @Test
   public void testThrowingDefaultConstructor() {
-    // TODO: Adjust this once Gson throws more specific exception type
     var e =
         assertThrows(
-            RuntimeException.class, () -> gson.fromJson("{}", ClassWithThrowingConstructor.class));
+            JsonIOException.class, () -> gson.fromJson("{}", ClassWithThrowingConstructor.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
