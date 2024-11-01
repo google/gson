@@ -25,10 +25,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938  # v4.2.0
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
     - name: Set up JDK 17
-      uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73  # v4.4.0
+      uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b  # v4.5.0
       with:
         distribution: 'temurin'
         java-version: '17'
@@ -36,7 +36,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@e2b3eafc8d227b0241d48be5f425d47c2d750a13  # v3.26.10
+      uses: github/codeql-action/init@662472033e021d55d94146f66f6058822b0b39fd  # v3.27.0
       with:
         languages: ${{ matrix.language }}
         # Run all security queries and maintainability and reliability queries
@@ -50,4 +50,4 @@ jobs:
         mvn compile --batch-mode --no-transfer-progress
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@e2b3eafc8d227b0241d48be5f425d47c2d750a13  # v3.26.10
+      uses: github/codeql-action/analyze@662472033e021d55d94146f66f6058822b0b39fd  # v3.27.0

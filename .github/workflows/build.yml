@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938  # v4.2.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: "Set up JDK ${{ matrix.java }}"
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73  # v4.4.0
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b  # v4.5.0
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938  # v4.2.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: "Set up GraalVM"
-        uses: graalvm/setup-graalvm@6f327093bb6a42fe5eac053d21b168c46aa46f22  # v1.2.4
+        uses: graalvm/setup-graalvm@557ffcf459751b4d92319ee255bf3bec9b73964c  # v1.2.5
         with:
           java-version: '21'
           distribution: 'graalvm'
@@ -49,9 +49,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938  # v4.2.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: "Set up JDK 17"
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73  # v4.4.0
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b  # v4.5.0
         with:
           distribution: 'temurin'
           java-version: 17
