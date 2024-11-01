@@ -19,13 +19,13 @@ jobs:
 
     steps:
       - name: Check out old version
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938  # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: 'gson-old-japicmp'
 
       - name: Set up JDK 11
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73  # v4.4.0
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b  # v4.5.0
         with:
           distribution: 'temurin'
           java-version: '11'
@@ -40,7 +40,7 @@ jobs:
           mvn --batch-mode --no-transfer-progress install -DskipTests
 
       - name: Check out new version
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938  # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Check API compatibility
         id: check-compatibility
@@ -48,7 +48,7 @@ jobs:
           mvn --batch-mode --fail-at-end --no-transfer-progress package japicmp:cmp -DskipTests
 
       - name: Upload API differences artifacts
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874  # v4.4.0
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
         # Run on workflow success (in that case differences report might include added methods and classes)
         # or when API compatibility check failed
         if: success() || ( failure() && steps.check-compatibility.outcome == 'failure' )
