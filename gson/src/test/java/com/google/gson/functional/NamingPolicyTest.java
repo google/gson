@@ -261,6 +261,32 @@ public class NamingPolicyTest {
     assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
   }
 
+  @Test
+  public void testGsonWithAlternateNamesSerialization() {
+    Gson gson =
+        builder
+            .setFieldNamingStrategy(
+                new FieldNamingStrategy() {
+
+                  @Override
+                  public String translateName(Field f) {
+                    return "some-constant-string-instance-field";
+                  }
+
+                  @Override
+                  public List<String> translateToAlternateNames(Field f) {
+                    return List.of("SomeConstantStringInstanceField");
+                  }
+                })
+            .create();
+    StringWrapper target = new StringWrapper("blah");
+    assertThat(gson.toJson(target))
+        .isEqualTo(
+            "{\"some-constant-string-instance-field\":\""
+                + target.someConstantStringInstanceField
+                + "\"}");
+  }
+
   static final class AtName {
     @SerializedName("@foo")
     String f = "bar";
