@@ -55,8 +55,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /** Type adapter that reflects over the fields and methods of a class. */
 public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
@@ -89,9 +87,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     SerializedName annotation = f.getAnnotation(SerializedName.class);
     if (annotation == null) {
       String fieldName = fieldNamingPolicy.translateName(f);
-      List<String> alternateNames = fieldNamingPolicy.translateToAlternateNames(f);
-      return Stream.concat(Stream.of(fieldName), alternateNames.stream())
-          .collect(Collectors.toList());
+      List<String> alternates = fieldNamingPolicy.translateToAlternateNames(f);
+      List<String> fieldNames = new ArrayList<>(alternates.size() + 1);
+      fieldNames.add(fieldName);
+      fieldNames.addAll(alternates);
+      return fieldNames;
     }
 
     String serializedName = annotation.value();
