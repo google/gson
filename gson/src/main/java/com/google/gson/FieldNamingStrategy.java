@@ -42,7 +42,7 @@ public interface FieldNamingStrategy {
   public String translateName(Field f);
 
   /**
-   * Translates the field name into its JSON field alternative names representation. used for
+   * Translates the field name into its JSON field alternative names representation. Used for
    * deserialization only. This is similar to {@link SerializedName#alternate()}.
    *
    * @param f the field object that we are translating
