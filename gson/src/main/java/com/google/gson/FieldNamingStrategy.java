@@ -47,6 +47,7 @@ public interface FieldNamingStrategy {
    *
    * @param f the field object that we are translating
    * @return the list of possible translated field names.
+   * @since $next-version$
    */
   default List<String> translateToAlternateNames(Field f) {
     return Collections.emptyList();
