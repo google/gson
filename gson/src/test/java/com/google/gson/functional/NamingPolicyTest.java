@@ -239,6 +239,29 @@ public class NamingPolicyTest {
   }
 
   @Test
+  public void testGsonWithNameDeserialiation() {
+    Gson gson =
+        builder
+            .setFieldNamingStrategy(
+                new FieldNamingStrategy() {
+
+                  @Override
+                  public String translateName(Field f) {
+                    return "SomeConstantStringInstanceField";
+                  }
+
+                  @Override
+                  public List<String> translateToAlternateNames(Field f) {
+                    return List.of("alternate-name");
+                  }
+                })
+            .create();
+    String target = "{\"SomeConstantStringInstanceField\":\"someValue\"}";
+    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
+  }
+
+  @Test
   public void testGsonWithAlternateNamesDeserialiation() {
     Gson gson =
         builder
@@ -247,7 +270,7 @@ public class NamingPolicyTest {
 
                   @Override
                   public String translateName(Field f) {
-                    return "badname";
+                    return "primary-name";
                   }
 
                   @Override
