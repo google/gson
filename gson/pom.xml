@@ -50,7 +50,7 @@
     <dependency>
       <groupId>com.google.errorprone</groupId>
       <artifactId>error_prone_annotations</artifactId>
-      <version>2.35.1</version>
+      <version>2.36.0</version>
     </dependency>
 
     <dependency>
