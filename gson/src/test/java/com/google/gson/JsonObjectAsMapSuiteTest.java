@@ -34,11 +34,15 @@ public class JsonObjectAsMapSuiteTest {
     @Override
     public Map<String, JsonElement> create(Object... elements) {
       JsonObject object = new JsonObject();
+      // This is not completely accurate: Because there is no way to directly construct JsonObject
+      // or its Map view with existing entries, this has to add the entries individually with
+      // `Map#put`
+      var map = object.asMap();
       for (Object element : elements) {
         var entry = (Entry<?, ?>) element;
-        object.add((String) entry.getKey(), (JsonElement) entry.getValue());
+        map.put((String) entry.getKey(), (JsonElement) entry.getValue());
       }
-      return object.asMap();
+      return map;
     }
 
     @SuppressWarnings("unchecked")
@@ -70,8 +74,6 @@ public class JsonObjectAsMapSuiteTest {
     return MapTestSuiteBuilder.using(new MapGenerator())
         .withFeatures(
             CollectionSize.ANY,
-            // Note: There is current a Guava bug which causes 'null additions' to not be tested if
-            // 'null queries' is enabled, see https://github.com/google/guava/issues/7401
             MapFeature.ALLOWS_ANY_NULL_QUERIES,
             MapFeature.RESTRICTS_KEYS, // Map only allows String keys
             MapFeature.RESTRICTS_VALUES, // Map only allows JsonElement values

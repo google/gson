@@ -31,6 +31,8 @@ public class LinkedTreeMapSuiteTest {
 
     @Override
     protected Map<String, String> create(Entry<String, String>[] entries) {
+      // This is not completely accurate: Because LinkedTreeMap has no constructor which accepts
+      // existing entries, this has to add the entries individually with `Map#put`
       var map = new LinkedTreeMap<String, String>(allowNullValues);
       for (var entry : entries) {
         map.put(entry.getKey(), entry.getValue());
@@ -47,8 +49,6 @@ public class LinkedTreeMapSuiteTest {
         new ArrayList<Feature<?>>(
             List.of(
                 CollectionSize.ANY,
-                // Note: There is current a Guava bug which causes 'null additions' to not be tested
-                // if 'null queries' is enabled, see https://github.com/google/guava/issues/7401
                 MapFeature.ALLOWS_ANY_NULL_QUERIES,
                 MapFeature.RESTRICTS_KEYS, // Map only allows comparable keys
                 MapFeature.SUPPORTS_PUT,
@@ -74,7 +74,8 @@ public class LinkedTreeMapSuiteTest {
             .named("nullValues=false")
             .createTestSuite();
 
-    TestSuite testSuite = new TestSuite("LinkedTreeMap");
+    // Use qualified class name to make it easier to find this test class in the IDE
+    TestSuite testSuite = new TestSuite(LinkedTreeMapSuiteTest.class.getName());
     testSuite.addTest(nullValuesSuite);
     testSuite.addTest(nonNullValuesSuite);
 
