@@ -28,6 +28,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Date;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -251,7 +252,10 @@ public class GsonBuilderTest {
   public void testRegisterTypeAdapterForObjectAndJsonElements() {
     String errorMessage = "Cannot override built-in adapter for ";
     Type[] types = {
-      Object.class, JsonElement.class, JsonArray.class,
+      Object.class,
+      // TODO: Registering adapter for JsonElement is allowed (for now) for backward compatibility,
+      //   see https://github.com/google/gson/issues/2787
+      // JsonElement.class, JsonArray.class,
     };
     GsonBuilder gsonBuilder = new GsonBuilder();
     for (Type type : types) {
@@ -263,6 +267,22 @@ public class GsonBuilderTest {
     }
   }
 
+  /**
+   * Verifies that (for now) registering adapter for {@link JsonElement} and subclasses is possible,
+   * but has no effect. See {@link #testRegisterTypeAdapterForObjectAndJsonElements()}.
+   */
+  @Test
+  public void testRegisterTypeAdapterForJsonElements() {
+    Gson gson = new GsonBuilder().registerTypeAdapter(JsonArray.class, NULL_TYPE_ADAPTER).create();
+    TypeAdapter<JsonArray> adapter = gson.getAdapter(JsonArray.class);
+    // Does not use registered adapter
+    assertThat(adapter).isNotSameInstanceAs(NULL_TYPE_ADAPTER);
+    assertThat(adapter.toJson(new JsonArray())).isEqualTo("[]");
+  }
+
+  @Ignore(
+      "Registering adapter for JsonElement is allowed (for now) for backward compatibility, see"
+          + " https://github.com/google/gson/issues/2787")
   @Test
   public void testRegisterTypeHierarchyAdapterJsonElements() {
     String errorMessage = "Cannot override built-in adapter for ";
@@ -280,6 +300,20 @@ public class GsonBuilderTest {
     }
     // But registering type hierarchy adapter for Object should be allowed
     gsonBuilder.registerTypeHierarchyAdapter(Object.class, NULL_TYPE_ADAPTER);
+  }
+
+  /**
+   * Verifies that (for now) registering hierarchy adapter for {@link JsonElement} and subclasses is
+   * possible, but has no effect. See {@link #testRegisterTypeHierarchyAdapterJsonElements()}.
+   */
+  @Test
+  public void testRegisterTypeHierarchyAdapterJsonElements_Allowed() {
+    Gson gson =
+        new GsonBuilder().registerTypeHierarchyAdapter(JsonArray.class, NULL_TYPE_ADAPTER).create();
+    TypeAdapter<JsonArray> adapter = gson.getAdapter(JsonArray.class);
+    // Does not use registered adapter
+    assertThat(adapter).isNotSameInstanceAs(NULL_TYPE_ADAPTER);
+    assertThat(adapter.toJson(new JsonArray())).isEqualTo("[]");
   }
 
   @Test
