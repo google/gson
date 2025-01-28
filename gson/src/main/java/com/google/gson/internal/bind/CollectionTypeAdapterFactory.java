@@ -63,8 +63,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
     private final ObjectConstructor<? extends Collection<E>> constructor;
 
     public Adapter(
-        TypeAdapter<E> elementTypeAdapter,
-        ObjectConstructor<? extends Collection<E>> constructor) {
+        TypeAdapter<E> elementTypeAdapter, ObjectConstructor<? extends Collection<E>> constructor) {
       this.elementTypeAdapter = elementTypeAdapter;
       this.constructor = constructor;
     }
