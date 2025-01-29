@@ -1558,31 +1558,4 @@ public final class Gson {
       return false;
     }
   }
-
-  // begin google3 patch
-
-  private static final Class<?> MESSAGE_LITE_CLASS;
-
-  static {
-    Class<?> messageLiteClass = null;
-    try {
-      messageLiteClass = Class.forName("com.google.protobuf.MessageLite");
-    } catch (ClassNotFoundException e) {
-      // OK: not on the classpath
-    }
-    MESSAGE_LITE_CLASS = messageLiteClass;
-  }
-
-  /**
-   * Allows proto messages to be serialized via reflection on the private fields of their Java
-   * classes. This has historically been allowed by default, but the result is very ugly and
-   * fragile. New code should prefer alternatives such as {@code ProtoTypeAdapter}. See b/388285853.
-   */
-  public static final ReflectionAccessFilter ALLOW_PROTO_REFLECTION =
-      rawClass ->
-          MESSAGE_LITE_CLASS != null && MESSAGE_LITE_CLASS.isAssignableFrom(rawClass)
-              ? ReflectionAccessFilter.FilterResult.ALLOW
-              : ReflectionAccessFilter.FilterResult.INDECISIVE;
-
-  // end google3 patch
 }
