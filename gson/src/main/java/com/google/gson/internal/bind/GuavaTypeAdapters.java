@@ -364,8 +364,6 @@ public final class GuavaTypeAdapters {
             keyType = Object.class;
             valueType = Object.class;
           }
-          TypeAdapter<?> keyTypeAdapter = gson.getAdapter(TypeToken.get(keyType));
-          TypeAdapter<?> valueTypeAdapter = gson.getAdapter(TypeToken.get(valueType));
           TypeToken<?> mapKToCollectionOfV =
               TypeToken.getParameterized(
                   Map.class,
