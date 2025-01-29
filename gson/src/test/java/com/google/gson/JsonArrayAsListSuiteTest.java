@@ -42,10 +42,14 @@ public class JsonArrayAsListSuiteTest {
     @Override
     public List<JsonElement> create(Object... elements) {
       JsonArray array = new JsonArray();
+      // This is not completely accurate: Because there is no way to directly construct JsonArray or
+      // its List view with existing elements, this has to add the elements individually with
+      // `List#add`
+      var list = array.asList();
       for (Object element : elements) {
-        array.add((JsonElement) element);
+        list.add((JsonElement) element);
       }
-      return array.asList();
+      return list;
     }
   }
 
@@ -54,8 +58,6 @@ public class JsonArrayAsListSuiteTest {
     return ListTestSuiteBuilder.using(new ListGenerator())
         .withFeatures(
             CollectionSize.ANY,
-            // Note: There is current a Guava bug which causes 'null additions' to not be tested if
-            // 'null queries' is enabled, see https://github.com/google/guava/issues/7401
             CollectionFeature.ALLOWS_NULL_QUERIES,
             CollectionFeature.RESTRICTS_ELEMENTS, // List only allows JsonElement
             CollectionFeature.SUPPORTS_ADD,

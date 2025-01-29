@@ -20,7 +20,7 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.11.1-SNAPSHOT</version>
+    <version>2.12.1-SNAPSHOT</version>
   </parent>
   <artifactId>test-shrinker</artifactId>
   <name>Test: Code shrinking (ProGuard / R8)</name>
@@ -79,12 +79,12 @@
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-base</artifactId>
-            <version>7.6.0</version>
+            <version>7.6.1</version>
           </dependency>
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-core</artifactId>
-            <version>9.1.6</version>
+            <version>9.1.7</version>
           </dependency>
         </dependencies>
         <configuration>

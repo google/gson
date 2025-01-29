@@ -194,7 +194,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
      * ...will be serialized as '{@code bar}' if {@code shouldUseJsonNameFieldOption} is set to
      * {@code true} and the '{@code serialized_name}' annotation is added to the adapter.
      *
-     * @since $next-version$
+     * @since 2.12.0
      */
     @CanIgnoreReturnValue
     public Builder setShouldUseJsonNameFieldOption(boolean shouldUseJsonNameFieldOption) {

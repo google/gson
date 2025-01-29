@@ -431,7 +431,7 @@ public class JsonReader implements Closeable {
    * <p>The default nesting limit is {@value #DEFAULT_NESTING_LIMIT}.
    *
    * @throws IllegalArgumentException if the nesting limit is negative.
-   * @since $next-version$
+   * @since 2.12.0
    * @see #getNestingLimit()
    */
   public final void setNestingLimit(int limit) {
@@ -444,7 +444,7 @@ public class JsonReader implements Closeable {
   /**
    * Returns the nesting limit of this reader.
    *
-   * @since $next-version$
+   * @since 2.12.0
    * @see #setNestingLimit(int)
    */
   public final int getNestingLimit() {
