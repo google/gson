@@ -1580,9 +1580,9 @@ public final class Gson {
    */
   public static final ReflectionAccessFilter ALLOW_PROTO_REFLECTION =
       rawClass ->
-        MESSAGE_LITE_CLASS != null && MESSAGE_LITE_CLASS.isAssignableFrom(rawClass)
-            ? ReflectionAccessFilter.FilterResult.ALLOW
-            : ReflectionAccessFilter.FilterResult.INDECISIVE;
+          MESSAGE_LITE_CLASS != null && MESSAGE_LITE_CLASS.isAssignableFrom(rawClass)
+              ? ReflectionAccessFilter.FilterResult.ALLOW
+              : ReflectionAccessFilter.FilterResult.INDECISIVE;
 
   // end google3 patch
 }
