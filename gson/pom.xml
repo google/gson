@@ -145,9 +145,10 @@
                 Bundle-Vendor: Google Gson Project
                 Bundle-ContactAddress: ${project.parent.url}
 
-                # Optional dependency for JDK's sun.misc.Unsafe
+                # Optional dependencies for JDK's sun.misc.Unsafe and Guava's collections.
+                # Both are only accessed through reflection and the code works without them.
                 # https://bnd.bndtools.org/chapters/920-faq.html#remove-unwanted-imports-
-                Import-Package: sun.misc;resolution:=optional, *
+                Import-Package: sun.misc;resolution:=optional, com.google.common.collect;resolution:=optional, *
 
                 -removeheaders: Private-Package
 

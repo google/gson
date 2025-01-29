@@ -112,8 +112,9 @@ public class OSGiManifestIT {
 
     assertThat(imports)
         .containsExactly(
-            // Dependency on JDK's sun.misc.Unsafe should be optional
+            // Dependencies on JDK's sun.misc.Unsafe and Guava Collections should be optional
             "sun.misc;resolution:=optional",
+            "com.google.common.collect;resolution:=optional",
             "com.google.errorprone.annotations;version=\"" + errorProneVersionRange + "\"");
 
     // Should not contain any import for Gson's own packages, see
