@@ -17,8 +17,6 @@
 package com.google.gson.internal.bind;
 
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Gson;
@@ -35,7 +33,9 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -140,19 +140,23 @@ public final class GuavaTypeAdapters {
    * A {@link TypeAdapterFactory} that creates {@link TypeAdapter}s for Guava immutable collections.
    */
   private static final class GuavaCollectionTypeAdapterFactory implements TypeAdapterFactory {
-    // ImmutableSet must follow ImmutableSortedSet since it is a superclass. Otherwise ImmutableSet
-    // would match both ImmutableSortedSet and ImmutableSet.
-    private static final String[][] GUAVA_COLLECTION_CLASS_NAMES = {
-      {"com.google.common.collect.ImmutableList", "builder"},
-      {"com.google.common.collect.ImmutableSortedSet", "naturalOrder"},
-      {"com.google.common.collect.ImmutableSet", "builder"},
-      {"com.google.common.collect.ImmutableMultiset", "builder"},
-    };
+    private static final List<GuavaCollectionType> GUAVA_COLLECTION_CLASSES;
 
-    private static final List<GuavaCollectionType> GUAVA_COLLECTION_CLASSES =
-        stream(GUAVA_COLLECTION_CLASS_NAMES)
-            .map(strings -> new GuavaCollectionType(strings[0], strings[1]))
-            .collect(toList());
+    static {
+      List<GuavaCollectionType> guavaCollectionClasses = new ArrayList<>();
+      // ImmutableSet must follow ImmutableSortedSet since it is a superclass. Otherwise
+      // ImmutableSet would match both ImmutableSortedSet and ImmutableSet.
+      String[][] guavaCollectionClassNames = {
+        {"com.google.common.collect.ImmutableList", "builder"},
+        {"com.google.common.collect.ImmutableSortedSet", "naturalOrder"},
+        {"com.google.common.collect.ImmutableSet", "builder"},
+        {"com.google.common.collect.ImmutableMultiset", "builder"},
+      };
+      for (String[] pair : guavaCollectionClassNames) {
+        guavaCollectionClasses.add(new GuavaCollectionType(pair[0], pair[1]));
+      }
+      GUAVA_COLLECTION_CLASSES = Collections.unmodifiableList(guavaCollectionClasses);
+    }
 
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
@@ -221,20 +225,22 @@ public final class GuavaTypeAdapters {
 
   /** A {@link TypeAdapterFactory} that creates {@link TypeAdapter}s for Guava immutable maps. */
   private static final class GuavaMapTypeAdapterFactory implements TypeAdapterFactory {
-    // ImmutableMap must follow ImmutableSortedMap since it is a superclass. Otherwise ImmutableMap
-    // would match both ImmutableSortedMap and ImmutableMap. Likewise for ImmutableMultimap (which
-    // people probably shouldn't use anyway).
-    private static final String[][] GUAVA_MAP_CLASS_NAMES = {
-      {"com.google.common.collect.ImmutableBiMap", "builder"},
-      {"com.google.common.collect.ImmutableSortedMap", "naturalOrder"},
-      {"com.google.common.collect.ImmutableMap", "builder"},
-      // TODO: support immutable multimaps
-    };
+    private static final List<GuavaMapType> GUAVA_MAP_CLASSES;
 
-    private static final List<GuavaMapType> GUAVA_MAP_CLASSES =
-        stream(GUAVA_MAP_CLASS_NAMES)
-            .map(strings -> new GuavaMapType(strings[0], strings[1]))
-            .collect(toList());
+    static {
+      List<GuavaMapType> guavaMapClasses = new ArrayList<>();
+      // ImmutableMap must follow ImmutableSortedMap since it is a superclass. Otherwise
+      // ImmutableMap would match both ImmutableSortedMap and ImmutableMap.
+      String[][] guavaMapClassNames = {
+        {"com.google.common.collect.ImmutableBiMap", "builder"},
+        {"com.google.common.collect.ImmutableSortedMap", "naturalOrder"},
+        {"com.google.common.collect.ImmutableMap", "builder"},
+      };
+      for (String[] pair : guavaMapClassNames) {
+        guavaMapClasses.add(new GuavaMapType(pair[0], pair[1]));
+      }
+      GUAVA_MAP_CLASSES = Collections.unmodifiableList(guavaMapClasses);
+    }
 
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
@@ -245,8 +251,7 @@ public final class GuavaTypeAdapters {
           Type[] keyAndValueTypes = $Gson$Types.getMapKeyAndValueTypes(type, rawClass);
           Type keyType = keyAndValueTypes[0];
           Type valueType = keyAndValueTypes[1];
-          TypeToken<?> mapKToV =
-              TypeToken.getParameterized(Map.class, keyType, valueType);
+          TypeToken<?> mapKToV = TypeToken.getParameterized(Map.class, keyType, valueType);
           @SuppressWarnings("unchecked")
           TypeAdapter<Object> delegate =
               (TypeAdapter<Object>) gson.getDelegateAdapter(this, mapKToV);
@@ -327,16 +332,20 @@ public final class GuavaTypeAdapters {
   private static final class GuavaMultimapTypeAdapterFactory implements TypeAdapterFactory {
     // ImmutableMultimap must follow the others since it is a superclass. Otherwise
     // ImmutableListMultimap would match both ImmutableListMultimap and ImmutableMultimap.
-    private static final String[] GUAVA_MULTIMAP_CLASS_NAMES = {
-      "com.google.common.collect.ImmutableListMultimap",
-      "com.google.common.collect.ImmutableSetMultimap",
-      "com.google.common.collect.ImmutableMultimap",
-    };
+    private static final List<GuavaMultimapType> GUAVA_MULTIMAP_CLASSES;
 
-    private static final List<GuavaMultimapType> GUAVA_MULTIMAP_CLASSES =
-        stream(GUAVA_MULTIMAP_CLASS_NAMES)
-            .map(className -> new GuavaMultimapType(className, "builder"))
-            .collect(toList());
+    static {
+      List<GuavaMultimapType> guavaMultimapClasses = new ArrayList<>();
+      String[] guavaMultimapClassNames = {
+        "com.google.common.collect.ImmutableListMultimap",
+        "com.google.common.collect.ImmutableSetMultimap",
+        "com.google.common.collect.ImmutableMultimap",
+      };
+      for (String className : guavaMultimapClassNames) {
+        guavaMultimapClasses.add(new GuavaMultimapType(className, "builder"));
+      }
+      GUAVA_MULTIMAP_CLASSES = Collections.unmodifiableList(guavaMultimapClasses);
+    }
 
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
@@ -386,8 +395,7 @@ public final class GuavaTypeAdapters {
     private final TypeAdapter<Object> mapKToCollectionOfVDelegate;
 
     GuavaMultimapTypeAdapter(
-        GuavaMultimapType guavaType,
-        TypeAdapter<Object> mapKToCollectionOfVDelegate) {
+        GuavaMultimapType guavaType, TypeAdapter<Object> mapKToCollectionOfVDelegate) {
       this.guavaType = guavaType;
       this.mapKToCollectionOfVDelegate = mapKToCollectionOfVDelegate;
     }
@@ -406,7 +414,9 @@ public final class GuavaTypeAdapters {
       }
       Object builder = guavaType.createBuilder();
       Map<?, ?> map = (Map<?, ?>) mapKToCollectionOfVDelegate.read(in);
-      map.forEach((key, value) -> guavaType.putAll(builder, key, (Iterable<?>) value));
+      for (Map.Entry<?, ?> entry : map.entrySet()) {
+        guavaType.putAll(builder, entry.getKey(), (Iterable<?>) entry.getValue());
+      }
       return guavaType.build(builder);
     }
   }
