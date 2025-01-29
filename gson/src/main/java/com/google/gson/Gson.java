@@ -1109,7 +1109,8 @@ public final class Gson {
    * @see #fromJson(String, TypeToken)
    */
   public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
-    return fromJson(json, TypeToken.get(classOfT));
+    T object = fromJson(json, TypeToken.get(classOfT));
+    return Primitives.wrap(classOfT).cast(object);
   }
 
   /**
@@ -1200,7 +1201,8 @@ public final class Gson {
    */
   public <T> T fromJson(Reader json, Class<T> classOfT)
       throws JsonSyntaxException, JsonIOException {
-    return fromJson(json, TypeToken.get(classOfT));
+    T object = fromJson(json, TypeToken.get(classOfT));
+    return Primitives.wrap(classOfT).cast(object);
   }
 
   /**
@@ -1361,19 +1363,7 @@ public final class Gson {
       JsonToken unused = reader.peek();
       isEmpty = false;
       TypeAdapter<T> typeAdapter = getAdapter(typeOfT);
-      T object = typeAdapter.read(reader);
-      Class<?> expectedTypeWrapped = Primitives.wrap(typeOfT.getRawType());
-      if (object != null && !expectedTypeWrapped.isInstance(object)) {
-        throw new ClassCastException(
-            "Type adapter '"
-                + typeAdapter
-                + "' returned wrong type; requested "
-                + typeOfT.getRawType()
-                + " but got instance of "
-                + object.getClass()
-                + "\nVerify that the adapter was registered for the correct type.");
-      }
-      return object;
+      return typeAdapter.read(reader);
     } catch (EOFException e) {
       /*
        * For compatibility with JSON 1.5 and earlier, we return null for empty
@@ -1418,7 +1408,8 @@ public final class Gson {
    * @see #fromJson(JsonElement, TypeToken)
    */
   public <T> T fromJson(JsonElement json, Class<T> classOfT) throws JsonSyntaxException {
-    return fromJson(json, TypeToken.get(classOfT));
+    T object = fromJson(json, TypeToken.get(classOfT));
+    return Primitives.wrap(classOfT).cast(object);
   }
 
   /**
