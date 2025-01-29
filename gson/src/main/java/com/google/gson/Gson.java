@@ -26,6 +26,7 @@ import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
 import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter;
+import com.google.gson.internal.bind.GuavaTypeAdapters;
 import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
@@ -47,6 +48,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -382,6 +384,9 @@ public final class Gson {
     factories.add(TypeAdapters.CLASS_FACTORY);
 
     // type adapters for composite and user-defined types
+    if (guavaPresent()) {
+      factories.addAll(GuavaTypeAdapters.factories());
+    }
     factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
     factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
     this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
@@ -1104,8 +1109,7 @@ public final class Gson {
    * @see #fromJson(String, TypeToken)
    */
   public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
-    T object = fromJson(json, TypeToken.get(classOfT));
-    return Primitives.wrap(classOfT).cast(object);
+    return fromJson(json, TypeToken.get(classOfT));
   }
 
   /**
@@ -1196,8 +1200,7 @@ public final class Gson {
    */
   public <T> T fromJson(Reader json, Class<T> classOfT)
       throws JsonSyntaxException, JsonIOException {
-    T object = fromJson(json, TypeToken.get(classOfT));
-    return Primitives.wrap(classOfT).cast(object);
+    return fromJson(json, TypeToken.get(classOfT));
   }
 
   /**
@@ -1358,7 +1361,19 @@ public final class Gson {
       JsonToken unused = reader.peek();
       isEmpty = false;
       TypeAdapter<T> typeAdapter = getAdapter(typeOfT);
-      return typeAdapter.read(reader);
+      T object = typeAdapter.read(reader);
+      Class<?> expectedTypeWrapped = Primitives.wrap(typeOfT.getRawType());
+      if (object != null && !expectedTypeWrapped.isInstance(object)) {
+        throw new ClassCastException(
+            "Type adapter '"
+                + typeAdapter
+                + "' returned wrong type; requested "
+                + typeOfT.getRawType()
+                + " but got instance of "
+                + object.getClass()
+                + "\nVerify that the adapter was registered for the correct type.");
+      }
+      return object;
     } catch (EOFException e) {
       /*
        * For compatibility with JSON 1.5 and earlier, we return null for empty
@@ -1403,8 +1418,7 @@ public final class Gson {
    * @see #fromJson(JsonElement, TypeToken)
    */
   public <T> T fromJson(JsonElement json, Class<T> classOfT) throws JsonSyntaxException {
-    T object = fromJson(json, TypeToken.get(classOfT));
-    return Primitives.wrap(classOfT).cast(object);
+    return fromJson(json, TypeToken.get(classOfT));
   }
 
   /**
@@ -1532,4 +1546,43 @@ public final class Gson {
         + constructorConstructor
         + "}";
   }
+
+  private static boolean guavaPresent() {
+    try {
+      // Check for ImmutableSortedSet.naturalOrder(). At least within Google, some environments have
+      // e.g. ImmutableList but not this method.
+      Class<?> immutableSortedSet = Class.forName("com.google.common.collect.ImmutableSortedSet");
+      Method unused = immutableSortedSet.getMethod("naturalOrder");
+      return true;
+    } catch (ReflectiveOperationException e) {
+      return false;
+    }
+  }
+
+  // begin google3 patch
+
+  private static final Class<?> MESSAGE_LITE_CLASS;
+
+  static {
+    Class<?> messageLiteClass = null;
+    try {
+      messageLiteClass = Class.forName("com.google.protobuf.MessageLite");
+    } catch (ClassNotFoundException e) {
+      // OK: not on the classpath
+    }
+    MESSAGE_LITE_CLASS = messageLiteClass;
+  }
+
+  /**
+   * Allows proto messages to be serialized via reflection on the private fields of their Java
+   * classes. This has historically been allowed by default, but the result is very ugly and
+   * fragile. New code should prefer alternatives such as {@code ProtoTypeAdapter}. See b/388285853.
+   */
+  public static final ReflectionAccessFilter ALLOW_PROTO_REFLECTION =
+      rawClass ->
+        MESSAGE_LITE_CLASS != null && MESSAGE_LITE_CLASS.isAssignableFrom(rawClass)
+            ? ReflectionAccessFilter.FilterResult.ALLOW
+            : ReflectionAccessFilter.FilterResult.INDECISIVE;
+
+  // end google3 patch
 }
