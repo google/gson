@@ -16,7 +16,6 @@
 
 package com.google.gson.common;
 
-import com.google.common.base.Objects;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -28,6 +27,7 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Types used for testing JSON serialization and deserialization
@@ -165,7 +165,7 @@ public class TestTypes {
       return longValue == that.longValue
           && getIntValue() == that.getIntValue()
           && booleanValue == that.booleanValue
-          && Objects.equal(stringValue, that.stringValue);
+          && Objects.equals(stringValue, that.stringValue);
     }
 
     @Override
