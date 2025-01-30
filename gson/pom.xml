@@ -146,8 +146,9 @@
                 Bundle-ContactAddress: ${project.parent.url}
 
                 # Optional dependency for JDK's sun.misc.Unsafe
+                # Optional dependency to google.errorprone
                 # https://bnd.bndtools.org/chapters/920-faq.html#remove-unwanted-imports-
-                Import-Package: sun.misc;resolution:=optional, *
+                Import-Package: sun.misc;resolution:=optional, com.google.errorprone.*;resolution:=optional, *
 
                 -removeheaders: Private-Package
 

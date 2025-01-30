@@ -114,7 +114,10 @@ public class OSGiManifestIT {
         .containsExactly(
             // Dependency on JDK's sun.misc.Unsafe should be optional
             "sun.misc;resolution:=optional",
-            "com.google.errorprone.annotations;version=\"" + errorProneVersionRange + "\"");
+            // Dependency on error prone should be optional
+            "com.google.errorprone.annotations;resolution:=optional;version=\""
+                + errorProneVersionRange
+                + "\"");
 
     // Should not contain any import for Gson's own packages, see
     // https://github.com/google/gson/pull/2735#issuecomment-2330047410
