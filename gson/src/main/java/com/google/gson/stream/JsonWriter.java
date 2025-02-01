@@ -810,7 +810,7 @@ public class JsonWriter implements Closeable, Flushable {
         if (strictness != Strictness.LENIENT) {
           throw new IllegalStateException("JSON must have only one top-level value.");
         }
-        // fall-through
+      // fall-through
       case EMPTY_DOCUMENT: // first in document
         replaceTop(NONEMPTY_DOCUMENT);
         break;
