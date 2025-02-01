@@ -675,7 +675,7 @@ public class JsonReader implements Closeable {
         if (peekStack == JsonScope.EMPTY_ARRAY) {
           return peeked = PEEKED_END_ARRAY;
         }
-        // fall-through to handle ",]"
+      // fall-through to handle ",]"
       case ';':
       case ',':
         // In lenient mode, a 0-length literal in an array means 'null'.
@@ -1775,7 +1775,7 @@ public class JsonReader implements Closeable {
         }
         lineNumber++;
         lineStart = pos;
-        // fall-through
+      // fall-through
 
       case '\'':
         if (strictness == Strictness.STRICT) {
