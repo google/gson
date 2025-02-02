@@ -38,8 +38,38 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Queue;
 
-/** Writes a graph of objects as a list of named nodes. */
-// TODO: proper documentation
+/**
+ * A builder for constructing a graph-aware type adapter. This class allows you to register types
+ * for which cyclic references are allowed by serializing the graph of objects as a list of named
+ * nodes. This approach ensures that objects referencing each other (or themselves) are properly
+ * serialized and deserialized.
+ *
+ * <p>The builder maintains a mapping between types and their corresponding {@link InstanceCreator}
+ * instances. When a type is registered, it will be serialized using a graph adapter that assigns a
+ * unique identifier to each object instance. During deserialization, the graph adapter first builds
+ * a mapping from these identifiers to their JSON representations and then reconstructs the object
+ * graph.
+ *
+ * <p>Example usage:
+ *
+ * <pre>
+ *   GraphAdapterBuilder graphBuilder = new GraphAdapterBuilder();
+ *   graphBuilder.addType(MyClass.class);
+ *
+ *   GsonBuilder gsonBuilder = new GsonBuilder();
+ *   graphBuilder.registerOn(gsonBuilder);
+ *   Gson gson = gsonBuilder.create();
+ *
+ *   // Serialization
+ *   String json = gson.toJson(myObject);
+ *
+ *   // Deserialization
+ *   MyClass deserialized = gson.fromJson(json, MyClass.class);
+ * </pre>
+ *
+ * @see Gson
+ * @see GsonBuilder
+ */
 public final class GraphAdapterBuilder {
   private final Map<Type, InstanceCreator<?>> instanceCreators;
   private final ConstructorConstructor constructorConstructor;
@@ -51,6 +81,12 @@ public final class GraphAdapterBuilder {
             instanceCreators, true, Collections.<ReflectionAccessFilter>emptyList());
   }
 
+  /**
+   * Registers the specified type with a default instance creator.
+   *
+   * @param type the type to register
+   * @return this builder instance for chaining
+   */
   public GraphAdapterBuilder addType(Type type) {
     ObjectConstructor<?> objectConstructor = constructorConstructor.get(TypeToken.get(type));
     InstanceCreator<Object> instanceCreator =
@@ -63,6 +99,14 @@ public final class GraphAdapterBuilder {
     return addType(type, instanceCreator);
   }
 
+  /**
+   * Registers the specified type with the provided instance creator.
+   *
+   * @param type the type to register
+   * @param instanceCreator the instance creator used to create instances of the type during
+   *     deserialization
+   * @return this builder instance for chaining
+   */
   public GraphAdapterBuilder addType(Type type, InstanceCreator<?> instanceCreator) {
     if (type == null || instanceCreator == null) {
       throw new NullPointerException();
@@ -71,6 +115,13 @@ public final class GraphAdapterBuilder {
     return this;
   }
 
+  /**
+   * Registers the graph adapter on the provided {@link GsonBuilder}. This method adds a {@link
+   * TypeAdapterFactory} and registers the necessary type adapters for all types previously
+   * registered via {@link #addType(Type)}.
+   *
+   * @param gsonBuilder the {@code GsonBuilder} on which to register the graph adapter
+   */
   public void registerOn(GsonBuilder gsonBuilder) {
     Factory factory = new Factory(instanceCreators);
     gsonBuilder.registerTypeAdapterFactory(factory);
@@ -79,6 +130,13 @@ public final class GraphAdapterBuilder {
     }
   }
 
+  /**
+   * A factory that creates type adapters capable of serializing and deserializing object graphs.
+   *
+   * <p>This factory implements both {@link TypeAdapterFactory} and {@link InstanceCreator}
+   * interfaces. It is responsible for handling cyclic references by assigning unique names to
+   * objects and managing a graph during both serialization and deserialization.
+   */
   static class Factory implements TypeAdapterFactory, InstanceCreator<Object> {
     private final Map<Type, InstanceCreator<?>> instanceCreators;
 
