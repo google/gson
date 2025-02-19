@@ -18,7 +18,6 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assume.assumeNotNull;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,6 +42,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import org.junit.AssumptionViolatedException;
 import org.junit.Test;
 
 public class ReflectionAccessFilterTest {
@@ -58,7 +58,7 @@ public class ReflectionAccessFilterTest {
   }
 
   @Test
-  public void testBlockInaccessibleJava() throws ReflectiveOperationException {
+  public void testBlockInaccessibleJava() {
     Gson gson =
         new GsonBuilder()
             .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA)
@@ -78,15 +78,24 @@ public class ReflectionAccessFilterTest {
                 + " permit making it accessible. Register a TypeAdapter for the declaring type,"
                 + " adjust the access filter or increase the visibility of the element and its"
                 + " declaring type.");
+  }
 
-    // But serialization should succeed for classes with only public fields.
+  @Test
+  public void testDontBlockAccessibleJava() throws ReflectiveOperationException {
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_INACCESSIBLE_JAVA)
+            .create();
+
+    // Serialization should succeed for classes with only public fields.
     // Not many JDK classes have mutable public fields, thank goodness, but java.awt.Point does.
-    Class<?> pointClass = null;
+    Class<?> pointClass;
     try {
       pointClass = Class.forName("java.awt.Point");
-    } catch (ClassNotFoundException ignored) {
+    } catch (ClassNotFoundException e) {
+      // If not found then we don't have AWT and the rest of the test can be skipped.
+      throw new AssumptionViolatedException("java.awt.Point not present", e);
     }
-    assumeNotNull(pointClass);
     Constructor<?> pointConstructor = pointClass.getConstructor(int.class, int.class);
     Object point = pointConstructor.newInstance(1, 2);
     String json = gson.toJson(point);

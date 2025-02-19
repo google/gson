@@ -431,7 +431,7 @@ public class JsonReader implements Closeable {
    * <p>The default nesting limit is {@value #DEFAULT_NESTING_LIMIT}.
    *
    * @throws IllegalArgumentException if the nesting limit is negative.
-   * @since $next-version$
+   * @since 2.12.0
    * @see #getNestingLimit()
    */
   public final void setNestingLimit(int limit) {
@@ -444,7 +444,7 @@ public class JsonReader implements Closeable {
   /**
    * Returns the nesting limit of this reader.
    *
-   * @since $next-version$
+   * @since 2.12.0
    * @see #setNestingLimit(int)
    */
   public final int getNestingLimit() {
@@ -675,7 +675,7 @@ public class JsonReader implements Closeable {
         if (peekStack == JsonScope.EMPTY_ARRAY) {
           return peeked = PEEKED_END_ARRAY;
         }
-        // fall-through to handle ",]"
+      // fall-through to handle ",]"
       case ';':
       case ',':
         // In lenient mode, a 0-length literal in an array means 'null'.
@@ -1775,7 +1775,7 @@ public class JsonReader implements Closeable {
         }
         lineNumber++;
         lineStart = pos;
-        // fall-through
+      // fall-through
 
       case '\'':
         if (strictness == Strictness.STRICT) {

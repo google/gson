@@ -42,6 +42,7 @@ import java.util.Properties;
  * @author Bob Lee
  * @author Jesse Wilson
  */
+@SuppressWarnings("MemberName") // legacy class name
 public final class $Gson$Types {
   static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 
@@ -56,7 +57,7 @@ public final class $Gson$Types {
    * @return a {@link java.io.Serializable serializable} parameterized type.
    */
   public static ParameterizedType newParameterizedTypeWithOwner(
-      Type ownerType, Type rawType, Type... typeArguments) {
+      Type ownerType, Class<?> rawType, Type... typeArguments) {
     return new ParameterizedTypeImpl(ownerType, rawType, typeArguments);
   }
 
@@ -111,7 +112,7 @@ public final class $Gson$Types {
     } else if (type instanceof ParameterizedType) {
       ParameterizedType p = (ParameterizedType) type;
       return new ParameterizedTypeImpl(
-          p.getOwnerType(), p.getRawType(), p.getActualTypeArguments());
+          p.getOwnerType(), (Class<?>) p.getRawType(), p.getActualTypeArguments());
 
     } else if (type instanceof GenericArrayType) {
       GenericArrayType g = (GenericArrayType) type;
@@ -327,8 +328,8 @@ public final class $Gson$Types {
      * class should extend Hashtable<String, String>, but it's declared to
      * extend Hashtable<Object, Object>.
      */
-    if (context == Properties.class) {
-      return new Type[] {String.class, String.class}; // TODO: test subclasses of Properties!
+    if (Properties.class.isAssignableFrom(contextRawType)) {
+      return new Type[] {String.class, String.class};
     }
 
     Type mapType = getSupertype(context, contextRawType, Map.class);
@@ -410,7 +411,8 @@ public final class $Gson$Types {
 
         toResolve =
             ownerChanged || argsChanged
-                ? newParameterizedTypeWithOwner(newOwnerType, original.getRawType(), args)
+                ? newParameterizedTypeWithOwner(
+                    newOwnerType, (Class<?>) original.getRawType(), args)
                 : original;
         break;
 
@@ -518,10 +520,9 @@ public final class $Gson$Types {
     @SuppressWarnings("serial")
     private final Type[] typeArguments;
 
-    public ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
-      // TODO: Should this enforce that rawType is a Class? See JDK implementation of
-      // the ParameterizedType interface and https://bugs.openjdk.org/browse/JDK-8250659
+    public ParameterizedTypeImpl(Type ownerType, Class<?> rawType, Type... typeArguments) {
       requireNonNull(rawType);
+
       if (ownerType == null && requiresOwnerType(rawType)) {
         throw new IllegalArgumentException("Must specify owner type for " + rawType);
       }

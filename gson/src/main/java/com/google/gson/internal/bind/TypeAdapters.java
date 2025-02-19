@@ -806,44 +806,16 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory LOCALE_FACTORY = newFactory(Locale.class, LOCALE);
 
-  /*
-   * The following adapter and factory fields have not been removed yet and are only deprecated
-   * for now because external projects might be using them, despite being part of Gson's internal
-   * implementation.
-   */
-
-  /**
-   * @deprecated {@code TypeAdapters} is an internal Gson class. To obtain the adapter for {@link
-   *     JsonElement} and subclasses use instead:
-   *     <pre>{@code
-   * TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
-   * }</pre>
-   */
-  @Deprecated
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = JsonElementTypeAdapter.ADAPTER;
 
-  /**
-   * @deprecated {@code TypeAdapters} is an internal Gson class. To obtain the adapter for {@link
-   *     JsonElement} and subclasses use instead:
-   *     <pre>{@code
-   * TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
-   * }</pre>
-   */
-  @Deprecated
-  public static final TypeAdapterFactory JSON_ELEMENT_FACTORY = JsonElementTypeAdapter.FACTORY;
+  public static final TypeAdapterFactory JSON_ELEMENT_FACTORY =
+      newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
 
-  /**
-   * @deprecated {@code TypeAdapters} is an internal Gson class. To obtain the adapter for a
-   *     specific enum class use instead:
-   *     <pre>{@code
-   * TypeAdapter<MyEnum> adapter = gson.getAdapter(MyEnum.class);
-   * }</pre>
-   */
-  @Deprecated public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
+  public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
-      final TypeToken<TT> type, final TypeAdapter<TT> typeAdapter) {
+      TypeToken<TT> type, TypeAdapter<TT> typeAdapter) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
@@ -854,8 +826,7 @@ public final class TypeAdapters {
   }
 
   @SuppressWarnings("TypeParameterNaming")
-  public static <TT> TypeAdapterFactory newFactory(
-      final Class<TT> type, final TypeAdapter<TT> typeAdapter) {
+  public static <TT> TypeAdapterFactory newFactory(Class<TT> type, TypeAdapter<TT> typeAdapter) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
@@ -872,7 +843,7 @@ public final class TypeAdapters {
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
-      final Class<TT> unboxed, final Class<TT> boxed, final TypeAdapter<? super TT> typeAdapter) {
+      Class<TT> unboxed, Class<TT> boxed, TypeAdapter<? super TT> typeAdapter) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
@@ -896,9 +867,7 @@ public final class TypeAdapters {
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactoryForMultipleTypes(
-      final Class<TT> base,
-      final Class<? extends TT> sub,
-      final TypeAdapter<? super TT> typeAdapter) {
+      Class<TT> base, Class<? extends TT> sub, TypeAdapter<? super TT> typeAdapter) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
@@ -925,12 +894,12 @@ public final class TypeAdapters {
    * that the deserialized type matches the type requested.
    */
   public static <T1> TypeAdapterFactory newTypeHierarchyFactory(
-      final Class<T1> clazz, final TypeAdapter<T1> typeAdapter) {
+      Class<T1> clazz, TypeAdapter<T1> typeAdapter) {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
       @Override
       public <T2> TypeAdapter<T2> create(Gson gson, TypeToken<T2> typeToken) {
-        final Class<? super T2> requestedType = typeToken.getRawType();
+        Class<? super T2> requestedType = typeToken.getRawType();
         if (!clazz.isAssignableFrom(requestedType)) {
           return null;
         }

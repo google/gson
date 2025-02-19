@@ -30,8 +30,8 @@ public class JavaVersionTest {
 
   @Test
   public void testGetMajorJavaVersion() {
-    // Gson currently requires at least Java 7
-    assertThat(JavaVersion.getMajorJavaVersion()).isAtLeast(7);
+    // Gson currently requires at least Java 8
+    assertThat(JavaVersion.getMajorJavaVersion()).isAtLeast(8);
   }
 
   @Test

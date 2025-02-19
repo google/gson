@@ -24,7 +24,6 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -63,13 +62,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
         new GsonBuilder()
             .registerTypeAdapter(
                 Base.class,
-                new JsonSerializer<Base>() {
-                  @Override
-                  public JsonElement serialize(
-                      Base src, Type typeOfSrc, JsonSerializationContext context) {
-                    return new JsonPrimitive("serializer");
-                  }
-                })
+                (JsonSerializer<Base>) (src, typeOfSrc, context) -> new JsonPrimitive("serializer"))
             .create();
 
     String json = gson.toJson(new Container());
@@ -148,13 +141,8 @@ public class TypeAdapterRuntimeTypeWrapperTest {
             // Register JsonSerializer as delegate
             .registerTypeAdapter(
                 Base.class,
-                new JsonSerializer<Base>() {
-                  @Override
-                  public JsonElement serialize(
-                      Base src, Type typeOfSrc, JsonSerializationContext context) {
-                    return new JsonPrimitive("custom delegate");
-                  }
-                })
+                (JsonSerializer<Base>)
+                    (src, typeOfSrc, context) -> new JsonPrimitive("custom delegate"))
             .registerTypeAdapter(Base.class, new Deserializer())
             .create();
 
@@ -175,22 +163,13 @@ public class TypeAdapterRuntimeTypeWrapperTest {
         new GsonBuilder()
             .registerTypeAdapter(
                 Subclass.class,
-                new JsonDeserializer<Subclass>() {
-                  @Override
-                  public Subclass deserialize(
-                      JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-                    throw new AssertionError("not needed for this test");
-                  }
-                })
+                (JsonDeserializer<Subclass>)
+                    (json, typeOfT, context) -> {
+                      throw new AssertionError("not needed for this test");
+                    })
             .registerTypeAdapter(
                 Base.class,
-                new JsonSerializer<Base>() {
-                  @Override
-                  public JsonElement serialize(
-                      Base src, Type typeOfSrc, JsonSerializationContext context) {
-                    return new JsonPrimitive("base");
-                  }
-                })
+                (JsonSerializer<Base>) (src, typeOfSrc, context) -> new JsonPrimitive("base"))
             .create();
 
     String json = gson.toJson(new Container());

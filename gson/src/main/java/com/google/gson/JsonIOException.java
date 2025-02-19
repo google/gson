@@ -21,6 +21,7 @@ package com.google.gson;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@SuppressWarnings("MemberName") // class name is part of the public API
 public final class JsonIOException extends JsonParseException {
   private static final long serialVersionUID = 1L;
 

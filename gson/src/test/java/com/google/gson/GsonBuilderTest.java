@@ -24,11 +24,11 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Date;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -57,13 +57,7 @@ public class GsonBuilderTest {
     assertThat(gson).isNotNull();
     assertThat(builder.create()).isNotNull();
 
-    builder.setFieldNamingStrategy(
-        new FieldNamingStrategy() {
-          @Override
-          public String translateName(Field f) {
-            return "test";
-          }
-        });
+    builder.setFieldNamingStrategy(f -> "test");
 
     Gson otherGson = builder.create();
     assertThat(otherGson).isNotNull();
@@ -94,23 +88,15 @@ public class GsonBuilderTest {
             out.value("custom-adapter");
           }
         });
+
     gsonBuilder.registerTypeHierarchyAdapter(
         CustomClass2.class,
-        new JsonSerializer<CustomClass2>() {
-          @Override
-          public JsonElement serialize(
-              CustomClass2 src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive("custom-hierarchy-adapter");
-          }
-        });
+        (JsonSerializer<CustomClass2>)
+            (src, typeOfSrc, context) -> new JsonPrimitive("custom-hierarchy-adapter"));
+
     gsonBuilder.registerTypeAdapter(
         CustomClass3.class,
-        new InstanceCreator<CustomClass3>() {
-          @Override
-          public CustomClass3 createInstance(Type type) {
-            return new CustomClass3("custom-instance");
-          }
-        });
+        (InstanceCreator<CustomClass3>) type -> new CustomClass3("custom-instance"));
 
     assertDefaultGson(gson);
     // New GsonBuilder created from `gson` should not have been affected by changes
@@ -254,19 +240,22 @@ public class GsonBuilderTest {
 
   @Test
   public void testSetStrictness() throws IOException {
-    final Strictness STRICTNESS = Strictness.STRICT;
+    Strictness strictness = Strictness.STRICT;
     GsonBuilder builder = new GsonBuilder();
-    builder.setStrictness(STRICTNESS);
+    builder.setStrictness(strictness);
     Gson gson = builder.create();
-    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(STRICTNESS);
-    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(STRICTNESS);
+    assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(strictness);
+    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(strictness);
   }
 
   @Test
   public void testRegisterTypeAdapterForObjectAndJsonElements() {
-    final String ERROR_MESSAGE = "Cannot override built-in adapter for ";
+    String errorMessage = "Cannot override built-in adapter for ";
     Type[] types = {
-      Object.class, JsonElement.class, JsonArray.class,
+      Object.class,
+      // TODO: Registering adapter for JsonElement is allowed (for now) for backward compatibility,
+      //   see https://github.com/google/gson/issues/2787
+      // JsonElement.class, JsonArray.class,
     };
     GsonBuilder gsonBuilder = new GsonBuilder();
     for (Type type : types) {
@@ -274,13 +263,29 @@ public class GsonBuilderTest {
           assertThrows(
               IllegalArgumentException.class,
               () -> gsonBuilder.registerTypeAdapter(type, NULL_TYPE_ADAPTER));
-      assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
+      assertThat(e).hasMessageThat().isEqualTo(errorMessage + type);
     }
   }
 
+  /**
+   * Verifies that (for now) registering adapter for {@link JsonElement} and subclasses is possible,
+   * but has no effect. See {@link #testRegisterTypeAdapterForObjectAndJsonElements()}.
+   */
+  @Test
+  public void testRegisterTypeAdapterForJsonElements() {
+    Gson gson = new GsonBuilder().registerTypeAdapter(JsonArray.class, NULL_TYPE_ADAPTER).create();
+    TypeAdapter<JsonArray> adapter = gson.getAdapter(JsonArray.class);
+    // Does not use registered adapter
+    assertThat(adapter).isNotSameInstanceAs(NULL_TYPE_ADAPTER);
+    assertThat(adapter.toJson(new JsonArray())).isEqualTo("[]");
+  }
+
+  @Ignore(
+      "Registering adapter for JsonElement is allowed (for now) for backward compatibility, see"
+          + " https://github.com/google/gson/issues/2787")
   @Test
   public void testRegisterTypeHierarchyAdapterJsonElements() {
-    final String ERROR_MESSAGE = "Cannot override built-in adapter for ";
+    String errorMessage = "Cannot override built-in adapter for ";
     Class<?>[] types = {
       JsonElement.class, JsonArray.class,
     };
@@ -291,10 +296,24 @@ public class GsonBuilderTest {
               IllegalArgumentException.class,
               () -> gsonBuilder.registerTypeHierarchyAdapter(type, NULL_TYPE_ADAPTER));
 
-      assertThat(e).hasMessageThat().isEqualTo(ERROR_MESSAGE + type);
+      assertThat(e).hasMessageThat().isEqualTo(errorMessage + type);
     }
     // But registering type hierarchy adapter for Object should be allowed
     gsonBuilder.registerTypeHierarchyAdapter(Object.class, NULL_TYPE_ADAPTER);
+  }
+
+  /**
+   * Verifies that (for now) registering hierarchy adapter for {@link JsonElement} and subclasses is
+   * possible, but has no effect. See {@link #testRegisterTypeHierarchyAdapterJsonElements()}.
+   */
+  @Test
+  public void testRegisterTypeHierarchyAdapterJsonElements_Allowed() {
+    Gson gson =
+        new GsonBuilder().registerTypeHierarchyAdapter(JsonArray.class, NULL_TYPE_ADAPTER).create();
+    TypeAdapter<JsonArray> adapter = gson.getAdapter(JsonArray.class);
+    // Does not use registered adapter
+    assertThat(adapter).isNotSameInstanceAs(NULL_TYPE_ADAPTER);
+    assertThat(adapter.toJson(new JsonArray())).isEqualTo("[]");
   }
 
   @Test

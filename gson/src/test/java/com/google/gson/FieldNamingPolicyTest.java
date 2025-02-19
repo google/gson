@@ -19,13 +19,12 @@ package com.google.gson;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import com.google.gson.functional.FieldNamingTest;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import org.junit.Test;
 
 /**
- * Performs tests directly against {@link FieldNamingPolicy}; for integration tests see {@link
+ * Performs tests directly against {@link FieldNamingPolicy}; for integration tests see {@code
  * FieldNamingTest}.
  */
 public class FieldNamingPolicyTest {

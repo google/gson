@@ -156,16 +156,7 @@ public class NamingPolicyTest {
 
   @Test
   public void testGsonDuplicateNameDueToBadNamingPolicy() {
-    Gson gson =
-        builder
-            .setFieldNamingStrategy(
-                new FieldNamingStrategy() {
-                  @Override
-                  public String translateName(Field f) {
-                    return "x";
-                  }
-                })
-            .create();
+    Gson gson = builder.setFieldNamingStrategy(f -> "x").create();
 
     var e =
         assertThrows(IllegalArgumentException.class, () -> gson.toJson(new ClassWithTwoFields()));

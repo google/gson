@@ -41,7 +41,7 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
   }
 
   private static TypeAdapterFactory newFactory(ToNumberStrategy toNumberStrategy) {
-    final NumberTypeAdapter adapter = new NumberTypeAdapter(toNumberStrategy);
+    NumberTypeAdapter adapter = new NumberTypeAdapter(toNumberStrategy);
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
       @Override

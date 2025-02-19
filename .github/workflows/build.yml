@@ -10,36 +10,31 @@ jobs:
     name: "Build on JDK ${{ matrix.java }}"
     strategy:
       matrix:
-        java: [ 11, 17 ]
-        # Custom JDK 21 configuration
-        include:
-          - java: 21
-            # Disable Enforcer check which (intentionally) prevents using JDK 21 for building
-            extra-mvn-args: -Denforcer.fail=false
+        java: [ 11, 17, 21 ]
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: "Set up JDK ${{ matrix.java }}"
-        uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018  # v4.2.2
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12  # v4.7.0
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
           cache: 'maven'
       - name: Build with Maven
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
-        run: mvn --batch-mode --no-transfer-progress verify javadoc:jar ${{ matrix.extra-mvn-args || '' }}
+        run: mvn --batch-mode --no-transfer-progress verify javadoc:jar
 
   native-image-test:
     name: "GraalVM Native Image test"
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: "Set up GraalVM"
-        uses: graalvm/setup-graalvm@22cc13fe88ef133134b3798e128fb208df55e1f5  # v1.2.3
+        uses: graalvm/setup-graalvm@aafbedb8d382ed0ca6167d3a051415f20c859274  # v1.2.8
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'graalvm'
           # According to documentation in graalvm/setup-graalvm this is used to avoid rate-limiting issues
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -54,9 +49,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: "Set up JDK 17"
-        uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018  # v4.2.2
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12  # v4.7.0
         with:
           distribution: 'temurin'
           java-version: 17

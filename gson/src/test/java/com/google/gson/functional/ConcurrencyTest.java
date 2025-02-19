@@ -71,9 +71,9 @@ public class ConcurrencyTest {
    */
   @Test
   public void testMultiThreadSerialization() throws InterruptedException {
-    final CountDownLatch startLatch = new CountDownLatch(1);
-    final CountDownLatch finishedLatch = new CountDownLatch(10);
-    final AtomicReference<Throwable> error = new AtomicReference<>(null);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch finishedLatch = new CountDownLatch(10);
+    AtomicReference<Throwable> error = new AtomicReference<>(null);
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
       executor.execute(
@@ -106,29 +106,26 @@ public class ConcurrencyTest {
    */
   @Test
   public void testMultiThreadDeserialization() throws InterruptedException {
-    final CountDownLatch startLatch = new CountDownLatch(1);
-    final CountDownLatch finishedLatch = new CountDownLatch(10);
-    final AtomicReference<Throwable> error = new AtomicReference<>(null);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch finishedLatch = new CountDownLatch(10);
+    AtomicReference<Throwable> error = new AtomicReference<>(null);
     ExecutorService executor = Executors.newFixedThreadPool(10);
     for (int taskCount = 0; taskCount < 10; taskCount++) {
       executor.execute(
-          new Runnable() {
-            @Override
-            public void run() {
-              try {
-                startLatch.await();
-                for (int i = 0; i < 10; i++) {
-                  MyObject deserialized =
-                      gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
-                  assertThat(deserialized.a).isEqualTo("hello");
-                  assertThat(deserialized.b).isEqualTo("world");
-                  assertThat(deserialized.i).isEqualTo(1);
-                }
-              } catch (Throwable t) {
-                error.set(t);
-              } finally {
-                finishedLatch.countDown();
+          () -> {
+            try {
+              startLatch.await();
+              for (int i = 0; i < 10; i++) {
+                MyObject deserialized =
+                    gson.fromJson("{'a':'hello','b':'world','i':1}", MyObject.class);
+                assertThat(deserialized.a).isEqualTo("hello");
+                assertThat(deserialized.b).isEqualTo("world");
+                assertThat(deserialized.i).isEqualTo(1);
               }
+            } catch (Throwable t) {
+              error.set(t);
+            } finally {
+              finishedLatch.countDown();
             }
           });
     }

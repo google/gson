@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThrows;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -608,14 +607,7 @@ public class DefaultTypeAdaptersTest {
             .setDateFormat(pattern)
             .registerTypeAdapter(
                 Date.class,
-                new JsonDeserializer<Date>() {
-                  @Override
-                  public Date deserialize(
-                      JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                      throws JsonParseException {
-                    return new Date(1315806903103L);
-                  }
-                })
+                (JsonDeserializer<Date>) (json, typeOfT, context) -> new Date(1315806903103L))
             .create();
 
     Date now = new Date(1315806903103L);

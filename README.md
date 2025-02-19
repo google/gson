@@ -24,7 +24,7 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
 Gradle:
 ```gradle
 dependencies {
-  implementation 'com.google.code.gson:gson:2.11.0'
+  implementation 'com.google.code.gson:gson:2.12.1'
 }
 ```
 
@@ -33,7 +33,7 @@ Maven:
 <dependency>
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
-  <version>2.11.0</version>
+  <version>2.12.1</version>
 </dependency>
 ```
 
@@ -43,7 +43,8 @@ Maven:
 
 ### Requirements
 #### Minimum Java version
-- Gson 2.9.0 and newer: Java 7
+- Gson 2.12.0 and newer: Java 8
+- Gson 2.9.0 to 2.11.0: Java 7
 - Gson 2.8.9 and older: Java 6
 
 Despite supporting older Java versions, Gson also provides a JPMS module descriptor (module name `com.google.gson`) for users of Java 9 or newer.
@@ -88,7 +89,7 @@ Gson uses Maven to build the project:
 mvn clean verify
 ```
 
-JDK 11 or newer is required for building, JDK 17 is recommended. Newer JDKs are currently not supported for building (but are supported when _using_ Gson).
+JDK 11 or newer is required for building, JDK 17 or 21 is recommended. Newer JDKs are currently not supported for building (but are supported when _using_ Gson).
 
 ### Contributing
 

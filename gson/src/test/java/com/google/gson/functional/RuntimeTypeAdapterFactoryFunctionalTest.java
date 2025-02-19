@@ -166,8 +166,8 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
         return null;
       }
 
-      final Map<String, TypeAdapter<?>> labelToDelegate = new LinkedHashMap<>();
-      final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate = new LinkedHashMap<>();
+      Map<String, TypeAdapter<?>> labelToDelegate = new LinkedHashMap<>();
+      Map<Class<?>, TypeAdapter<?>> subtypeToDelegate = new LinkedHashMap<>();
       for (Map.Entry<String, Class<?>> entry : labelToSubtype.entrySet()) {
         TypeAdapter<?> delegate = gson.getDelegateAdapter(this, TypeToken.get(entry.getValue()));
         labelToDelegate.put(entry.getKey(), delegate);

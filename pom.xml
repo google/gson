@@ -19,7 +19,7 @@
 
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson-parent</artifactId>
-  <version>2.11.1-SNAPSHOT</version>
+  <version>2.12.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Gson Parent</name>
@@ -38,12 +38,12 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>7</maven.compiler.release>
+    <maven.compiler.release>8</maven.compiler.release>
     <maven.compiler.testRelease>11</maven.compiler.testRelease>
 
     <!-- Make the build reproducible, see https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
     <!-- Automatically updated by Maven Release Plugin -->
-    <project.build.outputTimestamp>2024-05-19T18:54:10Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-01-30T22:50:39Z</project.build.outputTimestamp>
 
     <!-- These properties are to be overwritten by the Maven modules -->
     <!-- Whether this module is an integration test module -->
@@ -127,9 +127,9 @@
                 <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
                 <requireJavaVersion>
                   <!-- Other plugins of this build require at least JDK 11 -->
-                  <!-- Fail fast when building with JDK > 17 because it causes build failures,
-                    see https://github.com/google/gson/issues/2501 -->
-                  <version>[11,18)</version>
+                  <!-- Disallow newer JDK versions; they might introduce new lints, drop support for
+                    older compiler Java target versions or cause issues for some Maven plugins -->
+                  <version>[11,22)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -141,7 +141,7 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-        <version>2.43.0</version>
+        <version>2.44.2</version>
         <executions>
           <execution>
             <goals>
@@ -201,7 +201,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-artifact-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <goals>
@@ -228,6 +228,7 @@
             <compilerArgs>
               <!-- Args related to Error Prone, see: https://errorprone.info/docs/installation#maven -->
               <arg>-XDcompilePolicy=simple</arg>
+              <arg>--should-stop=ifError=FLOW</arg>
               <arg>-Xplugin:ErrorProne
                 -XepExcludedPaths:.*/generated-test-sources/protobuf/.*
                 -Xep:NotJavadoc:OFF <!-- Triggered by local class. -->
@@ -280,10 +281,9 @@
                 -Xep:UngroupedOverloads:WARN <!-- required by style guide -->
                 -Xep:UnnecessarilyFullyQualified
                 -Xep:UnnecessarilyUsedValue
-                -Xep:UnnecessaryAnonymousClass:OFF <!-- disabled: requires Java 8 -->
                 -Xep:UnnecessaryBoxedVariable:WARN
                 -Xep:UnnecessaryDefaultInEnumSwitch
-                -Xep:UnnecessaryFinal:OFF <!-- disabled: requires Java 8 -->
+                -Xep:UnnecessaryFinal
                 -Xep:UnnecessaryStaticImport:WARN <!-- required by style guide -->
                 -Xep:UnusedException
                 -Xep:UrlInSee
@@ -300,7 +300,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.31.0</version>
+                <version>2.36.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -308,7 +308,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.10.0</version>
+          <version>3.11.2</version>
           <configuration>
             <skip>${gson.isTestModule}</skip>
 
@@ -338,12 +338,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.5.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.5.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -369,7 +369,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>3.2.5</version>
+          <version>3.2.7</version>
           <configuration>
             <skip>${gson.isTestModule}</skip>
           </configuration>
@@ -404,6 +404,7 @@
           </configuration>
         </plugin>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-antrun-plugin</artifactId>
           <version>3.1.0</version>
           <executions>
@@ -473,7 +474,7 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.23.0</version>
+          <version>0.23.1</version>
           <configuration>
             <skip>${gson.isTestModule}</skip>
 
@@ -535,11 +536,11 @@
   </build>
 
   <profiles>
-    <!-- Disable Error Prone in Java 15 -->
+    <!-- Disable Error Prone before Java 17 -->
     <profile>
-      <id>jdk15</id>
+      <id>disable-error-prone</id>
       <activation>
-        <jdk>15</jdk>
+        <jdk>[,17)</jdk>
       </activation>
       <build>
         <plugins>
@@ -554,20 +555,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-
-    <!-- Slightly adjust build to support building with JDK >= 21
-      However, by default this will intentionally be blocked by the Maven Enforcer Plugin defined above
-      and must be explicitly circumvented to avoid building non-release Gson artifacts by accident -->
-    <profile>
-      <id>jdk21+</id>
-      <activation>
-        <jdk>[21,)</jdk>
-      </activation>
-      <properties>
-        <!-- JDK 21 does not support Java 7 as release, must use at least Java 8 -->
-        <maven.compiler.release>8</maven.compiler.release>
-      </properties>
     </profile>
 
     <!-- Profile defining additional plugins to be executed for release -->

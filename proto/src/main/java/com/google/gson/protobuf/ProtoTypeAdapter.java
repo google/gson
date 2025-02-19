@@ -196,7 +196,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
      * ...will be serialized as '{@code bar}' if {@code shouldUseJsonNameFieldOption} is set to
      * {@code true} and the '{@code serialized_name}' annotation is added to the adapter.
      *
-     * @since $next-version$
+     * @since 2.12.0
      */
     @CanIgnoreReturnValue
     public Builder setShouldUseJsonNameFieldOption(boolean shouldUseJsonNameFieldOption) {
@@ -254,10 +254,10 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
   @Override
   public JsonElement serialize(Message src, Type typeOfSrc, JsonSerializationContext context) {
     JsonObject ret = new JsonObject();
-    final Map<FieldDescriptor, Object> fields = src.getAllFields();
+    Map<FieldDescriptor, Object> fields = src.getAllFields();
 
     for (Map.Entry<FieldDescriptor, Object> fieldPair : fields.entrySet()) {
-      final FieldDescriptor desc = fieldPair.getKey();
+      FieldDescriptor desc = fieldPair.getKey();
       String name = getCustSerializedName(desc);
 
       if (desc.getType() == ENUM_TYPE) {

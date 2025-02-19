@@ -127,5 +127,6 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
     return delegate.hashCode();
   }
 
-  // TODO: Once Gson targets Java 8 also override List.sort
+  // Maybe also delegate List#sort and List#spliterator in the future, but that
+  // requires Android API level 24
 }

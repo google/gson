@@ -45,6 +45,7 @@ import org.junit.Test;
  * Running Maven's {@code clean} phase is necessary due to a <a
  * href="https://github.com/bndtools/bnd/issues/6221">bnd-maven-plugin bug</a>.
  */
+@SuppressWarnings("MemberName") // class name must end with 'IT' for Maven Failsafe Plugin
 public class OSGiManifestIT {
   private static class ManifestData {
     public final URL url;
@@ -113,7 +114,10 @@ public class OSGiManifestIT {
         .containsExactly(
             // Dependency on JDK's sun.misc.Unsafe should be optional
             "sun.misc;resolution:=optional",
-            "com.google.errorprone.annotations;version=\"" + errorProneVersionRange + "\"");
+            // Dependency on error prone should be optional
+            "com.google.errorprone.annotations;resolution:=optional;version=\""
+                + errorProneVersionRange
+                + "\"");
 
     // Should not contain any import for Gson's own packages, see
     // https://github.com/google/gson/pull/2735#issuecomment-2330047410
@@ -144,8 +148,7 @@ public class OSGiManifestIT {
 
   @Test
   public void testRequireCapability() {
-    // When building with JDK >= 21, the minimum target version is Java 8
-    String expectedJavaVersion = Runtime.version().feature() < 21 ? "1.7" : "1.8";
+    String expectedJavaVersion = "1.8";
 
     // Defines the minimum required Java version
     assertThat(getAttribute("Require-Capability"))

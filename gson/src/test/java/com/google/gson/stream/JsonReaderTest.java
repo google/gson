@@ -2171,7 +2171,7 @@ public final class JsonReaderTest {
   }
 
   /** Returns a reader that returns one character at a time. */
-  private static Reader reader(final String s) {
+  private static Reader reader(String s) {
     /* if (true) */ return new StringReader(s);
     /* return new Reader() {
       int position = 0;

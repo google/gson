@@ -16,12 +16,12 @@
 
 package com.google.gson;
 
-import com.google.common.base.Objects;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.Primitives;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 /**
  * This class contains some test fixtures for Parameterized types. These classes should ideally
@@ -82,7 +82,7 @@ public class ParameterizedTypeFixtures {
         return false;
       }
       MyParameterizedType<?> that = (MyParameterizedType<?>) obj;
-      return Objects.equal(getValue(), that.getValue());
+      return Objects.equals(getValue(), that.getValue());
     }
   }
 

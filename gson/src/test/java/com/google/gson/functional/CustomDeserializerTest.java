@@ -123,15 +123,12 @@ public class CustomDeserializerTest {
         new GsonBuilder()
             .registerTypeAdapter(
                 MyBase.class,
-                new JsonDeserializer<MyBase>() {
-                  @Override
-                  public MyBase deserialize(
-                      JsonElement json, Type pojoType, JsonDeserializationContext context)
-                      throws JsonParseException {
-                    String type = json.getAsJsonObject().get(MyBase.TYPE_ACCESS).getAsString();
-                    return context.deserialize(json, SubTypes.valueOf(type).getSubclass());
-                  }
-                })
+                (JsonDeserializer<MyBase>)
+                    (json1, pojoType, context) -> {
+                      String type = json1.getAsJsonObject().get(MyBase.TYPE_ACCESS).getAsString();
+
+                      return context.deserialize(json1, SubTypes.valueOf(type).getSubclass());
+                    })
             .create();
     SubType1 target = (SubType1) gson.fromJson(json, MyBase.class);
     assertThat(target.field1).isEqualTo("abc");
@@ -170,15 +167,7 @@ public class CustomDeserializerTest {
     Gson gson =
         new GsonBuilder()
             .registerTypeAdapter(
-                Base.class,
-                new JsonDeserializer<Base>() {
-                  @Override
-                  public Base deserialize(
-                      JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                      throws JsonParseException {
-                    return null;
-                  }
-                })
+                Base.class, (JsonDeserializer<Base>) (json, typeOfT, context) -> null)
             .create();
     String json = "{baseName:'Base',subName:'SubRevised'}";
     Base target = gson.fromJson(json, Base.class);
@@ -190,15 +179,7 @@ public class CustomDeserializerTest {
     Gson gson =
         new GsonBuilder()
             .registerTypeAdapter(
-                Base.class,
-                new JsonDeserializer<Base>() {
-                  @Override
-                  public Base deserialize(
-                      JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                      throws JsonParseException {
-                    return null;
-                  }
-                })
+                Base.class, (JsonDeserializer<Base>) (json, typeOfT, context) -> null)
             .create();
     String json = "{base:{baseName:'Base',subName:'SubRevised'}}";
     ClassWithBaseField target = gson.fromJson(json, ClassWithBaseField.class);
@@ -210,15 +191,7 @@ public class CustomDeserializerTest {
     Gson gson =
         new GsonBuilder()
             .registerTypeAdapter(
-                Base.class,
-                new JsonDeserializer<Base>() {
-                  @Override
-                  public Base deserialize(
-                      JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                      throws JsonParseException {
-                    return null;
-                  }
-                })
+                Base.class, (JsonDeserializer<Base>) (json, typeOfT, context) -> null)
             .create();
     String json = "[{baseName:'Base'},{baseName:'Base'}]";
     Base[] target = gson.fromJson(json, Base[].class);
@@ -231,15 +204,7 @@ public class CustomDeserializerTest {
     Gson gson =
         new GsonBuilder()
             .registerTypeAdapter(
-                Base.class,
-                new JsonDeserializer<Base>() {
-                  @Override
-                  public Base deserialize(
-                      JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                      throws JsonParseException {
-                    return null;
-                  }
-                })
+                Base.class, (JsonDeserializer<Base>) (json, typeOfT, context) -> null)
             .create();
     String json = "{bases:[{baseName:'Base'},{baseName:'Base'}]}";
     ClassWithBaseArray target = gson.fromJson(json, ClassWithBaseArray.class);

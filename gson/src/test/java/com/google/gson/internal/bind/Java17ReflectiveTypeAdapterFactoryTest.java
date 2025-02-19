@@ -87,7 +87,7 @@ public class Java17ReflectiveTypeAdapterFactoryTest {
 
     @Override
     public T read(JsonReader in) throws IOException {
-      final String name = in.nextString();
+      String name = in.nextString();
       // This type adapter is only used for Group and User Principal, both of which are implemented
       // by PrincipalImpl.
       @SuppressWarnings("unchecked")
