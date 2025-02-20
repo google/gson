@@ -574,7 +574,7 @@ public class JsonReader implements Closeable {
       case PEEKED_NUMBER:
         return JsonToken.NUMBER;
       default:
-        assert(p == PEEKED_EOF);
+        assert (p == PEEKED_EOF);
         return JsonToken.END_DOCUMENT;
     }
   }
