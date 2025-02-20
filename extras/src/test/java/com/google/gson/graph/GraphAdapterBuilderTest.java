@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.InstanceCreator;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -85,14 +84,7 @@ public final class GraphAdapterBuilderTest {
   public void testAddTypeCustomInstanceCreator() {
     GsonBuilder gsonBuilder = new GsonBuilder();
     new GraphAdapterBuilder()
-        .addType(
-            Company.class,
-            new InstanceCreator<Company>() {
-              @Override
-              public Company createInstance(Type type) {
-                return new Company("custom");
-              }
-            })
+        .addType(Company.class, type -> new Company("custom"))
         .addType(Employee.class)
         .registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
@@ -110,23 +102,9 @@ public final class GraphAdapterBuilderTest {
   public void testAddTypeOverwrite() {
     GsonBuilder gsonBuilder = new GsonBuilder();
     new GraphAdapterBuilder()
-        .addType(
-            Company.class,
-            new InstanceCreator<Company>() {
-              @Override
-              public Company createInstance(Type type) {
-                return new Company("custom");
-              }
-            })
+        .addType(Company.class, type -> new Company("custom"))
         // Overwrite Company creator with different custom one
-        .addType(
-            Company.class,
-            new InstanceCreator<Company>() {
-              @Override
-              public Company createInstance(Type type) {
-                return new Company("custom-2");
-              }
-            })
+        .addType(Company.class, type -> new Company("custom-2"))
         .addType(Employee.class)
         .registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
@@ -136,14 +114,7 @@ public final class GraphAdapterBuilderTest {
 
     gsonBuilder = new GsonBuilder();
     new GraphAdapterBuilder()
-        .addType(
-            Company.class,
-            new InstanceCreator<Company>() {
-              @Override
-              public Company createInstance(Type type) {
-                return new Company("custom");
-              }
-            })
+        .addType(Company.class, type -> new Company("custom"))
         // Overwrite Company creator with default one
         .addType(Company.class)
         .addType(Employee.class)
