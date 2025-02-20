@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonElement;
-import com.google.gson.ReflectionAccessFilter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.ConstructorConstructor;
@@ -77,8 +76,7 @@ public final class GraphAdapterBuilder {
   public GraphAdapterBuilder() {
     this.instanceCreators = new HashMap<>();
     this.constructorConstructor =
-        new ConstructorConstructor(
-            instanceCreators, true, Collections.<ReflectionAccessFilter>emptyList());
+        new ConstructorConstructor(instanceCreators, true, Collections.emptyList());
   }
 
   /**
