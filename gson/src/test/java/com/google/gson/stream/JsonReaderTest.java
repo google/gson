@@ -2108,6 +2108,18 @@ public final class JsonReaderTest {
     assertThat(token).isEqualTo(JsonToken.NUMBER);
   }
 
+  /** Test that an unclosed c-style comment throws invalid syntax exception. */
+  @Test
+  public void testUnclosedCommentThrowsException() throws IOException {
+    JsonReader reader = new JsonReader(reader("/*    d"));
+    reader.setStrictness(Strictness.LENIENT);
+    var e = assertThrows(MalformedJsonException.class, reader::doPeek);
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Unterminated comment at line 1 column 7 path $\n"
+            + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
+  }
+
   private static void assertStrictError(MalformedJsonException exception, String expectedLocation) {
     assertThat(exception)
         .hasMessageThat()
