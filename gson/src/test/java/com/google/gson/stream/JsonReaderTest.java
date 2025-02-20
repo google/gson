@@ -2120,6 +2120,18 @@ public final class JsonReaderTest {
             + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
+  /** Test that an unclosed string throws invalid syntax exception. */
+  @Test
+  public void testUnclosedStringThrowsException() throws IOException {
+    JsonReader reader = new JsonReader(reader("{\"test\": \"string"));
+    reader.setStrictness(Strictness.LENIENT);
+    var e = assertThrows(MalformedJsonException.class, reader::skipValue);
+    assertThat(e)
+            .hasMessageThat()
+            .isEqualTo("Unterminated string at line 1 column 17 path $.\n"
+                    + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
+  }
+
   private static void assertStrictError(MalformedJsonException exception, String expectedLocation) {
     assertThat(exception)
         .hasMessageThat()
