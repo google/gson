@@ -104,6 +104,7 @@ All refactored functions live in the refactor branch.
 
 * [ISO8601Utils.java](https://github.com/group-15-dd2480/Assignment-3/blob/6767e0c24dc9e2bfc23e8f79f9ae4b51521552c3/gson/src/main/java/com/google/gson/internal/bind/util/ISO8601Utils.java)
 * [LinkedTreeMap.java](https://github.com/group-15-dd2480/Assignment-3/blob/6767e0c24dc9e2bfc23e8f79f9ae4b51521552c3/gson/src/main/java/com/google/gson/internal/LinkedTreeMap.java)
+* [JsonReader.java](https://github.com/group-15-dd2480/Assignment-3/blob/6767e0c24dc9e2bfc23e8f79f9ae4b51521552c3/gson/src/main/java/com/google/gson/stream/JsonReader.java)
 
 ### Plans
 
