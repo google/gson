@@ -293,9 +293,9 @@ public class JsonReader implements Closeable {
   private String peekedString;
 
   /** The nesting stack. Using a manual array rather than an ArrayList saves 20%. */
-  private int[] stack = new int[32];
+  public int[] stack = new int[32];
 
-  private int stackSize = 0;
+  public int stackSize = 0;
 
   {
     stack[stackSize++] = JsonScope.EMPTY_DOCUMENT;
@@ -1648,7 +1648,7 @@ public class JsonReader implements Closeable {
     return " at line " + line + " column " + column + " path " + getPath();
   }
 
-  private String getPath(boolean usePreviousPath) {
+  public String getPath(boolean usePreviousPath) {
     StringBuilder result = new StringBuilder().append('$');
     for (int i = 0; i < stackSize; i++) {
       int scope = stack[i];

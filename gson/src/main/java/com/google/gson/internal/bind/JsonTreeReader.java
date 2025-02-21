@@ -349,7 +349,7 @@ public final class JsonTreeReader extends JsonReader {
     stack[stackSize++] = newTop;
   }
 
-  private String getPath(boolean usePreviousPath) {
+  public String getPath(boolean usePreviousPath) {
     StringBuilder result = new StringBuilder().append('$');
     for (int i = 0; i < stackSize; i++) {
       if (stack[i] instanceof JsonArray) {

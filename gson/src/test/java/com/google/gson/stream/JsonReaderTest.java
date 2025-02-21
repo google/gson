@@ -2116,8 +2116,9 @@ public final class JsonReaderTest {
     var e = assertThrows(MalformedJsonException.class, reader::doPeek);
     assertThat(e)
         .hasMessageThat()
-        .isEqualTo("Unterminated comment at line 1 column 7 path $\n"
-            + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
+        .isEqualTo(
+            "Unterminated comment at line 1 column 7 path $\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
   }
 
   /** Test that an unclosed string throws invalid syntax exception. */
@@ -2127,9 +2128,26 @@ public final class JsonReaderTest {
     reader.setStrictness(Strictness.LENIENT);
     var e = assertThrows(MalformedJsonException.class, reader::skipValue);
     assertThat(e)
-            .hasMessageThat()
-            .isEqualTo("Unterminated string at line 1 column 17 path $.\n"
-                    + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
+        .hasMessageThat()
+        .isEqualTo(
+            "Unterminated string at line 1 column 17 path $.\n"
+                + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
+  }
+
+  @Test
+  public void testUnknownScopeThrowsAssertionError() {
+    JsonReader reader = new JsonReader(reader("{\"test\": \"string"));
+    reader.stack[0] = -999; // Invalid scope value
+    reader.stackSize = 1;
+
+    AssertionError thrown =
+        assertThrows(
+            AssertionError.class,
+            () -> {
+              reader.getPath(false);
+            });
+
+    assertThat(thrown).hasMessageThat().contains("Unknown scope value");
   }
 
   private static void assertStrictError(MalformedJsonException exception, String expectedLocation) {
