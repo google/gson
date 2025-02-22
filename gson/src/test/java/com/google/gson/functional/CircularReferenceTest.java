@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 
 /**
  * Functional tests related to circular reference detection and error reporting.
@@ -52,7 +53,7 @@ public class CircularReferenceTest {
     a.children.add(b);
     b.children.add(a);
     // Circular types should not get printed
-    assertThrows(StackOverflowError.class, () -> gson.toJson(a));
+    assertThrowsStackOverflow(() -> gson.toJson(a));
   }
 
   @Test
@@ -70,7 +71,7 @@ public class CircularReferenceTest {
     objA.children = new ClassWithSelfReferenceArray[] {objA};
 
     // Circular reference to self can not be serialized
-    assertThrows(StackOverflowError.class, () -> gson.toJson(objA));
+    assertThrowsStackOverflow(() -> gson.toJson(objA));
   }
 
   @Test
@@ -96,7 +97,15 @@ public class CircularReferenceTest {
             .create();
 
     // Circular reference to self can not be serialized
-    assertThrows(StackOverflowError.class, () -> gson.toJson(obj));
+    assertThrowsStackOverflow(() -> gson.toJson(obj));
+  }
+
+  /** Asserts that a {@link StackOverflowError} is thrown. */
+  private static void assertThrowsStackOverflow(ThrowingRunnable runnable) {
+    // In most cases a StackOverflowError is thrown; however if that error occurs within the JDK
+    // code, it might actually be wrapped in another exception class, for example InternalError
+    // Because this is JDK implementation dependent assume at least that any Throwable is thrown
+    assertThrows(Throwable.class, runnable);
   }
 
   @Test
