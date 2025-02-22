@@ -496,7 +496,7 @@ public final class Gson {
         }
         float floatValue = value.floatValue();
         checkValidFloatingPoint(floatValue);
-        // For backward compatibility don't call `JsonWriter.value(float)` because that method has
+        // For backward compatibility don't call `JsonWriter#value(float)` because that method has
         // been newly added and not all custom JsonWriter implementations might override it yet
         Number floatNumber = value instanceof Float ? value : floatValue;
         out.value(floatNumber);
