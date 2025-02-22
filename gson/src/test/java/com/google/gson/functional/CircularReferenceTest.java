@@ -18,6 +18,7 @@ package com.google.gson.functional;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import com.google.common.base.Throwables;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -102,10 +103,10 @@ public class CircularReferenceTest {
 
   /** Asserts that a {@link StackOverflowError} is thrown. */
   private static void assertThrowsStackOverflow(ThrowingRunnable runnable) {
-    // In most cases a StackOverflowError is thrown; however if that error occurs within the JDK
-    // code, it might actually be wrapped in another exception class, for example InternalError
-    // Because this is JDK implementation dependent assume at least that any Throwable is thrown
-    assertThrows(Throwable.class, runnable);
+    // Obtain the root cause because the StackOverflowError might occur in JDK code, and that might
+    // wrap it in another exception class, for example InternalError
+    Throwable t = assertThrows(Throwable.class, runnable);
+    assertThat(Throwables.getRootCause(t)).isInstanceOf(StackOverflowError.class);
   }
 
   @Test
