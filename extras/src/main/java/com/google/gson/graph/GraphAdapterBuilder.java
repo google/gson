@@ -76,7 +76,7 @@ public final class GraphAdapterBuilder {
   public GraphAdapterBuilder() {
     this.instanceCreators = new HashMap<>();
     this.constructorConstructor =
-        new ConstructorConstructor(instanceCreators, true, Collections.emptyList());
+        new ConstructorConstructor(Collections.emptyMap(), true, Collections.emptyList());
   }
 
   /**
@@ -121,6 +121,8 @@ public final class GraphAdapterBuilder {
    * @param gsonBuilder the {@code GsonBuilder} on which to register the graph adapter
    */
   public void registerOn(GsonBuilder gsonBuilder) {
+    // Create copy to allow reusing GraphAdapterBuilder without affecting adapter factory
+    Map<Type, InstanceCreator<?>> instanceCreators = new HashMap<>(this.instanceCreators);
     Factory factory = new Factory(instanceCreators);
     gsonBuilder.registerTypeAdapterFactory(factory);
     for (Map.Entry<Type, InstanceCreator<?>> entry : instanceCreators.entrySet()) {
