@@ -17,19 +17,24 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -169,6 +174,58 @@ public class CollectionTest {
     assertThat(target.pop()).isEqualTo(13);
     assertThat(target.pop()).isEqualTo(11);
     assertThat(json).isEqualTo("[11,13,17]");
+  }
+
+  private static class CollectionWithoutNoArgsConstructor<E> extends AbstractCollection<E> {
+    // Remove implicit no-args constructor
+    public CollectionWithoutNoArgsConstructor(int unused) {}
+
+    @Override
+    public boolean add(E e) {
+      throw new AssertionError("not used by test");
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+      return Collections.emptyIterator();
+    }
+
+    @Override
+    public int size() {
+      return 0;
+    }
+  }
+
+  /**
+   * Tests that when a custom Collection class without no-args constructor is deserialized, Gson
+   * does not use JDK Unsafe to create an instance, since that likely leads to a broken Collection
+   * instance.
+   */
+  @Test
+  public void testCollectionWithoutNoArgsConstructor() {
+    var collectionType = new TypeToken<CollectionWithoutNoArgsConstructor<String>>() {};
+    JsonIOException e =
+        assertThrows(JsonIOException.class, () -> gson.fromJson("[]", collectionType));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Unable to create instance of "
+                + CollectionWithoutNoArgsConstructor.class
+                + "; Register an InstanceCreator or a TypeAdapter for this type.");
+
+    // But serialization should work fine
+    assertThat(gson.toJson(new CollectionWithoutNoArgsConstructor<>(0))).isEqualTo("[]");
+
+    // Deserialization should work when registering custom creator
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                CollectionWithoutNoArgsConstructor.class,
+                (InstanceCreator<CollectionWithoutNoArgsConstructor<?>>)
+                    type -> new CollectionWithoutNoArgsConstructor<>(0))
+            .create();
+    var collection = gson.fromJson("[]", collectionType);
+    assertThat(collection).isInstanceOf(CollectionWithoutNoArgsConstructor.class);
   }
 
   @Test
