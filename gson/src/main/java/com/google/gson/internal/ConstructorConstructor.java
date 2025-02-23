@@ -316,19 +316,19 @@ public final class ConstructorConstructor {
 
     // First try List implementation
     if (rawType.isAssignableFrom(ArrayList.class)) {
-      return ArrayList::new;
+      return () -> new ArrayList<>();
     }
     // Then try Set implementation
     else if (rawType.isAssignableFrom(LinkedHashSet.class)) {
-      return LinkedHashSet::new;
+      return () -> new LinkedHashSet<>();
     }
     // Then try SortedSet / NavigableSet implementation
     else if (rawType.isAssignableFrom(TreeSet.class)) {
-      return TreeSet::new;
+      return () -> new TreeSet<>();
     }
     // Then try Queue implementation
     else if (rawType.isAssignableFrom(ArrayDeque.class)) {
-      return ArrayDeque::new;
+      return () -> new ArrayDeque<>();
     }
 
     // Was unable to create matching Collection constructor
@@ -356,21 +356,21 @@ public final class ConstructorConstructor {
      * values for older JDKs; use own LinkedTreeMap<String, Object> instead
      */
     if (rawType.isAssignableFrom(LinkedTreeMap.class) && hasStringKeyType(type)) {
-      return LinkedTreeMap::new;
+      return () -> new LinkedTreeMap<>();
     } else if (rawType.isAssignableFrom(LinkedHashMap.class)) {
-      return LinkedHashMap::new;
+      return () -> new LinkedHashMap<>();
     }
     // Then try SortedMap / NavigableMap implementation
     else if (rawType.isAssignableFrom(TreeMap.class)) {
-      return TreeMap::new;
+      return () -> new TreeMap<>();
     }
     // Then try ConcurrentMap implementation
     else if (rawType.isAssignableFrom(ConcurrentHashMap.class)) {
-      return ConcurrentHashMap::new;
+      return () -> new ConcurrentHashMap<>();
     }
     // Then try ConcurrentNavigableMap implementation
     else if (rawType.isAssignableFrom(ConcurrentSkipListMap.class)) {
-      return ConcurrentSkipListMap::new;
+      return () -> new ConcurrentSkipListMap<>();
     }
 
     // Was unable to create matching Map constructor
