@@ -25,6 +25,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
@@ -35,11 +36,13 @@ import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -387,6 +390,51 @@ public class MapTest {
     src.put("three", 3L);
 
     assertThat(gson.toJson(src, type)).isEqualTo("[1,2,3]");
+  }
+
+  private static class MapWithoutNoArgsConstructor<K, V> extends AbstractMap<K, V> {
+    // Remove implicit no-args constructor
+    public MapWithoutNoArgsConstructor(int unused) {}
+
+    @Override
+    public V put(K key, V value) {
+      throw new AssertionError("not used by test");
+    }
+
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+      return Set.of();
+    }
+  }
+
+  /**
+   * Tests that when a custom Map class without no-args constructor is deserialized, Gson does not
+   * use JDK Unsafe to create an instance, since that likely leads to a broken Map instance.
+   */
+  @Test
+  public void testMapWithoutNoArgsConstructor() {
+    var mapType = new TypeToken<MapWithoutNoArgsConstructor<String, String>>() {};
+    JsonIOException e = assertThrows(JsonIOException.class, () -> gson.fromJson("{}", mapType));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Unable to create instance of "
+                + MapWithoutNoArgsConstructor.class
+                + "; Register an InstanceCreator or a TypeAdapter for this type.");
+
+    // But serialization should work fine
+    assertThat(gson.toJson(new MapWithoutNoArgsConstructor<>(0))).isEqualTo("{}");
+
+    // Deserialization should work when registering custom creator
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                MapWithoutNoArgsConstructor.class,
+                (InstanceCreator<MapWithoutNoArgsConstructor<?, ?>>)
+                    type -> new MapWithoutNoArgsConstructor<>(0))
+            .create();
+    var map = gson.fromJson("{}", mapType);
+    assertThat(map).isInstanceOf(MapWithoutNoArgsConstructor.class);
   }
 
   /** Created in response to http://code.google.com/p/google-gson/issues/detail?id=99 */

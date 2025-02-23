@@ -88,7 +88,19 @@ public final class ConstructorConstructor {
     return null;
   }
 
+  /** Calls {@link #get(TypeToken, boolean)}, and allows usage of JDK Unsafe. */
   public <T> ObjectConstructor<T> get(TypeToken<T> typeToken) {
+    return get(typeToken, true);
+  }
+
+  /**
+   * Retrieves an object constructor for the given type.
+   *
+   * @param typeToken type for which a constructor should be retrieved
+   * @param allowUnsafe whether to allow usage of JDK Unsafe; has no effect if {@link #useJdkUnsafe}
+   *     is false
+   */
+  public <T> ObjectConstructor<T> get(TypeToken<T> typeToken, boolean allowUnsafe) {
     Type type = typeToken.getType();
     Class<? super T> rawType = typeToken.getRawType();
 
@@ -136,12 +148,19 @@ public final class ConstructorConstructor {
       };
     }
 
+    if (!allowUnsafe) {
+      String message =
+          "Unable to create instance of "
+              + rawType
+              + "; Register an InstanceCreator or a TypeAdapter for this type.";
+      return () -> {
+        throw new JsonIOException(message);
+      };
+    }
+
     // Consider usage of Unsafe as reflection, so don't use if BLOCK_ALL
     // Additionally, since it is not calling any constructor at all, don't use if BLOCK_INACCESSIBLE
-    if (filterResult == FilterResult.ALLOW) {
-      // finally try unsafe
-      return newUnsafeAllocator(rawType);
-    } else {
+    if (filterResult != FilterResult.ALLOW) {
       String message =
           "Unable to create instance of "
               + rawType
@@ -152,6 +171,9 @@ public final class ConstructorConstructor {
         throw new JsonIOException(message);
       };
     }
+
+    // finally try unsafe
+    return newUnsafeAllocator(rawType);
   }
 
   /**

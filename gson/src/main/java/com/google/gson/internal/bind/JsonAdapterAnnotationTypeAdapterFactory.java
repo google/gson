@@ -90,7 +90,10 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     // TODO: The exception messages created by ConstructorConstructor are currently written in the
     // context of deserialization and for example suggest usage of TypeAdapter, which would not work
     // for @JsonAdapter usage
-    return constructorConstructor.get(TypeToken.get(adapterClass)).construct();
+    // TODO: Should probably not allow usage of Unsafe; instances might be in broken state and
+    // calling adapter methods on them might lead to confusing exceptions
+    boolean allowUnsafe = true;
+    return constructorConstructor.get(TypeToken.get(adapterClass), allowUnsafe).construct();
   }
 
   private TypeAdapterFactory putFactoryAndGetCurrent(Class<?> rawType, TypeAdapterFactory factory) {

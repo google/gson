@@ -51,7 +51,10 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
     TypeAdapter<?> elementTypeAdapter = gson.getAdapter(TypeToken.get(elementType));
     TypeAdapter<?> wrappedTypeAdapter =
         new TypeAdapterRuntimeTypeWrapper<>(gson, elementTypeAdapter, elementType);
-    ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
+    // Don't allow Unsafe usage to create instance; instances might be in broken state and calling
+    // Collection methods could lead to confusing exceptions
+    boolean allowUnsafe = false;
+    ObjectConstructor<T> constructor = constructorConstructor.get(typeToken, allowUnsafe);
 
     @SuppressWarnings({"unchecked", "rawtypes"}) // create() doesn't define a type parameter
     TypeAdapter<T> result = new Adapter(wrappedTypeAdapter, constructor);
