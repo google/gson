@@ -242,7 +242,7 @@
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-core</artifactId>
-            <version>9.1.7</version>
+            <version>9.1.8</version>
           </dependency>
         </dependencies>
         <configuration>
