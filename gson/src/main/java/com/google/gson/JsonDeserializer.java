@@ -49,7 +49,7 @@ import java.lang.reflect.Type;
  * <pre>
  * class IdDeserializer implements JsonDeserializer&lt;Id&gt; {
  *   public Id deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
- *       throws JsonParseException {
+ *       throws JsonSyntaxException {
  *     long idValue = json.getAsJsonPrimitive().getAsLong();
  *     return new Id((Class) typeOfT, idValue);
  *   }
@@ -88,8 +88,8 @@ public interface JsonDeserializer<T> {
    * @param json The Json data being deserialized
    * @param typeOfT The type of the Object to deserialize to
    * @return a deserialized object of the specified type typeOfT which is a subclass of {@code T}
-   * @throws JsonParseException if json is not in the expected format of {@code typeOfT}
+   * @throws JsonSyntaxException if json is not in the expected format of {@code typeOfT}
    */
   public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-      throws JsonParseException;
+      throws JsonSyntaxException;
 }
