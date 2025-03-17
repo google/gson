@@ -16,6 +16,7 @@
 
 package com.google.gson.graph;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
@@ -85,6 +86,7 @@ public final class GraphAdapterBuilder {
    * @param type the type to register
    * @return this builder instance for chaining
    */
+  @CanIgnoreReturnValue
   public GraphAdapterBuilder addType(Type type) {
     ObjectConstructor<?> objectConstructor = constructorConstructor.get(TypeToken.get(type));
     InstanceCreator<Object> instanceCreator =
@@ -105,6 +107,7 @@ public final class GraphAdapterBuilder {
    *     deserialization
    * @return this builder instance for chaining
    */
+  @CanIgnoreReturnValue
   public GraphAdapterBuilder addType(Type type, InstanceCreator<?> instanceCreator) {
     if (type == null || instanceCreator == null) {
       throw new NullPointerException();
