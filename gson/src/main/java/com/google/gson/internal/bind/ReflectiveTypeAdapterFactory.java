@@ -156,7 +156,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       return adapter;
     }
 
-    ObjectConstructor<T> constructor = constructorConstructor.get(type);
+    ObjectConstructor<T> constructor = constructorConstructor.get(type, true);
     return new FieldReflectionAdapter<>(
         constructor, getBoundFields(gson, type, raw, blockInaccessible, false));
   }

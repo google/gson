@@ -140,7 +140,10 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     TypeAdapter<?> valueAdapter = gson.getAdapter(TypeToken.get(valueType));
     TypeAdapter<?> wrappedValueAdapter =
         new TypeAdapterRuntimeTypeWrapper<>(gson, valueAdapter, valueType);
-    ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
+    // Don't allow Unsafe usage to create instance; instances might be in broken state and calling
+    // Map methods could lead to confusing exceptions
+    boolean allowUnsafe = false;
+    ObjectConstructor<T> constructor = constructorConstructor.get(typeToken, allowUnsafe);
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     // we don't define a type parameter for the key or value types
