@@ -1098,12 +1098,12 @@ public final class Gson {
    * @param classOfT the class of T
    * @return an object of type T from the string. Returns {@code null} if {@code json} is {@code
    *     null} or if {@code json} is empty.
-   * @throws JsonSyntaxException if json is not a valid representation for an object of type
+   * @throws JsonParseException if json is not a valid representation for an object of type
    *     classOfT
    * @see #fromJson(Reader, Class)
    * @see #fromJson(String, TypeToken)
    */
-  public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
+  public <T> T fromJson(String json, Class<T> classOfT) throws JsonParseException {
     return fromJson(json, TypeToken.get(classOfT));
   }
 
