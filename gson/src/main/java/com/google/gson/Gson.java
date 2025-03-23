@@ -1098,8 +1098,7 @@ public final class Gson {
    * @param classOfT the class of T
    * @return an object of type T from the string. Returns {@code null} if {@code json} is {@code
    *     null} or if {@code json} is empty.
-   * @throws JsonParseException if json is not a valid representation for an object of type
-   *     classOfT
+   * @throws JsonParseException if json is not a valid representation for an object of type classOfT
    * @see #fromJson(Reader, Class)
    * @see #fromJson(String, TypeToken)
    */
