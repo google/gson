@@ -1,6 +1,12 @@
 name: Build
 
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      # Ignore Dependabot branches because it will also open a pull request, which would cause the
+      # workflow to redundantly run twice
+      - dependabot/**
+  pull_request:
 
 permissions:
   contents: read #  to fetch code (actions/checkout)
@@ -32,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: "Set up GraalVM"
-        uses: graalvm/setup-graalvm@aafbedb8d382ed0ca6167d3a051415f20c859274  # v1.2.8
+        uses: graalvm/setup-graalvm@b0cb26a8da53cb3e97cdc0c827d8e3071240e730  # v1.3.1
         with:
           java-version: '21'
           distribution: 'graalvm'

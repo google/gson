@@ -18,6 +18,7 @@ package com.google.gson.functional;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import com.google.common.base.Throwables;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 
 /**
  * Functional tests related to circular reference detection and error reporting.
@@ -52,7 +54,7 @@ public class CircularReferenceTest {
     a.children.add(b);
     b.children.add(a);
     // Circular types should not get printed
-    assertThrows(StackOverflowError.class, () -> gson.toJson(a));
+    assertThrowsStackOverflow(() -> gson.toJson(a));
   }
 
   @Test
@@ -70,7 +72,7 @@ public class CircularReferenceTest {
     objA.children = new ClassWithSelfReferenceArray[] {objA};
 
     // Circular reference to self can not be serialized
-    assertThrows(StackOverflowError.class, () -> gson.toJson(objA));
+    assertThrowsStackOverflow(() -> gson.toJson(objA));
   }
 
   @Test
@@ -96,7 +98,15 @@ public class CircularReferenceTest {
             .create();
 
     // Circular reference to self can not be serialized
-    assertThrows(StackOverflowError.class, () -> gson.toJson(obj));
+    assertThrowsStackOverflow(() -> gson.toJson(obj));
+  }
+
+  /** Asserts that a {@link StackOverflowError} is thrown. */
+  private static void assertThrowsStackOverflow(ThrowingRunnable runnable) {
+    // Obtain the root cause because the StackOverflowError might occur in JDK code, and that might
+    // wrap it in another exception class, for example InternalError
+    Throwable t = assertThrows(Throwable.class, runnable);
+    assertThat(Throwables.getRootCause(t)).isInstanceOf(StackOverflowError.class);
   }
 
   @Test

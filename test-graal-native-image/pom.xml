@@ -34,6 +34,18 @@
     <gson.isTestModule>true</gson.isTestModule>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>5.12.1</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>com.google.code.gson</groupId>
@@ -48,7 +60,14 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.11.4</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Explicitly need to define junit-platform-launcher dependency to avoid incompatibilities
+      with native-maven-plugin, see
+      https://github.com/graalvm/native-build-tools/issues/706 -->
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -118,7 +137,7 @@
           <plugin>
             <groupId>org.graalvm.buildtools</groupId>
             <artifactId>native-maven-plugin</artifactId>
-            <version>0.10.4</version>
+            <version>0.10.6</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -128,6 +147,10 @@
                 </goals>
                 <configuration>
                   <quickBuild>true</quickBuild>
+                  <buildArgs>
+                    <!-- Show stack traces to make troubleshooting build issues easier -->
+                    <buildArg>-H:+ReportExceptionStackTraces</buildArg>
+                  </buildArgs>
                 </configuration>
               </execution>
             </executions>
