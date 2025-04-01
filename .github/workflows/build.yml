@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - name: "Set up GraalVM"
-        uses: graalvm/setup-graalvm@b0cb26a8da53cb3e97cdc0c827d8e3071240e730  # v1.3.1
+        uses: graalvm/setup-graalvm@01ed653ac833fe80569f1ef9f25585ba2811baab  # v1.3.3
         with:
           java-version: '21'
           distribution: 'graalvm'
