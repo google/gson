@@ -147,7 +147,10 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
         // A race might lead to `delegate` being assigned by multiple threads but the last
         // assignment will stick
         TypeAdapter<T> d = delegate;
-        return d != null ? d : (delegate = gson.getDelegateAdapter(Excluder.this, type));
+        if (d == null) {
+          d = delegate = gson.getDelegateAdapter(Excluder.this, type);
+        }
+        return d;
       }
     };
   }
