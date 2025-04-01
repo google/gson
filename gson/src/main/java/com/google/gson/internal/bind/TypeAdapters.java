@@ -210,7 +210,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.byteValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which converts number
+            Number byteNumber = value instanceof Byte ? value : value.byteValue();
+            out.value(byteNumber);
           }
         }
       };
@@ -245,7 +247,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.shortValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which converts number
+            Number shortNumber = value instanceof Short ? value : value.shortValue();
+            out.value(shortNumber);
           }
         }
       };
@@ -273,7 +277,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.intValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which converts number
+            Number intNumber = value instanceof Integer ? value : value.intValue();
+            out.value(intNumber);
           }
         }
       };
@@ -368,7 +374,10 @@ public final class TypeAdapters {
         public void write(JsonWriter out, Number value) throws IOException {
           if (value == null) {
             out.nullValue();
+          } else if (value instanceof Long) {
+            out.value(value);
           } else {
+            // Only perform unwrapping if numeric conversion is necessary
             out.value(value.longValue());
           }
         }
@@ -389,11 +398,13 @@ public final class TypeAdapters {
         public void write(JsonWriter out, Number value) throws IOException {
           if (value == null) {
             out.nullValue();
+          } else if (value instanceof Float) {
+            out.value(value);
           } else {
-            // For backward compatibility don't call `JsonWriter.value(float)` because that method
+            // For backward compatibility don't call `JsonWriter#value(float)` because that method
             // has been newly added and not all custom JsonWriter implementations might override
             // it yet
-            Number floatNumber = value instanceof Float ? value : value.floatValue();
+            Number floatNumber = value.floatValue();
             out.value(floatNumber);
           }
         }
@@ -414,7 +425,10 @@ public final class TypeAdapters {
         public void write(JsonWriter out, Number value) throws IOException {
           if (value == null) {
             out.nullValue();
+          } else if (value instanceof Double) {
+            out.value(value);
           } else {
+            // Only perform unwrapping if numeric conversion is necessary
             out.value(value.doubleValue());
           }
         }
