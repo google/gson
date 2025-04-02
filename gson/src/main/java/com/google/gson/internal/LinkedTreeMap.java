@@ -451,13 +451,19 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   @Override
   public Set<Entry<K, V>> entrySet() {
     EntrySet result = entrySet;
-    return result != null ? result : (entrySet = new EntrySet());
+    if (result == null) {
+      result = entrySet = new EntrySet();
+    }
+    return result;
   }
 
   @Override
   public Set<K> keySet() {
     KeySet result = keySet;
-    return result != null ? result : (keySet = new KeySet());
+    if (result == null) {
+      result = keySet = new KeySet();
+    }
+    return result;
   }
 
   static final class Node<K, V> implements Entry<K, V> {
@@ -576,7 +582,8 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
         throw new ConcurrentModificationException();
       }
       next = e.next;
-      return lastReturned = e;
+      lastReturned = e;
+      return e;
     }
 
     @Override
