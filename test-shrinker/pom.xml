@@ -104,7 +104,6 @@
             <lib>${java.home}/jmods/java.compiler.jmod</lib>
           </libs>
           <!-- Include dependencies in the final JAR -->
-          <!-- Note: Currently causes warnings due to duplicate resource files, see https://github.com/wvengen/proguard-maven-plugin/issues/388 -->
           <includeDependencyInjar>true</includeDependencyInjar>
           <outjar>proguard-output.jar</outjar>
         </configuration>
