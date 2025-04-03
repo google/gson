@@ -49,6 +49,7 @@ public class ExportedPackagesTest {
   public void testAnnotationsPackage() throws Exception {
     class Annotated {
       @SerializedName("custom-name")
+      @SuppressWarnings("UnusedVariable")
       int i;
     }
 

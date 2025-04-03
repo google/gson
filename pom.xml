@@ -265,11 +265,13 @@
                 -Xep:NonCanonicalStaticMemberImport
                 -Xep:NonFinalStaticField
                 -Xep:PackageLocation:WARN
+                -Xep:PatternMatchingInstanceof:OFF <!-- disabled: requires Java 16 -->
                 -Xep:PrimitiveArrayPassedToVarargsMethod
                 -Xep:PrivateConstructorForUtilityClass:WARN
                 -Xep:RemoveUnusedImports:WARN
                 -Xep:StatementSwitchToExpressionSwitch:OFF <!-- disabled: requires Java 14 -->
                 -Xep:StaticQualifiedUsingExpression <!-- required by style guide -->
+                -Xep:StringConcatToTextBlock:OFF <!-- disabled: requires Java 15 -->
                 -Xep:SwitchDefault:WARN
                 -Xep:SystemExitOutsideMain
                 -Xep:SystemOut

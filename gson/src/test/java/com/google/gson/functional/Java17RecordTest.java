@@ -90,6 +90,7 @@ public final class Java17RecordTest {
     record LocalRecord(int i) {
       @SerializedName("a")
       @Override
+      @SuppressWarnings("UnusedMethod")
       public int i() {
         return i;
       }
@@ -170,6 +171,7 @@ public final class Java17RecordTest {
   public void testAccessorIsCalled() {
     record LocalRecord(String s) {
       @Override
+      @SuppressWarnings("UnusedMethod")
       public String s() {
         return "accessor-value";
       }
@@ -186,6 +188,7 @@ public final class Java17RecordTest {
       static final RuntimeException thrownException = new RuntimeException("Custom exception");
 
       @Override
+      @SuppressWarnings("UnusedMethod")
       public String s() {
         throw thrownException;
       }

@@ -113,9 +113,10 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
     // A race might lead to `delegate` being assigned by multiple threads but the last assignment
     // will stick
     TypeAdapter<T> d = delegate;
-    return d != null
-        ? d
-        : (delegate = gson.getDelegateAdapter(skipPastForGetDelegateAdapter, typeToken));
+    if (d == null) {
+      d = delegate = gson.getDelegateAdapter(skipPastForGetDelegateAdapter, typeToken);
+    }
+    return d;
   }
 
   /**
