@@ -18,7 +18,7 @@ package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.GsonTypes;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit tests for the {@code GenericArrayType}s created by the {@link $Gson$Types} class.
+ * Unit tests for the {@code GenericArrayType}s created by the {@link GsonTypes} class.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -38,8 +38,7 @@ public class GenericArrayTypeTest {
   @Before
   public void setUp() throws Exception {
     ourType =
-        $Gson$Types.arrayOf(
-            $Gson$Types.newParameterizedTypeWithOwner(null, List.class, String.class));
+        GsonTypes.arrayOf(GsonTypes.newParameterizedTypeWithOwner(null, List.class, String.class));
   }
 
   @Test

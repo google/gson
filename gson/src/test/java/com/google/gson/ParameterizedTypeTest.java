@@ -18,7 +18,7 @@ package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.GsonTypes;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit tests for {@code ParameterizedType}s created by the {@link $Gson$Types} class.
+ * Unit tests for {@code ParameterizedType}s created by the {@link GsonTypes} class.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -37,7 +37,7 @@ public class ParameterizedTypeTest {
 
   @Before
   public void setUp() throws Exception {
-    ourType = $Gson$Types.newParameterizedTypeWithOwner(null, List.class, String.class);
+    ourType = GsonTypes.newParameterizedTypeWithOwner(null, List.class, String.class);
   }
 
   @Test

@@ -16,7 +16,7 @@
 
 package com.google.gson.reflect;
 
-import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.GsonTypes;
 import com.google.gson.internal.TroubleshootingGuide;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -72,15 +72,15 @@ public class TypeToken<T> {
   @SuppressWarnings("unchecked")
   protected TypeToken() {
     this.type = getTypeTokenTypeArgument();
-    this.rawType = (Class<? super T>) $Gson$Types.getRawType(type);
+    this.rawType = (Class<? super T>) GsonTypes.getRawType(type);
     this.hashCode = type.hashCode();
   }
 
   /** Unsafe. Constructs a type literal manually. */
   @SuppressWarnings("unchecked")
   private TypeToken(Type type) {
-    this.type = $Gson$Types.canonicalize(Objects.requireNonNull(type));
-    this.rawType = (Class<? super T>) $Gson$Types.getRawType(this.type);
+    this.type = GsonTypes.canonicalize(Objects.requireNonNull(type));
+    this.rawType = (Class<? super T>) GsonTypes.getRawType(this.type);
     this.hashCode = this.type.hashCode();
   }
 
@@ -90,14 +90,14 @@ public class TypeToken<T> {
 
   /**
    * Verifies that {@code this} is an instance of a direct subclass of TypeToken and returns the
-   * type argument for {@code T} in {@link $Gson$Types#canonicalize canonical form}.
+   * type argument for {@code T} in {@link GsonTypes#canonicalize canonical form}.
    */
   private Type getTypeTokenTypeArgument() {
     Type superclass = getClass().getGenericSuperclass();
     if (superclass instanceof ParameterizedType) {
       ParameterizedType parameterized = (ParameterizedType) superclass;
       if (parameterized.getRawType() == TypeToken.class) {
-        Type typeArgument = $Gson$Types.canonicalize(parameterized.getActualTypeArguments()[0]);
+        Type typeArgument = GsonTypes.canonicalize(parameterized.getActualTypeArguments()[0]);
 
         if (isCapturingTypeVariablesForbidden()) {
           verifyNoTypeVariable(typeArgument);
@@ -193,11 +193,11 @@ public class TypeToken<T> {
     }
 
     if (type instanceof Class<?>) {
-      return rawType.isAssignableFrom($Gson$Types.getRawType(from));
+      return rawType.isAssignableFrom(GsonTypes.getRawType(from));
     } else if (type instanceof ParameterizedType) {
       return isAssignableFrom(from, (ParameterizedType) type, new HashMap<String, Type>());
     } else if (type instanceof GenericArrayType) {
-      return rawType.isAssignableFrom($Gson$Types.getRawType(from))
+      return rawType.isAssignableFrom(GsonTypes.getRawType(from))
           && isAssignableFrom(from, (GenericArrayType) type);
     } else {
       throw buildUnsupportedTypeException(
@@ -253,7 +253,7 @@ public class TypeToken<T> {
     }
 
     // First figure out the class and any type information.
-    Class<?> clazz = $Gson$Types.getRawType(from);
+    Class<?> clazz = GsonTypes.getRawType(from);
     ParameterizedType ptype = null;
     if (from instanceof ParameterizedType) {
       ptype = (ParameterizedType) from;
@@ -343,12 +343,12 @@ public class TypeToken<T> {
 
   @Override
   public final boolean equals(Object o) {
-    return o instanceof TypeToken<?> && $Gson$Types.equals(type, ((TypeToken<?>) o).type);
+    return o instanceof TypeToken<?> && GsonTypes.equals(type, ((TypeToken<?>) o).type);
   }
 
   @Override
   public final String toString() {
-    return $Gson$Types.typeToString(type);
+    return GsonTypes.typeToString(type);
   }
 
   /** Gets type literal for the given {@code Type} instance. */
@@ -412,7 +412,7 @@ public class TypeToken<T> {
     }
 
     // Check for this here to avoid misleading exception thrown by ParameterizedTypeImpl
-    if ($Gson$Types.requiresOwnerType(rawType)) {
+    if (GsonTypes.requiresOwnerType(rawType)) {
       throw new IllegalArgumentException(
           "Raw type "
               + rawClass.getName()
@@ -422,11 +422,11 @@ public class TypeToken<T> {
     for (int i = 0; i < expectedArgsCount; i++) {
       Type typeArgument =
           Objects.requireNonNull(typeArguments[i], "Type argument must not be null");
-      Class<?> rawTypeArgument = $Gson$Types.getRawType(typeArgument);
+      Class<?> rawTypeArgument = GsonTypes.getRawType(typeArgument);
       TypeVariable<?> typeVariable = typeVariables[i];
 
       for (Type bound : typeVariable.getBounds()) {
-        Class<?> rawBound = $Gson$Types.getRawType(bound);
+        Class<?> rawBound = GsonTypes.getRawType(bound);
 
         if (!rawBound.isAssignableFrom(rawTypeArgument)) {
           throw new IllegalArgumentException(
@@ -440,14 +440,13 @@ public class TypeToken<T> {
       }
     }
 
-    return new TypeToken<>(
-        $Gson$Types.newParameterizedTypeWithOwner(null, rawClass, typeArguments));
+    return new TypeToken<>(GsonTypes.newParameterizedTypeWithOwner(null, rawClass, typeArguments));
   }
 
   /**
    * Gets type literal for the array type whose elements are all instances of {@code componentType}.
    */
   public static TypeToken<?> getArray(Type componentType) {
-    return new TypeToken<>($Gson$Types.arrayOf(componentType));
+    return new TypeToken<>(GsonTypes.arrayOf(componentType));
   }
 }

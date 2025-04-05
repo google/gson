@@ -20,11 +20,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
-import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.GsonTypes;
 import org.junit.Test;
 
 /**
- * Test fixes for infinite recursion on {@link $Gson$Types#resolve(java.lang.reflect.Type, Class,
+ * Test fixes for infinite recursion on {@link GsonTypes#resolve(java.lang.reflect.Type, Class,
  * java.lang.reflect.Type)}, described at <a href="https://github.com/google/gson/issues/440">Issue
  * #440</a> and similar issues.
  *
@@ -55,26 +55,26 @@ public class RecursiveTypesResolveTest {
   /** Tests below check the behavior of the methods changed for the fix. */
   @Test
   public void testDoubleSupertype() {
-    assertThat($Gson$Types.supertypeOf($Gson$Types.supertypeOf(Number.class)))
-        .isEqualTo($Gson$Types.supertypeOf(Number.class));
+    assertThat(GsonTypes.supertypeOf(GsonTypes.supertypeOf(Number.class)))
+        .isEqualTo(GsonTypes.supertypeOf(Number.class));
   }
 
   @Test
   public void testDoubleSubtype() {
-    assertThat($Gson$Types.subtypeOf($Gson$Types.subtypeOf(Number.class)))
-        .isEqualTo($Gson$Types.subtypeOf(Number.class));
+    assertThat(GsonTypes.subtypeOf(GsonTypes.subtypeOf(Number.class)))
+        .isEqualTo(GsonTypes.subtypeOf(Number.class));
   }
 
   @Test
   public void testSuperSubtype() {
-    assertThat($Gson$Types.supertypeOf($Gson$Types.subtypeOf(Number.class)))
-        .isEqualTo($Gson$Types.subtypeOf(Object.class));
+    assertThat(GsonTypes.supertypeOf(GsonTypes.subtypeOf(Number.class)))
+        .isEqualTo(GsonTypes.subtypeOf(Object.class));
   }
 
   @Test
   public void testSubSupertype() {
-    assertThat($Gson$Types.subtypeOf($Gson$Types.supertypeOf(Number.class)))
-        .isEqualTo($Gson$Types.subtypeOf(Object.class));
+    assertThat(GsonTypes.subtypeOf(GsonTypes.supertypeOf(Number.class)))
+        .isEqualTo(GsonTypes.subtypeOf(Object.class));
   }
 
   /** Tests for recursion while resolving type variables. */
