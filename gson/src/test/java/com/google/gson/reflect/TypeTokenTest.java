@@ -95,7 +95,7 @@ public final class TypeTokenTest {
         .isEqualTo(
             "Unsupported type, expected one of: java.lang.Class,"
                 + " java.lang.reflect.ParameterizedType, java.lang.reflect.GenericArrayType, but"
-                + " got: com.google.gson.internal.$Gson$Types$WildcardTypeImpl, for type token: "
+                + " got: com.google.gson.internal.GsonTypes$WildcardTypeImpl, for type token: "
                 + wildcardTypeToken);
   }
 
