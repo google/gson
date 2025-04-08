@@ -223,11 +223,7 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
       return calendar.getTime();
       // If we get a ParseException it'll already have the right message/offset.
       // Other exception types can convert here.
-    } catch (IndexOutOfBoundsException e) {
-      fail = e;
-    } catch (NumberFormatException e) {
-      fail = e;
-    } catch (IllegalArgumentException e) {
+    } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
       fail = e;
     }
     String input = (date == null) ? null : ("'" + date + "'");
