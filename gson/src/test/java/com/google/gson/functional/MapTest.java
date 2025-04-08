@@ -402,7 +402,7 @@ public class MapTest {
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-      return Set.of();
+      return Collections.emptySet();
     }
   }
 
