@@ -22,7 +22,8 @@ This guide describes how to troubleshoot common issues when using Gson.
   The overloads with `Type` parameter do not provide any type-safety guarantees.
 - When using `TypeToken` make sure you don't capture a type variable. For example avoid something like `new TypeToken<List<T>>()` (where `T` is a type variable). Due to Java [type erasure](https://dev.java/learn/generics/type-erasure/) the actual type of `T` is not available at runtime. Refactor your code to pass around `TypeToken` instances or use [`TypeToken.getParameterized(...)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/reflect/TypeToken.html#getParameterized(java.lang.reflect.Type,java.lang.reflect.Type...)), for example `TypeToken.getParameterized(List.class, elementType)` where `elementType` is a type you have to provide separately.
 
-If you are using a code shrinking tool such as ProGuard or R8 (for example when building an Android app), make sure it is correctly configured to keep generic signatures and to keep Gson's `TypeToken` class. See the [Android example](examples/android-proguard-example/README.md) for more information.
+If you are using a code shrinking tool such as Proguard / R8 (for example when building an Android app), make sure it is correctly configured to keep generic signatures and to keep Gson's `TypeToken` class.
+See the [Proguard / R8](#r8--proguard) section for more information.
 
 ## <a id="reflection-inaccessible"></a> `InaccessibleObjectException`: 'module ... does not "opens ..." to unnamed module'
 
@@ -67,7 +68,8 @@ Or in case this occurs for a field in one of your classes which you did not actu
 
 **Reason:** You probably have not configured ProGuard / R8 correctly
 
-**Solution:** Make sure you have configured ProGuard / R8 correctly to preserve the names of your fields. See the [Android example](examples/android-proguard-example/README.md) for more information.
+**Solution:** Make sure you have configured ProGuard / R8 correctly to preserve the names of your fields.
+See the section below, it's related to this issue.
 
 ## <a id="android-app-broken-after-app-update"></a> Android app unable to parse JSON after app update
 
@@ -75,7 +77,8 @@ Or in case this occurs for a field in one of your classes which you did not actu
 
 **Reason:** You probably have not configured ProGuard / R8 correctly; probably the field names are being obfuscated and their naming changed between the versions of your app
 
-**Solution:** Make sure you have configured ProGuard / R8 correctly to preserve the names of your fields. See the [Android example](examples/android-proguard-example/README.md) for more information.
+**Solution:** Make sure you have configured ProGuard / R8 correctly to preserve the names of your fields.
+See the [Proguard / R8](#r8--proguard) section for more information.
 
 If you want to preserve backward compatibility for you app you can use [`@SerializedName`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html) on the fields to specify the obfuscated name as alternate, for example: `@SerializedName(value = "myprop", alternate = "a")`
 
@@ -346,7 +349,7 @@ For older Gson versions a `RuntimeException` with message 'Missing type paramete
 -keep class * extends com.google.gson.reflect.TypeToken
 ```
 
-See also the [Android example](examples/android-proguard-example/README.md) for more information.
+See the [Proguard / R8](#r8--proguard) section for more information.
 
 Note: For newer Gson versions these rules might be applied automatically; make sure you are using the latest Gson version and the latest version of the code shrinking tool.
 
@@ -393,3 +396,11 @@ For backward compatibility it is possible to restore Gson's old behavior of allo
 
 - This does not solve any of the type-safety problems mentioned above; in the long term you should prefer one of the other solutions listed above. This system property might be removed in future Gson versions.
 - You should only ever set the property to `"true"`, but never to any other value or manually clear it. Otherwise this might counteract any libraries you are using which might have deliberately set the system property because they rely on its behavior.
+
+## R8 / ProGuard
+
+If you use Gson as a dependency in an Android project which uses R8 as a default compiler you don’t have to do anything.
+The specific rules are [already bundled](gson/src/main/resources/META-INF/proguard/gson.pro) (from Gson 2.10.1) into
+the JAR which can be interpreted by R8 automatically. For users who still use the older Gson versions, you may need to
+copy the rules from the [`gson.pro`](gson/src/main/resources/META-INF/proguard/gson.pro) into your own ProGuard
+configuration file.
