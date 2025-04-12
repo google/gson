@@ -49,7 +49,7 @@ public interface FieldNamingStrategy {
    * @return the list of possible translated field names.
    * @since $next-version$
    */
-  default List<String> translateToAlternateNames(Field f) {
+  default List<String> alternateNames(Field f) {
     return Collections.emptyList();
   }
 }

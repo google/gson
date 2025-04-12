@@ -251,7 +251,7 @@ public class NamingPolicyTest {
                   }
 
                   @Override
-                  public List<String> translateToAlternateNames(Field f) {
+                  public List<String> alternateNames(Field f) {
                     return List.of("alternate-name");
                   }
                 })
@@ -274,7 +274,7 @@ public class NamingPolicyTest {
                   }
 
                   @Override
-                  public List<String> translateToAlternateNames(Field f) {
+                  public List<String> alternateNames(Field f) {
                     return List.of("SomeConstantStringInstanceField");
                   }
                 })
@@ -297,7 +297,7 @@ public class NamingPolicyTest {
                   }
 
                   @Override
-                  public List<String> translateToAlternateNames(Field f) {
+                  public List<String> alternateNames(Field f) {
                     return List.of("SomeConstantStringInstanceField");
                   }
                 })
