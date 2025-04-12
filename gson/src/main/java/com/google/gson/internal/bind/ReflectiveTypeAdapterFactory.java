@@ -94,9 +94,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     } else {
       fieldName = annotation.value();
       alternates = Arrays.asList(annotation.alternate());
-      if (alternates.size() == 0) {
-        return Collections.singletonList(fieldName);
-      }
+    }
+
+    if (alternates.size() == 0) {
+      return Collections.singletonList(fieldName);
     }
 
     List<String> fieldNames = new ArrayList<>(alternates.size() + 1);
