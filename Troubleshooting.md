@@ -69,7 +69,7 @@ Or in case this occurs for a field in one of your classes which you did not actu
 **Reason:** You probably have not configured ProGuard / R8 correctly
 
 **Solution:** Make sure you have configured ProGuard / R8 correctly to preserve the names of your fields.
-See the [ProGuard / R8](#r8--proguard) section for more information.
+See the section below, it's related to this issue.
 
 ## <a id="android-app-broken-after-app-update"></a> Android app unable to parse JSON after app update
 
@@ -399,7 +399,7 @@ For backward compatibility it is possible to restore Gson's old behavior of allo
 
 ## R8 / ProGuard
 
-If you use Gson as a dependency in an Android project which uses R8 or ProGuard as code shrinking and obfuscation tool you don’t have to do anything.
+If you use Gson as a dependency in an Android project which uses R8 or ProGuard as code shrinking and obfuscation tool you don't have to do anything.
 The specific rules are [already bundled](gson/src/main/resources/META-INF/proguard/gson.pro) (from Gson 2.11.0) into
 the JAR which can be interpreted by R8 automatically. For users who still use older Gson versions, you may need to
 copy the rules from the [`gson.pro`](gson/src/main/resources/META-INF/proguard/gson.pro) file into your own ProGuard
