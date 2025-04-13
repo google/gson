@@ -399,8 +399,8 @@ For backward compatibility it is possible to restore Gson's old behavior of allo
 
 ## R8 / ProGuard
 
-If you use Gson as a dependency in an Android project which uses R8 as a default compiler you don’t have to do anything.
-The specific rules are [already bundled](gson/src/main/resources/META-INF/proguard/gson.pro) (from Gson 2.10.1) into
+If you use Gson as a dependency in an Android project which uses R8 or ProGuard as code shrinking and obfuscation tool you don’t have to do anything.
+The specific rules are [already bundled](gson/src/main/resources/META-INF/proguard/gson.pro) (from Gson 2.11.0) into
 the JAR which can be interpreted by R8 automatically. For users who still use the older Gson versions, you may need to
 copy the rules from the [`gson.pro`](gson/src/main/resources/META-INF/proguard/gson.pro) into your own ProGuard
 configuration file.
