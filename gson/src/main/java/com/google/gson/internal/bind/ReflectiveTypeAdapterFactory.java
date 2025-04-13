@@ -84,21 +84,25 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   /** first element holds the default name */
   @SuppressWarnings("MixedMutabilityReturnType")
   private List<String> getFieldNames(Field f) {
+
+    String fieldName;
+    List<String> alternates;
     SerializedName annotation = f.getAnnotation(SerializedName.class);
     if (annotation == null) {
-      String name = fieldNamingPolicy.translateName(f);
-      return Collections.singletonList(name);
+      fieldName = fieldNamingPolicy.translateName(f);
+      alternates = fieldNamingPolicy.alternateNames(f);
+    } else {
+      fieldName = annotation.value();
+      alternates = Arrays.asList(annotation.alternate());
     }
 
-    String serializedName = annotation.value();
-    String[] alternates = annotation.alternate();
-    if (alternates.length == 0) {
-      return Collections.singletonList(serializedName);
+    if (alternates.isEmpty()) {
+      return Collections.singletonList(fieldName);
     }
 
-    List<String> fieldNames = new ArrayList<>(alternates.length + 1);
-    fieldNames.add(serializedName);
-    Collections.addAll(fieldNames, alternates);
+    List<String> fieldNames = new ArrayList<>(alternates.size() + 1);
+    fieldNames.add(fieldName);
+    fieldNames.addAll(alternates);
     return fieldNames;
   }
 
