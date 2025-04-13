@@ -68,9 +68,9 @@ see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gs
 
 Older Gson versions may also support lower API levels, however this has not been verified.
 
-### R8 / ProGuard
+### ProGuard / R8
 
-See the details in the related section in the [Troubleshooting guide](Troubleshooting.md#r8--proguard).
+See the details in the related section in the [Troubleshooting guide](Troubleshooting.md#proguard--r8).
 
 ### Documentation
   * [API Javadoc](https://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release
