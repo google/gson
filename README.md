@@ -70,7 +70,7 @@ Older Gson versions may also support lower API levels, however this has not been
 
 ### R8 / ProGuard
 
-See the details in the related section in [Troubleshooting guide](Troubleshooting.md#r8--proguard).
+See the details in the related section in the [Troubleshooting guide](Troubleshooting.md#r8--proguard).
 
 ### Documentation
   * [API Javadoc](https://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release

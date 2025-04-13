@@ -22,8 +22,8 @@ This guide describes how to troubleshoot common issues when using Gson.
   The overloads with `Type` parameter do not provide any type-safety guarantees.
 - When using `TypeToken` make sure you don't capture a type variable. For example avoid something like `new TypeToken<List<T>>()` (where `T` is a type variable). Due to Java [type erasure](https://dev.java/learn/generics/type-erasure/) the actual type of `T` is not available at runtime. Refactor your code to pass around `TypeToken` instances or use [`TypeToken.getParameterized(...)`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/reflect/TypeToken.html#getParameterized(java.lang.reflect.Type,java.lang.reflect.Type...)), for example `TypeToken.getParameterized(List.class, elementType)` where `elementType` is a type you have to provide separately.
 
-If you are using a code shrinking tool such as Proguard / R8 (for example when building an Android app), make sure it is correctly configured to keep generic signatures and to keep Gson's `TypeToken` class.
-See the [Proguard / R8](#r8--proguard) section for more information.
+If you are using a code shrinking tool such as ProGuard / R8 (for example when building an Android app), make sure it is correctly configured to keep generic signatures and to keep Gson's `TypeToken` class.
+See the [ProGuard / R8](#r8--proguard) section for more information.
 
 ## <a id="reflection-inaccessible"></a> `InaccessibleObjectException`: 'module ... does not "opens ..." to unnamed module'
 
@@ -78,7 +78,7 @@ See the section below, it's related to this issue.
 **Reason:** You probably have not configured ProGuard / R8 correctly; probably the field names are being obfuscated and their naming changed between the versions of your app
 
 **Solution:** Make sure you have configured ProGuard / R8 correctly to preserve the names of your fields.
-See the [Proguard / R8](#r8--proguard) section for more information.
+See the [ProGuard / R8](#r8--proguard) section for more information.
 
 If you want to preserve backward compatibility for you app you can use [`@SerializedName`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html) on the fields to specify the obfuscated name as alternate, for example: `@SerializedName(value = "myprop", alternate = "a")`
 
@@ -349,7 +349,7 @@ For older Gson versions a `RuntimeException` with message 'Missing type paramete
 -keep class * extends com.google.gson.reflect.TypeToken
 ```
 
-See the [Proguard / R8](#r8--proguard) section for more information.
+See the [ProGuard / R8](#r8--proguard) section for more information.
 
 Note: For newer Gson versions these rules might be applied automatically; make sure you are using the latest Gson version and the latest version of the code shrinking tool.
 
