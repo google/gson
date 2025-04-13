@@ -96,7 +96,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       alternates = Arrays.asList(annotation.alternate());
     }
 
-    if (alternates.size() == 0) {
+    if (alternates.isEmpty()) {
       return Collections.singletonList(fieldName);
     }
 
