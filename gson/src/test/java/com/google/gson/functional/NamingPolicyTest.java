@@ -298,7 +298,7 @@ public class NamingPolicyTest {
 
                   @Override
                   public List<String> alternateNames(Field f) {
-                    return List.of("SomeConstantStringInstanceField");
+                    return List.of("alternate-name");
                   }
                 })
             .create();
