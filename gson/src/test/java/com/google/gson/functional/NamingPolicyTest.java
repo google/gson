@@ -247,7 +247,7 @@ public class NamingPolicyTest {
 
                   @Override
                   public String translateName(Field f) {
-                    return "SomeConstantStringInstanceField";
+                    return "primary-name";
                   }
 
                   @Override
@@ -256,7 +256,7 @@ public class NamingPolicyTest {
                   }
                 })
             .create();
-    String target = "{\"SomeConstantStringInstanceField\":\"someValue\"}";
+    String target = "{\"primary-name\":\"someValue\"}";
     StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
     assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
   }
