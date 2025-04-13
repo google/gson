@@ -45,8 +45,8 @@ public interface FieldNamingStrategy {
    * Returns alternative names for this field when it is being deserialized. This is similar to
    * {@link SerializedName#alternate()}.
    *
-   * @param f the field object that we are translating
-   * @return the list of possible translated field names.
+   * @param f the field object
+   * @return the list of alternative field names.
    * @since $next-version$
    */
   default List<String> alternateNames(Field f) {
