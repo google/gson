@@ -275,11 +275,11 @@ public class NamingPolicyTest {
 
                   @Override
                   public List<String> alternateNames(Field f) {
-                    return List.of("SomeConstantStringInstanceField");
+                    return List.of("alternate-name");
                   }
                 })
             .create();
-    String target = "{\"SomeConstantStringInstanceField\":\"someValue\"}";
+    String target = "{\"alternate-name\":\"someValue\"}";
     StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
     assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
   }
