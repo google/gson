@@ -18,5 +18,3 @@ local.properties
 build
 
 .DS_Store
-
-examples/android-proguard-example/gen
