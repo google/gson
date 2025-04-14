@@ -68,10 +68,6 @@ see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gs
 
 Older Gson versions may also support lower API levels, however this has not been verified.
 
-### ProGuard / R8
-
-See the details in the related section in the [Troubleshooting guide](Troubleshooting.md#proguard--r8).
-
 ### Documentation
   * [API Javadoc](https://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release
   * [User guide](UserGuide.md): This guide contains examples on how to use Gson in your code
@@ -80,6 +76,10 @@ See the details in the related section in the [Troubleshooting guide](Troublesho
   * [Design document](GsonDesignDocument.md): This document discusses issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for Json conversion
 
 Please use the ['gson' tag on StackOverflow](https://stackoverflow.com/questions/tagged/gson), [GitHub Discussions](https://github.com/google/gson/discussions) or the [google-gson Google group](https://groups.google.com/group/google-gson) to discuss Gson or to post questions.
+
+### ProGuard / R8
+
+See the details in the related section in the [Troubleshooting guide](Troubleshooting.md#proguard--r8).
 
 ### Related Content Created by Third Parties
   * [Gson Tutorial](https://www.studytrails.com/java/json/java-google-json-introduction/) by `StudyTrails`
