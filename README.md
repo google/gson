@@ -79,7 +79,7 @@ Please use the ['gson' tag on StackOverflow](https://stackoverflow.com/questions
 
 ### ProGuard / R8
 
-See the details in the related section in the [Troubleshooting guide](Troubleshooting.md#proguard--r8).
+See the details in the related section in the [Troubleshooting guide](Troubleshooting.md#proguard-r8).
 
 ### Related Content Created by Third Parties
   * [Gson Tutorial](https://www.studytrails.com/java/json/java-google-json-introduction/) by `StudyTrails`
