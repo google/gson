@@ -53,6 +53,8 @@ public class Main {
     testJsonAdapterAnnotation(outputConsumer);
 
     testGenericClasses(outputConsumer);
+
+    testDeserializingInterfaceImpl(outputConsumer);
   }
 
   private static void testTypeTokenWriteRead(
@@ -289,5 +291,26 @@ public class Main {
             gson.fromJson(
                     "{\"g\": {\"t\": 1}}", new TypeToken<GenericUsingGenericClass<DummyClass>>() {})
                 .toString());
+  }
+
+  private static void testDeserializingInterfaceImpl(BiConsumer<String, String> outputConsumer) {
+    Gson gson = new Gson();
+    TestExecutor.run(
+        outputConsumer,
+        "Read: Interface implementation",
+        () -> {
+          try {
+            // Use the interface type here
+            List<? extends InterfaceWithImplementation> list =
+                gson.fromJson(
+                    "[{\"s\": \"value\"}]",
+                    // This is the only place where the implementation class is referenced
+                    new TypeToken<List<InterfaceWithImplementation.Implementation>>() {});
+            return list.get(0).getValue();
+          } catch (ClassCastException e) {
+            // TODO: R8 causes exception, see https://github.com/google/gson/issues/2658
+            return "ClassCastException";
+          }
+        });
   }
 }
