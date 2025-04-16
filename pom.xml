@@ -129,7 +129,7 @@
                   <!-- Other plugins of this build require at least JDK 11 -->
                   <!-- Disallow newer JDK versions; they might introduce new lints, drop support for
                     older compiler Java target versions or cause issues for some Maven plugins -->
-                  <version>[11,22)</version>
+                  <version>[11,24]</version>
                 </requireJavaVersion>
               </rules>
             </configuration>

@@ -16,7 +16,8 @@ jobs:
     name: "Build on JDK ${{ matrix.java }}"
     strategy:
       matrix:
-        java: [ 11, 17, 21 ]
+        # LTS and the latest version.
+        java: [ 11, 17, 21, 24 ]
     runs-on: ubuntu-latest
 
     steps:
