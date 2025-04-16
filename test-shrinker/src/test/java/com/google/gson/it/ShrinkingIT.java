@@ -19,7 +19,7 @@ package com.google.gson.it;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.Assume.assumeFalse;
 
 import com.example.UnusedClass;
 import java.lang.reflect.InvocationTargetException;
@@ -59,6 +59,11 @@ public class ShrinkingIT {
     if (!Files.isRegularFile(jarToTest)) {
       fail("JAR file " + jarToTest + " does not exist; run this test with `mvn clean verify`");
     }
+  }
+
+  /** Returns whether the test is currently running for ProGuard, instead of R8 */
+  private boolean isTestingProGuard() {
+    return jarToTest.equals(PROGUARD_RESULT_PATH);
   }
 
   @FunctionalInterface
@@ -216,6 +221,10 @@ public class ShrinkingIT {
                 "Read: Using Generic TypeToken",
                 "{g={t=read-1}}",
                 "===",
+                "Read: Interface implementation",
+                // TODO: Currently only works for ProGuard but not R8
+                isTestingProGuard() ? "value" : "ClassCastException",
+                "===",
                 ""));
   }
 
@@ -226,7 +235,7 @@ public class ShrinkingIT {
         c -> {
           Method m = c.getMethod("runTestNoArgsConstructor");
 
-          if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
+          if (isTestingProGuard()) {
             Object result = m.invoke(null);
             assertThat(result).isEqualTo("value");
           } else {
@@ -251,7 +260,7 @@ public class ShrinkingIT {
         c -> {
           Method m = c.getMethod("runTestNoJdkUnsafe");
 
-          if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
+          if (isTestingProGuard()) {
             Object result = m.invoke(null);
             assertThat(result).isEqualTo("value");
           } else {
@@ -278,7 +287,7 @@ public class ShrinkingIT {
         c -> {
           Method m = c.getMethod("runTestHasArgsConstructor");
 
-          if (jarToTest.equals(PROGUARD_RESULT_PATH)) {
+          if (isTestingProGuard()) {
             Object result = m.invoke(null);
             assertThat(result).isEqualTo("value");
           } else {
@@ -300,7 +309,7 @@ public class ShrinkingIT {
   public void testUnusedClassRemoved() throws Exception {
     // For some reason this test only works for R8 but not for ProGuard; ProGuard keeps the unused
     // class
-    assumeTrue(jarToTest.equals(R8_RESULT_PATH));
+    assumeFalse(isTestingProGuard());
 
     String className = UnusedClass.class.getName();
     ClassNotFoundException e =
