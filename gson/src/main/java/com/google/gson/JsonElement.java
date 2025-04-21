@@ -21,7 +21,6 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -422,13 +421,13 @@ public abstract class JsonElement {
   @Override
   public String toString() {
     try {
-      StringWriter stringWriter = new StringWriter();
-      JsonWriter jsonWriter = new JsonWriter(stringWriter);
+      StringBuilder stringBuilder = new StringBuilder();
+      JsonWriter jsonWriter = new JsonWriter(Streams.writerForAppendable(stringBuilder));
       // Make writer lenient because toString() must not fail, even if for example JsonPrimitive
       // contains NaN
       jsonWriter.setStrictness(Strictness.LENIENT);
       Streams.write(this, jsonWriter);
-      return stringWriter.toString();
+      return stringBuilder.toString();
     } catch (IOException e) {
       throw new AssertionError(e);
     }
