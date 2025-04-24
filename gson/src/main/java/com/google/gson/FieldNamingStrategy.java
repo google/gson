@@ -47,7 +47,7 @@ public interface FieldNamingStrategy {
    *
    * @param f the field object
    * @return the list of alternative field names.
-   * @since $next-version$
+   * @since 2.13.1
    */
   default List<String> alternateNames(Field f) {
     return Collections.emptyList();
