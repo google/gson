@@ -13,7 +13,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze
+    name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -21,13 +21,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java' ]
+        include:
+        - language: java
+          build-mode: manual
+        # GitHub Actions
+        - language: actions
+          build-mode: none
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
     - name: Set up JDK 17
+      if: ${{ matrix.language == 'java' }}
       uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12  # v4.7.0
       with:
         distribution: 'temurin'
@@ -39,15 +45,19 @@ jobs:
       uses: github/codeql-action/init@1b549b9259bda1cb5ddde3b41741a82a2d15a841  # v3.28.13
       with:
         languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
         # Run all security queries and maintainability and reliability queries
         queries: +security-and-quality
 
     # Only compile main sources, but ignore test sources because findings for them might not
     # be that relevant (though GitHub security view also allows filtering by source type)
     # Can replace this with github/codeql-action/autobuild action to run complete build
-    - name: Compile sources
+    - name: Compile sources (Java)
+      if: ${{ matrix.language == 'java' }}
       run: |
         mvn compile --batch-mode --no-transfer-progress
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@1b549b9259bda1cb5ddde3b41741a82a2d15a841  # v3.28.13
+      with:
+        category: "/language:${{ matrix.language }}"
