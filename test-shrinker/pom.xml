@@ -189,7 +189,7 @@
               but it appears that can be ignored -->
             <groupId>com.android.tools</groupId>
             <artifactId>r8</artifactId>
-            <version>8.7.18</version>
+            <version>8.9.35</version>
           </dependency>
         </dependencies>
       </plugin>
