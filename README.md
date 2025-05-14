@@ -13,8 +13,8 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
 > When using languages other than Java, prefer a JSON library with explicit support for that language.
 
 > [!IMPORTANT]\
-> GSON is not a recommended library for interacting with JSON on Android. The open ended reflection in the GSON runtime doesn't play nicely with shrinking/optimization/obfuscation passes that Android release apps should perform.\
-> If your app or library may be running on Android, instead look at [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md#basics) which uses code generation instead of reflection. This avoids GSON's runtime crashes when optimizations are applied, and results in faster performance on Android devices. If you still want to use Gson and attempt to avoid these crashes, you can see how to do so [here](Troubleshooting.md#-proguard--r8).
+> Gson is not a recommended library for interacting with JSON on Android. The open ended reflection in the Gson runtime doesn't play nicely with shrinking/optimization/obfuscation passes that Android release apps should perform.\
+> If your app or library may be running on Android, instead look at [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md#basics) which uses code generation instead of reflection. This avoids Gson's runtime crashes when optimizations are applied, and results in faster performance on Android devices. If you still want to use Gson and attempt to avoid these crashes, you can see how to do so [here](Troubleshooting.md#-proguard--r8).
 
 ### Goals
   * Provide simple `toJson()` and `fromJson()` methods to convert Java objects to JSON and vice-versa
