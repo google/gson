@@ -409,4 +409,4 @@ If you do want to make Gson work with minification, you must test your code afte
 - Annotate all fields with `@SerializedName()`
 
 ### Avoid Reflection
-Use [addReflectionAccessFilter()](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#addReflectionAccessFilter(com.google.gson.ReflectionAccessFilter)) to add a filter which always returns `BLOCK_ALL` to block all reflection into custom classes. This will mean you need to use explicit objects such as JsonObject and JsonArray.
+It is possible to avoid reflection when using Gson. This will mean you will need to have a `TypeAdapter` or `TypeAdapterFactory` for every type you might want to serialize or deserialize, or that you are only using Gson through its explicit JSON API via classes like `JsonObject` and `JsonArray`. You can ensure reflection isn't being used by calling [addReflectionAccessFilter()](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#addReflectionAccessFilter(com.google.gson.ReflectionAccessFilter)) to add a filter which always returns `BLOCK_ALL`.
