@@ -400,7 +400,7 @@ For backward compatibility it is possible to restore Gson's old behavior of allo
 
 ## <a id="proguard-r8"></a> Android - R8 / ProGuard
 
-Gson is not recommended on Android due to the expectation of R8 optimization, or other environments where you intend to minify (shrink/optimize/obfuscate) your build, such as with Proguard. While it is possible to make it work with minification, many features of the library will not work in this environment due to the open ended reflection performed in Gson. This is true even with the most up to date Proguard file, included in Gson 2.11.0.
+Gson is not recommended on Android due to the expectation of R8 optimization, or other environments where you intend to minify (shrink/optimize/obfuscate) your build, such as with ProGuard. While it is possible to make it work with minification, many features of the library will not work in this environment due to the open ended reflection performed in Gson. This is true even with the most up to date ProGuard file, included since Gson 2.11.0.
 
 If you do want to make Gson work with minification, you must test your code after minification has been applied, and can choose to either:
 
@@ -408,5 +408,8 @@ If you do want to make Gson work with minification, you must test your code afte
 - Ensure all of your objects have a no-arg constructor (and be a top-level or static class to avoid implicit constructor arguments)
 - Annotate all fields with `@SerializedName()`
 
+If you still use a Gson version older than 2.11.0 or if you are using ProGuard for a non-Android project ([related ProGuard issue](https://github.com/Guardsquare/proguard/issues/337)),
+you may need to copy the rules from Gson's [`gson.pro`](gson/src/main/resources/META-INF/proguard/gson.pro) file into your own ProGuard configuration file.
+
 ### Avoid Reflection
-It is possible to avoid reflection when using Gson. This will mean you will need to have a `TypeAdapter` or `TypeAdapterFactory` for every type you might want to serialize or deserialize, or that you are only using Gson through its explicit JSON API via classes like `JsonObject` and `JsonArray`. You can ensure reflection isn't being used by calling [addReflectionAccessFilter()](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#addReflectionAccessFilter(com.google.gson.ReflectionAccessFilter)) to add a filter which always returns `BLOCK_ALL`.
+It is possible to avoid reflection when using Gson. This will mean you will need to have a `TypeAdapter` or `TypeAdapterFactory` for every type you might want to serialize or deserialize, or that you are only using Gson through its explicit JSON API via classes like `JsonObject` and `JsonArray`, or are manually reading or writing JSON data using `JsonReader` and `JsonWriter`. You can ensure reflection isn't being used by calling [`GsonBuilder.addReflectionAccessFilter()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#addReflectionAccessFilter(com.google.gson.ReflectionAccessFilter)) to add a filter which always returns `BLOCK_ALL`.
