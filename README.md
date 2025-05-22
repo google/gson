@@ -16,7 +16,7 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
 > Gson is not a recommended library for interacting with JSON on Android. The open-ended reflection in the Gson runtime doesn't play nicely with shrinking/optimization/obfuscation passes that Android release apps should perform.\
 > If your app or library may be running on Android, consider using [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md#basics) or [Moshi's Codegen](https://github.com/square/moshi?tab=readme-ov-file#codegen),
 > which use code generation instead of reflection. This avoids Gson's runtime crashes when optimizations are applied (usually due to the fields missing or being obfuscated), and results in faster performance on Android devices.
-> The Moshi APIs may be more familiar to users who already know Gson, making it more seamless for users to migrate between the two.
+> The Moshi APIs may be more familiar to users who already know Gson.
 > If you still want to use Gson and attempt to avoid these crashes, you can see how to do so [here](Troubleshooting.md#proguard-r8).
 
 ### Goals
