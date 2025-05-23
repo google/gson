@@ -16,43 +16,68 @@
 
 package com.google.gson;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.gson.internal.Excluder;
 import java.lang.reflect.Field;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Unit test for GsonBuilder.EXCLUDE_INNER_CLASSES.
  *
  * @author Joel Leitch
  */
-public class InnerClassExclusionStrategyTest extends TestCase {
+public class InnerClassExclusionStrategyTest {
   public InnerClass innerClass = new InnerClass();
   public StaticNestedClass staticNestedClass = new StaticNestedClass();
   private Excluder excluder = Excluder.DEFAULT.disableInnerClassSerialization();
 
-  public void testExcludeInnerClassObject() throws Exception {
-    Class<?> clazz = innerClass.getClass();
-    assertTrue(excluder.excludeClass(clazz, true));
+  private void assertIncludesClass(Class<?> c) {
+    assertThat(excluder.excludeClass(c, true)).isFalse();
+    assertThat(excluder.excludeClass(c, false)).isFalse();
   }
 
+  private void assertExcludesClass(Class<?> c) {
+    assertThat(excluder.excludeClass(c, true)).isTrue();
+    assertThat(excluder.excludeClass(c, false)).isTrue();
+  }
+
+  private void assertIncludesField(Field f) {
+    assertThat(excluder.excludeField(f, true)).isFalse();
+    assertThat(excluder.excludeField(f, false)).isFalse();
+  }
+
+  private void assertExcludesField(Field f) {
+    assertThat(excluder.excludeField(f, true)).isTrue();
+    assertThat(excluder.excludeField(f, false)).isTrue();
+  }
+
+  @Test
+  public void testExcludeInnerClassObject() {
+    Class<?> clazz = innerClass.getClass();
+    assertExcludesClass(clazz);
+  }
+
+  @Test
   public void testExcludeInnerClassField() throws Exception {
     Field f = getClass().getField("innerClass");
-    assertTrue(excluder.excludeField(f, true));
+    assertExcludesField(f);
   }
 
-  public void testIncludeStaticNestedClassObject() throws Exception {
+  @Test
+  public void testIncludeStaticNestedClassObject() {
     Class<?> clazz = staticNestedClass.getClass();
-    assertFalse(excluder.excludeClass(clazz, true));
+    assertIncludesClass(clazz);
   }
 
+  @Test
   public void testIncludeStaticNestedClassField() throws Exception {
     Field f = getClass().getField("staticNestedClass");
-    assertFalse(excluder.excludeField(f, true));
+    assertIncludesField(f);
   }
 
-  class InnerClass {
-  }
+  @SuppressWarnings("ClassCanBeStatic")
+  class InnerClass {}
 
-  static class StaticNestedClass {
-  }
+  static class StaticNestedClass {}
 }

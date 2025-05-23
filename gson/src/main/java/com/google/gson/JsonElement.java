@@ -16,30 +16,103 @@
 
 package com.google.gson;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * A class representing an element of Json. It could either be a {@link JsonObject}, a
- * {@link JsonArray}, a {@link JsonPrimitive} or a {@link JsonNull}.
+ * A class representing an element of JSON. It could either be a {@link JsonObject}, a {@link
+ * JsonArray}, a {@link JsonPrimitive} or a {@link JsonNull}.
+ *
+ * <p>This class provides multiple {@code getAs} methods which allow
+ *
+ * <ul>
+ *   <li>obtaining the represented primitive value, for example {@link #getAsString()}
+ *   <li>casting to the {@code JsonElement} subclasses in a convenient way, for example {@link
+ *       #getAsJsonObject()}
+ * </ul>
+ *
+ * <h2>Converting {@code JsonElement} from / to JSON</h2>
+ *
+ * There are two ways to parse JSON data as a {@link JsonElement}:
+ *
+ * <ul>
+ *   <li>{@link JsonParser}, for example:
+ *       <pre>
+ * JsonObject jsonObject = JsonParser.parseString("{}").getAsJsonObject();
+ * </pre>
+ *   <li>{@link Gson#fromJson(Reader, Class) Gson.fromJson(..., JsonElement.class)}<br>
+ *       It is possible to directly specify a {@code JsonElement} subclass, for example:
+ *       <pre>
+ * JsonObject jsonObject = gson.fromJson("{}", JsonObject.class);
+ * </pre>
+ * </ul>
+ *
+ * To convert a {@code JsonElement} to JSON either {@link #toString() JsonElement.toString()} or the
+ * method {@link Gson#toJson(JsonElement)} and its overloads can be used.
+ *
+ * <p>It is also possible to obtain the {@link TypeAdapter} for {@code JsonElement} from a {@link
+ * Gson} instance and then use it for conversion from and to JSON:
+ *
+ * <pre>{@code
+ * TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
+ *
+ * JsonElement value = adapter.fromJson("{}");
+ * String json = adapter.toJson(value);
+ * }</pre>
+ *
+ * <h2>{@code JsonElement} as JSON data</h2>
+ *
+ * {@code JsonElement} can also be treated as JSON data, allowing to deserialize from a {@code
+ * JsonElement} and serializing to a {@code JsonElement}. The {@link Gson} class offers these
+ * methods for this:
+ *
+ * <ul>
+ *   <li>{@link Gson#fromJson(JsonElement, Class) Gson.fromJson(JsonElement, ...)}, for example:
+ *       <pre>
+ * JsonObject jsonObject = ...;
+ * MyClass myObj = gson.fromJson(jsonObject, MyClass.class);
+ * </pre>
+ *   <li>{@link Gson#toJsonTree(Object)}, for example:
+ *       <pre>
+ * MyClass myObj = ...;
+ * JsonElement json = gson.toJsonTree(myObj);
+ * </pre>
+ * </ul>
+ *
+ * The {@link TypeAdapter} class provides corresponding methods as well:
+ *
+ * <ul>
+ *   <li>{@link TypeAdapter#fromJsonTree(JsonElement)}
+ *   <li>{@link TypeAdapter#toJsonTree(Object)}
+ * </ul>
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
 public abstract class JsonElement {
   /**
-   * Returns a deep copy of this element. Immutable elements like primitives
-   * and nulls are not copied.
+   * @deprecated Creating custom {@code JsonElement} subclasses is highly discouraged and can lead
+   *     to undefined behavior.<br>
+   *     This constructor is only kept for backward compatibility.
+   */
+  @Deprecated
+  public JsonElement() {}
+
+  /**
+   * Returns a deep copy of this element. Immutable elements like primitives and nulls are not
+   * copied.
+   *
    * @since 2.8.2
    */
   public abstract JsonElement deepCopy();
 
   /**
-   * provides check for verifying if this element is an array or not.
+   * Provides a check for verifying if this element is a JSON array or not.
    *
    * @return true if this element is of type {@link JsonArray}, false otherwise.
    */
@@ -48,7 +121,7 @@ public abstract class JsonElement {
   }
 
   /**
-   * provides check for verifying if this element is a Json object or not.
+   * Provides a check for verifying if this element is a JSON object or not.
    *
    * @return true if this element is of type {@link JsonObject}, false otherwise.
    */
@@ -57,7 +130,7 @@ public abstract class JsonElement {
   }
 
   /**
-   * provides check for verifying if this element is a primitive or not.
+   * Provides a check for verifying if this element is a primitive or not.
    *
    * @return true if this element is of type {@link JsonPrimitive}, false otherwise.
    */
@@ -66,7 +139,7 @@ public abstract class JsonElement {
   }
 
   /**
-   * provides check for verifying if this element represents a null value or not.
+   * Provides a check for verifying if this element represents a null value or not.
    *
    * @return true if this element is of type {@link JsonNull}, false otherwise.
    * @since 1.2
@@ -76,13 +149,13 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as a {@link JsonObject}. If the element is of some
-   * other type, a {@link IllegalStateException} will result. Hence it is best to use this method
+   * Convenience method to get this element as a {@link JsonObject}. If this element is of some
+   * other type, an {@link IllegalStateException} will result. Hence it is best to use this method
    * after ensuring that this element is of the desired type by calling {@link #isJsonObject()}
    * first.
    *
-   * @return get this element as a {@link JsonObject}.
-   * @throws IllegalStateException if the element is of another type.
+   * @return this element as a {@link JsonObject}.
+   * @throws IllegalStateException if this element is of another type.
    */
   public JsonObject getAsJsonObject() {
     if (isJsonObject()) {
@@ -92,13 +165,12 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as a {@link JsonArray}. If the element is of some
-   * other type, a {@link IllegalStateException} will result. Hence it is best to use this method
-   * after ensuring that this element is of the desired type by calling {@link #isJsonArray()}
-   * first.
+   * Convenience method to get this element as a {@link JsonArray}. If this element is of some other
+   * type, an {@link IllegalStateException} will result. Hence it is best to use this method after
+   * ensuring that this element is of the desired type by calling {@link #isJsonArray()} first.
    *
-   * @return get this element as a {@link JsonArray}.
-   * @throws IllegalStateException if the element is of another type.
+   * @return this element as a {@link JsonArray}.
+   * @throws IllegalStateException if this element is of another type.
    */
   public JsonArray getAsJsonArray() {
     if (isJsonArray()) {
@@ -108,13 +180,13 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as a {@link JsonPrimitive}. If the element is of some
-   * other type, a {@link IllegalStateException} will result. Hence it is best to use this method
+   * Convenience method to get this element as a {@link JsonPrimitive}. If this element is of some
+   * other type, an {@link IllegalStateException} will result. Hence it is best to use this method
    * after ensuring that this element is of the desired type by calling {@link #isJsonPrimitive()}
    * first.
    *
-   * @return get this element as a {@link JsonPrimitive}.
-   * @throws IllegalStateException if the element is of another type.
+   * @return this element as a {@link JsonPrimitive}.
+   * @throws IllegalStateException if this element is of another type.
    */
   public JsonPrimitive getAsJsonPrimitive() {
     if (isJsonPrimitive()) {
@@ -124,15 +196,15 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as a {@link JsonNull}. If the element is of some
-   * other type, a {@link IllegalStateException} will result. Hence it is best to use this method
-   * after ensuring that this element is of the desired type by calling {@link #isJsonNull()}
-   * first.
+   * Convenience method to get this element as a {@link JsonNull}. If this element is of some other
+   * type, an {@link IllegalStateException} will result. Hence it is best to use this method after
+   * ensuring that this element is of the desired type by calling {@link #isJsonNull()} first.
    *
-   * @return get this element as a {@link JsonNull}.
-   * @throws IllegalStateException if the element is of another type.
+   * @return this element as a {@link JsonNull}.
+   * @throws IllegalStateException if this element is of another type.
    * @since 1.2
    */
+  @CanIgnoreReturnValue // When this method is used only to verify that the value is JsonNull
   public JsonNull getAsJsonNull() {
     if (isJsonNull()) {
       return (JsonNull) this;
@@ -141,104 +213,109 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as a boolean value.
+   * Convenience method to get this element as a boolean value.
    *
-   * @return get this element as a primitive boolean value.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * boolean value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a primitive boolean value.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    */
   public boolean getAsBoolean() {
     throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
-   * convenience method to get this element as a {@link Number}.
+   * Convenience method to get this element as a {@link Number}.
    *
-   * @return get this element as a {@link Number}.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * number.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a {@link Number}.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}, or cannot be converted to a number.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    */
   public Number getAsNumber() {
     throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
-   * convenience method to get this element as a string value.
+   * Convenience method to get this element as a string value.
    *
-   * @return get this element as a string value.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * string value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a string value.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    */
   public String getAsString() {
     throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
-   * convenience method to get this element as a primitive double value.
+   * Convenience method to get this element as a primitive double value.
    *
-   * @return get this element as a primitive double value.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * double value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a primitive double value.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}.
+   * @throws NumberFormatException if the value contained is not a valid double.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    */
   public double getAsDouble() {
     throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
-   * convenience method to get this element as a primitive float value.
+   * Convenience method to get this element as a primitive float value.
    *
-   * @return get this element as a primitive float value.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * float value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a primitive float value.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}.
+   * @throws NumberFormatException if the value contained is not a valid float.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    */
   public float getAsFloat() {
     throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
-   * convenience method to get this element as a primitive long value.
+   * Convenience method to get this element as a primitive long value.
    *
-   * @return get this element as a primitive long value.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * long value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a primitive long value.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}.
+   * @throws NumberFormatException if the value contained is not a valid long.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    */
   public long getAsLong() {
     throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
-   * convenience method to get this element as a primitive integer value.
+   * Convenience method to get this element as a primitive integer value.
    *
-   * @return get this element as a primitive integer value.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * integer value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a primitive integer value.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}.
+   * @throws NumberFormatException if the value contained is not a valid integer.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    */
   public int getAsInt() {
     throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
-   * convenience method to get this element as a primitive byte value.
+   * Convenience method to get this element as a primitive byte value.
    *
-   * @return get this element as a primitive byte value.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * byte value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a primitive byte value.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}.
+   * @throws NumberFormatException if the value contained is not a valid byte.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    * @since 1.3
    */
   public byte getAsByte() {
@@ -246,17 +323,16 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get the first character of this element as a string or the first
-   * character of this array's first element as a string.
+   * Convenience method to get the first character of the string value of this element.
    *
-   * @return the first character of the string.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * string value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return the first character of the string value.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}, or if its string value is empty.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    * @since 1.3
    * @deprecated This method is misleading, as it does not get this element as a char but rather as
-   * a string's first character.
+   *     a string's first character.
    */
   @Deprecated
   public char getAsCharacter() {
@@ -264,13 +340,14 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as a {@link BigDecimal}.
+   * Convenience method to get this element as a {@link BigDecimal}.
    *
-   * @return get this element as a {@link BigDecimal}.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive}.
-   * * @throws NumberFormatException if the element is not a valid {@link BigDecimal}.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a {@link BigDecimal}.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}.
+   * @throws NumberFormatException if this element is not a valid {@link BigDecimal}.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    * @since 1.2
    */
   public BigDecimal getAsBigDecimal() {
@@ -278,13 +355,14 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as a {@link BigInteger}.
+   * Convenience method to get this element as a {@link BigInteger}.
    *
-   * @return get this element as a {@link BigInteger}.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive}.
-   * @throws NumberFormatException if the element is not a valid {@link BigInteger}.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a {@link BigInteger}.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}.
+   * @throws NumberFormatException if this element is not a valid {@link BigInteger}.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    * @since 1.2
    */
   public BigInteger getAsBigInteger() {
@@ -292,29 +370,64 @@ public abstract class JsonElement {
   }
 
   /**
-   * convenience method to get this element as a primitive short value.
+   * Convenience method to get this element as a primitive short value.
    *
-   * @return get this element as a primitive short value.
-   * @throws ClassCastException if the element is of not a {@link JsonPrimitive} and is not a valid
-   * short value.
-   * @throws IllegalStateException if the element is of the type {@link JsonArray} but contains
-   * more than a single element.
+   * @return this element as a primitive short value.
+   * @throws UnsupportedOperationException if this element is not a {@link JsonPrimitive} or {@link
+   *     JsonArray}.
+   * @throws NumberFormatException if the value contained is not a valid short.
+   * @throws IllegalStateException if this element is of the type {@link JsonArray} but contains
+   *     more than a single element.
    */
   public short getAsShort() {
     throw new UnsupportedOperationException(getClass().getSimpleName());
   }
 
   /**
-   * Returns a String representation of this element.
+   * Converts this element to a JSON string.
+   *
+   * <p>For example:
+   *
+   * <pre>
+   * JsonObject object = new JsonObject();
+   * object.add("a", JsonNull.INSTANCE);
+   * JsonArray array = new JsonArray();
+   * array.add(1);
+   * object.add("b", array);
+   *
+   * String json = object.toString();
+   * // json: {"a":null,"b":[1]}
+   * </pre>
+   *
+   * If this element or any nested elements contain {@link Double#NaN NaN} or {@link
+   * Double#isInfinite() Infinity} that value is written to JSON, even though the JSON specification
+   * does not permit these values.
+   *
+   * <p>To customize formatting or to directly write to an {@link Appendable} instead of creating an
+   * intermediate {@code String} first, use {@link Gson#toJson(JsonElement, Appendable)
+   * Gson.toJson(JsonElement, ...)}.
+   *
+   * <p>To get the contained String value (without enclosing {@code "} and without escaping), use
+   * {@link #getAsString()} instead:
+   *
+   * <pre>
+   * JsonPrimitive jsonPrimitive = new JsonPrimitive("with \" quote");
+   * String json = jsonPrimitive.toString();
+   * // json: "with \" quote"
+   * String value = jsonPrimitive.getAsString();
+   * // value: with " quote
+   * </pre>
    */
   @Override
   public String toString() {
     try {
-      StringWriter stringWriter = new StringWriter();
-      JsonWriter jsonWriter = new JsonWriter(stringWriter);
-      jsonWriter.setLenient(true);
+      StringBuilder stringBuilder = new StringBuilder();
+      JsonWriter jsonWriter = new JsonWriter(Streams.writerForAppendable(stringBuilder));
+      // Make writer lenient because toString() must not fail, even if for example JsonPrimitive
+      // contains NaN
+      jsonWriter.setStrictness(Strictness.LENIENT);
       Streams.write(this, jsonWriter);
-      return stringWriter.toString();
+      return stringBuilder.toString();
     } catch (IOException e) {
       throw new AssertionError(e);
     }

@@ -1,0 +1,36 @@
+# For security reasons this is a separate GitHub workflow, see https://github.com/google/gson/issues/2429#issuecomment-1622522842
+# Once https://github.com/mojohaus/animal-sniffer/issues/252 or https://github.com/mojohaus/animal-sniffer/pull/253
+# are resolved, can consider adjusting pom.xml to include this as part of normal Maven build
+
+name: Check Android compatibility
+
+on:
+  push:
+    branches-ignore:
+      # Ignore Dependabot branches because it will also open a pull request, which would cause the
+      # workflow to redundantly run twice
+      - dependabot/**
+  pull_request:
+
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
+jobs:
+  check-android-compatibility:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12  # v4.7.0
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'maven'
+
+      - name: Check Android compatibility
+        run: |
+          # Run 'test' phase because plugin normally expects to be executed after tests have been compiled
+          # Have to skip 'test-jpms' module because it requires that full Gson JAR has been built
+          mvn --batch-mode --no-transfer-progress test animal-sniffer:check@check-android-compatibility -DskipTests --projects '!test-jpms'

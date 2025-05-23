@@ -18,16 +18,14 @@ package com.google.gson.interceptors;
 import com.google.gson.InstanceCreator;
 
 /**
- * This interface is implemented by a class that wishes to inspect or modify an object
- * after it has been deserialized. You must define a no-args constructor or register an
- * {@link InstanceCreator} for such a class.
+ * This interface is implemented by a class that wishes to inspect or modify an object after it has
+ * been deserialized. You must define a no-args constructor or register an {@link InstanceCreator}
+ * for such a class.
  *
  * @author Inderjeet Singh
  */
 public interface JsonPostDeserializer<T> {
 
-  /**
-   * This method is called by Gson after the object has been deserialized from Json.
-   */
+  /** This method is called by Gson after the object has been deserialized from Json. */
   public void postDeserialize(T object);
 }

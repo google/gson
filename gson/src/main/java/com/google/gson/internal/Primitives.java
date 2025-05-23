@@ -19,24 +19,22 @@ package com.google.gson.internal;
 import java.lang.reflect.Type;
 
 /**
- * Contains static utility methods pertaining to primitive types and their
- * corresponding wrapper types.
+ * Contains static utility methods pertaining to primitive types and their corresponding wrapper
+ * types.
  *
  * @author Kevin Bourrillion
  */
 public final class Primitives {
   private Primitives() {}
 
-  /**
-   * Returns true if this type is a primitive.
-   */
+  /** Returns true if this type is a primitive. */
   public static boolean isPrimitive(Type type) {
     return type instanceof Class<?> && ((Class<?>) type).isPrimitive();
   }
 
   /**
-   * Returns {@code true} if {@code type} is one of the nine
-   * primitive-wrapper types, such as {@link Integer}.
+   * Returns {@code true} if {@code type} is one of the nine primitive-wrapper types, such as {@link
+   * Integer}.
    *
    * @see Class#isPrimitive
    */
@@ -53,15 +51,16 @@ public final class Primitives {
   }
 
   /**
-   * Returns the corresponding wrapper type of {@code type} if it is a primitive
-   * type; otherwise returns {@code type} itself. Idempotent.
+   * Returns the corresponding wrapper type of {@code type} if it is a primitive type; otherwise
+   * returns {@code type} itself. Idempotent.
+   *
    * <pre>
    *     wrap(int.class) == Integer.class
    *     wrap(Integer.class) == Integer.class
    *     wrap(String.class) == String.class
    * </pre>
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "MissingBraces"})
   public static <T> Class<T> wrap(Class<T> type) {
     if (type == int.class) return (Class<T>) Integer.class;
     if (type == float.class) return (Class<T>) Float.class;
@@ -76,15 +75,16 @@ public final class Primitives {
   }
 
   /**
-   * Returns the corresponding primitive type of {@code type} if it is a
-   * wrapper type; otherwise returns {@code type} itself. Idempotent.
+   * Returns the corresponding primitive type of {@code type} if it is a wrapper type; otherwise
+   * returns {@code type} itself. Idempotent.
+   *
    * <pre>
    *     unwrap(Integer.class) == int.class
    *     unwrap(int.class) == int.class
    *     unwrap(String.class) == String.class
    * </pre>
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "MissingBraces"})
   public static <T> Class<T> unwrap(Class<T> type) {
     if (type == Integer.class) return (Class<T>) int.class;
     if (type == Float.class) return (Class<T>) float.class;

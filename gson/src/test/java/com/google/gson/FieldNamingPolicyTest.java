@@ -1,63 +1,77 @@
+/*
+ * Copyright (C) 2021 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.gson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import java.lang.reflect.Field;
 import java.util.Locale;
 import org.junit.Test;
-import com.google.gson.functional.FieldNamingTest;
 
 /**
- * Performs tests directly against {@link FieldNamingPolicy}; for integration tests
- * see {@link FieldNamingTest}.
+ * Performs tests directly against {@link FieldNamingPolicy}; for integration tests see {@code
+ * FieldNamingTest}.
  */
 public class FieldNamingPolicyTest {
   @Test
   public void testSeparateCamelCase() {
     // Map from original -> expected
-    String[][] argumentPairs =  {
-      { "a", "a" },
-      { "ab", "ab" },
-      { "Ab", "Ab" },
-      { "aB", "a_B" },
-      { "AB", "A_B" },
-      { "A_B", "A__B" },
-      { "firstSecondThird", "first_Second_Third" },
-      { "__", "__" },
-      { "_123", "_123" }
+    String[][] argumentPairs = {
+      {"a", "a"},
+      {"ab", "ab"},
+      {"Ab", "Ab"},
+      {"aB", "a_B"},
+      {"AB", "A_B"},
+      {"A_B", "A__B"},
+      {"firstSecondThird", "first_Second_Third"},
+      {"__", "__"},
+      {"_123", "_123"}
     };
 
     for (String[] pair : argumentPairs) {
-      assertEquals(pair[1], FieldNamingPolicy.separateCamelCase(pair[0], '_'));
+      assertThat(FieldNamingPolicy.separateCamelCase(pair[0], '_')).isEqualTo(pair[1]);
     }
   }
 
   @Test
   public void testUpperCaseFirstLetter() {
     // Map from original -> expected
-    String[][] argumentPairs =  {
-      { "a", "A" },
-      { "ab", "Ab" },
-      { "AB", "AB" },
-      { "_a", "_A" },
-      { "_ab", "_Ab" },
-      { "__", "__" },
-      { "_1", "_1" },
+    String[][] argumentPairs = {
+      {"a", "A"},
+      {"ab", "Ab"},
+      {"AB", "AB"},
+      {"_a", "_A"},
+      {"_ab", "_Ab"},
+      {"__", "__"},
+      {"_1", "_1"},
       // Not a letter, but has uppercase variant (should not be uppercased)
       // See https://github.com/google/gson/issues/1965
-      { "\u2170", "\u2170" },
-      { "_\u2170", "_\u2170" },
-      { "\u2170a", "\u2170A" },
+      {"\u2170", "\u2170"},
+      {"_\u2170", "_\u2170"},
+      {"\u2170a", "\u2170A"},
     };
 
     for (String[] pair : argumentPairs) {
-      assertEquals(pair[1], FieldNamingPolicy.upperCaseFirstLetter(pair[0]));
+      assertThat(FieldNamingPolicy.upperCaseFirstLetter(pair[0])).isEqualTo(pair[1]);
     }
   }
 
-  /**
-   * Upper casing policies should be unaffected by default Locale.
-   */
+  /** Upper-casing policies should be unaffected by default Locale. */
   @Test
   public void testUpperCasingLocaleIndependent() throws Exception {
     class Dummy {
@@ -81,24 +95,26 @@ public class FieldNamingPolicyTest {
 
     try {
       // Verify that default Locale has different case conversion rules
-      assertNotEquals("Test setup is broken", expected, name.toUpperCase());
+      assertWithMessage("Test setup is broken")
+          .that(name.toUpperCase(Locale.getDefault()))
+          .doesNotMatch(expected);
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
-        assertEquals("Unexpected conversion for " + policy, expected, policy.translateName(field));
+        assertWithMessage("Unexpected conversion for %s", policy)
+            .that(policy.translateName(field))
+            .matches(expected);
       }
     } finally {
-        Locale.setDefault(oldLocale);
+      Locale.setDefault(oldLocale);
     }
   }
 
-  /**
-   * Lower casing policies should be unaffected by default Locale.
-   */
+  /** Lower casing policies should be unaffected by default Locale. */
   @Test
   public void testLowerCasingLocaleIndependent() throws Exception {
     class Dummy {
-      @SuppressWarnings("unused")
+      @SuppressWarnings({"unused", "ConstantField"})
       int I;
     }
 
@@ -118,14 +134,18 @@ public class FieldNamingPolicyTest {
 
     try {
       // Verify that default Locale has different case conversion rules
-      assertNotEquals("Test setup is broken", expected, name.toLowerCase());
+      assertWithMessage("Test setup is broken")
+          .that(name.toLowerCase(Locale.getDefault()))
+          .doesNotMatch(expected);
 
       for (FieldNamingPolicy policy : policies) {
         // Should ignore default Locale
-        assertEquals("Unexpected conversion for " + policy, expected, policy.translateName(field));
+        assertWithMessage("Unexpected conversion for %s", policy)
+            .that(policy.translateName(field))
+            .matches(expected);
       }
     } finally {
-        Locale.setDefault(oldLocale);
+      Locale.setDefault(oldLocale);
     }
   }
 }

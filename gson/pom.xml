@@ -1,10 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2008 Google LLC
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.9.1-SNAPSHOT</version>
+    <version>2.13.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>gson</artifactId>
@@ -17,20 +33,77 @@
     </license>
   </licenses>
 
+  <properties>
+    <!-- Make the build reproducible, see root `pom.xml` -->
+    <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
+    <project.build.outputTimestamp>2025-04-24T01:03:45Z</project.build.outputTimestamp>
+
+    <excludeTestCompilation>**/Java17*</excludeTestCompilation>
+  </properties>
+
   <dependencies>
+    <!-- This dependency can be considered optional; omitting it during runtime will most likely
+      not cause any issues. However, it is not declared with `<optional>true</optional>` because
+      that can lead to cryptic compiler warnings for consumers, and to be on the safe side in case
+      there are actually issues which could occur when the dependency is missing at runtime.
+      See also discussion at https://github.com/google/gson/pull/2320#issuecomment-1455233938 -->
+    <dependency>
+      <groupId>com.google.errorprone</groupId>
+      <artifactId>error_prone_annotations</artifactId>
+      <version>2.38.0</version>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava-testlib</artifactId>
+      <version>33.4.8-jre</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>33.4.8-jre</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <!--
+        Plugins for source generation and compilation
+      -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>templating-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>filtering-java-templates</id>
+            <goals>
+              <goal>filter-sources</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>${project.basedir}/src/main/java-templates</sourceDirectory>
+              <outputDirectory>${project.build.directory}/generated-sources/java-templates</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
+          <!-- Adjust standard `default-compile` execution -->
           <execution>
             <id>default-compile</id>
             <configuration>
@@ -40,54 +113,17 @@
               </excludes>
             </configuration>
           </execution>
-        </executions>
-      </plugin>
-      <!-- Note: Javadoc plugin has to be run in combination with >= `package` 
-        phase, e.g. `mvn package javadoc:javadoc`, otherwise it fails with
-        "Aggregator report contains named and unnamed modules" -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M7</version>
-        <configuration>
-          <!-- Deny illegal access, this is required for ReflectionAccessTest -->
-          <!-- Requires Java >= 9; Important: In case future Java versions 
-            don't support this flag anymore, don't remove it unless CI also runs with 
-            that Java version. Ideally would use toolchain to specify that this should 
-            run with e.g. Java 11, but Maven toolchain requirements (unlike Gradle ones) 
-            don't seem to be portable (every developer would have to set up toolchain 
-            configuration locally). -->
-          <argLine>--illegal-access=deny</argLine>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
-        </configuration>
-      </plugin>
-      <!-- Add module-info to JAR, see https://github.com/moditect/moditect#adding-module-descriptors-to-existing-jar-files -->
-      <!-- Uses ModiTect instead of separate maven-compiler-plugin executions 
-        for better Eclipse IDE support, see https://github.com/eclipse-m2e/m2e-core/issues/393 -->
-      <plugin>
-        <groupId>org.moditect</groupId>
-        <artifactId>moditect-maven-plugin</artifactId>
-        <version>1.0.0.RC2</version>
-        <executions>
+          <!-- Adjust standard `default-testCompile` execution -->
           <execution>
-            <id>add-module-info</id>
-            <phase>package</phase>
+            <id>default-testCompile</id>
+            <phase>test-compile</phase>
             <goals>
-              <goal>add-module-info</goal>
+              <goal>testCompile</goal>
             </goals>
             <configuration>
-              <jvmVersion>9</jvmVersion>
-              <module>
-                <moduleInfoFile>${project.build.sourceDirectory}/module-info.java</moduleInfoFile>
-              </module>
-              <!-- Overwrite the previously generated JAR file, if any -->
-              <overwriteExistingFiles>true</overwriteExistingFiles>
+              <testExcludes>
+                <exclude>${excludeTestCompilation}</exclude>
+              </testExcludes>
             </configuration>
           </execution>
         </executions>
@@ -95,39 +131,65 @@
       <plugin>
         <groupId>biz.aQute.bnd</groupId>
         <artifactId>bnd-maven-plugin</artifactId>
-        <version>6.3.1</version>
+        <version>6.4.0</version>
         <executions>
           <execution>
             <goals>
               <goal>bnd-process</goal>
             </goals>
+            <configuration>
+              <bnd><![CDATA[
+                Bundle-SymbolicName: com.google.gson
+                Bundle-Name: ${project.name}
+                Bundle-Description: ${project.description}
+                Bundle-Vendor: Google Gson Project
+                Bundle-ContactAddress: ${project.parent.url}
+
+                # Optional dependency for JDK's sun.misc.Unsafe
+                # Optional dependency to google.errorprone
+                # https://bnd.bndtools.org/chapters/920-faq.html#remove-unwanted-imports-
+                Import-Package: sun.misc;resolution:=optional, com.google.errorprone.*;resolution:=optional, *
+
+                -removeheaders: Private-Package
+
+                -exportcontents:\
+                    com.google.gson,\
+                    com.google.gson.annotations;-noimport:=true,\
+                    com.google.gson.reflect,\
+                    com.google.gson.stream
+              ]]></bnd>
+            </configuration>
           </execution>
         </executions>
       </plugin>
+
+      <!--
+        Plugins for test execution
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
+        <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <archive>
-            <!-- Use existing manifest generated by BND plugin -->
-            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-          </archive>
+          <!-- Deny illegal access, this is required for ReflectionAccessTest -->
+          <!-- Requires Java >= 9; Important: In case future Java versions
+            don't support this flag anymore, don't remove it unless CI also runs with
+            that Java version. Ideally would use toolchain to specify that this should
+            run with e.g. Java 11, but Maven toolchain requirements (unlike Gradle ones)
+            don't seem to be portable (every developer would have to set up toolchain
+            configuration locally). -->
+          <argLine>--illegal-access=deny</argLine>
         </configuration>
       </plugin>
+      <!-- Failsafe plugin for running integration tests against final JAR, see `*IT.java` test classes -->
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>templating-maven-plugin</artifactId>
-        <version>1.0.0</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
         <executions>
           <execution>
-            <id>filtering-java-templates</id>
             <goals>
-              <goal>filter-sources</goal>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
             </goals>
-            <configuration>
-              <sourceDirectory>${basedir}/src/main/java-templates</sourceDirectory>
-              <outputDirectory>${project.build.directory}/generated-sources/java-templates</outputDirectory>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -160,21 +222,35 @@
       <plugin>
         <groupId>com.github.wvengen</groupId>
         <artifactId>proguard-maven-plugin</artifactId>
-        <version>2.6.0</version>
+        <version>2.7.0</version>
         <executions>
           <execution>
+            <id>obfuscate-test-class</id>
             <phase>process-test-classes</phase>
             <goals>
               <goal>proguard</goal>
             </goals>
           </execution>
         </executions>
+        <!-- Upgrades ProGuard to version newer than the one included by plugin by default -->
+        <dependencies>
+          <dependency>
+            <groupId>com.guardsquare</groupId>
+            <artifactId>proguard-base</artifactId>
+            <version>7.7.0</version>
+          </dependency>
+          <dependency>
+            <groupId>com.guardsquare</groupId>
+            <artifactId>proguard-core</artifactId>
+            <version>9.1.10</version>
+          </dependency>
+        </dependencies>
         <configuration>
           <obfuscate>true</obfuscate>
           <injar>test-classes-obfuscated-injar</injar>
           <outjar>test-classes-obfuscated-outjar</outjar>
           <inFilter>**/*.class</inFilter>
-          <proguardInclude>${basedir}/src/test/resources/testcases-proguard.conf</proguardInclude>
+          <proguardInclude>${project.basedir}/src/test/resources/testcases-proguard.conf</proguardInclude>
           <libs>
             <lib>${project.build.directory}/classes</lib>
             <lib>${java.home}/jmods/java.base.jmod</lib>
@@ -182,8 +258,9 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.1</version>
         <executions>
           <execution>
             <id>post-obfuscate-class</id>
@@ -206,6 +283,70 @@
           </execution>
         </executions>
       </plugin>
+
+      <!--
+        Plugins for building / modifying artifacts
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <!-- Use existing manifest generated by bnd-maven-plugin -->
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
+      </plugin>
+      <!-- Add module-info to JAR, see https://github.com/moditect/moditect#adding-module-descriptors-to-existing-jar-files -->
+      <!-- Uses ModiTect instead of separate maven-compiler-plugin executions
+        for better Eclipse IDE support, see https://github.com/eclipse-m2e/m2e-core/issues/393 -->
+      <!-- Note: For some reason this has to be executed before javadoc plugin; otherwise `javadoc:jar` goal fails
+        to find source files -->
+      <plugin>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
+        <version>1.2.2.Final</version>
+        <executions>
+          <execution>
+            <id>add-module-info</id>
+            <phase>package</phase>
+            <goals>
+              <goal>add-module-info</goal>
+            </goals>
+            <configuration>
+              <jvmVersion>9</jvmVersion>
+              <module>
+                <moduleInfoFile>${project.build.sourceDirectory}/module-info.java</moduleInfoFile>
+              </module>
+              <!-- Overwrite the previously generated JAR file, if any -->
+              <overwriteExistingFiles>true</overwriteExistingFiles>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Note: Javadoc plugin has to be run in combination with >= `package` phase,
+        e.g. `mvn package javadoc:javadoc`, otherwise it fails with
+        "Aggregator report contains named and unnamed modules" -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>JDK17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <properties>
+        <maven.compiler.testRelease>17</maven.compiler.testRelease>
+        <excludeTestCompilation />
+      </properties>
+    </profile>
+  </profiles>
 </project>

@@ -16,11 +16,15 @@
 
 package com.google.gson;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
+
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Contains numerous tests involving registered type converters with a Gson instance.
@@ -28,83 +32,96 @@ import junit.framework.TestCase;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class GsonTypeAdapterTest extends TestCase {
+public class GsonTypeAdapterTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    gson = new GsonBuilder()
-        .registerTypeAdapter(AtomicLong.class, new ExceptionTypeAdapter())
-        .registerTypeAdapter(AtomicInteger.class, new AtomicIntegerTypeAdapter())
-        .create();
+  @Before
+  public void setUp() throws Exception {
+    gson =
+        new GsonBuilder()
+            .registerTypeAdapter(AtomicLong.class, new ExceptionTypeAdapter())
+            .registerTypeAdapter(AtomicInteger.class, new AtomicIntegerTypeAdapter())
+            .create();
   }
 
-  public void testDefaultTypeAdapterThrowsParseException() throws Exception {
-    try {
-      gson.fromJson("{\"abc\":123}", BigInteger.class);
-      fail("Should have thrown a JsonParseException");
-    } catch (JsonParseException expected) { }
+  @Test
+  public void testDefaultTypeAdapterThrowsParseException() {
+    assertThrows(JsonParseException.class, () -> gson.fromJson("{\"abc\":123}", BigInteger.class));
   }
 
-  public void testTypeAdapterThrowsException() throws Exception {
-    try {
-      gson.toJson(new AtomicLong(0));
-      fail("Type Adapter should have thrown an exception");
-    } catch (IllegalStateException expected) { }
+  @Test
+  public void testTypeAdapterThrowsException() {
+    Exception e = assertThrows(IllegalStateException.class, () -> gson.toJson(new AtomicLong(0)));
+    assertThat(e).isSameInstanceAs(ExceptionTypeAdapter.thrownException);
 
-    try {
-      gson.fromJson("123", AtomicLong.class);
-      fail("Type Adapter should have thrown an exception");
-    } catch (JsonParseException expected) { }
+    // Verify that serializer is made null-safe, i.e. it is not called for null
+    assertThat(gson.toJson(null, AtomicLong.class)).isEqualTo("null");
+
+    e = assertThrows(JsonParseException.class, () -> gson.fromJson("123", AtomicLong.class));
+    assertThat(e).hasCauseThat().isSameInstanceAs(ExceptionTypeAdapter.thrownException);
+
+    // Verify that deserializer is made null-safe, i.e. it is not called for null
+    assertThat(gson.fromJson(JsonNull.INSTANCE, AtomicLong.class)).isNull();
   }
 
-  public void testTypeAdapterProperlyConvertsTypes() throws Exception {
+  @Test
+  public void testTypeAdapterProperlyConvertsTypes() {
     int intialValue = 1;
     AtomicInteger atomicInt = new AtomicInteger(intialValue);
     String json = gson.toJson(atomicInt);
-    assertEquals(intialValue + 1, Integer.parseInt(json));
+    assertThat(Integer.parseInt(json)).isEqualTo(intialValue + 1);
 
     atomicInt = gson.fromJson(json, AtomicInteger.class);
-    assertEquals(intialValue, atomicInt.get());
+    assertThat(atomicInt.get()).isEqualTo(intialValue);
   }
 
-  public void testTypeAdapterDoesNotAffectNonAdaptedTypes() throws Exception {
+  @Test
+  public void testTypeAdapterDoesNotAffectNonAdaptedTypes() {
     String expected = "blah";
     String actual = gson.toJson(expected);
-    assertEquals("\"" + expected + "\"", actual);
+    assertThat(actual).isEqualTo("\"" + expected + "\"");
 
     actual = gson.fromJson(actual, String.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
   }
 
   private static class ExceptionTypeAdapter
       implements JsonSerializer<AtomicLong>, JsonDeserializer<AtomicLong> {
-    @Override public JsonElement serialize(
-        AtomicLong src, Type typeOfSrc, JsonSerializationContext context) {
-      throw new IllegalStateException();
+    @SuppressWarnings("StaticAssignmentOfThrowable")
+    static final IllegalStateException thrownException =
+        new IllegalStateException("test-exception");
+
+    @Override
+    public JsonElement serialize(AtomicLong src, Type typeOfSrc, JsonSerializationContext context) {
+      throw thrownException;
     }
-    @Override public AtomicLong deserialize(
+
+    @Override
+    public AtomicLong deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
-      throw new IllegalStateException();
+      throw thrownException;
     }
   }
 
   private static class AtomicIntegerTypeAdapter
       implements JsonSerializer<AtomicInteger>, JsonDeserializer<AtomicInteger> {
-    @Override public JsonElement serialize(AtomicInteger src, Type typeOfSrc, JsonSerializationContext context) {
+    @Override
+    public JsonElement serialize(
+        AtomicInteger src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.incrementAndGet());
     }
 
-    @Override public AtomicInteger deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    @Override
+    public AtomicInteger deserialize(
+        JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       int intValue = json.getAsInt();
       return new AtomicInteger(--intValue);
     }
   }
 
-  static abstract class Abstract {
+  abstract static class Abstract {
     String a;
   }
 
@@ -113,6 +130,7 @@ public class GsonTypeAdapterTest extends TestCase {
   }
 
   // https://groups.google.com/d/topic/google-gson/EBmOCa8kJPE/discussion
+  @Test
   public void testDeserializerForAbstractClass() {
     Concrete instance = new Concrete();
     instance.a = "android";
@@ -127,14 +145,16 @@ public class GsonTypeAdapterTest extends TestCase {
     assertSerialized("{\"b\":\"beep\",\"a\":\"android\"}", Concrete.class, false, false, instance);
   }
 
-  private void assertSerialized(String expected, Class<?> instanceType, boolean registerAbstractDeserializer,
-      boolean registerAbstractHierarchyDeserializer, Object instance) {
-    JsonDeserializer<Abstract> deserializer = new JsonDeserializer<Abstract>() {
-      @Override public Abstract deserialize(JsonElement json, Type typeOfT,
-          JsonDeserializationContext context) throws JsonParseException {
-        throw new AssertionError();
-      }
-    };
+  private static void assertSerialized(
+      String expected,
+      Class<?> instanceType,
+      boolean registerAbstractDeserializer,
+      boolean registerAbstractHierarchyDeserializer,
+      Object instance) {
+    JsonDeserializer<Abstract> deserializer =
+        (json, typeOfT, context) -> {
+          throw new AssertionError();
+        };
     GsonBuilder builder = new GsonBuilder();
     if (registerAbstractDeserializer) {
       builder.registerTypeAdapter(Abstract.class, deserializer);
@@ -143,6 +163,6 @@ public class GsonTypeAdapterTest extends TestCase {
       builder.registerTypeHierarchyAdapter(Abstract.class, deserializer);
     }
     Gson gson = builder.create();
-    assertEquals(expected, gson.toJson(instance, instanceType));
+    assertThat(gson.toJson(instance, instanceType)).isEqualTo(expected);
   }
 }

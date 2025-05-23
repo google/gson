@@ -16,10 +16,12 @@
 
 package com.google.gson.protobuf;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.MapMaker;
+import com.google.common.reflect.TypeToken;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -38,12 +40,12 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Extension;
 import com.google.protobuf.Message;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -51,11 +53,12 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * GSON type adapter for protocol buffers that knows how to serialize enums either by using their
  * values or their names, and also supports custom proto field names.
- * <p>
- * You can specify which case representation is used for the proto fields when writing/reading the
- * JSON payload by calling {@link Builder#setFieldNameSerializationFormat(CaseFormat, CaseFormat)}.
- * <p>
- * An example of default serialization/deserialization using custom proto field names is shown
+ *
+ * <p>You can specify which case representation is used for the proto fields when writing/reading
+ * the JSON payload by calling {@link Builder#setFieldNameSerializationFormat(CaseFormat,
+ * CaseFormat)}.
+ *
+ * <p>An example of default serialization/deserialization using custom proto field names is shown
  * below:
  *
  * <pre>
@@ -64,17 +67,13 @@ import java.util.concurrent.ConcurrentMap;
  *   string os_build_id = 1 [(serialized_name) = "osBuildID"];
  * }
  * </pre>
- * <p>
  *
  * @author Inderjeet Singh
  * @author Emmanuel Cron
  * @author Stanley Wang
  */
-public class ProtoTypeAdapter
-    implements JsonSerializer<Message>, JsonDeserializer<Message> {
-  /**
-   * Determines how enum <u>values</u> should be serialized.
-   */
+public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializer<Message> {
+  /** Determines how enum <u>values</u> should be serialized. */
   public enum EnumSerialization {
     /**
      * Serializes and deserializes enum values using their <b>number</b>. When this is used, custom
@@ -85,26 +84,29 @@ public class ProtoTypeAdapter
     NAME;
   }
 
-  /**
-   * Builder for {@link ProtoTypeAdapter}s.
-   */
+  /** Builder for {@link ProtoTypeAdapter}s. */
   public static class Builder {
     private final Set<Extension<FieldOptions, String>> serializedNameExtensions;
     private final Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions;
     private EnumSerialization enumSerialization;
     private CaseFormat protoFormat;
     private CaseFormat jsonFormat;
+    private boolean shouldUseJsonNameFieldOption;
 
-    private Builder(EnumSerialization enumSerialization, CaseFormat fromFieldNameFormat,
+    private Builder(
+        EnumSerialization enumSerialization,
+        CaseFormat fromFieldNameFormat,
         CaseFormat toFieldNameFormat) {
       this.serializedNameExtensions = new HashSet<>();
       this.serializedEnumValueExtensions = new HashSet<>();
       setEnumSerialization(enumSerialization);
       setFieldNameSerializationFormat(fromFieldNameFormat, toFieldNameFormat);
+      this.shouldUseJsonNameFieldOption = false;
     }
 
+    @CanIgnoreReturnValue
     public Builder setEnumSerialization(EnumSerialization enumSerialization) {
-      this.enumSerialization = checkNotNull(enumSerialization);
+      this.enumSerialization = requireNonNull(enumSerialization);
       return this;
     }
 
@@ -112,8 +114,8 @@ public class ProtoTypeAdapter
      * Sets the field names serialization format. The first parameter defines how to read the format
      * of the proto field names you are converting to JSON. The second parameter defines which
      * format to use when serializing them.
-     * <p>
-     * For example, if you use the following parameters: {@link CaseFormat#LOWER_UNDERSCORE},
+     *
+     * <p>For example, if you use the following parameters: {@link CaseFormat#LOWER_UNDERSCORE},
      * {@link CaseFormat#LOWER_CAMEL}, the following conversion will occur:
      *
      * <pre>{@code
@@ -123,8 +125,9 @@ public class ProtoTypeAdapter
      * n__id_ct       nIdCt
      * }</pre>
      */
-    public Builder setFieldNameSerializationFormat(CaseFormat fromFieldNameFormat,
-        CaseFormat toFieldNameFormat) {
+    @CanIgnoreReturnValue
+    public Builder setFieldNameSerializationFormat(
+        CaseFormat fromFieldNameFormat, CaseFormat toFieldNameFormat) {
       this.protoFormat = fromFieldNameFormat;
       this.jsonFormat = toFieldNameFormat;
       return this;
@@ -139,19 +142,20 @@ public class ProtoTypeAdapter
      * string client_app_id = 1 [(serialized_name) = "appId"];
      * </pre>
      *
-     * ...the adapter will serialize the field using '{@code appId}' instead of the default '
-     * {@code clientAppId}'. This lets you customize the name serialization of any proto field.
+     * ...the adapter will serialize the field using '{@code appId}' instead of the default ' {@code
+     * clientAppId}'. This lets you customize the name serialization of any proto field.
      */
+    @CanIgnoreReturnValue
     public Builder addSerializedNameExtension(
         Extension<FieldOptions, String> serializedNameExtension) {
-      serializedNameExtensions.add(checkNotNull(serializedNameExtension));
+      serializedNameExtensions.add(requireNonNull(serializedNameExtension));
       return this;
     }
 
     /**
      * Adds an enum value proto annotation that, when set, overrides the default <b>enum</b> value
-     * serialization/deserialization of this adapter. For example, if you add the '
-     * {@code serialized_value}' annotation and you define an enum in your proto like the one below:
+     * serialization/deserialization of this adapter. For example, if you add the ' {@code
+     * serialized_value}' annotation and you define an enum in your proto like the one below:
      *
      * <pre>
      * enum MyEnum {
@@ -163,33 +167,64 @@ public class ProtoTypeAdapter
      *
      * ...the adapter will serialize the value {@code CLIENT_APP_ID} as "{@code APP_ID}" and the
      * value {@code TWO} as "{@code 2}". This works for both serialization and deserialization.
-     * <p>
-     * Note that you need to set the enum serialization of this adapter to
-     * {@link EnumSerialization#NAME}, otherwise these annotations will be ignored.
+     *
+     * <p>Note that you need to set the enum serialization of this adapter to {@link
+     * EnumSerialization#NAME}, otherwise these annotations will be ignored.
      */
+    @CanIgnoreReturnValue
     public Builder addSerializedEnumValueExtension(
         Extension<EnumValueOptions, String> serializedEnumValueExtension) {
-      serializedEnumValueExtensions.add(checkNotNull(serializedEnumValueExtension));
+      serializedEnumValueExtensions.add(requireNonNull(serializedEnumValueExtension));
+      return this;
+    }
+
+    /**
+     * Sets or unsets a flag (default false) that, when set, causes the adapter to use the {@code
+     * json_name} field option from a proto field for serialization. Unlike other field options that
+     * can be defined as annotations on a proto field, {@code json_name} cannot be accessed via a
+     * proto field's {@link FieldDescriptor#getOptions} and registered via {@link
+     * ProtoTypeAdapter.Builder#addSerializedNameExtension}.
+     *
+     * <p>This flag is subordinate to any custom serialized name extensions added to this adapter.
+     * In other words, serialized name extensions take precedence over this setting. For example, a
+     * field defined like:
+     *
+     * <pre>
+     * string client_app_id = 1 [json_name = "foo", (serialized_name) = "bar"];
+     * </pre>
+     *
+     * ...will be serialized as '{@code bar}' if {@code shouldUseJsonNameFieldOption} is set to
+     * {@code true} and the '{@code serialized_name}' annotation is added to the adapter.
+     *
+     * @since 2.12.0
+     */
+    @CanIgnoreReturnValue
+    public Builder setShouldUseJsonNameFieldOption(boolean shouldUseJsonNameFieldOption) {
+      this.shouldUseJsonNameFieldOption = shouldUseJsonNameFieldOption;
       return this;
     }
 
     public ProtoTypeAdapter build() {
-      return new ProtoTypeAdapter(enumSerialization, protoFormat, jsonFormat,
-          serializedNameExtensions, serializedEnumValueExtensions);
+      return new ProtoTypeAdapter(
+          enumSerialization,
+          protoFormat,
+          jsonFormat,
+          serializedNameExtensions,
+          serializedEnumValueExtensions,
+          shouldUseJsonNameFieldOption);
     }
   }
 
   /**
-   * Creates a new {@link ProtoTypeAdapter} builder, defaulting enum serialization to
-   * {@link EnumSerialization#NAME} and converting field serialization from
-   * {@link CaseFormat#LOWER_UNDERSCORE} to {@link CaseFormat#LOWER_CAMEL}.
+   * Creates a new {@link ProtoTypeAdapter} builder, defaulting enum serialization to {@link
+   * EnumSerialization#NAME} and converting field serialization from {@link
+   * CaseFormat#LOWER_UNDERSCORE} to {@link CaseFormat#LOWER_CAMEL}.
    */
   public static Builder newBuilder() {
     return new Builder(EnumSerialization.NAME, CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_CAMEL);
   }
 
-  private static final com.google.protobuf.Descriptors.FieldDescriptor.Type ENUM_TYPE =
-      com.google.protobuf.Descriptors.FieldDescriptor.Type.ENUM;
+  private static final FieldDescriptor.Type ENUM_TYPE = FieldDescriptor.Type.ENUM;
 
   private static final ConcurrentMap<String, ConcurrentMap<Class<?>, Method>> mapOfMapOfMethods =
       new MapMaker().makeMap();
@@ -199,28 +234,31 @@ public class ProtoTypeAdapter
   private final CaseFormat jsonFormat;
   private final Set<Extension<FieldOptions, String>> serializedNameExtensions;
   private final Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions;
+  private final boolean shouldUseJsonNameFieldOption;
 
-  private ProtoTypeAdapter(EnumSerialization enumSerialization,
+  private ProtoTypeAdapter(
+      EnumSerialization enumSerialization,
       CaseFormat protoFormat,
       CaseFormat jsonFormat,
       Set<Extension<FieldOptions, String>> serializedNameExtensions,
-      Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions) {
+      Set<Extension<EnumValueOptions, String>> serializedEnumValueExtensions,
+      boolean shouldUseJsonNameFieldOption) {
     this.enumSerialization = enumSerialization;
     this.protoFormat = protoFormat;
     this.jsonFormat = jsonFormat;
     this.serializedNameExtensions = serializedNameExtensions;
     this.serializedEnumValueExtensions = serializedEnumValueExtensions;
+    this.shouldUseJsonNameFieldOption = shouldUseJsonNameFieldOption;
   }
 
   @Override
-  public JsonElement serialize(Message src, Type typeOfSrc,
-      JsonSerializationContext context) {
+  public JsonElement serialize(Message src, Type typeOfSrc, JsonSerializationContext context) {
     JsonObject ret = new JsonObject();
-    final Map<FieldDescriptor, Object> fields = src.getAllFields();
+    Map<FieldDescriptor, Object> fields = src.getAllFields();
 
     for (Map.Entry<FieldDescriptor, Object> fieldPair : fields.entrySet()) {
-      final FieldDescriptor desc = fieldPair.getKey();
-      String name = getCustSerializedName(desc.getOptions(), desc.getName());
+      FieldDescriptor desc = fieldPair.getKey();
+      String name = getCustSerializedName(desc);
 
       if (desc.getType() == ENUM_TYPE) {
         // Enum collections are also returned as ENUM_TYPE
@@ -246,8 +284,8 @@ public class ProtoTypeAdapter
   }
 
   @Override
-  public Message deserialize(JsonElement json, Type typeOfT,
-      JsonDeserializationContext context) throws JsonParseException {
+  public Message deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+      throws JsonParseException {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
       @SuppressWarnings("unchecked")
@@ -257,85 +295,82 @@ public class ProtoTypeAdapter
         throw new IllegalStateException("only generated messages are supported");
       }
 
-      try {
-        // Invoke the ProtoClass.newBuilder() method
-        Message.Builder protoBuilder =
-            (Message.Builder) getCachedMethod(protoClass, "newBuilder").invoke(null);
+      // Invoke the ProtoClass.newBuilder() method
+      Message.Builder protoBuilder =
+          (Message.Builder) getCachedMethod(protoClass, "newBuilder").invoke(null);
 
-        Message defaultInstance =
-            (Message) getCachedMethod(protoClass, "getDefaultInstance").invoke(null);
+      Message defaultInstance =
+          (Message) getCachedMethod(protoClass, "getDefaultInstance").invoke(null);
 
-        Descriptor protoDescriptor =
-            (Descriptor) getCachedMethod(protoClass, "getDescriptor").invoke(null);
-        // Call setters on all of the available fields
-        for (FieldDescriptor fieldDescriptor : protoDescriptor.getFields()) {
-          String jsonFieldName =
-              getCustSerializedName(fieldDescriptor.getOptions(), fieldDescriptor.getName());
+      Descriptor protoDescriptor =
+          (Descriptor) getCachedMethod(protoClass, "getDescriptor").invoke(null);
+      // Call setters on all of the available fields
+      for (FieldDescriptor fieldDescriptor : protoDescriptor.getFields()) {
+        String jsonFieldName = getCustSerializedName(fieldDescriptor);
 
-          JsonElement jsonElement = jsonObject.get(jsonFieldName);
-          if (jsonElement != null && !jsonElement.isJsonNull()) {
-            // Do not reuse jsonFieldName here, it might have a custom value
-            Object fieldValue;
-            if (fieldDescriptor.getType() == ENUM_TYPE) {
-              if (jsonElement.isJsonArray()) {
-                // Handling array
-                Collection<EnumValueDescriptor> enumCollection =
-                    new ArrayList<>(jsonElement.getAsJsonArray().size());
-                for (JsonElement element : jsonElement.getAsJsonArray()) {
-                  enumCollection.add(
-                      findValueByNameAndExtension(fieldDescriptor.getEnumType(), element));
-                }
-                fieldValue = enumCollection;
-              } else {
-                // No array, just a plain value
-                fieldValue =
-                    findValueByNameAndExtension(fieldDescriptor.getEnumType(), jsonElement);
+        JsonElement jsonElement = jsonObject.get(jsonFieldName);
+        if (jsonElement != null && !jsonElement.isJsonNull()) {
+          // Do not reuse jsonFieldName here, it might have a custom value
+          Object fieldValue;
+          if (fieldDescriptor.getType() == ENUM_TYPE) {
+            if (jsonElement.isJsonArray()) {
+              // Handling array
+              Collection<EnumValueDescriptor> enumCollection =
+                  new ArrayList<>(jsonElement.getAsJsonArray().size());
+              for (JsonElement element : jsonElement.getAsJsonArray()) {
+                enumCollection.add(
+                    findValueByNameAndExtension(fieldDescriptor.getEnumType(), element));
               }
-              protoBuilder.setField(fieldDescriptor, fieldValue);
-            } else if (fieldDescriptor.isRepeated()) {
-              // If the type is an array, then we have to grab the type from the class.
-              // protobuf java field names are always lower camel case
-              String protoArrayFieldName =
-                  protoFormat.to(CaseFormat.LOWER_CAMEL, fieldDescriptor.getName()) + "_";
-              Field protoArrayField = protoClass.getDeclaredField(protoArrayFieldName);
-              Type protoArrayFieldType = protoArrayField.getGenericType();
-              fieldValue = context.deserialize(jsonElement, protoArrayFieldType);
-              protoBuilder.setField(fieldDescriptor, fieldValue);
+              fieldValue = enumCollection;
             } else {
-              Object field = defaultInstance.getField(fieldDescriptor);
-              fieldValue = context.deserialize(jsonElement, field.getClass());
-              protoBuilder.setField(fieldDescriptor, fieldValue);
+              // No array, just a plain value
+              fieldValue = findValueByNameAndExtension(fieldDescriptor.getEnumType(), jsonElement);
             }
+            protoBuilder.setField(fieldDescriptor, fieldValue);
+          } else if (fieldDescriptor.isRepeated()) {
+            // If the type is an array, then we have to grab the type from the class.
+            // protobuf java field names are always lower camel case
+            String protoArrayFieldName =
+                protoFormat.to(CaseFormat.LOWER_CAMEL, fieldDescriptor.getName()) + "_";
+            Field protoArrayField = protoClass.getDeclaredField(protoArrayFieldName);
+
+            @SuppressWarnings("unchecked")
+            TypeToken<? extends List<?>> protoArrayFieldType =
+                (TypeToken<? extends List<?>>) TypeToken.of(protoArrayField.getGenericType());
+            // Get the type as `List<E>`, otherwise type might be Protobuf internal interface for
+            // which no instance can be created
+            Type protoArrayResolvedFieldType =
+                protoArrayFieldType.getSupertype(List.class).getType();
+            fieldValue = context.deserialize(jsonElement, protoArrayResolvedFieldType);
+            protoBuilder.setField(fieldDescriptor, fieldValue);
+          } else {
+            Object field = defaultInstance.getField(fieldDescriptor);
+            fieldValue = context.deserialize(jsonElement, field.getClass());
+            protoBuilder.setField(fieldDescriptor, fieldValue);
           }
         }
-        return protoBuilder.build();
-      } catch (SecurityException e) {
-        throw new JsonParseException(e);
-      } catch (NoSuchMethodException e) {
-        throw new JsonParseException(e);
-      } catch (IllegalArgumentException e) {
-        throw new JsonParseException(e);
-      } catch (IllegalAccessException e) {
-        throw new JsonParseException(e);
-      } catch (InvocationTargetException e) {
-        throw new JsonParseException(e);
       }
+      return protoBuilder.build();
     } catch (Exception e) {
       throw new JsonParseException("Error while parsing proto", e);
     }
   }
 
   /**
-   * Retrieves the custom field name from the given options, and if not found, returns the specified
-   * default name.
+   * Retrieves the custom field name for a given FieldDescriptor via its field options, falling back
+   * to its name as a default.
    */
-  private String getCustSerializedName(FieldOptions options, String defaultName) {
+  private String getCustSerializedName(FieldDescriptor fieldDescriptor) {
+    FieldOptions options = fieldDescriptor.getOptions();
     for (Extension<FieldOptions, String> extension : serializedNameExtensions) {
       if (options.hasExtension(extension)) {
         return options.getExtension(extension);
       }
     }
-    return protoFormat.to(jsonFormat, defaultName);
+    if (shouldUseJsonNameFieldOption && fieldDescriptor.toProto().hasJsonName()) {
+      return fieldDescriptor.getJsonName();
+    }
+    return protoFormat.to(jsonFormat, fieldDescriptor.getName());
   }
 
   /**
@@ -352,8 +387,8 @@ public class ProtoTypeAdapter
   }
 
   /**
-   * Returns the enum value to use for serialization, depending on the value of
-   * {@link EnumSerialization} that was given to this adapter.
+   * Returns the enum value to use for serialization, depending on the value of {@link
+   * EnumSerialization} that was given to this adapter.
    */
   private Object getEnumValue(EnumValueDescriptor enumDesc) {
     if (enumSerialization == EnumSerialization.NAME) {
@@ -371,8 +406,8 @@ public class ProtoTypeAdapter
    *
    * @throws IllegalArgumentException if a matching name/number was not found
    */
-  private EnumValueDescriptor findValueByNameAndExtension(EnumDescriptor desc,
-      JsonElement jsonElement) {
+  private EnumValueDescriptor findValueByNameAndExtension(
+      EnumDescriptor desc, JsonElement jsonElement) {
     if (enumSerialization == EnumSerialization.NAME) {
       // With enum name
       for (EnumValueDescriptor enumDesc : desc.getValues()) {
@@ -394,8 +429,9 @@ public class ProtoTypeAdapter
     }
   }
 
-  private static Method getCachedMethod(Class<?> clazz, String methodName,
-      Class<?>... methodParamTypes) throws NoSuchMethodException {
+  private static Method getCachedMethod(
+      Class<?> clazz, String methodName, Class<?>... methodParamTypes)
+      throws NoSuchMethodException {
     ConcurrentMap<Class<?>, Method> mapOfMethods = mapOfMapOfMethods.get(methodName);
     if (mapOfMethods == null) {
       mapOfMethods = new MapMaker().makeMap();
@@ -412,5 +448,4 @@ public class ProtoTypeAdapter
     }
     return method;
   }
-
 }

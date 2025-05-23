@@ -16,19 +16,15 @@
 
 package com.google.gson.graph;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.Test;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Test;
 
 public final class GraphAdapterBuilderTest {
   @Test
@@ -41,36 +37,34 @@ public final class GraphAdapterBuilderTest {
     paper.beats = rock;
 
     GsonBuilder gsonBuilder = new GsonBuilder();
-    new GraphAdapterBuilder()
-        .addType(Roshambo.class)
-        .registerOn(gsonBuilder);
+    new GraphAdapterBuilder().addType(Roshambo.class).registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
-    assertEquals("{'0x1':{'name':'ROCK','beats':'0x2'}," +
-        "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
-        "'0x3':{'name':'PAPER','beats':'0x1'}}",
-        gson.toJson(rock).replace('"', '\''));
+    assertThat(gson.toJson(rock).replace('"', '\''))
+        .isEqualTo(
+            "{'0x1':{'name':'ROCK','beats':'0x2'},"
+                + "'0x2':{'name':'SCISSORS','beats':'0x3'},"
+                + "'0x3':{'name':'PAPER','beats':'0x1'}}");
   }
 
   @Test
   public void testDeserialization() {
-    String json = "{'0x1':{'name':'ROCK','beats':'0x2'}," +
-        "'0x2':{'name':'SCISSORS','beats':'0x3'}," +
-        "'0x3':{'name':'PAPER','beats':'0x1'}}";
+    String json =
+        "{'0x1':{'name':'ROCK','beats':'0x2'},"
+            + "'0x2':{'name':'SCISSORS','beats':'0x3'},"
+            + "'0x3':{'name':'PAPER','beats':'0x1'}}";
 
     GsonBuilder gsonBuilder = new GsonBuilder();
-    new GraphAdapterBuilder()
-        .addType(Roshambo.class)
-        .registerOn(gsonBuilder);
+    new GraphAdapterBuilder().addType(Roshambo.class).registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
     Roshambo rock = gson.fromJson(json, Roshambo.class);
-    assertEquals("ROCK", rock.name);
+    assertThat(rock.name).isEqualTo("ROCK");
     Roshambo scissors = rock.beats;
-    assertEquals("SCISSORS", scissors.name);
+    assertThat(scissors.name).isEqualTo("SCISSORS");
     Roshambo paper = scissors.beats;
-    assertEquals("PAPER", paper.name);
-    assertSame(rock, paper.beats);
+    assertThat(paper.name).isEqualTo("PAPER");
+    assertThat(paper.beats).isSameInstanceAs(rock);
   }
 
   @Test
@@ -78,14 +72,57 @@ public final class GraphAdapterBuilderTest {
     String json = "{'0x1':{'name':'SUICIDE','beats':'0x1'}}";
 
     GsonBuilder gsonBuilder = new GsonBuilder();
-    new GraphAdapterBuilder()
-        .addType(Roshambo.class)
-        .registerOn(gsonBuilder);
+    new GraphAdapterBuilder().addType(Roshambo.class).registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
     Roshambo suicide = gson.fromJson(json, Roshambo.class);
-    assertEquals("SUICIDE", suicide.name);
-    assertSame(suicide, suicide.beats);
+    assertThat(suicide.name).isEqualTo("SUICIDE");
+    assertThat(suicide.beats).isSameInstanceAs(suicide);
+  }
+
+  @Test
+  public void testAddTypeCustomInstanceCreator() {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(Company.class, type -> new Company("custom"))
+        .addType(Employee.class)
+        .registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
+
+    Company company =
+        gson.fromJson(
+            "{'0x1':{'employees':['0x2']},'0x2':{'name':'Jesse','company':'0x1'}}", Company.class);
+    assertThat(company.name).isEqualTo("custom");
+    Employee employee = company.employees.get(0);
+    assertThat(employee.name).isEqualTo("Jesse");
+    assertThat(employee.company).isSameInstanceAs(company);
+  }
+
+  @Test
+  public void testAddTypeOverwrite() {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(Company.class, type -> new Company("custom"))
+        // Overwrite Company creator with different custom one
+        .addType(Company.class, type -> new Company("custom-2"))
+        .addType(Employee.class)
+        .registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
+
+    Company company = gson.fromJson("{'0x1':{}}", Company.class);
+    assertThat(company.name).isEqualTo("custom-2");
+
+    gsonBuilder = new GsonBuilder();
+    new GraphAdapterBuilder()
+        .addType(Company.class, type -> new Company("custom"))
+        // Overwrite Company creator with default one
+        .addType(Company.class)
+        .addType(Employee.class)
+        .registerOn(gsonBuilder);
+    gson = gsonBuilder.create();
+
+    company = gson.fromJson("{'0x1':{}}", Company.class);
+    assertThat(company.name).isNull();
   }
 
   @Test
@@ -105,7 +142,7 @@ public final class GraphAdapterBuilderTest {
     Gson gson = gsonBuilder.create();
 
     String json = gson.toJson(listOfLists, listOfListsType);
-    assertEquals("{'0x1':['0x1','0x2'],'0x2':[]}", json.replace('"', '\''));
+    assertThat(json.replace('"', '\'')).isEqualTo("{'0x1':['0x1','0x2'],'0x2':[]}");
   }
 
   @Test
@@ -121,16 +158,17 @@ public final class GraphAdapterBuilderTest {
     Gson gson = gsonBuilder.create();
 
     List<List<?>> listOfLists = gson.fromJson("{'0x1':['0x1','0x2'],'0x2':[]}", listOfListsType);
-    assertEquals(2, listOfLists.size());
-    assertSame(listOfLists, listOfLists.get(0));
-    assertEquals(Collections.emptyList(), listOfLists.get(1));
+    assertThat(listOfLists).hasSize(2);
+    assertThat(listOfLists.get(0)).isSameInstanceAs(listOfLists);
+    assertThat(listOfLists.get(1)).isEmpty();
   }
 
   @Test
   public void testSerializationWithMultipleTypes() {
     Company google = new Company("Google");
-    new Employee("Jesse", google);
-    new Employee("Joel", google);
+    // Employee constructor adds `this` to the given Company object
+    Employee unused1 = new Employee("Jesse", google);
+    Employee unused2 = new Employee("Joel", google);
 
     GsonBuilder gsonBuilder = new GsonBuilder();
     new GraphAdapterBuilder()
@@ -139,10 +177,11 @@ public final class GraphAdapterBuilderTest {
         .registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
-    assertEquals("{'0x1':{'name':'Google','employees':['0x2','0x3']},"
-        + "'0x2':{'name':'Jesse','company':'0x1'},"
-        + "'0x3':{'name':'Joel','company':'0x1'}}",
-        gson.toJson(google).replace('"', '\''));
+    assertThat(gson.toJson(google).replace('"', '\''))
+        .isEqualTo(
+            "{'0x1':{'name':'Google','employees':['0x2','0x3']},"
+                + "'0x2':{'name':'Jesse','company':'0x1'},"
+                + "'0x3':{'name':'Joel','company':'0x1'}}");
   }
 
   @Test
@@ -154,22 +193,51 @@ public final class GraphAdapterBuilderTest {
         .registerOn(gsonBuilder);
     Gson gson = gsonBuilder.create();
 
-    String json = "{'0x1':{'name':'Google','employees':['0x2','0x3']},"
-        + "'0x2':{'name':'Jesse','company':'0x1'},"
-        + "'0x3':{'name':'Joel','company':'0x1'}}";
+    String json =
+        "{'0x1':{'name':'Google','employees':['0x2','0x3']},"
+            + "'0x2':{'name':'Jesse','company':'0x1'},"
+            + "'0x3':{'name':'Joel','company':'0x1'}}";
     Company company = gson.fromJson(json, Company.class);
-    assertEquals("Google", company.name);
+    assertThat(company.name).isEqualTo("Google");
     Employee jesse = company.employees.get(0);
-    assertEquals("Jesse", jesse.name);
-    assertEquals(company, jesse.company);
+    assertThat(jesse.name).isEqualTo("Jesse");
+    assertThat(jesse.company).isSameInstanceAs(company);
     Employee joel = company.employees.get(1);
-    assertEquals("Joel", joel.name);
-    assertEquals(company, joel.company);
+    assertThat(joel.name).isEqualTo("Joel");
+    assertThat(joel.company).isSameInstanceAs(company);
+  }
+
+  @Test
+  public void testBuilderReuse() {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    GraphAdapterBuilder graphAdapterBuilder =
+        new GraphAdapterBuilder()
+            .addType(Company.class, type -> new Company("custom"))
+            .addType(Employee.class);
+    graphAdapterBuilder.registerOn(gsonBuilder);
+    Gson gson = gsonBuilder.create();
+
+    Company company = gson.fromJson("{'0x1':{}}", Company.class);
+    assertThat(company.name).isEqualTo("custom");
+
+    GsonBuilder gsonBuilder2 = new GsonBuilder();
+    // Reuse builder and overwrite creator
+    graphAdapterBuilder.addType(Company.class, type -> new Company("custom-2"));
+    graphAdapterBuilder.registerOn(gsonBuilder2);
+    Gson gson2 = gsonBuilder2.create();
+
+    company = gson2.fromJson("{'0x1':{}}", Company.class);
+    assertThat(company.name).isEqualTo("custom-2");
+
+    // But first adapter should not have been affected
+    company = gson.fromJson("{'0x1':{}}", Company.class);
+    assertThat(company.name).isEqualTo("custom");
   }
 
   static class Roshambo {
     String name;
     Roshambo beats;
+
     Roshambo(String name) {
       this.name = name;
     }
@@ -178,6 +246,7 @@ public final class GraphAdapterBuilderTest {
   static class Employee {
     final String name;
     final Company company;
+
     Employee(String name, Company company) {
       this.name = name;
       this.company = company;
@@ -188,6 +257,7 @@ public final class GraphAdapterBuilderTest {
   static class Company {
     final String name;
     final List<Employee> employees = new ArrayList<>();
+
     Company(String name) {
       this.name = name;
     }

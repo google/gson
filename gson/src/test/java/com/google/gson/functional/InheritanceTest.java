@@ -15,6 +15,9 @@
  */
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -26,9 +29,6 @@ import com.google.gson.common.TestTypes.ClassWithBaseCollectionField;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.common.TestTypes.Sub;
-
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -37,55 +37,65 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * Functional tests for Json serialization and deserialization of classes with 
- * inheritance hierarchies.
+ * Functional tests for Json serialization and deserialization of classes with inheritance
+ * hierarchies.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class InheritanceTest extends TestCase {
+public class InheritanceTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
-  public void testSubClassSerialization() throws Exception {
-    SubTypeOfNested target = new SubTypeOfNested(new BagOfPrimitives(10, 20, false, "stringValue"),
-        new BagOfPrimitives(30, 40, true, "stringValue"));
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
+  @Test
+  public void testSubClassSerialization() {
+    SubTypeOfNested target =
+        new SubTypeOfNested(
+            new BagOfPrimitives(10, 20, false, "stringValue"),
+            new BagOfPrimitives(30, 40, true, "stringValue"));
+    assertThat(gson.toJson(target)).isEqualTo(target.getExpectedJson());
   }
 
-  public void testSubClassDeserialization() throws Exception {
-    String json = "{\"value\":5,\"primitive1\":{\"longValue\":10,\"intValue\":20,"
-        + "\"booleanValue\":false,\"stringValue\":\"stringValue\"},\"primitive2\":"
-        + "{\"longValue\":30,\"intValue\":40,\"booleanValue\":true,"
-        + "\"stringValue\":\"stringValue\"}}";
+  @Test
+  public void testSubClassDeserialization() {
+    String json =
+        "{\"value\":5,\"primitive1\":{\"longValue\":10,\"intValue\":20,"
+            + "\"booleanValue\":false,\"stringValue\":\"stringValue\"},\"primitive2\":"
+            + "{\"longValue\":30,\"intValue\":40,\"booleanValue\":true,"
+            + "\"stringValue\":\"stringValue\"}}";
     SubTypeOfNested target = gson.fromJson(json, SubTypeOfNested.class);
-    assertEquals(json, target.getExpectedJson());
+    assertThat(target.getExpectedJson()).isEqualTo(json);
   }
 
+  @Test
   public void testClassWithBaseFieldSerialization() {
     ClassWithBaseField sub = new ClassWithBaseField(new Sub());
     JsonObject json = (JsonObject) gson.toJsonTree(sub);
     JsonElement base = json.getAsJsonObject().get(ClassWithBaseField.FIELD_KEY);
-    assertEquals(Sub.SUB_NAME, base.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString());
+    assertThat(base.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString()).isEqualTo(Sub.SUB_NAME);
   }
 
+  @Test
   public void testClassWithBaseArrayFieldSerialization() {
-    Base[] baseClasses = new Base[]{ new Sub(), new Sub()};
+    Base[] baseClasses = new Base[] {new Sub(), new Sub()};
     ClassWithBaseArrayField sub = new ClassWithBaseArrayField(baseClasses);
     JsonObject json = gson.toJsonTree(sub).getAsJsonObject();
     JsonArray bases = json.get(ClassWithBaseArrayField.FIELD_KEY).getAsJsonArray();
-    for (JsonElement element : bases) { 
-      assertEquals(Sub.SUB_NAME, element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString());
+    for (JsonElement element : bases) {
+      assertThat(element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString())
+          .isEqualTo(Sub.SUB_NAME);
     }
   }
 
+  @Test
   public void testClassWithBaseCollectionFieldSerialization() {
     Collection<Base> baseClasses = new ArrayList<>();
     baseClasses.add(new Sub());
@@ -93,47 +103,54 @@ public class InheritanceTest extends TestCase {
     ClassWithBaseCollectionField sub = new ClassWithBaseCollectionField(baseClasses);
     JsonObject json = gson.toJsonTree(sub).getAsJsonObject();
     JsonArray bases = json.get(ClassWithBaseArrayField.FIELD_KEY).getAsJsonArray();
-    for (JsonElement element : bases) { 
-      assertEquals(Sub.SUB_NAME, element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString());
+    for (JsonElement element : bases) {
+      assertThat(element.getAsJsonObject().get(Sub.SUB_FIELD_KEY).getAsString())
+          .isEqualTo(Sub.SUB_NAME);
     }
   }
 
+  @Test
   public void testBaseSerializedAsSub() {
     Base base = new Sub();
     JsonObject json = gson.toJsonTree(base).getAsJsonObject();
-    assertEquals(Sub.SUB_NAME, json.get(Sub.SUB_FIELD_KEY).getAsString());
+    assertThat(json.get(Sub.SUB_FIELD_KEY).getAsString()).isEqualTo(Sub.SUB_NAME);
   }
 
+  @Test
   public void testBaseSerializedAsSubForToJsonMethod() {
     Base base = new Sub();
     String json = gson.toJson(base);
-    assertTrue(json.contains(Sub.SUB_NAME));
+    assertThat(json).contains(Sub.SUB_NAME);
   }
 
+  @Test
   public void testBaseSerializedAsBaseWhenSpecifiedWithExplicitType() {
     Base base = new Sub();
     JsonObject json = gson.toJsonTree(base, Base.class).getAsJsonObject();
-    assertEquals(Base.BASE_NAME, json.get(Base.BASE_FIELD_KEY).getAsString());
-    assertNull(json.get(Sub.SUB_FIELD_KEY));
+    assertThat(json.get(Base.BASE_FIELD_KEY).getAsString()).isEqualTo(Base.BASE_NAME);
+    assertThat(json.get(Sub.SUB_FIELD_KEY)).isNull();
   }
 
+  @Test
   public void testBaseSerializedAsBaseWhenSpecifiedWithExplicitTypeForToJsonMethod() {
     Base base = new Sub();
     String json = gson.toJson(base, Base.class);
-    assertTrue(json.contains(Base.BASE_NAME));
-    assertFalse(json.contains(Sub.SUB_FIELD_KEY));
+    assertThat(json).contains(Base.BASE_NAME);
+    assertThat(json).doesNotContain(Sub.SUB_FIELD_KEY);
   }
 
+  @Test
   public void testBaseSerializedAsSubWhenSpecifiedWithExplicitType() {
     Base base = new Sub();
     JsonObject json = gson.toJsonTree(base, Sub.class).getAsJsonObject();
-    assertEquals(Sub.SUB_NAME, json.get(Sub.SUB_FIELD_KEY).getAsString());
+    assertThat(json.get(Sub.SUB_FIELD_KEY).getAsString()).isEqualTo(Sub.SUB_NAME);
   }
 
+  @Test
   public void testBaseSerializedAsSubWhenSpecifiedWithExplicitTypeForToJsonMethod() {
     Base base = new Sub();
     String json = gson.toJson(base, Sub.class);
-    assertTrue(json.contains(Sub.SUB_NAME));
+    assertThat(json).contains(Sub.SUB_NAME);
   }
 
   private static class SubTypeOfNested extends Nested {
@@ -150,7 +167,9 @@ public class InheritanceTest extends TestCase {
     }
   }
 
-  public void testSubInterfacesOfCollectionSerialization() throws Exception {
+  @Test
+  @SuppressWarnings("JdkObsolete")
+  public void testSubInterfacesOfCollectionSerialization() {
     List<Integer> list = new LinkedList<>();
     list.add(0);
     list.add(1);
@@ -173,29 +192,31 @@ public class InheritanceTest extends TestCase {
     sortedSet.add('d');
     ClassWithSubInterfacesOfCollection target =
         new ClassWithSubInterfacesOfCollection(list, queue, set, sortedSet);
-    assertEquals(target.getExpectedJson(), gson.toJson(target));
+    assertThat(gson.toJson(target)).isEqualTo(target.getExpectedJson());
   }
 
-  public void testSubInterfacesOfCollectionDeserialization() throws Exception {
-    String json = "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
-        + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
-        + "}";
-    ClassWithSubInterfacesOfCollection target = 
-      gson.fromJson(json, ClassWithSubInterfacesOfCollection.class);
-    assertTrue(target.listContains(0, 1, 2, 3));
-    assertTrue(target.queueContains(0, 1, 2, 3));
-    assertTrue(target.setContains(0.1F, 0.2F, 0.3F, 0.4F));
-    assertTrue(target.sortedSetContains('a', 'b', 'c', 'd'));
+  @Test
+  public void testSubInterfacesOfCollectionDeserialization() {
+    String json =
+        "{\"list\":[0,1,2,3],\"queue\":[0,1,2,3],\"set\":[0.1,0.2,0.3,0.4],"
+            + "\"sortedSet\":[\"a\",\"b\",\"c\",\"d\"]"
+            + "}";
+    ClassWithSubInterfacesOfCollection target =
+        gson.fromJson(json, ClassWithSubInterfacesOfCollection.class);
+    assertThat(target.listContains(0, 1, 2, 3)).isTrue();
+    assertThat(target.queueContains(0, 1, 2, 3)).isTrue();
+    assertThat(target.setContains(0.1F, 0.2F, 0.3F, 0.4F)).isTrue();
+    assertThat(target.sortedSetContains('a', 'b', 'c', 'd')).isTrue();
   }
-  
+
   private static class ClassWithSubInterfacesOfCollection {
     private List<Integer> list;
     private Queue<Long> queue;
     private Set<Float> set;
     private SortedSet<Character> sortedSet;
 
-    public ClassWithSubInterfacesOfCollection(List<Integer> list, Queue<Long> queue, Set<Float> set,
-        SortedSet<Character> sortedSet) {
+    public ClassWithSubInterfacesOfCollection(
+        List<Integer> list, Queue<Long> queue, Set<Float> set, SortedSet<Character> sortedSet) {
       this.list = list;
       this.queue = queue;
       this.set = set;
@@ -210,7 +231,7 @@ public class InheritanceTest extends TestCase {
       }
       return true;
     }
-    
+
     boolean queueContains(long... values) {
       for (long value : values) {
         if (!queue.contains(value)) {
@@ -219,7 +240,7 @@ public class InheritanceTest extends TestCase {
       }
       return true;
     }
-    
+
     boolean setContains(float... values) {
       for (float value : values) {
         if (!set.contains(value)) {
@@ -237,7 +258,7 @@ public class InheritanceTest extends TestCase {
       }
       return true;
     }
-    
+
     public String getExpectedJson() {
       StringBuilder sb = new StringBuilder();
       sb.append("{");
@@ -253,7 +274,8 @@ public class InheritanceTest extends TestCase {
       return sb.toString();
     }
 
-    private StringBuilder append(StringBuilder sb, Collection<?> c) {
+    @CanIgnoreReturnValue
+    private static StringBuilder append(StringBuilder sb, Collection<?> c) {
       sb.append("[");
       boolean first = true;
       for (Object o : c) {

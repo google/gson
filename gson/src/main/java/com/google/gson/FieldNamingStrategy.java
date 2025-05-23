@@ -16,12 +16,15 @@
 
 package com.google.gson;
 
+import com.google.gson.annotations.SerializedName;
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A mechanism for providing custom field naming in Gson. This allows the client code to translate
- * field names into a particular convention that is not supported as a normal Java field
- * declaration rules. For example, Java does not support "-" characters in a field name.
+ * field names into a particular convention that is not supported as a normal Java field declaration
+ * rules. For example, Java does not support "-" characters in a field name.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -37,4 +40,16 @@ public interface FieldNamingStrategy {
    * @since 1.3
    */
   public String translateName(Field f);
+
+  /**
+   * Returns alternative names for this field when it is being deserialized. This is similar to
+   * {@link SerializedName#alternate()}.
+   *
+   * @param f the field object
+   * @return the list of alternative field names.
+   * @since 2.13.1
+   */
+  default List<String> alternateNames(Field f) {
+    return Collections.emptyList();
+  }
 }

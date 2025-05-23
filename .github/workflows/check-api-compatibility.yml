@@ -1,0 +1,61 @@
+# This workflow makes sure that a pull request does not make any incompatible changes
+# to the public API of Gson
+name: Check API compatibility
+
+on: pull_request
+
+jobs:
+  check-api-compatibility:
+    runs-on: ubuntu-latest
+
+    # This setup tries to determine API incompatibility only for the changes introduced by the
+    # pull request. It does this by first checking out the 'old' version and installing it into
+    # the local Maven repository before then using japicmp to compare it to the current changes.
+    #
+    # Alternatively it would also be possible to compare against the last release version instead.
+    #
+    # Both approaches have their advantages and disadvantages, see description of
+    # https://github.com/google/gson/pull/2692 for details.
+
+    steps:
+      - name: Check out old version
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: 'gson-old-japicmp'
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12  # v4.7.0
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'maven'
+
+      - name: Build old version
+        run: |
+          cd gson-old-japicmp
+          # Set dummy version
+          mvn --batch-mode --no-transfer-progress org.codehaus.mojo:versions-maven-plugin:2.16.2:set "-DnewVersion=0.0.0-JAPICMP-OLD"
+          # Install artifacts with dummy version in local repository; used later by Maven plugin for comparison
+          mvn --batch-mode --no-transfer-progress install -DskipTests
+
+      - name: Check out new version
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Check API compatibility
+        id: check-compatibility
+        run: |
+          mvn --batch-mode --fail-at-end --no-transfer-progress package japicmp:cmp -DskipTests
+
+      - name: Upload API differences artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        # Run on workflow success (in that case differences report might include added methods and classes)
+        # or when API compatibility check failed
+        if: success() || ( failure() && steps.check-compatibility.outcome == 'failure' )
+        with:
+          name: api-differences
+          path: |
+            **/japicmp/default-cli.html
+            **/japicmp/default-cli.diff
+          # Plugin should always have created report files (though they might be empty)
+          if-no-files-found: error

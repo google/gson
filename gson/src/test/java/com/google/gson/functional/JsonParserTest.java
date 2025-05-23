@@ -16,6 +16,9 @@
 
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -26,14 +29,14 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.Nested;
 import com.google.gson.reflect.TypeToken;
-
-import junit.framework.TestCase;
-
+import java.io.EOFException;
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for that use JsonParser and related Gson methods
@@ -41,43 +44,42 @@ import java.util.Map;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class JsonParserTest extends TestCase {
+public class JsonParserTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
+  @Test
   public void testParseInvalidJson() {
-    try {
-      gson.fromJson("[[]", Object[].class);
-      fail();
-    } catch (JsonSyntaxException expected) { }
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[]", Object[].class));
+    assertThat(e).hasCauseThat().isInstanceOf(EOFException.class);
   }
 
+  @Test
   public void testDeserializingCustomTree() {
     JsonObject obj = new JsonObject();
     obj.addProperty("stringValue", "foo");
     obj.addProperty("intValue", 11);
     BagOfPrimitives target = gson.fromJson(obj, BagOfPrimitives.class);
-    assertEquals(11, target.intValue);
-    assertEquals("foo", target.stringValue);
+    assertThat(target.intValue).isEqualTo(11);
+    assertThat(target.stringValue).isEqualTo("foo");
   }
 
+  @Test
   public void testBadTypeForDeserializingCustomTree() {
     JsonObject obj = new JsonObject();
     obj.addProperty("stringValue", "foo");
     obj.addProperty("intValue", 11);
     JsonArray array = new JsonArray();
     array.add(obj);
-    try {
-      gson.fromJson(array, BagOfPrimitives.class);
-      fail("BagOfPrimitives is not an array");
-    } catch (JsonParseException expected) { }
+    // BagOfPrimitives should not be an array
+    assertThrows(JsonParseException.class, () -> gson.fromJson(array, BagOfPrimitives.class));
   }
 
+  @Test
   public void testBadFieldTypeForCustomDeserializerCustomTree() {
     JsonArray array = new JsonArray();
     array.add(new JsonPrimitive("blah"));
@@ -86,12 +88,11 @@ public class JsonParserTest extends TestCase {
     obj.addProperty("intValue", 11);
     obj.add("longValue", array);
 
-    try {
-      gson.fromJson(obj, BagOfPrimitives.class);
-      fail("BagOfPrimitives is not an array");
-    } catch (JsonParseException expected) { }
+    // `longValue` should not be an array
+    assertThrows(JsonParseException.class, () -> gson.fromJson(obj, BagOfPrimitives.class));
   }
 
+  @Test
   public void testBadFieldTypeForDeserializingCustomTree() {
     JsonArray array = new JsonArray();
     array.add(new JsonPrimitive("blah"));
@@ -103,37 +104,39 @@ public class JsonParserTest extends TestCase {
     obj.add("primitive1", primitive1);
     obj.add("primitive2", array);
 
-    try {
-      gson.fromJson(obj, Nested.class);
-      fail("Nested has field BagOfPrimitives which is not an array");
-    } catch (JsonParseException expected) { }
+    // Nested has field BagOfPrimitives which is not an array
+    assertThrows(JsonParseException.class, () -> gson.fromJson(obj, Nested.class));
   }
 
+  @Test
   public void testChangingCustomTreeAndDeserializing() {
     StringReader json =
-      new StringReader("{'stringValue':'no message','intValue':10,'longValue':20}");
+        new StringReader("{'stringValue':'no message','intValue':10,'longValue':20}");
     JsonObject obj = (JsonObject) JsonParser.parseReader(json);
     obj.remove("stringValue");
     obj.addProperty("stringValue", "fooBar");
     BagOfPrimitives target = gson.fromJson(obj, BagOfPrimitives.class);
-    assertEquals(10, target.intValue);
-    assertEquals(20, target.longValue);
-    assertEquals("fooBar", target.stringValue);
+    assertThat(target.intValue).isEqualTo(10);
+    assertThat(target.longValue).isEqualTo(20);
+    assertThat(target.stringValue).isEqualTo("fooBar");
   }
 
+  @Test
   public void testExtraCommasInArrays() {
-    Type type = new TypeToken<List<String>>() {}.getType();
-    assertEquals(Arrays.asList("a", null, "b", null, null), gson.fromJson("[a,,b,,]", type));
-    assertEquals(Arrays.asList(null, null), gson.fromJson("[,]", type));
-    assertEquals(Arrays.asList("a", null), gson.fromJson("[a,]", type));
+    TypeToken<List<String>> type = new TypeToken<>() {};
+    assertThat(gson.fromJson("[a,,b,,]", type))
+        .isEqualTo(Arrays.asList("a", null, "b", null, null));
+    assertThat(gson.fromJson("[,]", type)).isEqualTo(Arrays.asList(null, null));
+    assertThat(gson.fromJson("[a,]", type)).isEqualTo(Arrays.asList("a", null));
   }
 
+  @Test
   public void testExtraCommasInMaps() {
     Type type = new TypeToken<Map<String, String>>() {}.getType();
-    try {
-      gson.fromJson("{a:b,}", type);
-      fail();
-    } catch (JsonSyntaxException expected) {
-    }
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{a:b,}", type));
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected name at line 1 column 7 path $.\n");
   }
 }

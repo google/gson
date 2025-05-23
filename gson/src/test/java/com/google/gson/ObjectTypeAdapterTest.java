@@ -16,93 +16,100 @@
 
 package com.google.gson;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public final class ObjectTypeAdapterTest extends TestCase {
+public final class ObjectTypeAdapterTest {
   private final Gson gson = new GsonBuilder().create();
   private final TypeAdapter<Object> adapter = gson.getAdapter(Object.class);
 
+  @Test
   public void testDeserialize() throws Exception {
     Map<?, ?> map = (Map<?, ?>) adapter.fromJson("{\"a\":5,\"b\":[1,2,null],\"c\":{\"x\":\"y\"}}");
-    assertEquals(5.0, map.get("a"));
-    assertEquals(Arrays.asList(1.0, 2.0, null), map.get("b"));
-    assertEquals(Collections.singletonMap("x", "y"), map.get("c"));
-    assertEquals(3, map.size());
+    assertThat(map.get("a")).isEqualTo(5.0);
+    assertThat(map.get("b")).isEqualTo(Arrays.asList(1.0, 2.0, null));
+    assertThat(map.get("c")).isEqualTo(Collections.singletonMap("x", "y"));
+    assertThat(map).hasSize(3);
   }
 
-  public void testSerialize() throws Exception {
+  @Test
+  public void testSerialize() {
     Object object = new RuntimeType();
-    assertEquals("{'a':5,'b':[1,2,null]}", adapter.toJson(object).replace("\"", "'"));
+    assertThat(adapter.toJson(object).replace("\"", "'")).isEqualTo("{'a':5,'b':[1,2,null]}");
   }
 
-  public void testSerializeNullValue() throws Exception {
+  @Test
+  public void testSerializeNullValue() {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", null);
-    assertEquals("{'a':null}", adapter.toJson(map).replace('"', '\''));
+    assertThat(adapter.toJson(map).replace('"', '\'')).isEqualTo("{'a':null}");
   }
 
+  @Test
   public void testDeserializeNullValue() throws Exception {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("a", null);
-    assertEquals(map, adapter.fromJson("{\"a\":null}"));
+    assertThat(adapter.fromJson("{\"a\":null}")).isEqualTo(map);
   }
 
-  public void testSerializeObject() throws Exception {
-    assertEquals("{}", adapter.toJson(new Object()));
-  }
-
-  private static String repeat(String s, int times) {
-    StringBuilder stringBuilder = new StringBuilder(s.length() * times);
-    for (int i = 0; i < times; i++) {
-      stringBuilder.append(s);
-    }
-    return stringBuilder.toString();
+  @Test
+  public void testSerializeObject() {
+    assertThat(adapter.toJson(new Object())).isEqualTo("{}");
   }
 
   /** Deeply nested JSON arrays should not cause {@link StackOverflowError} */
   @SuppressWarnings("unchecked")
+  @Test
   public void testDeserializeDeeplyNestedArrays() throws IOException {
     int times = 10000;
     // [[[ ... ]]]
-    String json = repeat("[", times) + repeat("]", times);
+    String json = "[".repeat(times) + "]".repeat(times);
+    JsonReader jsonReader = new JsonReader(new StringReader(json));
+    jsonReader.setNestingLimit(Integer.MAX_VALUE);
 
     int actualTimes = 0;
-    List<List<?>> current = (List<List<?>>) adapter.fromJson(json);
+    List<List<?>> current = (List<List<?>>) adapter.read(jsonReader);
     while (true) {
       actualTimes++;
       if (current.isEmpty()) {
         break;
       }
-      assertEquals(1, current.size());
+      assertThat(current).hasSize(1);
       current = (List<List<?>>) current.get(0);
     }
-    assertEquals(times, actualTimes);
+    assertThat(actualTimes).isEqualTo(times);
   }
 
   /** Deeply nested JSON objects should not cause {@link StackOverflowError} */
   @SuppressWarnings("unchecked")
+  @Test
   public void testDeserializeDeeplyNestedObjects() throws IOException {
     int times = 10000;
     // {"a":{"a": ... {"a":null} ... }}
-    String json = repeat("{\"a\":", times) + "null" + repeat("}", times);
+    String json = "{\"a\":".repeat(times) + "null" + "}".repeat(times);
+    JsonReader jsonReader = new JsonReader(new StringReader(json));
+    jsonReader.setNestingLimit(Integer.MAX_VALUE);
 
     int actualTimes = 0;
-    Map<String, Map<?, ?>> current = (Map<String, Map<?, ?>>) adapter.fromJson(json);
+    Map<String, Map<?, ?>> current = (Map<String, Map<?, ?>>) adapter.read(jsonReader);
     while (current != null) {
-      assertEquals(1, current.size());
+      assertThat(current).hasSize(1);
       actualTimes++;
       current = (Map<String, Map<?, ?>>) current.get("a");
     }
-    assertEquals(times, actualTimes);
+    assertThat(actualTimes).isEqualTo(times);
   }
 
-  @SuppressWarnings("unused")
+  @SuppressWarnings({"unused", "ClassCanBeStatic"})
   private class RuntimeType {
     Object a = 5;
     Object b = Arrays.asList(1, 2, null);

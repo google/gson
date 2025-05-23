@@ -16,68 +16,68 @@
 
 package com.google.gson.internal.bind;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
-import com.google.gson.internal.$Gson$Types;
-import junit.framework.TestCase;
+import com.google.gson.internal.GsonTypes;
+import org.junit.Test;
 
 /**
- * Test fixes for infinite recursion on {@link $Gson$Types#resolve(java.lang.reflect.Type, Class,
- * java.lang.reflect.Type)}, described at <a href="https://github.com/google/gson/issues/440">Issue #440</a>
- * and similar issues.
- * <p>
- * These tests originally caused {@link StackOverflowError} because of infinite recursion on attempts to
- * resolve generics on types, with an intermediate types like 'Foo2&lt;? extends ? super ? extends ... ? extends A&gt;'
+ * Test fixes for infinite recursion on {@link GsonTypes#resolve(java.lang.reflect.Type, Class,
+ * java.lang.reflect.Type)}, described at <a href="https://github.com/google/gson/issues/440">Issue
+ * #440</a> and similar issues.
+ *
+ * <p>These tests originally caused {@link StackOverflowError} because of infinite recursion on
+ * attempts to resolve generics on types, with intermediate types like {@code Foo2<? extends ? super
+ * ? extends ... ? extends A>}
  */
-public class RecursiveTypesResolveTest extends TestCase {
+public class RecursiveTypesResolveTest {
 
   @SuppressWarnings("unused")
   private static class Foo1<A> {
     public Foo2<? extends A> foo2;
   }
+
   @SuppressWarnings("unused")
   private static class Foo2<B> {
     public Foo1<? super B> foo1;
   }
 
-  /**
-   * Test simplest case of recursion.
-   */
-
+  /** Test simplest case of recursion. */
+  @Test
   public void testRecursiveResolveSimple() {
     @SuppressWarnings("rawtypes")
     TypeAdapter<Foo1> adapter = new Gson().getAdapter(Foo1.class);
-    assertNotNull(adapter);
+    assertThat(adapter).isNotNull();
   }
 
-  /**
-   * Tests belows check the behaviour of the methods changed for the fix.
-   */
-
+  /** Tests below check the behavior of the methods changed for the fix. */
+  @Test
   public void testDoubleSupertype() {
-    assertEquals($Gson$Types.supertypeOf(Number.class),
-            $Gson$Types.supertypeOf($Gson$Types.supertypeOf(Number.class)));
+    assertThat(GsonTypes.supertypeOf(GsonTypes.supertypeOf(Number.class)))
+        .isEqualTo(GsonTypes.supertypeOf(Number.class));
   }
 
+  @Test
   public void testDoubleSubtype() {
-    assertEquals($Gson$Types.subtypeOf(Number.class),
-            $Gson$Types.subtypeOf($Gson$Types.subtypeOf(Number.class)));
+    assertThat(GsonTypes.subtypeOf(GsonTypes.subtypeOf(Number.class)))
+        .isEqualTo(GsonTypes.subtypeOf(Number.class));
   }
 
+  @Test
   public void testSuperSubtype() {
-    assertEquals($Gson$Types.subtypeOf(Object.class),
-            $Gson$Types.supertypeOf($Gson$Types.subtypeOf(Number.class)));
+    assertThat(GsonTypes.supertypeOf(GsonTypes.subtypeOf(Number.class)))
+        .isEqualTo(GsonTypes.subtypeOf(Object.class));
   }
 
+  @Test
   public void testSubSupertype() {
-    assertEquals($Gson$Types.subtypeOf(Object.class),
-            $Gson$Types.subtypeOf($Gson$Types.supertypeOf(Number.class)));
+    assertThat(GsonTypes.subtypeOf(GsonTypes.supertypeOf(Number.class)))
+        .isEqualTo(GsonTypes.subtypeOf(Object.class));
   }
 
-  /**
-   * Tests for recursion while resolving type variables.
-   */
-
+  /** Tests for recursion while resolving type variables. */
   @SuppressWarnings("unused")
   private static class TestType<X> {
     TestType<? super X> superType;
@@ -88,15 +88,17 @@ public class RecursiveTypesResolveTest extends TestCase {
     TestType2<? super Y, ? super X> superReversedType;
   }
 
-  public void testRecursiveTypeVariablesResolve1() throws Exception {
+  @Test
+  public void testRecursiveTypeVariablesResolve1() {
     @SuppressWarnings("rawtypes")
     TypeAdapter<TestType> adapter = new Gson().getAdapter(TestType.class);
-    assertNotNull(adapter);
+    assertThat(adapter).isNotNull();
   }
 
-  public void testRecursiveTypeVariablesResolve12() throws Exception {
+  @Test
+  public void testRecursiveTypeVariablesResolve12() {
     @SuppressWarnings("rawtypes")
     TypeAdapter<TestType2> adapter = new Gson().getAdapter(TestType2.class);
-    assertNotNull(adapter);
+    assertThat(adapter).isNotNull();
   }
 }

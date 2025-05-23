@@ -1,0 +1,162 @@
+<!--
+  Copyright 2023 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson-parent</artifactId>
+    <version>2.13.2-SNAPSHOT</version>
+  </parent>
+  <artifactId>test-graal-native-image</artifactId>
+  <name>Test: GraalVM Native Image</name>
+
+  <properties>
+    <!-- GraalVM is JDK >= 17, however for build with regular JDK these tests
+      are also executed with JDK 11, so for them exclude JDK 17 specific tests -->
+    <maven.compiler.testRelease>11</maven.compiler.testRelease>
+    <excludeTestCompilation>**/Java17*</excludeTestCompilation>
+
+    <!-- Overwrite property from parent -->
+    <gson.isTestModule>true</gson.isTestModule>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>5.12.2</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+
+    <!-- Graal Native Maven Plugin requires using JUnit Platform (JUnit 5), see
+      https://graalvm.github.io/native-build-tools/latest/maven-plugin.html#testing-support
+      This also supports using JUnit Vintage to run JUnit 4 tests, but for simplicity
+      completely use JUnit 5 here and no JUnit 4 at all -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- Explicitly need to define junit-platform-launcher dependency to avoid incompatibilities
+      with native-maven-plugin, see
+      https://github.com/graalvm/native-build-tools/issues/706 -->
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <configuration>
+            <!-- This module has no 'main' source code; skip creating JAR and avoid warning on console -->
+            <skipIfEmpty>true</skipIfEmpty>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <!-- Adjust standard `default-testCompile` execution -->
+          <execution>
+            <id>default-testCompile</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <testExcludes>
+                <exclude>${excludeTestCompilation}</exclude>
+              </testExcludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>JDK17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <properties>
+        <maven.compiler.testRelease>17</maven.compiler.testRelease>
+        <excludeTestCompilation />
+      </properties>
+    </profile>
+
+    <profile>
+      <id>native-image-test</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.graalvm.buildtools</groupId>
+            <artifactId>native-maven-plugin</artifactId>
+            <version>0.10.6</version>
+            <extensions>true</extensions>
+            <executions>
+              <execution>
+                <id>test-native</id>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <quickBuild>true</quickBuild>
+                  <buildArgs>
+                    <!-- Show stack traces to make troubleshooting build issues easier -->
+                    <buildArg>-H:+ReportExceptionStackTraces</buildArg>
+                  </buildArgs>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

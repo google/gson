@@ -16,6 +16,7 @@
 
 package com.google.gson.internal.bind;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -23,33 +24,42 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Arrays;
 
 /**
- * This reader walks the elements of a JsonElement as if it was coming from a
- * character stream.
+ * This reader walks the elements of a JsonElement as if it was coming from a character stream.
  *
  * @author Jesse Wilson
  */
 public final class JsonTreeReader extends JsonReader {
-  private static final Reader UNREADABLE_READER = new Reader() {
-    @Override public int read(char[] buffer, int offset, int count) throws IOException {
-      throw new AssertionError();
-    }
-    @Override public void close() throws IOException {
-      throw new AssertionError();
-    }
-  };
+  private static final Reader UNREADABLE_READER =
+      new Reader() {
+        @Override
+        public int read(char[] buffer, int offset, int count) {
+          throw new AssertionError();
+        }
+
+        @Override
+        public void close() {
+          throw new AssertionError();
+        }
+      };
   private static final Object SENTINEL_CLOSED = new Object();
 
-  /*
-   * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
-   */
+  /** The nesting stack. Using a manual array rather than an ArrayList saves 20%. */
   private Object[] stack = new Object[32];
+
+  /**
+   * The used size of {@link #stack}; the value at {@code stackSize - 1} is the value last placed on
+   * the stack. {@code stackSize} might differ from the nesting depth, because the stack also
+   * contains temporary additional objects, for example for a JsonArray it contains the JsonArray
+   * object as well as the corresponding iterator.
+   */
   private int stackSize = 0;
 
   /*
@@ -68,14 +78,16 @@ public final class JsonTreeReader extends JsonReader {
     push(element);
   }
 
-  @Override public void beginArray() throws IOException {
+  @Override
+  public void beginArray() throws IOException {
     expect(JsonToken.BEGIN_ARRAY);
     JsonArray array = (JsonArray) peekStack();
     push(array.iterator());
     pathIndices[stackSize - 1] = 0;
   }
 
-  @Override public void endArray() throws IOException {
+  @Override
+  public void endArray() throws IOException {
     expect(JsonToken.END_ARRAY);
     popStack(); // empty iterator
     popStack(); // array
@@ -84,14 +96,17 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
-  @Override public void beginObject() throws IOException {
+  @Override
+  public void beginObject() throws IOException {
     expect(JsonToken.BEGIN_OBJECT);
     JsonObject object = (JsonObject) peekStack();
     push(object.entrySet().iterator());
   }
 
-  @Override public void endObject() throws IOException {
+  @Override
+  public void endObject() throws IOException {
     expect(JsonToken.END_OBJECT);
+    pathNames[stackSize - 1] = null; // Free the last path name so that it can be garbage collected
     popStack(); // empty iterator
     popStack(); // object
     if (stackSize > 0) {
@@ -99,12 +114,16 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
-  @Override public boolean hasNext() throws IOException {
+  @Override
+  public boolean hasNext() throws IOException {
     JsonToken token = peek();
-    return token != JsonToken.END_OBJECT && token != JsonToken.END_ARRAY && token != JsonToken.END_DOCUMENT;
+    return token != JsonToken.END_OBJECT
+        && token != JsonToken.END_ARRAY
+        && token != JsonToken.END_DOCUMENT;
   }
 
-  @Override public JsonToken peek() throws IOException {
+  @Override
+  public JsonToken peek() throws IOException {
     if (stackSize == 0) {
       return JsonToken.END_DOCUMENT;
     }
@@ -143,7 +162,8 @@ public final class JsonTreeReader extends JsonReader {
     } else if (o == SENTINEL_CLOSED) {
       throw new IllegalStateException("JsonReader is closed");
     } else {
-      throw new AssertionError();
+      throw new MalformedJsonException(
+          "Custom JsonElement subclass " + o.getClass().getName() + " is not supported");
     }
   }
 
@@ -151,6 +171,7 @@ public final class JsonTreeReader extends JsonReader {
     return stack[stackSize - 1];
   }
 
+  @CanIgnoreReturnValue
   private Object popStack() {
     Object result = stack[--stackSize];
     stack[stackSize] = null;
@@ -164,17 +185,23 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
-  @Override public String nextName() throws IOException {
+  private String nextName(boolean skipName) throws IOException {
     expect(JsonToken.NAME);
     Iterator<?> i = (Iterator<?>) peekStack();
     Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
     String result = (String) entry.getKey();
-    pathNames[stackSize - 1] = result;
+    pathNames[stackSize - 1] = skipName ? "<skipped>" : result;
     push(entry.getValue());
     return result;
   }
 
-  @Override public String nextString() throws IOException {
+  @Override
+  public String nextName() throws IOException {
+    return nextName(false);
+  }
+
+  @Override
+  public String nextString() throws IOException {
     JsonToken token = peek();
     if (token != JsonToken.STRING && token != JsonToken.NUMBER) {
       throw new IllegalStateException(
@@ -187,7 +214,8 @@ public final class JsonTreeReader extends JsonReader {
     return result;
   }
 
-  @Override public boolean nextBoolean() throws IOException {
+  @Override
+  public boolean nextBoolean() throws IOException {
     expect(JsonToken.BOOLEAN);
     boolean result = ((JsonPrimitive) popStack()).getAsBoolean();
     if (stackSize > 0) {
@@ -196,7 +224,8 @@ public final class JsonTreeReader extends JsonReader {
     return result;
   }
 
-  @Override public void nextNull() throws IOException {
+  @Override
+  public void nextNull() throws IOException {
     expect(JsonToken.NULL);
     popStack();
     if (stackSize > 0) {
@@ -204,7 +233,8 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
-  @Override public double nextDouble() throws IOException {
+  @Override
+  public double nextDouble() throws IOException {
     JsonToken token = peek();
     if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
       throw new IllegalStateException(
@@ -212,7 +242,7 @@ public final class JsonTreeReader extends JsonReader {
     }
     double result = ((JsonPrimitive) peekStack()).getAsDouble();
     if (!isLenient() && (Double.isNaN(result) || Double.isInfinite(result))) {
-      throw new NumberFormatException("JSON forbids NaN and infinities: " + result);
+      throw new MalformedJsonException("JSON forbids NaN and infinities: " + result);
     }
     popStack();
     if (stackSize > 0) {
@@ -221,7 +251,8 @@ public final class JsonTreeReader extends JsonReader {
     return result;
   }
 
-  @Override public long nextLong() throws IOException {
+  @Override
+  public long nextLong() throws IOException {
     JsonToken token = peek();
     if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
       throw new IllegalStateException(
@@ -235,7 +266,8 @@ public final class JsonTreeReader extends JsonReader {
     return result;
   }
 
-  @Override public int nextInt() throws IOException {
+  @Override
+  public int nextInt() throws IOException {
     JsonToken token = peek();
     if (token != JsonToken.NUMBER && token != JsonToken.STRING) {
       throw new IllegalStateException(
@@ -250,39 +282,52 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   JsonElement nextJsonElement() throws IOException {
-    final JsonToken peeked = peek();
+    JsonToken peeked = peek();
     if (peeked == JsonToken.NAME
         || peeked == JsonToken.END_ARRAY
         || peeked == JsonToken.END_OBJECT
         || peeked == JsonToken.END_DOCUMENT) {
       throw new IllegalStateException("Unexpected " + peeked + " when reading a JsonElement.");
     }
-    final JsonElement element = (JsonElement) peekStack();
+    JsonElement element = (JsonElement) peekStack();
     skipValue();
     return element;
   }
 
-  @Override public void close() throws IOException {
-    stack = new Object[] { SENTINEL_CLOSED };
+  @Override
+  public void close() throws IOException {
+    stack = new Object[] {SENTINEL_CLOSED};
     stackSize = 1;
   }
 
-  @Override public void skipValue() throws IOException {
-    if (peek() == JsonToken.NAME) {
-      nextName();
-      pathNames[stackSize - 2] = "null";
-    } else {
-      popStack();
-      if (stackSize > 0) {
-        pathNames[stackSize - 1] = "null";
-      }
-    }
-    if (stackSize > 0) {
-      pathIndices[stackSize - 1]++;
+  @Override
+  public void skipValue() throws IOException {
+    JsonToken peeked = peek();
+    switch (peeked) {
+      case NAME:
+        @SuppressWarnings("unused")
+        String unused = nextName(true);
+        break;
+      case END_ARRAY:
+        endArray();
+        break;
+      case END_OBJECT:
+        endObject();
+        break;
+      case END_DOCUMENT:
+        // Do nothing
+        break;
+      default:
+        popStack();
+        if (stackSize > 0) {
+          pathIndices[stackSize - 1]++;
+        }
+        break;
     }
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return getClass().getSimpleName() + locationString();
   }
 
@@ -330,12 +375,14 @@ public final class JsonTreeReader extends JsonReader {
     return result.toString();
   }
 
-  @Override public String getPreviousPath() {
-    return getPath(true);
+  @Override
+  public String getPath() {
+    return getPath(false);
   }
 
-  @Override public String getPath() {
-    return getPath(false);
+  @Override
+  public String getPreviousPath() {
+    return getPath(true);
   }
 
   private String locationString() {
