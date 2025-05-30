@@ -3,6 +3,8 @@
 name: Check API compatibility
 
 on: pull_request
+permissions:
+  contents: read #  to fetch code (actions/checkout)
 
 jobs:
   check-api-compatibility:
