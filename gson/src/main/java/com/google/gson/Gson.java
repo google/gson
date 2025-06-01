@@ -45,7 +45,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -844,7 +843,7 @@ public final class Gson {
    * @see #toJson(Object)
    */
   public String toJson(Object src, Type typeOfSrc) {
-    StringWriter writer = new StringWriter();
+    StringBuilder writer = new StringBuilder();
     toJson(src, typeOfSrc, writer);
     return writer.toString();
   }
@@ -962,7 +961,7 @@ public final class Gson {
    * @since 1.4
    */
   public String toJson(JsonElement jsonElement) {
-    StringWriter writer = new StringWriter();
+    StringBuilder writer = new StringBuilder();
     toJson(jsonElement, writer);
     return writer.toString();
   }

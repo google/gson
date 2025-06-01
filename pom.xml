@@ -19,7 +19,7 @@
 
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson-parent</artifactId>
-  <version>2.12.2-SNAPSHOT</version>
+  <version>2.13.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Gson Parent</name>
@@ -43,7 +43,7 @@
 
     <!-- Make the build reproducible, see https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
     <!-- Automatically updated by Maven Release Plugin -->
-    <project.build.outputTimestamp>2025-01-30T22:50:39Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-04-24T01:03:45Z</project.build.outputTimestamp>
 
     <!-- These properties are to be overwritten by the Maven modules -->
     <!-- Whether this module is an integration test module -->
@@ -302,7 +302,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.37.0</version>
+                <version>2.38.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>

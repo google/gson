@@ -20,7 +20,7 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.12.2-SNAPSHOT</version>
+    <version>2.13.2-SNAPSHOT</version>
   </parent>
   <artifactId>test-shrinker</artifactId>
   <name>Test: Code shrinking (ProGuard / R8)</name>
