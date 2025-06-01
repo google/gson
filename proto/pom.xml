@@ -31,7 +31,7 @@
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2025-04-24T01:03:45Z</project.build.outputTimestamp>
 
-    <protobufVersion>4.30.2</protobufVersion>
+    <protobufVersion>4.31.1</protobufVersion>
 
     <!-- Overwrite property from parent; this module is currently not deployed -->
     <gson.isInternalModule>true</gson.isInternalModule>
