@@ -551,7 +551,8 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     assertThat(deserialized.f).isEqualTo("test-custom");
 
     deserialized =
-        Gson.DEFAULT.fromJson("{\"f\":\"test\"}", new TypeToken<WithDelegatingFactory<String>>() {});
+        Gson.DEFAULT.fromJson(
+            "{\"f\":\"test\"}", new TypeToken<WithDelegatingFactory<String>>() {});
     assertThat(deserialized.f).isEqualTo("test-custom");
 
     WithDelegatingFactory<String> serialized = new WithDelegatingFactory<>();

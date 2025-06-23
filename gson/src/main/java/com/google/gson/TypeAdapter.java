@@ -24,7 +24,6 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.Writer;
 
 /**

@@ -21,7 +21,6 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

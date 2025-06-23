@@ -16,7 +16,9 @@
 
 package com.google.gson;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.Since;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.GsonBuildConfig;
@@ -49,6 +51,8 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,10 +70,10 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * instance and then invoking {@link #toJson(Object)} or {@link #fromJson(String, Class)} methods on
  * it. Gson instances are Thread-safe so you can reuse them freely across multiple threads.
  *
- * <p>You can get a Gson instance by {@code Gson.DEFAULT} if the default configuration is
- * all you need. You can also use {@link GsonBuilder} to build a Gson instance with various
- * configuration options such as versioning support, pretty printing, custom newline, custom indent,
- * custom {@link JsonSerializer}s, {@link JsonDeserializer}s, and {@link InstanceCreator}s.
+ * <p>You can get a Gson instance by {@code Gson.DEFAULT} if the default configuration is all you
+ * need. You can also use {@link GsonBuilder} to build a Gson instance with various configuration
+ * options such as versioning support, pretty printing, custom newline, custom indent, custom {@link
+ * JsonSerializer}s, {@link JsonDeserializer}s, and {@link InstanceCreator}s.
  *
  * <p>Here is an example of how Gson is used for a simple Class:
  *
@@ -224,19 +228,18 @@ public final class Gson {
    *       generated JSON is empty, the field is kept. You can configure Gson to serialize null
    *       values by setting {@link GsonBuilder#serializeNulls()}.
    *   <li>Gson provides default serialization and deserialization for Enums, {@link Map}, {@link
-   *       java.net.URL}, {@link java.net.URI}, {@link java.util.Locale}, {@link java.util.Date},
-   *       {@link java.math.BigDecimal}, and {@link java.math.BigInteger} classes. If you would
-   *       prefer to change the default representation, you can do so by registering a type adapter
-   *       through {@link GsonBuilder#registerTypeAdapter(Type, Object)}.
-   *   <li>The default Date format is same as {@link java.text.DateFormat#DEFAULT}. This format
-   *       ignores the millisecond portion of the date during serialization. You can change this by
-   *       invoking {@link GsonBuilder#setDateFormat(int, int)} or {@link
-   *       GsonBuilder#setDateFormat(String)}.
-   *   <li>By default, Gson ignores the {@link com.google.gson.annotations.Expose} annotation. You
-   *       can enable Gson to serialize/deserialize only those fields marked with this annotation
-   *       through {@link GsonBuilder#excludeFieldsWithoutExposeAnnotation()}.
-   *   <li>By default, Gson ignores the {@link com.google.gson.annotations.Since} annotation. You
-   *       can enable Gson to use this annotation through {@link GsonBuilder#setVersion(double)}.
+   *       URL}, {@link URI}, {@link Locale}, {@link Date}, {@link BigDecimal}, and {@link
+   *       BigInteger} classes. If you would prefer to change the default representation, you can do
+   *       so by registering a type adapter through {@link GsonBuilder#registerTypeAdapter(Type,
+   *       Object)}.
+   *   <li>The default Date format is same as {@link DateFormat#DEFAULT}. This format ignores the
+   *       millisecond portion of the date during serialization. You can change this by invoking
+   *       {@link GsonBuilder#setDateFormat(int, int)} or {@link GsonBuilder#setDateFormat(String)}.
+   *   <li>By default, Gson ignores the {@link Expose} annotation. You can enable Gson to
+   *       serialize/deserialize only those fields marked with this annotation through {@link
+   *       GsonBuilder#excludeFieldsWithoutExposeAnnotation()}.
+   *   <li>By default, Gson ignores the {@link Since} annotation. You can enable Gson to use this
+   *       annotation through {@link GsonBuilder#setVersion(double)}.
    *   <li>The default field naming policy for the output JSON is same as in Java. So, a Java class
    *       field {@code versionNumber} will be output as {@code "versionNumber"} in JSON. The same
    *       rules are applied for mapping incoming JSON to the Java classes. You can change this
@@ -247,8 +250,32 @@ public final class Gson {
    *   <li>No explicit strictness is set. You can change this by calling {@link
    *       GsonBuilder#setStrictness(Strictness)}.
    * </ul>
+   *
+   * @since 2.13.2
    */
-  public static final Gson DEFAULT = new Gson();
+  public static final Gson DEFAULT =
+      new Gson(
+          Excluder.DEFAULT,
+          DEFAULT_FIELD_NAMING_STRATEGY,
+          Collections.emptyMap(),
+          DEFAULT_SERIALIZE_NULLS,
+          DEFAULT_COMPLEX_MAP_KEYS,
+          DEFAULT_JSON_NON_EXECUTABLE,
+          DEFAULT_ESCAPE_HTML,
+          DEFAULT_FORMATTING_STYLE,
+          DEFAULT_STRICTNESS,
+          DEFAULT_SPECIALIZE_FLOAT_VALUES,
+          DEFAULT_USE_JDK_UNSAFE,
+          LongSerializationPolicy.DEFAULT,
+          DEFAULT_DATE_PATTERN,
+          DateFormat.DEFAULT,
+          DateFormat.DEFAULT,
+          Collections.emptyList(),
+          Collections.emptyList(),
+          Collections.emptyList(),
+          DEFAULT_OBJECT_TO_NUMBER_STRATEGY,
+          DEFAULT_NUMBER_TO_NUMBER_STRATEGY,
+          Collections.emptyList());
 
   /**
    * Constructs a Gson object with default configuration. The default configuration has the
@@ -265,19 +292,18 @@ public final class Gson {
    *       generated JSON is empty, the field is kept. You can configure Gson to serialize null
    *       values by setting {@link GsonBuilder#serializeNulls()}.
    *   <li>Gson provides default serialization and deserialization for Enums, {@link Map}, {@link
-   *       java.net.URL}, {@link java.net.URI}, {@link java.util.Locale}, {@link java.util.Date},
-   *       {@link java.math.BigDecimal}, and {@link java.math.BigInteger} classes. If you would
-   *       prefer to change the default representation, you can do so by registering a type adapter
-   *       through {@link GsonBuilder#registerTypeAdapter(Type, Object)}.
-   *   <li>The default Date format is same as {@link java.text.DateFormat#DEFAULT}. This format
-   *       ignores the millisecond portion of the date during serialization. You can change this by
-   *       invoking {@link GsonBuilder#setDateFormat(int, int)} or {@link
-   *       GsonBuilder#setDateFormat(String)}.
-   *   <li>By default, Gson ignores the {@link com.google.gson.annotations.Expose} annotation. You
-   *       can enable Gson to serialize/deserialize only those fields marked with this annotation
-   *       through {@link GsonBuilder#excludeFieldsWithoutExposeAnnotation()}.
-   *   <li>By default, Gson ignores the {@link com.google.gson.annotations.Since} annotation. You
-   *       can enable Gson to use this annotation through {@link GsonBuilder#setVersion(double)}.
+   *       URL}, {@link URI}, {@link Locale}, {@link Date}, {@link BigDecimal}, and {@link
+   *       BigInteger} classes. If you would prefer to change the default representation, you can do
+   *       so by registering a type adapter through {@link GsonBuilder#registerTypeAdapter(Type,
+   *       Object)}.
+   *   <li>The default Date format is same as {@link DateFormat#DEFAULT}. This format ignores the
+   *       millisecond portion of the date during serialization. You can change this by invoking
+   *       {@link GsonBuilder#setDateFormat(int, int)} or {@link GsonBuilder#setDateFormat(String)}.
+   *   <li>By default, Gson ignores the {@link Expose} annotation. You can enable Gson to
+   *       serialize/deserialize only those fields marked with this annotation through {@link
+   *       GsonBuilder#excludeFieldsWithoutExposeAnnotation()}.
+   *   <li>By default, Gson ignores the {@link Since} annotation. You can enable Gson to use this
+   *       annotation through {@link GsonBuilder#setVersion(double)}.
    *   <li>The default field naming policy for the output JSON is same as in Java. So, a Java class
    *       field {@code versionNumber} will be output as {@code "versionNumber"} in JSON. The same
    *       rules are applied for mapping incoming JSON to the Java classes. You can change this
@@ -829,8 +855,8 @@ public final class Gson {
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain this type by using the
-   *     {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for {@code
-   *     Collection<Foo>}, you should use:
+   *     {@link TypeToken} class. For example, to get the type for {@code Collection<Foo>}, you
+   *     should use:
    *     <pre>
    * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
@@ -875,8 +901,8 @@ public final class Gson {
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain this type by using the
-   *     {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for {@code
-   *     Collection<Foo>}, you should use:
+   *     {@link TypeToken} class. For example, to get the type for {@code Collection<Foo>}, you
+   *     should use:
    *     <pre>
    * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>
@@ -923,8 +949,8 @@ public final class Gson {
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain this type by using the
-   *     {@link com.google.gson.reflect.TypeToken} class. For example, to get the type for {@code
-   *     Collection<Foo>}, you should use:
+   *     {@link TypeToken} class. For example, to get the type for {@code Collection<Foo>}, you
+   *     should use:
    *     <pre>
    * Type typeOfSrc = new TypeToken&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
    * </pre>

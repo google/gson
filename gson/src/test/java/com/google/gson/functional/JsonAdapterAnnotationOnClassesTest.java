@@ -387,9 +387,8 @@ public final class JsonAdapterAnnotationOnClassesTest {
     assertThat(deserialized.f).isEqualTo("de");
 
     deserialized =
-        Gson.DEFAULT
-            .fromJson(
-                "{\"custom\":{\"f\":\"de\"}}", new TypeToken<WithDelegatingFactory<String>>() {});
+        Gson.DEFAULT.fromJson(
+            "{\"custom\":{\"f\":\"de\"}}", new TypeToken<WithDelegatingFactory<String>>() {});
     assertThat(deserialized.f).isEqualTo("de");
 
     WithDelegatingFactory<String> serialized = new WithDelegatingFactory<>("se");

@@ -518,8 +518,8 @@ public final class GsonTest {
   }
 
   /**
-   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of an instance of {@link Gson} should
-   * not affect the Gson instance it came from.
+   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of an instance of {@link Gson}
+   * should not affect the Gson instance it came from.
    */
   @Test
   public void testDefaultGsonNewBuilderModification() {
