@@ -38,7 +38,7 @@ import org.junit.Test;
 /** Functional tests for the RuntimeTypeAdapterFactory feature in extras. */
 public final class RuntimeTypeAdapterFactoryFunctionalTest {
 
-  private final Gson gson = new Gson();
+  private final Gson gson = Gson.DEFAULT;
 
   /**
    * This test also ensures that {@link TypeAdapterFactory} registered through {@link JsonAdapter}

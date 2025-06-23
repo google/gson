@@ -55,7 +55,7 @@ public final class GsonTest {
 
   @Test
   public void testStrictnessDefault() {
-    assertThat(new Gson().strictness).isNull();
+    assertThat(Gson.DEFAULT.strictness).isNull();
   }
 
   @Test
@@ -191,7 +191,7 @@ public final class GsonTest {
 
   @Test
   public void testGetAdapter_Null() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     NullPointerException e =
         assertThrows(NullPointerException.class, () -> gson.getAdapter((TypeToken<?>) null));
     assertThat(e).hasMessageThat().isEqualTo("type must not be null");
@@ -456,7 +456,7 @@ public final class GsonTest {
   @Test
   public void testNewJsonWriter_Default() throws IOException {
     StringWriter writer = new StringWriter();
-    JsonWriter jsonWriter = new Gson().newJsonWriter(writer);
+    JsonWriter jsonWriter = Gson.DEFAULT.newJsonWriter(writer);
     jsonWriter.beginObject();
     jsonWriter.name("test");
     jsonWriter.nullValue();
@@ -502,7 +502,7 @@ public final class GsonTest {
   @Test
   public void testNewJsonReader_Default() throws IOException {
     String json = "test"; // String without quotes
-    JsonReader jsonReader = new Gson().newJsonReader(new StringReader(json));
+    JsonReader jsonReader = Gson.DEFAULT.newJsonReader(new StringReader(json));
     assertThrows(MalformedJsonException.class, jsonReader::nextString);
     jsonReader.close();
   }
@@ -518,12 +518,12 @@ public final class GsonTest {
   }
 
   /**
-   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of a {@code new Gson()} should
+   * Modifying a GsonBuilder obtained from {@link Gson#newBuilder()} of an instance of {@link Gson} should
    * not affect the Gson instance it came from.
    */
   @Test
   public void testDefaultGsonNewBuilderModification() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     GsonBuilder gsonBuilder = gson.newBuilder();
 
     // Modifications of `gsonBuilder` should not affect `gson` object

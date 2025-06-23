@@ -42,7 +42,7 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  *
- * <p>If you created Gson with {@code new Gson()}, the {@code toJson()} and {@code fromJson()}
+ * <p>If you got Gson with {@code Gson.DEFAULT}, the {@code toJson()} and {@code fromJson()}
  * methods will use all the fields for serialization and deserialization. However, if you created
  * Gson with {@code Gson gson = new GsonBuilder().setVersion(1.0).create()} then the {@code
  * toJson()} and {@code fromJson()} methods of Gson will exclude the {@code address} field since

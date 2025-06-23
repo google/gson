@@ -53,7 +53,7 @@ public final class MixedStreamTest {
 
   @Test
   public void testWriteMixedStreamed() throws IOException {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     StringWriter stringWriter = new StringWriter();
     JsonWriter jsonWriter = new JsonWriter(stringWriter);
 
@@ -69,7 +69,7 @@ public final class MixedStreamTest {
 
   @Test
   public void testReadMixedStreamed() throws IOException {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     StringReader stringReader = new StringReader(CARS_JSON);
     JsonReader jsonReader = new JsonReader(stringReader);
 
@@ -83,7 +83,7 @@ public final class MixedStreamTest {
   @SuppressWarnings("deprecation") // for JsonReader.setLenient
   @Test
   public void testReadDoesNotMutateState() throws IOException {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     JsonReader jsonReader = new JsonReader(new StringReader(CARS_JSON));
     jsonReader.beginArray();
 
@@ -101,7 +101,7 @@ public final class MixedStreamTest {
   @SuppressWarnings("deprecation") // for JsonWriter.setLenient
   @Test
   public void testWriteDoesNotMutateState() throws IOException {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     JsonWriter jsonWriter = new JsonWriter(new StringWriter());
     jsonWriter.beginArray();
 
@@ -120,7 +120,7 @@ public final class MixedStreamTest {
 
   @Test
   public void testReadInvalidState() throws IOException {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     JsonReader jsonReader = new JsonReader(new StringReader(CARS_JSON));
     jsonReader.beginArray();
     jsonReader.beginObject();
@@ -129,7 +129,7 @@ public final class MixedStreamTest {
 
   @Test
   public void testReadClosed() throws IOException {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     JsonReader jsonReader = new JsonReader(new StringReader(CARS_JSON));
     jsonReader.close();
     var e =
@@ -141,7 +141,7 @@ public final class MixedStreamTest {
 
   @Test
   public void testWriteInvalidState() throws IOException {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     JsonWriter jsonWriter = new JsonWriter(new StringWriter());
     jsonWriter.beginObject();
     var e =
@@ -152,7 +152,7 @@ public final class MixedStreamTest {
 
   @Test
   public void testWriteClosed() throws IOException {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     JsonWriter jsonWriter = new JsonWriter(new StringWriter());
     jsonWriter.beginArray();
     jsonWriter.endArray();
@@ -165,7 +165,7 @@ public final class MixedStreamTest {
 
   @Test
   public void testWriteNulls() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     assertThrows(
         NullPointerException.class,
         () -> gson.toJson(new JsonPrimitive("hello"), (JsonWriter) null));
@@ -177,7 +177,7 @@ public final class MixedStreamTest {
 
   @Test
   public void testReadNulls() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     assertThrows(NullPointerException.class, () -> gson.fromJson((JsonReader) null, Integer.class));
     assertThrows(
         NullPointerException.class,
@@ -190,7 +190,7 @@ public final class MixedStreamTest {
     Type type = new TypeToken<List<String>>() {}.getType();
 
     StringWriter writer = new StringWriter();
-    new Gson().toJson(contents, type, new JsonWriter(writer));
+    Gson.DEFAULT.toJson(contents, type, new JsonWriter(writer));
     assertThat(writer.toString())
         .isEqualTo("[\"\\u003c\",\"\\u003e\",\"\\u0026\",\"\\u003d\",\"\\u0027\"]");
   }
@@ -223,7 +223,7 @@ public final class MixedStreamTest {
     var e =
         assertThrows(
             IllegalArgumentException.class,
-            () -> new Gson().toJson(doubles, type, new JsonWriter(new StringWriter())));
+            () -> Gson.DEFAULT.toJson(doubles, type, new JsonWriter(new StringWriter())));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(

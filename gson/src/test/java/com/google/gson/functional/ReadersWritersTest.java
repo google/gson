@@ -49,7 +49,7 @@ public class ReadersWritersTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @Test
@@ -100,7 +100,7 @@ public class ReadersWritersTest {
 
   @Test
   public void testReadWriteTwoStrings() throws IOException {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     CharArrayWriter writer = new CharArrayWriter();
     writer.write(gson.toJson("one").toCharArray());
     writer.write(gson.toJson("two").toCharArray());
@@ -114,7 +114,7 @@ public class ReadersWritersTest {
 
   @Test
   public void testReadWriteTwoObjects() throws IOException {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     CharArrayWriter writer = new CharArrayWriter();
     BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
     writer.write(gson.toJson(expectedOne).toCharArray());

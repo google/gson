@@ -56,7 +56,7 @@ import java.util.Objects;
 /**
  * Use this builder to construct a {@link Gson} instance when you need to set configuration options
  * other than the default. For {@link Gson} with default configuration, it is simpler to use {@code
- * new Gson()}. {@code GsonBuilder} is best used by creating it, and then invoking its various
+ * Gson.DEFAULT}. {@code GsonBuilder} is best used by creating it, and then invoking its various
  * configuration methods, and finally calling create.
  *
  * <p>The following example shows how to use the {@code GsonBuilder} to construct a Gson instance:

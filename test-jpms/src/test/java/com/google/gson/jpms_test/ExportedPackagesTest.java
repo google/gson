@@ -40,7 +40,7 @@ public class ExportedPackagesTest {
   /** Tests package {@code com.google.gson} */
   @Test
   public void testMainPackage() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     assertThat(gson.toJson(1)).isEqualTo("1");
   }
 
@@ -75,7 +75,7 @@ public class ExportedPackagesTest {
   /** Verifies that Gson packages are only 'exported' but not 'opened' for reflection. */
   @Test
   public void testReflectionInternalField() throws Exception {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
 
     // Get an arbitrary non-public instance field
     Field field =

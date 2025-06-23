@@ -66,7 +66,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * instance and then invoking {@link #toJson(Object)} or {@link #fromJson(String, Class)} methods on
  * it. Gson instances are Thread-safe so you can reuse them freely across multiple threads.
  *
- * <p>You can create a Gson instance by invoking {@code new Gson()} if the default configuration is
+ * <p>You can get a Gson instance by {@code Gson.DEFAULT} if the default configuration is
  * all you need. You can also use {@link GsonBuilder} to build a Gson instance with various
  * configuration options such as versioning support, pretty printing, custom newline, custom indent,
  * custom {@link JsonSerializer}s, {@link JsonDeserializer}s, and {@link InstanceCreator}s.

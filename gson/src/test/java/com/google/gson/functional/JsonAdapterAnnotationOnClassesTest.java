@@ -48,7 +48,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   @Test
   public void testJsonAdapterInvoked() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String json = gson.toJson(new A("bar"));
     assertThat(json).isEqualTo("\"jsonAdapter\"");
 
@@ -67,7 +67,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   @Test
   public void testJsonAdapterFactoryInvoked() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String json = gson.toJson(new C("bar"));
     assertThat(json).isEqualTo("\"jsonAdapterFactory\"");
     C c = gson.fromJson("\"bar\"", C.class);
@@ -118,20 +118,20 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   @Test
   public void testIncorrectTypeAdapterFails() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     ClassWithIncorrectJsonAdapter obj = new ClassWithIncorrectJsonAdapter("bar");
     assertThrows(ClassCastException.class, () -> gson.toJson(obj));
   }
 
   @Test
   public void testSuperclassTypeAdapterNotInvoked() {
-    String json = new Gson().toJson(new B("bar"));
+    String json = Gson.DEFAULT.toJson(new B("bar"));
     assertThat(json).doesNotContain("jsonAdapter");
   }
 
   @Test
   public void testNullSafeObject() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     NullableClass fromJson = gson.fromJson("null", NullableClass.class);
     assertThat(fromJson).isNull();
 
@@ -152,7 +152,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
    */
   @Test
   public void testFactoryReturningNull() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
 
     assertThat(gson.fromJson("null", WithNullReturningFactory.class)).isNull();
     assertThat(gson.toJson(null, WithNullReturningFactory.class)).isEqualTo("null");
@@ -356,7 +356,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   @Test
   public void testIncorrectJsonAdapterType() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     WithInvalidAdapterClass obj = new WithInvalidAdapterClass();
     var e = assertThrows(IllegalArgumentException.class, () -> gson.toJson(obj));
     assertThat(e)
@@ -383,17 +383,17 @@ public final class JsonAdapterAnnotationOnClassesTest {
   public void testDelegatingAdapterFactory() {
     @SuppressWarnings("unchecked")
     WithDelegatingFactory<String> deserialized =
-        new Gson().fromJson("{\"custom\":{\"f\":\"de\"}}", WithDelegatingFactory.class);
+        Gson.DEFAULT.fromJson("{\"custom\":{\"f\":\"de\"}}", WithDelegatingFactory.class);
     assertThat(deserialized.f).isEqualTo("de");
 
     deserialized =
-        new Gson()
+        Gson.DEFAULT
             .fromJson(
                 "{\"custom\":{\"f\":\"de\"}}", new TypeToken<WithDelegatingFactory<String>>() {});
     assertThat(deserialized.f).isEqualTo("de");
 
     WithDelegatingFactory<String> serialized = new WithDelegatingFactory<>("se");
-    assertThat(new Gson().toJson(serialized)).isEqualTo("{\"custom\":{\"f\":\"se\"}}");
+    assertThat(Gson.DEFAULT.toJson(serialized)).isEqualTo("{\"custom\":{\"f\":\"se\"}}");
   }
 
   @JsonAdapter(WithDelegatingFactory.Factory.class)
@@ -445,11 +445,11 @@ public final class JsonAdapterAnnotationOnClassesTest {
   @Test
   public void testDelegatingAdapterFactory_Delayed() {
     WithDelayedDelegatingFactory deserialized =
-        new Gson().fromJson("{\"custom\":{\"f\":\"de\"}}", WithDelayedDelegatingFactory.class);
+        Gson.DEFAULT.fromJson("{\"custom\":{\"f\":\"de\"}}", WithDelayedDelegatingFactory.class);
     assertThat(deserialized.f).isEqualTo("de");
 
     WithDelayedDelegatingFactory serialized = new WithDelayedDelegatingFactory("se");
-    assertThat(new Gson().toJson(serialized)).isEqualTo("{\"custom\":{\"f\":\"se\"}}");
+    assertThat(Gson.DEFAULT.toJson(serialized)).isEqualTo("{\"custom\":{\"f\":\"se\"}}");
   }
 
   @JsonAdapter(WithDelayedDelegatingFactory.Factory.class)
@@ -683,7 +683,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   /** Tests usage of {@link JsonSerializer} as {@link JsonAdapter} value */
   @Test
   public void testJsonSerializer() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     // Verify that delegate deserializer (reflection deserializer) is used
     WithJsonSerializer deserialized = gson.fromJson("{\"f\":\"test\"}", WithJsonSerializer.class);
     assertThat(deserialized.f).isEqualTo("test");
@@ -709,7 +709,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   /** Tests usage of {@link JsonDeserializer} as {@link JsonAdapter} value */
   @Test
   public void testJsonDeserializer() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     WithJsonDeserializer deserialized =
         gson.fromJson("{\"f\":\"test\"}", WithJsonDeserializer.class);
     // Uses custom deserializer which always uses "123" as field value
@@ -780,7 +780,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   /** Tests creation of the adapter referenced by {@code @JsonAdapter} using JDK Unsafe. */
   @Test
   public void testAdapterCreatedByJdkUnsafe() {
-    String json = new Gson().toJson(new CreatedByJdkUnsafe());
+    String json = Gson.DEFAULT.toJson(new CreatedByJdkUnsafe());
     assertThat(json).isEqualTo("false");
   }
 

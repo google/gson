@@ -59,7 +59,7 @@ public class CollectionTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @Test
@@ -496,7 +496,7 @@ public class CollectionTest {
             + "    ]\n"
             + "  }\n"
             + "}";
-    BigClass bigClass = new Gson().fromJson(json, BigClass.class);
+    BigClass bigClass = Gson.DEFAULT.fromJson(json, BigClass.class);
     SmallClass small = bigClass.inBig.get("key").get(0);
     assertThat(small).isNotNull();
     assertThat(small.inSmall).isEqualTo("hello");
