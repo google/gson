@@ -35,7 +35,7 @@ public class ReflectionInaccessibleTest {
 
   @Test
   public void testDeserialization() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     var e = assertThrows(JsonIOException.class, () -> gson.fromJson("{\"i\":1}", MyClass.class));
     assertThat(e)
         .hasMessageThat()
@@ -49,7 +49,7 @@ public class ReflectionInaccessibleTest {
 
   @Test
   public void testSerialization() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
 
     MyClass obj = new MyClass();
     obj.i = 1;

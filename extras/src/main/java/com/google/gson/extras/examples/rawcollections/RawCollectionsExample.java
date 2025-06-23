@@ -40,7 +40,7 @@ public class RawCollectionsExample {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   public static void main(String[] args) {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     Collection collection = new ArrayList();
     collection.add("hello");
     collection.add(5);

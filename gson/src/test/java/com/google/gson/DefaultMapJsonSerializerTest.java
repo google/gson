@@ -31,7 +31,7 @@ import org.junit.Test;
  * @author Joel Leitch
  */
 public class DefaultMapJsonSerializerTest {
-  private Gson gson = new Gson();
+  private Gson gson = Gson.DEFAULT;
 
   @Test
   public void testEmptyMapNoTypeSerialization() {
@@ -59,7 +59,7 @@ public class DefaultMapJsonSerializerTest {
     Map<String, String> myMap = new HashMap<>();
     String key = "key1";
     myMap.put(key, "value1");
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     JsonElement element = gson.toJsonTree(myMap, mapType);
 
     assertThat(element.isJsonObject()).isTrue();

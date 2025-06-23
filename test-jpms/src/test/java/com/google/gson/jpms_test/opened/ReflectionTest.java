@@ -33,14 +33,14 @@ public class ReflectionTest {
 
   @Test
   public void testDeserialization() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     MyClass deserialized = gson.fromJson("{\"i\":1}", MyClass.class);
     assertThat(deserialized.i).isEqualTo(1);
   }
 
   @Test
   public void testSerialization() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
 
     MyClass obj = new MyClass();
     obj.i = 1;

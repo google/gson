@@ -79,7 +79,7 @@ public class DefaultTypeAdaptersTest {
     TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
     this.oldLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @After
@@ -329,7 +329,7 @@ public class DefaultTypeAdaptersTest {
 
   @Test
   public void testSetSerialization() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     HashSet<String> s = new HashSet<>();
     s.add("blah");
     String json = gson.toJson(s);
@@ -341,7 +341,7 @@ public class DefaultTypeAdaptersTest {
 
   @Test
   public void testBitSetSerialization() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     BitSet bits = new BitSet();
     bits.set(1);
     bits.set(3, 6);
@@ -357,7 +357,7 @@ public class DefaultTypeAdaptersTest {
     expected.set(2, 6);
     expected.set(8);
 
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String json = gson.toJson(expected);
     assertThat(gson.fromJson(json, BitSet.class)).isEqualTo(expected);
 
@@ -524,11 +524,11 @@ public class DefaultTypeAdaptersTest {
       }
     }
 
-    // `new Gson()` should use dateStyle=DEFAULT, timeStyle=DEFAULT
+    // `Gson.DEFAULT` should use dateStyle=DEFAULT, timeStyle=DEFAULT
     String expectedFormatted =
         DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US)
             .format(date);
-    assertThat(new Gson().toJson(date)).isEqualTo("\"" + expectedFormatted + "\"");
+    assertThat(Gson.DEFAULT.toJson(date)).isEqualTo("\"" + expectedFormatted + "\"");
   }
 
   /** Uses {@link GsonBuilder#setDateFormat(int)} */

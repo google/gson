@@ -159,7 +159,7 @@ public class NullObjectAndFieldTest {
   // test for issue 389
   @Test
   public void testAbsentJsonElementsAreSetToNull() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     ClassWithInitializedMembers target =
         gson.fromJson("{array:[1,2,3]}", ClassWithInitializedMembers.class);
     assertThat(target.array).hasLength(3);
@@ -216,7 +216,7 @@ public class NullObjectAndFieldTest {
 
   @Test
   public void testExplicitNullSetsFieldToNullDuringDeserialization() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String json = "{value:null}";
     ObjectWithField obj = gson.fromJson(json, ObjectWithField.class);
     assertThat(obj.value).isNull();

@@ -36,7 +36,7 @@ public class ConcurrencyTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   /**

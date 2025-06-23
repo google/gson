@@ -44,7 +44,7 @@ public final class JsonAdapterSerializerDeserializerTest {
 
   @Test
   public void testJsonSerializerDeserializerBasedJsonAdapterOnFields() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String json =
         gson.toJson(new Computer(new User("Inderjeet Singh"), null, new User("Jesse Wilson")));
     assertThat(json)
@@ -114,7 +114,7 @@ public final class JsonAdapterSerializerDeserializerTest {
 
   @Test
   public void testJsonSerializerDeserializerBasedJsonAdapterOnClass() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String json = gson.toJson(new Computer2(new User2("Inderjeet Singh")));
     assertThat(json).isEqualTo("{\"user\":\"UserSerializerDeserializer2\"}");
     Computer2 computer = gson.fromJson("{'user':'Inderjeet Singh'}", Computer2.class);
@@ -155,7 +155,7 @@ public final class JsonAdapterSerializerDeserializerTest {
   @Test
   public void testDifferentJsonAdaptersForGenericFieldsOfSameRawType() {
     Container c = new Container("Foo", 10);
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String json = gson.toJson(c);
     assertThat(json).contains("\"a\":\"BaseStringAdapter\"");
     assertThat(json).contains("\"b\":\"BaseIntegerAdapter\"");

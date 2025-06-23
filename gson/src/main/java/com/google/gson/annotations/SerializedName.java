@@ -53,7 +53,7 @@ import java.lang.annotation.Target;
  *
  * <pre>
  * MyClass target = new MyClass("v1", "v2", "v3");
- * Gson gson = new Gson();
+ * Gson gson = Gson.DEFAULT;
  * String json = gson.toJson(target);
  * System.out.println(json);
  *
