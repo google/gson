@@ -74,7 +74,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * <p>Here is an example of how Gson is used for a simple Class:
  *
  * <pre>
- * Gson gson = new Gson(); // Or use new GsonBuilder().create();
+ * Gson gson = Gson.DEFAULT; // Or use new GsonBuilder().create();
  * MyType target = new MyType();
  * String json = gson.toJson(target); // serializes target to JSON
  * MyType target2 = gson.fromJson(json, MyType.class); // deserializes json into target2
@@ -92,7 +92,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * List&lt;MyType&gt; target = new LinkedList&lt;MyType&gt;();
  * target.add(new MyType(1, "abc"));
  *
- * Gson gson = new Gson();
+ * Gson gson = Gson.DEFAULT;
  * // For serialization you normally do not have to specify the type, Gson will use
  * // the runtime type of the objects, however you can also specify it explicitly
  * String json = gson.toJson(target, listType.getType());
