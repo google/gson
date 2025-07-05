@@ -252,8 +252,8 @@ public class CustomTypeAdaptersTest {
                 boolean.class,
                 (JsonDeserializer<Boolean>) (json, type, context) -> json.getAsInt() != 0)
             .create();
-    assertThat(gson.fromJson("1", boolean.class)).isEqualTo(Boolean.TRUE);
-    assertThat(gson.fromJson("true", Boolean.class)).isEqualTo(Boolean.TRUE);
+    assertThat(gson.fromJson("1", boolean.class)).isEqualTo(true);
+    assertThat(gson.fromJson("true", Boolean.class)).isEqualTo(true);
   }
 
   @Test
