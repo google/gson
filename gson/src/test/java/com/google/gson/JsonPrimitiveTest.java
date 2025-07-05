@@ -43,7 +43,7 @@ public class JsonPrimitiveTest {
 
   @Test
   public void testBoolean() {
-    JsonPrimitive json = new JsonPrimitive(Boolean.TRUE);
+    JsonPrimitive json = new JsonPrimitive(true);
 
     assertThat(json.isBoolean()).isTrue();
     assertThat(json.getAsBoolean()).isTrue();
