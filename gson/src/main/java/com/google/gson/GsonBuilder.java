@@ -33,7 +33,6 @@ import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
 import com.google.gson.internal.Excluder;
-import com.google.gson.internal.GsonPreconditions;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter;
 import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
@@ -704,11 +703,16 @@ public final class GsonBuilder {
   @CanIgnoreReturnValue
   public GsonBuilder registerTypeAdapter(Type type, Object typeAdapter) {
     Objects.requireNonNull(type);
-    GsonPreconditions.checkArgument(
-        typeAdapter instanceof JsonSerializer<?>
-            || typeAdapter instanceof JsonDeserializer<?>
-            || typeAdapter instanceof InstanceCreator<?>
-            || typeAdapter instanceof TypeAdapter<?>);
+    Objects.requireNonNull(typeAdapter);
+    if (!(typeAdapter instanceof JsonSerializer<?>
+        || typeAdapter instanceof JsonDeserializer<?>
+        || typeAdapter instanceof InstanceCreator<?>
+        || typeAdapter instanceof TypeAdapter<?>)) {
+      throw new IllegalArgumentException(
+          "Class "
+              + typeAdapter.getClass().getName()
+              + " does not implement any supported type adapter class or interface");
+    }
 
     if (hasNonOverridableAdapter(type)) {
       throw new IllegalArgumentException("Cannot override built-in adapter for " + type);
@@ -778,10 +782,15 @@ public final class GsonBuilder {
   @CanIgnoreReturnValue
   public GsonBuilder registerTypeHierarchyAdapter(Class<?> baseType, Object typeAdapter) {
     Objects.requireNonNull(baseType);
-    GsonPreconditions.checkArgument(
-        typeAdapter instanceof JsonSerializer<?>
-            || typeAdapter instanceof JsonDeserializer<?>
-            || typeAdapter instanceof TypeAdapter<?>);
+    Objects.requireNonNull(typeAdapter);
+    if (!(typeAdapter instanceof JsonSerializer<?>
+        || typeAdapter instanceof JsonDeserializer<?>
+        || typeAdapter instanceof TypeAdapter<?>)) {
+      throw new IllegalArgumentException(
+          "Class "
+              + typeAdapter.getClass().getName()
+              + " does not implement any supported type adapter class or interface");
+    }
 
     if (typeAdapter instanceof JsonDeserializer || typeAdapter instanceof JsonSerializer) {
       hierarchyFactories.add(TreeTypeAdapter.newTypeHierarchyFactory(baseType, typeAdapter));
