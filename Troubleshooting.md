@@ -398,18 +398,18 @@ For backward compatibility it is possible to restore Gson's old behavior of allo
 - This does not solve any of the type-safety problems mentioned above; in the long term you should prefer one of the other solutions listed above. This system property might be removed in future Gson versions.
 - You should only ever set the property to `"true"`, but never to any other value or manually clear it. Otherwise this might counteract any libraries you are using which might have deliberately set the system property because they rely on its behavior.
 
-## <a id="proguard-r8"></a> ProGuard / R8
+## <a id="proguard-r8"></a> Android - R8 / ProGuard
 
-If you use Gson as a dependency in an Android project which uses ProGuard or R8 as code shrinking and obfuscation tool you don't need custom ProGuard rules in most cases.
-The Gson-specific rules are [already bundled](gson/src/main/resources/META-INF/proguard/gson.pro) (from Gson 2.11.0) into the Gson JAR which can be interpreted by R8 automatically.
+Gson is not recommended on Android due to the expectation of R8 optimization, or other environments where you intend to minify (shrink/optimize/obfuscate) your build, such as with ProGuard. While it is possible to make it work with minification, many features of the library will not work in this environment due to the open ended reflection performed in Gson. This is true even with the most up to date ProGuard file, included since Gson 2.11.0.
 
-However, your classes must adhere to the following:
-- must have a no-args constructor\
-  (and be a top-level or `static` class to avoid implicit constructor arguments)
-- fields must be annotated with [`@SerializedName`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/annotations/SerializedName.html)
+If you do want to make Gson work with minification, you must test your code after minification has been applied, and can choose to either:
 
-Alternatively you can configure ProGuard or R8 to keep your classes as they are, for example by [specifying custom ProGuard rules or by using `@Keep` on the classes](https://developer.android.com/build/shrink-code#keep-code).
-However, this might completely disable some optimizations and obfuscation for these classes.
+### Constrain reflected classes
+- Ensure all of your objects have a no-arg constructor (and be a top-level or static class to avoid implicit constructor arguments)
+- Annotate all fields with `@SerializedName()`
 
 If you still use a Gson version older than 2.11.0 or if you are using ProGuard for a non-Android project ([related ProGuard issue](https://github.com/Guardsquare/proguard/issues/337)),
-you may need to copy the rules from the [`gson.pro`](gson/src/main/resources/META-INF/proguard/gson.pro) file into your own ProGuard configuration file.
+you may need to copy the rules from Gson's [`gson.pro`](gson/src/main/resources/META-INF/proguard/gson.pro) file into your own ProGuard configuration file.
+
+### Avoid Reflection
+It is possible to avoid reflection when using Gson. This will mean you will need to have a `TypeAdapter` or `TypeAdapterFactory` for every type you might want to serialize or deserialize, or that you are only using Gson through its explicit JSON API via classes like `JsonObject` and `JsonArray`, or are manually reading or writing JSON data using `JsonReader` and `JsonWriter`. You can ensure reflection isn't being used by calling [`GsonBuilder.addReflectionAccessFilter()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#addReflectionAccessFilter(com.google.gson.ReflectionAccessFilter)) to add a filter which always returns `BLOCK_ALL`.

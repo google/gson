@@ -402,7 +402,7 @@ public class MapTest {
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-      return Set.of();
+      return Collections.emptySet();
     }
   }
 
@@ -536,7 +536,7 @@ public class MapTest {
   public void testReadMapsWithEmptyStringKey() {
     Map<String, Boolean> map =
         gson.fromJson("{\"\":true}", new TypeToken<Map<String, Boolean>>() {}.getType());
-    assertThat(map.get("")).isEqualTo(Boolean.TRUE);
+    assertThat(map.get("")).isEqualTo(true);
   }
 
   /** From bug report http://code.google.com/p/google-gson/issues/detail?id=204 */

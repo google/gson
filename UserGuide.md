@@ -385,8 +385,6 @@ Gson has built-in serializers and deserializers for commonly used classes whose 
 
 For many more, see the internal class [`TypeAdapters`](gson/src/main/java/com/google/gson/internal/bind/TypeAdapters.java).
 
-You can also find source code for some commonly used classes such as JodaTime at [this page](https://sites.google.com/site/gson/gson-type-adapters-for-common-classes-1).
-
 ### Custom Serialization and Deserialization
 
 Sometimes the default representation is not what you want. This is often the case when dealing with library classes (DateTime, etc.).
@@ -739,7 +737,9 @@ Sometimes you need to share state across custom serializers/deserializers ([see 
 
 ### Streaming
 
-In addition Gson's object model and data binding, you can use Gson to read from and write to a [stream](https://sites.google.com/site/gson/streaming). You can also combine streaming and object model access to get the best of both approaches.
+In addition Gson's object model and data binding, you can use Gson to read from and write to a stream with the classes [`JsonReader`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonReader.html) and [`JsonWriter`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonWriter.html). These classes operate on a JSON document as a sequence of tokens that are traversed in depth-first order. Because the streams operate on one token at a time, they impose minimal memory overhead.
+
+You can also combine streaming and object model access to get the best of both approaches. For example by starting to manually read a JSON document using a `JsonReader` and then using [`Gson#fromJson(JsonReader, ...)`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#fromJson(com.google.gson.stream.JsonReader,java.lang.reflect.Type)) to read a nested value, or starting to manually write a JSON document using a `JsonWriter` and then using [`Gson#toJson(..., JsonWriter)`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#toJson(java.lang.Object,java.lang.reflect.Type,com.google.gson.stream.JsonWriter)) to write a nested value.
 
 ## Issues in Designing Gson
 

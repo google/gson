@@ -195,7 +195,7 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     public <R> R deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
       return gson.fromJson(json, typeOfT);
     }
