@@ -38,7 +38,7 @@ class ReflectionTest {
 
   @Test
   void testDefaultConstructor() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
 
     ClassWithDefaultConstructor c = gson.fromJson("{\"i\":1}", ClassWithDefaultConstructor.class);
     assertThat(c.i).isEqualTo(1);
@@ -54,7 +54,7 @@ class ReflectionTest {
 
   @Test
   void testCustomDefaultConstructor() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
 
     ClassWithCustomDefaultConstructor c =
         gson.fromJson("{\"i\":2}", ClassWithCustomDefaultConstructor.class);
@@ -83,7 +83,7 @@ class ReflectionTest {
    */
   @Test
   void testClassWithoutDefaultConstructor() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
 
     ClassWithoutDefaultConstructor c =
         gson.fromJson("{\"i\":1}", ClassWithoutDefaultConstructor.class);
@@ -129,7 +129,7 @@ class ReflectionTest {
 
   @Test
   void testFinalField() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
 
     ClassWithFinalField c = gson.fromJson("{\"i\":2}", ClassWithFinalField.class);
     assertThat(c.i).isEqualTo(2);
@@ -145,7 +145,7 @@ class ReflectionTest {
 
   @Test
   void testSerializedName() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     ClassWithSerializedName c = gson.fromJson("{\"custom-name\":1}", ClassWithSerializedName.class);
     assertThat(c.i).isEqualTo(1);
 
@@ -177,7 +177,7 @@ class ReflectionTest {
 
   @Test
   void testCustomClassAdapter() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     ClassWithCustomClassAdapter c = gson.fromJson("1", ClassWithCustomClassAdapter.class);
     assertThat(c.i).isEqualTo(6);
 
@@ -211,7 +211,7 @@ class ReflectionTest {
 
   @Test
   void testCustomFieldAdapter() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     ClassWithCustomFieldAdapter c = gson.fromJson("{\"i\":1}", ClassWithCustomFieldAdapter.class);
     assertThat(c.i).isEqualTo(6);
 
@@ -254,7 +254,7 @@ class ReflectionTest {
 
   @Test
   void testGenerics() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
 
     List<ClassWithDefaultConstructor> list =
         gson.fromJson("[{\"i\":1}]", new TypeToken<List<ClassWithDefaultConstructor>>() {});

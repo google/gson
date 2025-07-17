@@ -49,7 +49,7 @@ public class JsonParserTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @Test

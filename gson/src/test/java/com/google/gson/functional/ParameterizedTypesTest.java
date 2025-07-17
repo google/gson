@@ -52,7 +52,7 @@ public class ParameterizedTypesTest {
 
   @Before
   public void setUp() {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @Test

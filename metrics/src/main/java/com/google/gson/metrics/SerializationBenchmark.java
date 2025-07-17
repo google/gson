@@ -39,7 +39,7 @@ public class SerializationBenchmark {
 
   @BeforeExperiment
   void setUp() throws Exception {
-    this.gson = pretty ? new GsonBuilder().setPrettyPrinting().create() : new Gson();
+    this.gson = pretty ? new GsonBuilder().setPrettyPrinting().create() : Gson.DEFAULT;
     this.bag = new BagOfPrimitives(10L, 1, false, "foo");
   }
 

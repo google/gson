@@ -36,7 +36,7 @@ public class TypeVariableTest {
 
   @Test
   public void testAdvancedTypeVariables() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     Bar bar1 = new Bar("someString", 1, true);
     ArrayList<Integer> arrayList = new ArrayList<>();
     arrayList.add(1);
@@ -52,7 +52,7 @@ public class TypeVariableTest {
 
   @Test
   public void testTypeVariablesViaTypeParameter() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     Foo<String, Integer> original = new Foo<>("e", 5, false);
     original.map.put("f", Arrays.asList(6, 7));
     Type type = new TypeToken<Foo<String, Integer>>() {}.getType();
@@ -65,7 +65,7 @@ public class TypeVariableTest {
 
   @Test
   public void testBasicTypeVariables() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     Blue blue1 = new Blue(true);
     String json = gson.toJson(blue1);
 
