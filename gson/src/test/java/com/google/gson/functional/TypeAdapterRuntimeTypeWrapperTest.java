@@ -199,7 +199,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
   public void testGsonFutureAdapter() {
     CyclicBase b = new CyclicBase();
     b.f = new CyclicSub(2);
-    String json = new Gson().toJson(b);
+    String json = Gson.DEFAULT.toJson(b);
     assertThat(json).isEqualTo("{\"f\":{\"i\":2}}");
   }
 }

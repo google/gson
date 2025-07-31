@@ -98,7 +98,7 @@ public class CustomTypeAdaptersTest {
   @Ignore
   public void disable_testCustomSerializersOfSelf() {
     Gson gson = createGsonObjectWithFooTypeAdapter();
-    Gson basicGson = new Gson();
+    Gson basicGson = Gson.DEFAULT;
     Foo newFooObject = new Foo(1, 2L);
     String jsonFromCustomSerializer = gson.toJson(newFooObject);
     String jsonFromGson = basicGson.toJson(newFooObject);
@@ -110,7 +110,7 @@ public class CustomTypeAdaptersTest {
   @Ignore
   public void disable_testCustomDeserializersOfSelf() {
     Gson gson = createGsonObjectWithFooTypeAdapter();
-    Gson basicGson = new Gson();
+    Gson basicGson = Gson.DEFAULT;
     Foo expectedFoo = new Foo(1, 2L);
     String json = basicGson.toJson(expectedFoo);
     Foo newFooObject = gson.fromJson(json, Foo.class);
