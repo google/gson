@@ -1,25 +1,39 @@
 name: CIFuzz
 on: [pull_request]
+permissions: {}
+
 jobs:
   Fuzzing:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
     steps:
     - name: Build Fuzzers
       id: build
+      # Cannot be pinned to commit because there are no releases, see https://github.com/google/oss-fuzz/issues/6836
       uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
       with:
         oss-fuzz-project-name: 'gson'
         dry-run: false
         language: jvm
     - name: Run Fuzzers
+      # Cannot be pinned to commit because there are no releases, see https://github.com/google/oss-fuzz/issues/6836
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
       with:
         oss-fuzz-project-name: 'gson'
         fuzz-seconds: 600
         dry-run: false
+        output-sarif: true
     - name: Upload Crash
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
       if: failure() && steps.build.outcome == 'success'
       with:
         name: artifacts
         path: ./out/artifacts
+    - name: Upload Sarif
+      if: always() && steps.build.outcome == 'success'
+      uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b  # v3.29.2
+      with:
+        # Path to SARIF file relative to the root of the repository
+        sarif_file: cifuzz-sarif/results.sarif
+        checkout_path: cifuzz-sarif

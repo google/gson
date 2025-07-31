@@ -29,6 +29,16 @@ import org.junit.Test;
 
 @SuppressWarnings("ClassNamedLikeTypeParameter") // for dummy classes A, B, ...
 public final class GsonTypesTest {
+  @Test
+  public void testWildcardBoundsInvalid() {
+    String expectedMessage = "Primitive type is not allowed";
+    IllegalArgumentException e =
+        assertThrows(IllegalArgumentException.class, () -> GsonTypes.subtypeOf(int.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e = assertThrows(IllegalArgumentException.class, () -> GsonTypes.supertypeOf(int.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+  }
 
   @Test
   public void testNewParameterizedTypeWithoutOwner() throws Exception {

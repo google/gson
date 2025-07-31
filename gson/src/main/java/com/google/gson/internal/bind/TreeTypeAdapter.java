@@ -25,13 +25,13 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.GsonPreconditions;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 /**
  * Adapts a Gson 1.x tree-style adapter as a streaming TypeAdapter. Since the tree adapter may be
@@ -162,7 +162,13 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
       serializer = typeAdapter instanceof JsonSerializer ? (JsonSerializer<?>) typeAdapter : null;
       deserializer =
           typeAdapter instanceof JsonDeserializer ? (JsonDeserializer<?>) typeAdapter : null;
-      GsonPreconditions.checkArgument(serializer != null || deserializer != null);
+      if (serializer == null && deserializer == null) {
+        Objects.requireNonNull(typeAdapter);
+        throw new IllegalArgumentException(
+            "Type adapter "
+                + typeAdapter.getClass().getName()
+                + " must implement JsonSerializer or JsonDeserializer");
+      }
       this.exactType = exactType;
       this.matchRawType = matchRawType;
       this.hierarchyType = hierarchyType;
@@ -195,7 +201,7 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     public <R> R deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
       return gson.fromJson(json, typeOfT);
     }

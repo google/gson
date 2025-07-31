@@ -16,7 +16,6 @@
 
 package com.google.gson.internal;
 
-import static com.google.gson.internal.GsonPreconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import java.io.Serializable;
@@ -42,7 +41,6 @@ import java.util.Properties;
  * @author Bob Lee
  * @author Jesse Wilson
  */
-@SuppressWarnings("MemberName") // legacy class name
 public final class GsonTypes {
   static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 
@@ -139,7 +137,6 @@ public final class GsonTypes {
       // getRawType() returns Type instead of Class; that seems to be an API mistake,
       // see https://bugs.openjdk.org/browse/JDK-8250659
       Type rawType = parameterizedType.getRawType();
-      checkArgument(rawType instanceof Class);
       return (Class<?>) rawType;
 
     } else if (type instanceof GenericArrayType) {
@@ -286,7 +283,10 @@ public final class GsonTypes {
       assert bounds.length == 1;
       context = bounds[0];
     }
-    checkArgument(supertype.isAssignableFrom(contextRawType));
+    if (!supertype.isAssignableFrom(contextRawType)) {
+      throw new IllegalArgumentException(
+          contextRawType + " is not the same as or a subtype of " + supertype);
+    }
     return resolve(
         context, contextRawType, GsonTypes.getGenericSupertype(context, contextRawType, supertype));
   }
@@ -485,7 +485,9 @@ public final class GsonTypes {
   }
 
   static void checkNotPrimitive(Type type) {
-    checkArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());
+    if (type instanceof Class<?> && ((Class<?>) type).isPrimitive()) {
+      throw new IllegalArgumentException("Primitive type is not allowed");
+    }
   }
 
   /**
@@ -632,13 +634,20 @@ public final class GsonTypes {
     private final Type lowerBound;
 
     public WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
-      checkArgument(lowerBounds.length <= 1);
-      checkArgument(upperBounds.length == 1);
+      if (lowerBounds.length > 1) {
+        throw new IllegalArgumentException("At most one lower bound is supported");
+      }
+      if (upperBounds.length != 1) {
+        throw new IllegalArgumentException("Exactly one upper bound must be specified");
+      }
 
       if (lowerBounds.length == 1) {
         requireNonNull(lowerBounds[0]);
         checkNotPrimitive(lowerBounds[0]);
-        checkArgument(upperBounds[0] == Object.class);
+        if (upperBounds[0] != Object.class) {
+          throw new IllegalArgumentException(
+              "When lower bound is specified, upper bound must be Object");
+        }
         this.lowerBound = canonicalize(lowerBounds[0]);
         this.upperBound = Object.class;
 
