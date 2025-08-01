@@ -78,7 +78,7 @@ public class ReflectionAccessFilterHelper {
   }
 
   private abstract static class AccessChecker {
-    public static final AccessChecker INSTANCE;
+    static final AccessChecker INSTANCE;
 
     static {
       AccessChecker accessChecker = null;
@@ -116,6 +116,6 @@ public class ReflectionAccessFilterHelper {
       INSTANCE = accessChecker;
     }
 
-    public abstract boolean canAccess(AccessibleObject accessibleObject, Object object);
+    abstract boolean canAccess(AccessibleObject accessibleObject, Object object);
   }
 }

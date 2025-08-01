@@ -75,7 +75,7 @@ public class FieldAttributesTest {
   }
 
   private static class Foo {
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EffectivelyPrivate"})
     public transient List<String> bar;
   }
 }

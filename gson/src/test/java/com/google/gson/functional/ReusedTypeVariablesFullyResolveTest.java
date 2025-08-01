@@ -68,6 +68,6 @@ public class ReusedTypeVariablesFullyResolveTest {
   private static class SetCollection<T> extends BaseCollection<T, Set<T>> {}
 
   private static class BaseCollection<U, C extends Collection<U>> {
-    public C collection;
+    C collection;
   }
 }

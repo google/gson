@@ -180,7 +180,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
   private static class WithNullReturningFactory<T> {
     T t;
 
-    public WithNullReturningFactory(T t) {
+    WithNullReturningFactory(T t) {
       this.t = t;
     }
 
@@ -761,11 +761,11 @@ public final class JsonAdapterAnnotationOnClassesTest {
       private final String value;
 
       @SuppressWarnings("unused")
-      public Serializer() {
+      Serializer() {
         throw new AssertionError("should not be called");
       }
 
-      public Serializer(String value) {
+      Serializer(String value) {
         this.value = value;
       }
 
@@ -792,7 +792,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
       // Explicit constructor with args to remove implicit no-args constructor
       @SuppressWarnings("unused")
-      public Serializer(int i) {
+      Serializer(int i) {
         throw new AssertionError("should not be called");
       }
 

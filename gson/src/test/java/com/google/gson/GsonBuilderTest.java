@@ -202,7 +202,7 @@ public class GsonBuilderTest {
   }
 
   private static class ClassWithoutNoArgsConstructor {
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EffectivelyPrivate"})
     public ClassWithoutNoArgsConstructor(String s) {}
   }
 

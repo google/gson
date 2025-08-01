@@ -47,7 +47,7 @@ public class Java17ReflectiveTypeAdapterFactoryTest {
   // Class for which the normal reflection based adapter is used
   private static class DummyClass {
     @SuppressWarnings("unused")
-    public String s;
+    String s;
   }
 
   @Test

@@ -393,7 +393,7 @@ public class MapTest {
 
   private static class MapWithoutNoArgsConstructor<K, V> extends AbstractMap<K, V> {
     // Remove implicit no-args constructor
-    public MapWithoutNoArgsConstructor(int unused) {}
+    MapWithoutNoArgsConstructor(int unused) {}
 
     @Override
     public V put(K key, V value) {

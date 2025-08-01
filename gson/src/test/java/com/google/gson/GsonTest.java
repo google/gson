@@ -664,11 +664,12 @@ public final class GsonTest {
 
     final String s;
 
+    @SuppressWarnings("EffectivelyPrivate")
     public CustomClass3(String s) {
       this.s = s;
     }
 
-    @SuppressWarnings("unused") // called by Gson
+    @SuppressWarnings({"unused", "EffectivelyPrivate"}) // called by Gson
     public CustomClass3() {
       this(NO_ARG_CONSTRUCTOR_VALUE);
     }

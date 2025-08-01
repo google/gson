@@ -43,7 +43,7 @@ public class ConstructorConstructorTest {
 
   private abstract static class AbstractClass {
     @SuppressWarnings("unused")
-    public AbstractClass() {}
+    AbstractClass() {}
   }
 
   private interface Interface {}

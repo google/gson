@@ -76,7 +76,7 @@ public final class JsonAdapterSerializerDeserializerTest {
   }
 
   private static final class User {
-    public final String name;
+    final String name;
 
     private User(String name) {
       this.name = name;
@@ -131,7 +131,7 @@ public final class JsonAdapterSerializerDeserializerTest {
 
   @JsonAdapter(UserSerializerDeserializer2.class)
   private static final class User2 {
-    public final String name;
+    final String name;
 
     private User2(String name) {
       this.name = name;

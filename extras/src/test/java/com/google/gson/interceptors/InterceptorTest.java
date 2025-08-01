@@ -157,7 +157,7 @@ public final class InterceptorTest {
     String email;
     Address address;
 
-    public User(String name, String password) {
+    User(String name, String password) {
       this.name = name;
       this.password = password;
     }
