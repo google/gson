@@ -286,16 +286,14 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private static class FieldsData {
-    static final FieldsData EMPTY =
-        new FieldsData(Collections.emptyMap(), Collections.emptyList());
+    static final FieldsData EMPTY = new FieldsData(Collections.emptyMap(), Collections.emptyList());
 
     /** Maps from JSON member name to field */
     final Map<String, BoundField> deserializedFields;
 
     final List<BoundField> serializedFields;
 
-    FieldsData(
-        Map<String, BoundField> deserializedFields, List<BoundField> serializedFields) {
+    FieldsData(Map<String, BoundField> deserializedFields, List<BoundField> serializedFields) {
       this.deserializedFields = deserializedFields;
       this.serializedFields = serializedFields;
     }
