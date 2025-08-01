@@ -189,11 +189,11 @@ public class ExclusionStrategyFunctionalTest {
     private final String stringField;
     private final long longField;
 
-    public SampleObjectForTest() {
+    SampleObjectForTest() {
       this(5, "someDefaultValue", 12345L);
     }
 
-    public SampleObjectForTest(int annotatedField, String stringField, long longField) {
+    SampleObjectForTest(int annotatedField, String stringField, long longField) {
       this.annotatedField = annotatedField;
       this.stringField = stringField;
       this.longField = longField;

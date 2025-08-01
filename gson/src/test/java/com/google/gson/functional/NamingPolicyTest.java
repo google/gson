@@ -324,20 +324,20 @@ public class NamingPolicyTest {
 
   @SuppressWarnings("unused")
   private static class ClassWithDuplicateFields {
-    public Integer a;
+    Integer a;
 
     @SerializedName("a")
-    public Double b;
+    Double b;
 
-    public ClassWithDuplicateFields(Integer a) {
+    ClassWithDuplicateFields(Integer a) {
       this(a, null);
     }
 
-    public ClassWithDuplicateFields(Double b) {
+    ClassWithDuplicateFields(Double b) {
       this(null, b);
     }
 
-    public ClassWithDuplicateFields(Integer a, Double b) {
+    ClassWithDuplicateFields(Integer a, Double b) {
       this.a = a;
       this.b = b;
     }
@@ -345,7 +345,7 @@ public class NamingPolicyTest {
 
   private static class ClassWithComplexFieldName {
     @SerializedName("@value\"_s$\\")
-    public final long value;
+    final long value;
 
     ClassWithComplexFieldName(long value) {
       this.value = value;
@@ -354,9 +354,9 @@ public class NamingPolicyTest {
 
   @SuppressWarnings("unused")
   private static class ClassWithTwoFields {
-    public int a;
-    public int b;
+    int a;
+    int b;
 
-    public ClassWithTwoFields() {}
+    ClassWithTwoFields() {}
   }
 }

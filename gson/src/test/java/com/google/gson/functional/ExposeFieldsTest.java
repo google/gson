@@ -138,11 +138,11 @@ public class ExposeFieldsTest {
     @Keep
     final char e;
 
-    public ClassWithExposedFields(Integer a, Integer b) {
+    ClassWithExposedFields(Integer a, Integer b) {
       this(a, b, 1L, 2.0, 'a');
     }
 
-    public ClassWithExposedFields(Integer a, Integer b, long c, double d, char e) {
+    ClassWithExposedFields(Integer a, Integer b, long c, double d, char e) {
       this.a = a;
       this.b = b;
       this.c = c;
@@ -150,7 +150,7 @@ public class ExposeFieldsTest {
       this.e = e;
     }
 
-    public String getExpectedJson() {
+    String getExpectedJson() {
       StringBuilder sb = new StringBuilder("{");
       if (a != null) {
         sb.append("\"a\":").append(a).append(",");
@@ -184,7 +184,7 @@ public class ExposeFieldsTest {
   private static class ClassWithInterfaceField {
     @Expose private final SomeInterface interfaceField;
 
-    public ClassWithInterfaceField(SomeInterface interfaceField) {
+    ClassWithInterfaceField(SomeInterface interfaceField) {
       this.interfaceField = interfaceField;
     }
   }

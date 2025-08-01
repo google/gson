@@ -83,8 +83,8 @@ public class PerformanceTest {
   }
 
   private static class ExceptionHolder {
-    public final String message;
-    public final String stackTrace;
+    final String message;
+    final String stackTrace;
 
     // For use by Gson
     @SuppressWarnings("unused")
@@ -92,7 +92,7 @@ public class PerformanceTest {
       this("", "");
     }
 
-    public ExceptionHolder(String message, String stackTrace) {
+    ExceptionHolder(String message, String stackTrace) {
       this.message = message;
       this.stackTrace = stackTrace;
     }
@@ -334,7 +334,7 @@ public class PerformanceTest {
       this("");
     }
 
-    public ClassWithField(String field) {
+    ClassWithField(String field) {
       this.field = field;
     }
   }

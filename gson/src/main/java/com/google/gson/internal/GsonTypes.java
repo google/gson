@@ -520,7 +520,7 @@ public final class GsonTypes {
     @SuppressWarnings("serial")
     private final Type[] typeArguments;
 
-    public ParameterizedTypeImpl(Type ownerType, Class<?> rawType, Type... typeArguments) {
+    ParameterizedTypeImpl(Type ownerType, Class<?> rawType, Type... typeArguments) {
       requireNonNull(rawType);
 
       if (ownerType == null && requiresOwnerType(rawType)) {
@@ -592,7 +592,7 @@ public final class GsonTypes {
     @SuppressWarnings("serial")
     private final Type componentType;
 
-    public GenericArrayTypeImpl(Type componentType) {
+    GenericArrayTypeImpl(Type componentType) {
       requireNonNull(componentType);
       this.componentType = canonicalize(componentType);
     }
@@ -633,7 +633,7 @@ public final class GsonTypes {
     @SuppressWarnings("serial")
     private final Type lowerBound;
 
-    public WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
+    WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
       if (lowerBounds.length > 1) {
         throw new IllegalArgumentException("At most one lower bound is supported");
       }

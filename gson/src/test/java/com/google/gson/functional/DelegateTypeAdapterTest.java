@@ -72,8 +72,8 @@ public class DelegateTypeAdapterTest {
   }
 
   private static class StatsTypeAdapterFactory implements TypeAdapterFactory {
-    public int numReads = 0;
-    public int numWrites = 0;
+    int numReads = 0;
+    int numWrites = 0;
 
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {

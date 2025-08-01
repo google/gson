@@ -185,7 +185,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
     @SuppressWarnings("unused")
     int i;
 
-    public CyclicSub(int i) {
+    CyclicSub(int i) {
       this.i = i;
     }
   }

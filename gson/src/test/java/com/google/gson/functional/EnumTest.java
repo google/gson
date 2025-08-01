@@ -113,7 +113,7 @@ public class EnumTest {
     private final MyEnum value1 = MyEnum.VALUE1;
     private final MyEnum value2 = MyEnum.VALUE2;
 
-    public String getExpectedJson() {
+    String getExpectedJson() {
       return "{\"value1\":\"" + value1 + "\",\"value2\":\"" + value2 + "\"}";
     }
   }

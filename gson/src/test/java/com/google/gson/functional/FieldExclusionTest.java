@@ -78,7 +78,7 @@ public class FieldExclusionTest {
 
     @SuppressWarnings("ClassCanBeStatic")
     private class Inner extends NestedClass {
-      public Inner(String value) {
+      Inner(String value) {
         super(value);
       }
     }
@@ -87,11 +87,11 @@ public class FieldExclusionTest {
   private static class NestedClass {
     private final String value;
 
-    public NestedClass(String value) {
+    NestedClass(String value) {
       this.value = value;
     }
 
-    public String toJson() {
+    String toJson() {
       return "{\"value\":\"" + value + "\"}";
     }
   }

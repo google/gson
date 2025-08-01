@@ -178,7 +178,7 @@ public class CollectionTest {
 
   private static class CollectionWithoutNoArgsConstructor<E> extends AbstractCollection<E> {
     // Remove implicit no-args constructor
-    public CollectionWithoutNoArgsConstructor(int unused) {}
+    CollectionWithoutNoArgsConstructor(int unused) {}
 
     @Override
     public boolean add(E e) {
@@ -440,11 +440,11 @@ public class CollectionTest {
   private static class ObjectWithWildcardCollection {
     private final Collection<? extends BagOfPrimitives> collection;
 
-    public ObjectWithWildcardCollection(Collection<? extends BagOfPrimitives> collection) {
+    ObjectWithWildcardCollection(Collection<? extends BagOfPrimitives> collection) {
       this.collection = collection;
     }
 
-    public Collection<? extends BagOfPrimitives> getCollection() {
+    Collection<? extends BagOfPrimitives> getCollection() {
       return collection;
     }
   }

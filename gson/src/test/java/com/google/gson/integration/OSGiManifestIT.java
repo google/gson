@@ -48,10 +48,10 @@ import org.junit.Test;
 @SuppressWarnings("MemberName") // class name must end with 'IT' for Maven Failsafe Plugin
 public class OSGiManifestIT {
   private static class ManifestData {
-    public final URL url;
-    public final Manifest manifest;
+    final URL url;
+    final Manifest manifest;
 
-    public ManifestData(URL url, Manifest manifest) {
+    ManifestData(URL url, Manifest manifest) {
       this.url = url;
       this.manifest = manifest;
     }

@@ -305,7 +305,7 @@ public class ParameterizedTypesTest {
       this(null, null, null, null, null, null);
     }
 
-    public ObjectWithTypeVariables(
+    ObjectWithTypeVariables(
         T obj,
         T[] array,
         List<T> list,
@@ -320,7 +320,7 @@ public class ParameterizedTypesTest {
       this.arrayOfListOfWildcardTypeParameters = arrayOfWildcardList;
     }
 
-    public String getExpectedJson() {
+    String getExpectedJson() {
       StringBuilder sb = new StringBuilder().append("{");
 
       boolean needsComma = false;
@@ -410,7 +410,7 @@ public class ParameterizedTypesTest {
       }
     }
 
-    public String toString(T obj) {
+    String toString(T obj) {
       return obj.toString();
     }
   }
