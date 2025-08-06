@@ -223,7 +223,7 @@ public class NamingPolicyTest {
 
   @Test
   public void testComplexFieldNameStrategy() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String json = gson.toJson(new ClassWithComplexFieldName(10));
     String escapedFieldName = "@value\\\"_s$\\\\";
     assertThat(json).isEqualTo("{\"" + escapedFieldName + "\":10}");
@@ -235,7 +235,7 @@ public class NamingPolicyTest {
   /** http://code.google.com/p/google-gson/issues/detail?id=349 */
   @Test
   public void testAtSignInSerializedName() {
-    assertThat(new Gson().toJson(new AtName())).isEqualTo("{\"@foo\":\"bar\"}");
+    assertThat(Gson.DEFAULT.toJson(new AtName())).isEqualTo("{\"@foo\":\"bar\"}");
   }
 
   @Test

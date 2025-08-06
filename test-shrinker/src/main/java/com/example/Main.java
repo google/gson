@@ -275,7 +275,7 @@ public class Main {
   }
 
   private static void testGenericClasses(BiConsumer<String, String> outputConsumer) {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     TestExecutor.run(
         outputConsumer,
         "Read: Generic TypeToken",
@@ -294,7 +294,7 @@ public class Main {
   }
 
   private static void testDeserializingInterfaceImpl(BiConsumer<String, String> outputConsumer) {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     TestExecutor.run(
         outputConsumer,
         "Read: Interface implementation",

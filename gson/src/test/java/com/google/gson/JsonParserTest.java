@@ -151,7 +151,7 @@ public class JsonParserTest {
 
   @Test
   public void testReadWriteTwoObjects() throws Exception {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     CharArrayWriter writer = new CharArrayWriter();
     BagOfPrimitives expectedOne = new BagOfPrimitives(1, 1, true, "one");
     writer.write(gson.toJson(expectedOne).toCharArray());

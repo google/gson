@@ -22,7 +22,7 @@ import com.google.gson.annotations.SerializedName;
 import org.junit.Test;
 
 public final class SerializedNameTest {
-  private final Gson gson = new Gson();
+  private final Gson gson = Gson.DEFAULT;
 
   @Test
   public void testFirstNameIsChosenForSerialization() {

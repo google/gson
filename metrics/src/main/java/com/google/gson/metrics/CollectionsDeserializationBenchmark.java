@@ -45,7 +45,7 @@ public class CollectionsDeserializationBenchmark {
 
   @BeforeExperiment
   void setUp() throws Exception {
-    this.gson = new Gson();
+    this.gson = Gson.DEFAULT;
     List<BagOfPrimitives> bags = new ArrayList<>();
     for (int i = 0; i < 100; ++i) {
       bags.add(new BagOfPrimitives(10L, 1, false, "foo"));

@@ -35,7 +35,7 @@ import org.junit.Test;
  * @author Jesse Wilson
  */
 public final class JavaSerializationTest {
-  private final Gson gson = new Gson();
+  private final Gson gson = Gson.DEFAULT;
 
   @Test
   public void testMapIsSerializable() throws Exception {

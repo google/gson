@@ -42,7 +42,7 @@ public class PrintFormattingTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @Test

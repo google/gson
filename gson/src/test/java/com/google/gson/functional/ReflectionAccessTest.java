@@ -78,7 +78,7 @@ public class ReflectionAccessTest {
     System.setSecurityManager(restrictiveManager);
 
     try {
-      Gson gson = new Gson();
+      Gson gson = Gson.DEFAULT;
       // Getting reflection based adapter should fail
       var e = assertThrows(SecurityException.class, () -> gson.getAdapter(clazz));
       assertThat(e).hasMessageThat().isEqualTo("Gson: no-member-access");
@@ -112,7 +112,7 @@ public class ReflectionAccessTest {
   }
 
   private static JsonIOException assertInaccessibleException(String json, Class<?> toDeserialize) {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     try {
       Object unused = gson.fromJson(json, toDeserialize);
       throw new AssertionError(
@@ -143,7 +143,7 @@ public class ReflectionAccessTest {
    */
   @Test
   public void testSerializeInternalImplementationObject() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String json = gson.toJson(Collections.emptyList());
     assertThat(json).isEqualTo("[]");
 

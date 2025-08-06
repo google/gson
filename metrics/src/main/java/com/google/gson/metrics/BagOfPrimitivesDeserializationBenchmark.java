@@ -40,7 +40,7 @@ public class BagOfPrimitivesDeserializationBenchmark {
 
   @BeforeExperiment
   void setUp() throws Exception {
-    this.gson = new Gson();
+    this.gson = Gson.DEFAULT;
     BagOfPrimitives bag = new BagOfPrimitives(10L, 1, false, "foo");
     this.json = gson.toJson(bag);
   }
