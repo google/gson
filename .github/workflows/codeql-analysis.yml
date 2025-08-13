@@ -11,6 +11,9 @@ on:
     # Run every Monday at 16:10
     - cron: '10 16 * * 1'
 
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
