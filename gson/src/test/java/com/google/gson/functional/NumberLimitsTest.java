@@ -180,7 +180,7 @@ public class NumberLimitsTest {
 
   @Test
   public void testBigDecimalAdapter() throws IOException {
-    TypeAdapter<BigDecimal> adapter = new Gson().getAdapter(BigDecimal.class);
+    TypeAdapter<BigDecimal> adapter = Gson.DEFAULT.getAdapter(BigDecimal.class);
 
     assertThat(adapter.fromJson("\"" + "1".repeat(MAX_LENGTH) + "\""))
         .isEqualTo(new BigDecimal("1".repeat(MAX_LENGTH)));
@@ -208,7 +208,7 @@ public class NumberLimitsTest {
 
   @Test
   public void testBigIntegerAdapter() throws IOException {
-    TypeAdapter<BigInteger> adapter = new Gson().getAdapter(BigInteger.class);
+    TypeAdapter<BigInteger> adapter = Gson.DEFAULT.getAdapter(BigInteger.class);
 
     assertThat(adapter.fromJson("\"" + "1".repeat(MAX_LENGTH) + "\""))
         .isEqualTo(new BigInteger("1".repeat(MAX_LENGTH)));

@@ -46,7 +46,7 @@ public class PrimitiveTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @Test
@@ -513,7 +513,7 @@ public class PrimitiveTest {
 
   @Test
   public void testMoreSpecificSerialization() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String expected = "This is a string";
     String expectedJson = gson.toJson(expected);
 

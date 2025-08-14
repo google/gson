@@ -52,7 +52,7 @@ public class Java17ReflectiveTypeAdapterFactoryTest {
 
   @Test
   public void testCustomAdapterForRecords() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     TypeAdapter<?> recordAdapter = gson.getAdapter(unixDomainPrincipalClass);
     TypeAdapter<?> defaultReflectionAdapter = gson.getAdapter(DummyClass.class);
     assertThat(defaultReflectionAdapter.getClass()).isNotEqualTo(recordAdapter.getClass());

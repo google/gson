@@ -41,7 +41,7 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  *
- * If you created Gson with {@code new Gson()}, the {@code toJson()} and {@code fromJson()} methods
+ * If you got Gson with {@code Gson.DEFAULT}, the {@code toJson()} and {@code fromJson()} methods
  * will use the {@code password} field along-with {@code firstName}, {@code lastName}, and {@code
  * emailAddress} for serialization and deserialization. However, if you created Gson with {@code
  * Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()} then the {@code

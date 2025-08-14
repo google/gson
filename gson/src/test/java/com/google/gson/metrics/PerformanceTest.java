@@ -49,7 +49,7 @@ public class PerformanceTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @Test
@@ -287,7 +287,7 @@ public class PerformanceTest {
       original.put(i, i + 1);
     }
 
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     String json = gson.toJson(original);
     Type longToLong = new TypeToken<Map<Long, Long>>() {}.getType();
     Map<Long, Long> unused = gson.fromJson(json, longToLong);

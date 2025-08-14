@@ -43,7 +43,7 @@ public class ArrayTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @Test
@@ -291,7 +291,7 @@ public class ArrayTest {
       new String[] {"test1", "test2"},
       new String[] {"test3", "test4"}
     };
-    assertThat(new Gson().toJson(stringArrays))
+    assertThat(Gson.DEFAULT.toJson(stringArrays))
         .isEqualTo("[[\"test1\",\"test2\"],[\"test3\",\"test4\"]]");
   }
 }
