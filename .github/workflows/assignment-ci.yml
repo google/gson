@@ -1,4 +1,4 @@
-name: UECS2363 Assignment CI Pipeline
+name: UECS2363 Assignment CI Pipeline v2
 
 # This section defines the triggers for the workflow
 on:
