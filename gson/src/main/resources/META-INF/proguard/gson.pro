@@ -70,3 +70,9 @@
 -keepclassmembers,allowobfuscation,allowoptimization class <1> {
   <init>();
 }
+
+# Keep the GsonVersion utility class and its public methods.
+# The class uses its own name to look up resources, so it cannot be obfuscated.
+-keep class com.google.gson.GsonVersion {
+    public static <methods>;
+}
