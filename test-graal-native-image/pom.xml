@@ -13,7 +13,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -21,16 +24,13 @@
     <artifactId>gson-parent</artifactId>
     <version>2.13.2-SNAPSHOT</version>
   </parent>
+
   <artifactId>test-graal-native-image</artifactId>
   <name>Test: GraalVM Native Image</name>
 
   <properties>
-    <!-- GraalVM is JDK >= 17, however for build with regular JDK these tests
-      are also executed with JDK 11, so for them exclude JDK 17 specific tests -->
     <maven.compiler.testRelease>11</maven.compiler.testRelease>
     <excludeTestCompilation>**/Java17*</excludeTestCompilation>
-
-    <!-- Overwrite property from parent -->
     <gson.isTestModule>true</gson.isTestModule>
   </properties>
 
@@ -53,18 +53,12 @@
       <version>${project.parent.version}</version>
     </dependency>
 
-    <!-- Graal Native Maven Plugin requires using JUnit Platform (JUnit 5), see
-      https://graalvm.github.io/native-build-tools/latest/maven-plugin.html#testing-support
-      This also supports using JUnit Vintage to run JUnit 4 tests, but for simplicity
-      completely use JUnit 5 here and no JUnit 4 at all -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- Explicitly need to define junit-platform-launcher dependency to avoid incompatibilities
-      with native-maven-plugin, see
-      https://github.com/graalvm/native-build-tools/issues/706 -->
+
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-launcher</artifactId>
@@ -85,7 +79,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <configuration>
-            <!-- This module has no 'main' source code; skip creating JAR and avoid warning on console -->
             <skipIfEmpty>true</skipIfEmpty>
           </configuration>
         </plugin>
@@ -93,11 +86,11 @@
     </pluginManagement>
 
     <plugins>
+      <!-- Existing compiler plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
-          <!-- Adjust standard `default-testCompile` execution -->
           <execution>
             <id>default-testCompile</id>
             <phase>test-compile</phase>
@@ -109,6 +102,41 @@
                 <exclude>${excludeTestCompilation}</exclude>
               </testExcludes>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- ✅ JUnit tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+      </plugin>
+
+      <!-- ✅ Generating test reports -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>3.2.5</version>
+      </plugin>
+
+      <!-- ✅ Code coverage using JaCoCo -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.12</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
@@ -148,7 +176,6 @@
                 <configuration>
                   <quickBuild>true</quickBuild>
                   <buildArgs>
-                    <!-- Show stack traces to make troubleshooting build issues easier -->
                     <buildArg>-H:+ReportExceptionStackTraces</buildArg>
                   </buildArgs>
                 </configuration>
