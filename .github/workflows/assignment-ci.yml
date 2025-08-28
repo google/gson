@@ -17,7 +17,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build project with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B verify --file pom.xml
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -25,7 +25,6 @@ jobs:
           name: gson-jar
           path: gson/target/gson-*.jar
 
-  # --- ADD THIS ENTIRE NEW JOB ---
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -41,11 +40,10 @@ jobs:
           distribution: 'temurin'
       
       - name: Run unit tests with Maven
-        run: mvn install
-        
+        run: mvn -B verify
+
       - name: Upload test reports
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
           path: gson/target/surefire-reports/
-  # --------------------------------
