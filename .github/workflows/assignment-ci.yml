@@ -24,3 +24,28 @@ jobs:
         with:
           name: gson-jar
           path: gson/target/gson-*.jar
+
+  # --- ADD THIS ENTIRE NEW JOB ---
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      
+      - name: Run unit tests with Maven
+        run: mvn test
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: gson/target/surefire-reports/
+  # --------------------------------
