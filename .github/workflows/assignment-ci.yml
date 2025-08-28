@@ -41,8 +41,8 @@ jobs:
           distribution: 'temurin'
       
       - name: Run unit tests with Maven
-        run: mvn test
-
+        run: mvn install
+        
       - name: Upload test reports
         uses: actions/upload-artifact@v4
         with:
