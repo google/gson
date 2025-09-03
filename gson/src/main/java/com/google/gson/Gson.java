@@ -604,12 +604,8 @@ public final class Gson {
     }
 
     Map<TypeToken<?>, TypeAdapter<?>> threadCalls = threadLocalAdapterResults.get();
-    boolean isInitialAdapterRequest = false;
-    if (threadCalls == null) {
-      threadCalls = new HashMap<>();
-      threadLocalAdapterResults.set(threadCalls);
-      isInitialAdapterRequest = true;
-    } else {
+    boolean isInitialAdapterRequest;
+    if (threadCalls != null) {
       // the key and value type parameters always agree
       @SuppressWarnings("unchecked")
       TypeAdapter<T> ongoingCall = (TypeAdapter<T>) threadCalls.get(type);
@@ -618,20 +614,16 @@ public final class Gson {
       }
     }
 
+    threadCalls = new HashMap<>();
+    threadLocalAdapterResults.set(threadCalls);
+    isInitialAdapterRequest = true;
+
     TypeAdapter<T> candidate = null;
     try {
       FutureTypeAdapter<T> call = new FutureTypeAdapter<>();
       threadCalls.put(type, call);
 
-      for (TypeAdapterFactory factory : factories) {
-        candidate = factory.create(this, type);
-        if (candidate != null) {
-          call.setDelegate(candidate);
-          // Replace future adapter with actual adapter
-          threadCalls.put(type, candidate);
-          break;
-        }
-      }
+      candidate = getTypeAdapter(type, candidate, call, threadCalls);
     } finally {
       if (isInitialAdapterRequest) {
         threadLocalAdapterResults.remove();
@@ -653,6 +645,42 @@ public final class Gson {
       typeTokenCache.putAll(threadCalls);
     }
     return candidate;
+  }
+
+  /**
+   * Retrieves a {@link TypeAdapter} for the given {@link TypeToken}. This method scans through
+   * the registered {@link TypeAdapterFactory} instances to find a suitable adapter for the type.
+   * If an appropriate adapter is found, it updates the provided {@link FutureTypeAdapter}
+   * and replaces the future adapter with the actual adapter in the given thread-local adapter map.
+   *
+   * @param <T> The type for which to retrieve the type adapter.
+   * @param type The type token representing the type for which the adapter is being retrieved.
+   * @param candidate A potential candidate adapter, which may be replaced if another factory
+   *                  provides a non-null adapter.
+   * @param call The future type adapter that will have its delegate set to the found adapter.
+   * @param threadCalls A map of thread-local type adapters where the future adapter will be
+   *                    replaced by the actual adapter once found.
+   * @return The resolved {@link TypeAdapter} for the given type, or null if none could be found.
+   */
+  private <T> TypeAdapter<T> getTypeAdapter(TypeToken<T> type, TypeAdapter<T> candidate,
+                                            FutureTypeAdapter<T> call, Map<TypeToken<?>, TypeAdapter<?>> threadCalls) {
+    for (TypeAdapterFactory factory : factories) {
+      candidate = factory.create(this, type);
+      if (extracted(type, candidate, call, threadCalls)) break;
+    }
+
+    return candidate;
+  }
+
+  private static <T> boolean extracted(TypeToken<T> type, TypeAdapter<T> candidate,
+                                       FutureTypeAdapter<T> call, Map<TypeToken<?>, TypeAdapter<?>> threadCalls) {
+    if (candidate != null) {
+      call.setDelegate(candidate);
+      // Replace future adapter with actual adapter
+      threadCalls.put(type, candidate);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -737,9 +765,7 @@ public final class Gson {
     boolean skipPastFound = false;
     for (TypeAdapterFactory factory : factories) {
       if (!skipPastFound) {
-        if (factory == skipPast) {
-          skipPastFound = true;
-        }
+        skipPastFound = isSkipPastFound(skipPast, factory);
         continue;
       }
 
@@ -755,6 +781,17 @@ public final class Gson {
       // Probably a factory from @JsonAdapter on a field
       return getAdapter(type);
     }
+  }
+
+  /**
+   * Checks if the provided factory matches the skipPast factory.
+   *
+   * @param skipPast the factory to be skipped past
+   * @param factory the factory to compare against the skipPast factory
+   * @return {@code true} if the factory matches the skipPast factory, otherwise {@code false}
+   */
+  private static boolean isSkipPastFound(TypeAdapterFactory skipPast, TypeAdapterFactory factory) {
+    return factory == skipPast;
   }
 
   /**
@@ -865,11 +902,12 @@ public final class Gson {
    * @see #toJson(Object, Type, Appendable)
    */
   public void toJson(Object src, Appendable writer) throws JsonIOException {
-    if (src != null) {
-      toJson(src, src.getClass(), writer);
-    } else {
+    if (src == null) {
       toJson(JsonNull.INSTANCE, writer);
+      return;
     }
+
+    toJson(src, src.getClass(), writer);
   }
 
   /**
@@ -923,6 +961,8 @@ public final class Gson {
    * @throws JsonIOException if there was a problem writing to the writer
    */
   public void toJson(Object src, Type typeOfSrc, JsonWriter writer) throws JsonIOException {
+    if (src == null) return;
+
     @SuppressWarnings("unchecked")
     TypeAdapter<Object> adapter = (TypeAdapter<Object>) getAdapter(TypeToken.get(typeOfSrc));
 

@@ -642,21 +642,25 @@ public class JsonWriter implements Closeable, Flushable {
 
     if (!alwaysCreatesValidJsonNumber(numberClass)) {
       // Validate that string is valid before writing it directly to JSON output
-      if (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN")) {
-        if (strictness != Strictness.LENIENT) {
-          throw new IllegalArgumentException("Numeric values must be finite, but was " + string);
-        }
-      } else if (numberClass != Float.class
-          && numberClass != Double.class
-          && !VALID_JSON_NUMBER_PATTERN.matcher(string).matches()) {
-        throw new IllegalArgumentException(
-            "String created by " + numberClass + " is not a valid JSON number: " + string);
-      }
+      extracted(string, numberClass);
     }
 
     beforeValue();
     out.append(string);
     return this;
+  }
+
+  private void extracted(String string, Class<? extends Number> numberClass) {
+    if (string.equals("-Infinity") || string.equals("Infinity") || string.equals("NaN")) {
+      if (strictness != Strictness.LENIENT) {
+        throw new IllegalArgumentException("Numeric values must be finite, but was " + string);
+      }
+    } else if (numberClass != Float.class
+        && numberClass != Double.class
+        && !VALID_JSON_NUMBER_PATTERN.matcher(string).matches()) {
+      throw new IllegalArgumentException(
+          "String created by " + numberClass + " is not a valid JSON number: " + string);
+    }
   }
 
   /**
@@ -667,12 +671,11 @@ public class JsonWriter implements Closeable, Flushable {
   @CanIgnoreReturnValue
   public JsonWriter nullValue() throws IOException {
     if (deferredName != null) {
-      if (serializeNulls) {
-        writeDeferredName();
-      } else {
+      if (!serializeNulls) {
         deferredName = null;
         return this; // skip the name and the value
       }
+      writeDeferredName();
     }
     beforeValue();
     out.write("null");

@@ -25,6 +25,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
+import com.google.gson.utils.ArrayUtils;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
@@ -342,7 +344,7 @@ public final class JsonTreeReader extends JsonReader {
   private void push(Object newTop) {
     if (stackSize == stack.length) {
       int newLength = stackSize * 2;
-      stack = Arrays.copyOf(stack, newLength);
+      stack = Arrays.copyOf(stack, stackSize);
       pathIndices = Arrays.copyOf(pathIndices, newLength);
       pathNames = Arrays.copyOf(pathNames, newLength);
     }

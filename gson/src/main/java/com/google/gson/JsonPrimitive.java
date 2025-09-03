@@ -139,9 +139,12 @@ public final class JsonPrimitive extends JsonElement {
   public Number getAsNumber() {
     if (value instanceof Number) {
       return (Number) value;
-    } else if (value instanceof String) {
+    }
+
+    if (value instanceof String) {
       return new LazilyParsedNumber((String) value);
     }
+
     throw new UnsupportedOperationException("Primitive is neither a number nor a string");
   }
 
@@ -159,9 +162,13 @@ public final class JsonPrimitive extends JsonElement {
   public String getAsString() {
     if (value instanceof String) {
       return (String) value;
-    } else if (isNumber()) {
+    }
+
+    if (isNumber()) {
       return getAsNumber().toString();
-    } else if (isBoolean()) {
+    }
+
+    if (isBoolean()) {
       return ((Boolean) value).toString();
     }
     throw new AssertionError("Unexpected value type: " + value.getClass());
@@ -249,11 +256,9 @@ public final class JsonPrimitive extends JsonElement {
   @Override
   public char getAsCharacter() {
     String s = getAsString();
-    if (s.isEmpty()) {
-      throw new UnsupportedOperationException("String value is empty");
-    } else {
-      return s.charAt(0);
-    }
+    if (s.isEmpty()) throw new UnsupportedOperationException("String value is empty");
+
+    return s.charAt(0);
   }
 
   /** Returns the hash code of this object. */

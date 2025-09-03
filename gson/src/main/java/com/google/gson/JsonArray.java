@@ -69,12 +69,16 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   public JsonArray deepCopy() {
     if (!elements.isEmpty()) {
       JsonArray result = new JsonArray(elements.size());
-      for (JsonElement element : elements) {
-        result.add(element.deepCopy());
-      }
+      extracted(result);
       return result;
     }
     return new JsonArray();
+  }
+
+  private void extracted(JsonArray result) {
+    for (JsonElement element : elements) {
+      result.add(element.deepCopy());
+    }
   }
 
   /**

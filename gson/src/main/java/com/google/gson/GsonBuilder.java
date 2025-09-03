@@ -602,15 +602,19 @@ public final class GsonBuilder {
   @CanIgnoreReturnValue
   public GsonBuilder setDateFormat(String pattern) {
     if (pattern != null) {
-      try {
-        new SimpleDateFormat(pattern);
-      } catch (IllegalArgumentException e) {
-        // Throw exception if it is an invalid date format
-        throw new IllegalArgumentException("The date pattern '" + pattern + "' is not valid", e);
-      }
+      extracted(pattern);
     }
     this.datePattern = pattern;
     return this;
+  }
+
+  private static void extracted(String pattern) {
+    try {
+      new SimpleDateFormat(pattern);
+    } catch (IllegalArgumentException e) {
+      // Throw exception if it is an invalid date format
+      throw new IllegalArgumentException("The date pattern '" + pattern + "' is not valid", e);
+    }
   }
 
   /**

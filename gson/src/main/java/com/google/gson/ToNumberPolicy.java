@@ -68,14 +68,18 @@ public enum ToNumberPolicy implements ToNumberStrategy {
     @Override
     public Number readNumber(JsonReader in) throws IOException, JsonParseException {
       String value = in.nextString();
-      if (value.indexOf('.') >= 0) {
+      if (value.indexOf('.') < 0) {
+        return getNumber(in, value);
+      }
+
+      return parseAsDouble(value, in);
+    }
+
+    private Number getNumber(JsonReader in, String value) throws IOException {
+      try {
+        return Long.parseLong(value);
+      } catch (NumberFormatException e) {
         return parseAsDouble(value, in);
-      } else {
-        try {
-          return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-          return parseAsDouble(value, in);
-        }
       }
     }
 
