@@ -31,6 +31,7 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -78,7 +79,7 @@ public class OSGiManifestIT {
   }
 
   @Test
-  @org.junit.Ignore // temporary, to allow -rc1
+  @Ignore // temporary, to allow -rc1
   public void testBundleInformation() {
     assertThat(getAttribute("Bundle-SymbolicName")).isEqualTo("com.google.gson");
     assertThat(getAttribute("Bundle-Name")).isEqualTo("Gson");
@@ -128,7 +129,7 @@ public class OSGiManifestIT {
   }
 
   @Test
-  @org.junit.Ignore // temporary, to allow -rc1
+  @Ignore // temporary, to allow -rc1
   public void testExports() {
     String gsonVersion = GSON_VERSION.replace("-SNAPSHOT", "");
 
