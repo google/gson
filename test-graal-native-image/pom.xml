@@ -118,6 +118,12 @@
         <configuration>
           <skip>true</skip>
         </configuration>
+        <executions>
+          <execution>
+            <id>central-publishing</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
