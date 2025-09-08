@@ -35,7 +35,7 @@ import org.junit.Test;
 public class GsonVersionDiagnosticsTest {
   // We require a patch number, even if it is .0, consistent with https://semver.org/#spec-item-2.
   private static final Pattern GSON_VERSION_PATTERN =
-      Pattern.compile("(\\(GSON \\d\\.\\d+\\.\\d)(?:[-.][A-Z]+)?\\)$");
+      Pattern.compile("(\\(GSON \\d\\.\\d+\\.\\d)(?:[-.][A-Za-z0-9]+)?\\)$");
 
   private Gson gson;
 
