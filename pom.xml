@@ -61,6 +61,13 @@
     <tag>gson-parent-2.13.2-rc1</tag>
   </scm>
 
+  <distributionManagement>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <developers>
     <developer>
       <id>google</id>
