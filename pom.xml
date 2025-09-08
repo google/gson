@@ -81,14 +81,6 @@
     </license>
   </licenses>
 
-  <distributionManagement>
-    <repository>
-      <id>sonatype-nexus-staging</id>
-      <name>Nexus Release Repository</name>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -381,7 +373,16 @@
           <artifactId>maven-deploy-plugin</artifactId>
           <version>3.1.4</version>
           <configuration>
-            <skip>${gson.isInternalModule}</skip>
+            <skip>true</skip> <!-- in favor of central-publishing-maven-plugin -->
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>0.8.0</version>
+          <extensions>true</extensions>
+          <configuration>
+            <skipPublishing>${gson.isInternalModule}</skipPublishing>
           </configuration>
         </plugin>
         <plugin>
@@ -600,6 +601,10 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
           </plugin>
         </plugins>
       </build>
