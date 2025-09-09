@@ -389,6 +389,7 @@
           <version>0.8.0</version>
           <extensions>true</extensions>
           <configuration>
+            <publishingServerId>central</publishingServerId>
             <skipPublishing>${gson.isInternalModule}</skipPublishing>
           </configuration>
         </plugin>
