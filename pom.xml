@@ -382,6 +382,7 @@
           <extensions>true</extensions>
           <configuration>
             <publishingServerId>central</publishingServerId>
+            <autoPublish>true</autoPublish>
             <skipPublishing>${gson.isInternalModule}</skipPublishing>
           </configuration>
         </plugin>
