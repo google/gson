@@ -58,7 +58,7 @@
     <url>https://github.com/google/gson/</url>
     <connection>scm:git:https://github.com/google/gson.git</connection>
     <developerConnection>scm:git:git@github.com:google/gson.git</developerConnection>
-    <tag>gson-parent-2.13.2-rc1</tag>
+    <tag>gson-parent-2.13.2-SNAPSHOT</tag>
   </scm>
 
   <distributionManagement>
