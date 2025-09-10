@@ -383,7 +383,7 @@
           <configuration>
             <publishingServerId>central</publishingServerId>
             <autoPublish>true</autoPublish>
-            <skipPublishing>${gson.isInternalModule}</skipPublishing>
+            <skipBundling>${gson.isInternalModule}</skipBundling>
           </configuration>
         </plugin>
         <plugin>
