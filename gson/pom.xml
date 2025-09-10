@@ -334,6 +334,15 @@
           <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
         </configuration>
       </plugin>
+
+      <!--
+        Plugin for deploying to Maven Central
+        (configured in parent POM)
+      -->
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
 

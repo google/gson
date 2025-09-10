@@ -48,8 +48,6 @@
     <!-- These properties are to be overwritten by the Maven modules -->
     <!-- Whether this module is an integration test module -->
     <gson.isTestModule>false</gson.isTestModule>
-    <!-- Whether this module is internal and currently not deployed -->
-    <gson.isInternalModule>${gson.isTestModule}</gson.isInternalModule>
   </properties>
 
   <!-- These attributes specify that the URLs should be inherited by the modules as is, to avoid constructing
@@ -60,13 +58,6 @@
     <developerConnection>scm:git:git@github.com:google/gson.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>sonatype-nexus-snapshots</id>
-      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-    </snapshotRepository>
-  </distributionManagement>
 
   <developers>
     <developer>
@@ -376,6 +367,15 @@
           </configuration>
         </plugin>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.4</version>
+          <configuration>
+            <!-- skip because central-publishing-maven-plugin is used for deployment -->
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+        <plugin>
           <groupId>org.sonatype.central</groupId>
           <artifactId>central-publishing-maven-plugin</artifactId>
           <version>0.8.0</version>
@@ -604,6 +604,9 @@
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
+            <!-- Set `inherited=false` to only apply this execution to the parent project;
+              if modules should be deployed, it has to be configured explicitly for them -->
+            <inherited>false</inherited>
           </plugin>
         </plugins>
       </build>

@@ -32,9 +32,6 @@
     <!-- Make the build reproducible, see root `pom.xml` -->
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2025-09-10T20:39:14Z</project.build.outputTimestamp>
-
-    <!-- Overwrite property from parent; this module is currently not deployed -->
-    <gson.isInternalModule>true</gson.isInternalModule>
   </properties>
 
   <licenses>
@@ -90,19 +87,4 @@
   <scm>
     <tag>gson-extras-2.12.1</tag>
   </scm>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.sonatype.central</groupId>
-        <artifactId>central-publishing-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>injected-central-publishing</id>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>
