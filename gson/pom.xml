@@ -24,6 +24,7 @@
   </parent>
 
   <artifactId>gson</artifactId>
+  <version>2.13.2-rc1</version>
   <name>Gson</name>
 
   <licenses>
@@ -36,7 +37,7 @@
   <properties>
     <!-- Make the build reproducible, see root `pom.xml` -->
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
-    <project.build.outputTimestamp>2025-09-08T22:04:31Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-09-09T23:51:33Z</project.build.outputTimestamp>
 
     <excludeTestCompilation>**/Java17*</excludeTestCompilation>
   </properties>
@@ -332,6 +333,20 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
+        </configuration>
+      </plugin>
+
+      <!--
+        Plugins for publishing.
+      -->
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.8.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <publishingServerId>central</publishingServerId>
+          <autoPublish>true</autoPublish>
         </configuration>
       </plugin>
     </plugins>

@@ -43,7 +43,7 @@
 
     <!-- Make the build reproducible, see https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
     <!-- Automatically updated by Maven Release Plugin -->
-    <project.build.outputTimestamp>2025-09-08T22:04:31Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-09-09T23:51:33Z</project.build.outputTimestamp>
 
     <!-- These properties are to be overwritten by the Maven modules -->
     <!-- Whether this module is an integration test module -->
@@ -373,17 +373,6 @@
           <version>3.2.8</version>
           <configuration>
             <skip>${gson.isTestModule}</skip>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.sonatype.central</groupId>
-          <artifactId>central-publishing-maven-plugin</artifactId>
-          <version>0.8.0</version>
-          <extensions>true</extensions>
-          <configuration>
-            <publishingServerId>central</publishingServerId>
-            <autoPublish>true</autoPublish>
-            <skipPublishing>${gson.isInternalModule}</skipPublishing>
           </configuration>
         </plugin>
         <plugin>

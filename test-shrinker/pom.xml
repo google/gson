@@ -23,6 +23,7 @@
     <version>2.13.2-SNAPSHOT</version>
   </parent>
   <artifactId>test-shrinker</artifactId>
+  <version>2.13.2-rc1</version>
   <name>Test: Code shrinking (ProGuard / R8)</name>
 
   <properties>

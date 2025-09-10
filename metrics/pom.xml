@@ -23,6 +23,7 @@
   </parent>
 
   <artifactId>gson-metrics</artifactId>
+  <version>2.13.2-rc1</version>
   <inceptionYear>2011</inceptionYear>
   <name>Gson Metrics</name>
   <description>Performance Metrics for Google Gson library</description>
