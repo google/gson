@@ -42,7 +42,7 @@ public class FieldExclusionTest {
 
   @Test
   public void testDefaultInnerClassExclusion() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     Outer.Inner target = outer.new Inner(VALUE);
     String result = gson.toJson(target);
     assertThat(result).isEqualTo(target.toJson());
@@ -63,7 +63,7 @@ public class FieldExclusionTest {
 
   @Test
   public void testDefaultNestedStaticClassIncluded() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     Outer.Inner target = outer.new Inner(VALUE);
     String result = gson.toJson(target);
     assertThat(result).isEqualTo(target.toJson());

@@ -45,7 +45,7 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public final class Java17RecordTest {
-  private final Gson gson = new Gson();
+  private final Gson gson = Gson.DEFAULT;
 
   @Test
   public void testFirstNameIsChosenForSerialization() {

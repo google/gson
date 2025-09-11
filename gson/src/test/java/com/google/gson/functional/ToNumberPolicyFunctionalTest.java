@@ -35,7 +35,7 @@ import org.junit.Test;
 public class ToNumberPolicyFunctionalTest {
   @Test
   public void testDefault() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     assertThat(gson.fromJson("null", Object.class)).isEqualTo(null);
     assertThat(gson.fromJson("10", Object.class)).isEqualTo(10D);
     assertThat(gson.fromJson("null", Number.class)).isEqualTo(null);

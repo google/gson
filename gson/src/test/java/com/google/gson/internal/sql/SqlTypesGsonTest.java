@@ -42,7 +42,7 @@ public class SqlTypesGsonTest {
     TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
     this.oldLocale = Locale.getDefault();
     Locale.setDefault(Locale.US);
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @After

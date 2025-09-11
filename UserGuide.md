@@ -68,7 +68,7 @@ Gson was originally created for use inside Google where it is currently used in 
 
 ## Using Gson
 
-The primary class to use is [`Gson`](gson/src/main/java/com/google/gson/Gson.java) which you can just create by calling `new Gson()`. There is also a class [`GsonBuilder`](gson/src/main/java/com/google/gson/GsonBuilder.java) available that can be used to create a Gson instance with various settings like version control and so on.
+The primary class to use is [`Gson`](gson/src/main/java/com/google/gson/Gson.java) which you can just use the singleton default constant `Gson.DEFAULT`. There is also a class [`GsonBuilder`](gson/src/main/java/com/google/gson/GsonBuilder.java) available that can be used to create a Gson instance with various settings like version control and so on.
 
 The Gson instance does not maintain any state while invoking JSON operations. So, you are free to reuse the same object for multiple JSON serialization and deserialization operations.
 
@@ -102,7 +102,7 @@ That is it, now your Maven project is Gson enabled.
 
 ```java
 // Serialization
-Gson gson = new Gson();
+Gson gson = Gson.DEFAULT;
 gson.toJson(1);            // ==> 1
 gson.toJson("abcd");       // ==> "abcd"
 gson.toJson(new Long(10)); // ==> 10
@@ -132,7 +132,7 @@ class BagOfPrimitives {
 
 // Serialization
 BagOfPrimitives obj = new BagOfPrimitives();
-Gson gson = new Gson();
+Gson gson = Gson.DEFAULT;
 String json = gson.toJson(obj);
 
 // ==> {"value1":1,"value2":"abc"}
@@ -200,7 +200,7 @@ The above is possible, but not recommended.
 ### Array Examples
 
 ```java
-Gson gson = new Gson();
+Gson gson = Gson.DEFAULT;
 int[] ints = {1, 2, 3, 4, 5};
 String[] strings = {"abc", "def", "ghi"};
 
@@ -218,7 +218,7 @@ We also support multi-dimensional arrays, with arbitrarily complex element types
 ### Collections Examples
 
 ```java
-Gson gson = new Gson();
+Gson gson = Gson.DEFAULT;
 Collection<Integer> ints = Arrays.asList(1,2,3,4,5);
 
 // Serialization
@@ -245,7 +245,7 @@ This makes sense, and is rarely a problem when following good Java coding practi
 Gson by default serializes any `java.util.Map` implementation as a JSON object. Because JSON objects only support strings as member names, Gson converts the Map keys to strings by calling `toString()` on them, and using `"null"` for `null` keys:
 
 ```java
-Gson gson = new Gson();
+Gson gson = Gson.DEFAULT;
 Map<String, String> stringMap = new LinkedHashMap<>();
 stringMap.put("key", "value");
 stringMap.put(null, "null-entry");
@@ -264,7 +264,7 @@ String json = gson.toJson(intMap); // ==> {"2":4,"3":6}
 For deserialization Gson uses the `read` method of the `TypeAdapter` registered for the Map key type. Similar to the Collection example shown above, for deserialization a `TypeToken` has to be used to tell Gson what types the Map keys and values have:
 
 ```java
-Gson gson = new Gson();
+Gson gson = Gson.DEFAULT;
 TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>(){};
 String json = "{\"key\": \"value\"}";
 
@@ -317,7 +317,7 @@ When you call `toJson(obj)`, Gson calls `obj.getClass()` to get information on t
 class Foo<T> {
   T value;
 }
-Gson gson = new Gson();
+Gson gson = Gson.DEFAULT;
 Foo<Bar> foo = new Foo<Bar>();
 gson.toJson(foo); // May not serialize foo.value correctly
 
@@ -594,7 +594,7 @@ String jsonOutput = gson.toJson(versionedObject);
 System.out.println(jsonOutput);
 System.out.println();
 
-gson = new Gson();
+gson = Gson.DEFAULT;
 jsonOutput = gson.toJson(versionedObject);
 System.out.println(jsonOutput);
 ```

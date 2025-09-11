@@ -69,7 +69,7 @@ public class ObjectTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
 
     oldTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
@@ -604,7 +604,7 @@ public class ObjectTest {
   /** Test for issue 215. */
   @Test
   public void testSingletonLists() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     Product product = new Product();
     assertThat(gson.toJson(product)).isEqualTo("{\"attributes\":[],\"departments\":[]}");
     Product deserialized = gson.fromJson(gson.toJson(product), Product.class);
