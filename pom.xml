@@ -203,6 +203,15 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- Publish gson-parent to Maven Central on `deploy` (common configuration is defined in `pluginManagement`) -->
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <!-- Set `inherited=false` to only apply this execution to gson-parent;
+          if modules should be deployed, it has to be configured explicitly for them -->
+        <inherited>false</inherited>
+      </plugin>
     </plugins>
 
     <pluginManagement>
@@ -600,13 +609,6 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.sonatype.central</groupId>
-            <artifactId>central-publishing-maven-plugin</artifactId>
-            <!-- Set `inherited=false` to only apply this execution to the parent project;
-              if modules should be deployed, it has to be configured explicitly for them -->
-            <inherited>false</inherited>
           </plugin>
         </plugins>
       </build>
