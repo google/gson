@@ -351,9 +351,10 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
         }
       }
       return protoBuilder.build();
-    } catch (Exception e) {
-      throw new JsonParseException("Error while parsing proto", e);
-    }
+    } catch (IllegalArgumentException e) {
+    throw e; // rethrow as it is
+}
+
   }
 
   /**
