@@ -1354,8 +1354,10 @@ public final class Gson {
     try {
       JsonToken unused = reader.peek();
       isEmpty = false;
+
       TypeAdapter<T> typeAdapter = getAdapter(typeOfT);
       T object = typeAdapter.read(reader);
+
       Class<?> expectedTypeWrapped = Primitives.wrap(typeOfT.getRawType());
       if (object != null && !expectedTypeWrapped.isInstance(object)) {
         throw new ClassCastException(
@@ -1368,23 +1370,29 @@ public final class Gson {
                 + "\nVerify that the adapter was registered for the correct type.");
       }
       return object;
+
     } catch (EOFException e) {
-      /*
-       * For compatibility with JSON 1.5 and earlier, we return null for empty
-       * documents instead of throwing.
-       */
+      // Empty document → return null (legacy behavior)
       if (isEmpty) {
         return null;
       }
       throw new JsonSyntaxException(e);
+
     } catch (IllegalStateException e) {
       throw new JsonSyntaxException(e);
+
     } catch (IOException e) {
-      // TODO(inder): Figure out whether it is indeed right to rethrow this as JsonSyntaxException
+      // Keep existing behavior: surface as JsonSyntaxException
       throw new JsonSyntaxException(e);
+
+    } catch (JsonParseException e) {
+      // ✅ Issue #2816: wrap user-thrown JsonParseException into the declared JsonSyntaxException
+      throw new JsonSyntaxException(e);
+
     } catch (AssertionError e) {
       throw new AssertionError(
           "AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+
     } finally {
       reader.setStrictness(oldStrictness);
     }
