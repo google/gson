@@ -1339,70 +1339,68 @@ public final class Gson {
    * @see #fromJson(JsonReader, Type)
    * @since 2.10
    */
-  
-public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT)
-    throws JsonIOException, JsonSyntaxException {
-  boolean isEmpty = true;
-  Strictness oldStrictness = reader.getStrictness();
+  public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT)
+      throws JsonIOException, JsonSyntaxException {
+    boolean isEmpty = true;
+    Strictness oldStrictness = reader.getStrictness();
 
-  if (this.strictness != null) {
-    reader.setStrictness(this.strictness);
-  } else if (reader.getStrictness() == Strictness.LEGACY_STRICT) {
-    // For backward compatibility change to LENIENT if reader has default strictness LEGACY_STRICT
-    reader.setStrictness(Strictness.LENIENT);
+    if (this.strictness != null) {
+      reader.setStrictness(this.strictness);
+    } else if (reader.getStrictness() == Strictness.LEGACY_STRICT) {
+      // For backward compatibility change to LENIENT if reader has default strictness LEGACY_STRICT
+      reader.setStrictness(Strictness.LENIENT);
+    }
+
+    try {
+      JsonToken unused = reader.peek();
+      isEmpty = false;
+
+      TypeAdapter<T> typeAdapter = getAdapter(typeOfT);
+      T object = typeAdapter.read(reader);
+
+      Class<?> expectedTypeWrapped = Primitives.wrap(typeOfT.getRawType());
+      if (object != null && !expectedTypeWrapped.isInstance(object)) {
+        throw new ClassCastException(
+            "Type adapter '"
+                + typeAdapter
+                + "' returned wrong type; requested "
+                + typeOfT.getRawType()
+                + " but got instance of "
+                + object.getClass()
+                + "\nVerify that the adapter was registered for the correct type.");
+      }
+      return object;
+
+    } catch (EOFException e) {
+      // Empty document → return null (legacy behavior)
+      if (isEmpty) {
+        return null;
+      }
+      throw new JsonSyntaxException(e);
+
+    } catch (IllegalStateException e) {
+      throw new JsonSyntaxException(e);
+
+    } catch (IOException e) {
+      // Keep existing behavior: surface as JsonSyntaxException
+      throw new JsonSyntaxException(e);
+
+    } catch (JsonParseException e) {
+      // ✅ Fix: Wrap user-thrown JsonParseException only if it is not already
+      // a JsonIOException or JsonSyntaxException, and preserve the original message
+      if (e instanceof JsonIOException || e instanceof JsonSyntaxException) {
+        throw e;
+      }
+      throw new JsonSyntaxException(e.getMessage(), e);
+
+    } catch (AssertionError e) {
+      throw new AssertionError(
+          "AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+
+    } finally {
+      reader.setStrictness(oldStrictness);
+    }
   }
-
-  try {
-    JsonToken unused = reader.peek();
-    isEmpty = false;
-
-    TypeAdapter<T> typeAdapter = getAdapter(typeOfT);
-    T object = typeAdapter.read(reader);
-
-    Class<?> expectedTypeWrapped = Primitives.wrap(typeOfT.getRawType());
-    if (object != null && !expectedTypeWrapped.isInstance(object)) {
-      throw new ClassCastException(
-          "Type adapter '"
-              + typeAdapter
-              + "' returned wrong type; requested "
-              + typeOfT.getRawType()
-              + " but got instance of "
-              + object.getClass()
-              + "\nVerify that the adapter was registered for the correct type.");
-    }
-    return object;
-
-  } catch (EOFException e) {
-    // Empty document → return null (legacy behavior)
-    if (isEmpty) {
-      return null;
-    }
-    throw new JsonSyntaxException(e);
-
-  } catch (IllegalStateException e) {
-    throw new JsonSyntaxException(e);
-
-  } catch (IOException e) {
-    // Keep existing behavior: surface as JsonSyntaxException
-    throw new JsonSyntaxException(e);
-
-  } catch (JsonParseException e) {
-    // ✅ Fix: Wrap user-thrown JsonParseException only if it is not already
-    // a JsonIOException or JsonSyntaxException, and preserve the original message
-    if (e instanceof JsonIOException || e instanceof JsonSyntaxException) {
-      throw e;
-    }
-    throw new JsonSyntaxException(e.getMessage(), e);
-
-  } catch (AssertionError e) {
-    throw new AssertionError(
-        "AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
-
-  } finally {
-    reader.setStrictness(oldStrictness);
-  }
-}
-
 
   /**
    * This method deserializes the JSON read from the specified parse tree into an object of the
