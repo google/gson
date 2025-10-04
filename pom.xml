@@ -116,10 +116,11 @@
 
                 <!-- Enforce that correct JDK version is used to avoid cryptic build errors -->
                 <requireJavaVersion>
-                  <!-- Other plugins of this build require at least JDK 11 -->
-                  <!-- Disallow newer JDK versions; they might introduce new lints, drop support for
-                    older compiler Java target versions or cause issues for some Maven plugins -->
-                  <version>[11,22)</version>
+                  <!-- Some plugins and test dependencies require at least JDK 17 -->
+                  <!-- Also disallow too new JDK versions; they might introduce new lints, drop support
+                    for older compiler Java target versions or cause issues for some Maven plugins.
+                    Failing fast for such versions is better than failing with a confusing error during build. -->
+                  <version>[17,22)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -131,7 +132,7 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-        <version>2.46.1</version>
+        <version>3.0.0</version>
         <executions>
           <execution>
             <goals>
@@ -165,12 +166,6 @@
           </formats>
 
           <java>
-            <excludes>
-              <!-- Exclude classes which need Java 17 for compilation; Google Java Format internally relies on javac,
-                so formatting will fail if build is executed with JDK 11 -->
-              <exclude>src/test/java/com/google/gson/functional/Java17RecordTest.java</exclude>
-              <exclude>src/test/java/com/google/gson/native_test/Java17RecordReflectionTest.java</exclude>
-            </excludes>
             <googleJavaFormat>
               <style>GOOGLE</style>
               <reflowLongStrings>true</reflowLongStrings>
@@ -547,6 +542,27 @@
   </build>
 
   <profiles>
+    <!-- Disable Spotless before Java 17 -->
+    <profile>
+      <id>disable-spotless</id>
+      <activation>
+        <jdk>[,17)</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>default</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <!-- Disable Error Prone before Java 17 -->
     <profile>
       <id>disable-error-prone</id>

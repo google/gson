@@ -35,7 +35,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
 
-    - name: Set up JDK 17
+    - name: Set up JDK
       if: ${{ matrix.language == 'java' }}
       uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165  # v5.0.0
       with:
