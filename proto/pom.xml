@@ -74,31 +74,22 @@
 
   <build>
     <finalName>gson-proto</finalName>
-    <!-- Setup based on https://quarkus.io/guides/grpc-getting-started#generating-java-files-from-proto-with-protobuf-maven-plugin -->
-    <extensions>
-      <extension>
-        <groupId>kr.motd.maven</groupId>
-        <artifactId>os-maven-plugin</artifactId>
-        <version>1.7.1</version>
-      </extension>
-    </extensions>
 
     <plugins>
       <plugin>
-        <groupId>org.xolstice.maven.plugins</groupId>
+        <groupId>io.github.ascopes</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <version>0.6.1</version>
+        <version>3.1.0</version>
         <configuration>
-          <protocArtifact>com.google.protobuf:protoc:${protobufVersion}:exe:${os.detected.classifier}</protocArtifact>
+          <skip>${maven.test.skip}</skip>
+          <protocVersion>${protobufVersion}</protocVersion>
+          <fatalWarnings>true</fatalWarnings>
         </configuration>
         <executions>
           <execution>
             <goals>
-              <goal>test-compile</goal>
+              <goal>generate-test</goal>
             </goals>
-            <configuration>
-              <skip>${maven.test.skip}</skip>
-            </configuration>
           </execution>
         </executions>
       </plugin>
