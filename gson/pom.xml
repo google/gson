@@ -365,5 +365,27 @@
         <excludeTestCompilation />
       </properties>
     </profile>
+    <!-- For JDK 25+ skip tests which rely on ProGuard because it does not support JDK 25 yet -->
+    <!-- TODO: Remove this once ProGuard supports JDK 25, and there is a solution for https://github.com/Guardsquare/proguard/issues/473 -->
+    <profile>
+      <id>JDK25</id>
+      <activation>
+        <jdk>[25,)</jdk>
+      </activation>
+      <properties>
+        <excludeTestCompilation>com/google/gson/functional/EnumWithObfuscatedTest.java</excludeTestCompilation>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.wvengen</groupId>
+            <artifactId>proguard-maven-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>
