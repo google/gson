@@ -26,11 +26,11 @@ jobs:
           ref: ${{ github.event.pull_request.base.sha }}
           path: 'gson-old-japicmp'
 
-      - name: Set up JDK 11
+      - name: Set up JDK
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165  # v5.0.0
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17'
           cache: 'maven'
 
       - name: Build old version

@@ -16,7 +16,14 @@ jobs:
     name: "Build on JDK ${{ matrix.java }}"
     strategy:
       matrix:
-        java: [ 11, 17, 21 ]
+        java: [ 17, 21 ]
+        # Custom JDK 11 configuration because some of the plugins and test dependencies don't support it anymore,
+        # but it is important to still test with a JDK version without Record classes
+        include:
+          - java: 11
+            # Disable Enforcer check which (intentionally) prevents using JDK 11 for building
+            # Exclude 'test-graal-native-image' module because JUnit 6 requires >= Java 17
+            extra-mvn-args: -Denforcer.fail=false --projects '!:test-graal-native-image'
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +36,7 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
-        run: mvn --batch-mode --no-transfer-progress verify javadoc:jar
+        run: mvn --batch-mode --no-transfer-progress verify javadoc:jar ${{ matrix.extra-mvn-args || '' }}
 
   native-image-test:
     name: "GraalVM Native Image test"
@@ -56,7 +63,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
-      - name: "Set up JDK 17"
+      - name: Set up JDK
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165  # v5.0.0
         with:
           distribution: 'temurin'
