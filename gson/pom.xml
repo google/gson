@@ -194,32 +194,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.coderplus.maven.plugins</groupId>
-        <artifactId>copy-rename-maven-plugin</artifactId>
-        <version>1.0.1</version>
-        <executions>
-          <execution>
-            <id>pre-obfuscate-class</id>
-            <phase>process-test-classes</phase>
-            <goals>
-              <goal>rename</goal>
-            </goals>
-            <configuration>
-              <fileSets>
-                <fileSet>
-                  <sourceFile>${project.build.directory}/test-classes/com/google/gson/functional/EnumWithObfuscatedTest.class</sourceFile>
-                  <destinationFile>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional/EnumWithObfuscatedTest.class</destinationFile>
-                </fileSet>
-                <fileSet>
-                  <sourceFile>${project.build.directory}/test-classes/com/google/gson/functional/EnumWithObfuscatedTest$Gender.class</sourceFile>
-                  <destinationFile>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional/EnumWithObfuscatedTest$Gender.class</destinationFile>
-                </fileSet>
-              </fileSets>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>com.github.wvengen</groupId>
         <artifactId>proguard-maven-plugin</artifactId>
         <version>2.7.0</version>
@@ -246,6 +220,7 @@
           </dependency>
         </dependencies>
         <configuration>
+          <skip>${maven.test.skip}</skip>
           <obfuscate>true</obfuscate>
           <injar>test-classes-obfuscated-injar</injar>
           <outjar>test-classes-obfuscated-outjar</outjar>
@@ -263,13 +238,46 @@
         <version>3.3.1</version>
         <executions>
           <execution>
+            <id>pre-obfuscate-class</id>
+            <!--
+              Note: This has to run after test compilation is already done; ideally would use `process-test-classes`
+              phase here, but the problem is that within this phase maven-resources-plugin has to run twice:
+              1. maven-resources-plugin: copy original classes
+              2. proguard-maven-plugin: obfuscate classes
+              3. maven-resources-plugin: copy obfuscated classes back
+
+              But Maven does not permit declaring the same plugin at different positions in the POM. Therefore have
+              to use a phase before `process-test-classes` here, and rely on the compiler plugin already being done.
+            -->
+            <phase>test-compile</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <skip>${maven.test.skip}</skip>
+              <outputDirectory>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional</outputDirectory>
+              <overwrite>true</overwrite>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/test-classes/com/google/gson/functional</directory>
+                  <includes>
+                    <include>EnumWithObfuscatedTest.class</include>
+                    <include>EnumWithObfuscatedTest$Gender.class</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
             <id>post-obfuscate-class</id>
             <phase>process-test-classes</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
             <configuration>
+              <skip>${maven.test.skip}</skip>
               <outputDirectory>${project.build.directory}/test-classes/com/google/gson/functional</outputDirectory>
+              <overwrite>true</overwrite>
               <resources>
                 <resource>
                   <directory>${project.build.directory}/test-classes-obfuscated-outjar/com/google/gson/functional</directory>

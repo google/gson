@@ -90,6 +90,9 @@
             <goals>
               <goal>generate-test</goal>
             </goals>
+            <configuration>
+              <skip>${maven.test.skip}</skip>
+            </configuration>
           </execution>
         </executions>
       </plugin>
