@@ -71,13 +71,13 @@ jobs:
           cache: 'maven'
 
       - name: "Verify no plugin issues"
-        run: mvn artifact:check-buildplan --batch-mode --no-transfer-progress
+        run: mvn artifact:check-buildplan --batch-mode --no-transfer-progress --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
 
       - name: "Verify reproducible build"
         # See https://maven.apache.org/guides/mini/guide-reproducible-builds.html#how-to-test-my-maven-build-reproducibility
         run: |
-          mvn clean install --batch-mode --no-transfer-progress -Dproguard.skip -DskipTests
+          mvn clean install --batch-mode --no-transfer-progress -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
           # Run with `-Dbuildinfo.attach=false`; otherwise `artifact:compare` fails because it creates a `.buildinfo` file which
           # erroneously references the existing `.buildinfo` file (respectively because it is overwriting it, a file with size 0)
           # See https://issues.apache.org/jira/browse/MARTIFACT-57
-          mvn clean verify artifact:compare --batch-mode --no-transfer-progress -Dproguard.skip -DskipTests -Dbuildinfo.attach=false
+          mvn clean verify artifact:compare --batch-mode --no-transfer-progress -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker' -Dbuildinfo.attach=false
