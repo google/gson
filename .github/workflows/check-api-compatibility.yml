@@ -39,7 +39,7 @@ jobs:
           # Set dummy version
           mvn --batch-mode --no-transfer-progress org.codehaus.mojo:versions-maven-plugin:2.16.2:set "-DnewVersion=0.0.0-JAPICMP-OLD"
           # Install artifacts with dummy version in local repository; used later by Maven plugin for comparison
-          mvn --batch-mode --no-transfer-progress install -DskipTests
+          mvn --batch-mode --no-transfer-progress install -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
 
       - name: Check out new version
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
@@ -47,7 +47,7 @@ jobs:
       - name: Check API compatibility
         id: check-compatibility
         run: |
-          mvn --batch-mode --fail-at-end --no-transfer-progress package japicmp:cmp -DskipTests
+          mvn --batch-mode --fail-at-end --no-transfer-progress package japicmp:cmp -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
 
       - name: Upload API differences artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2

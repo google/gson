@@ -31,6 +31,4 @@ jobs:
 
       - name: Check Android compatibility
         run: |
-          # Run 'test' phase because plugin normally expects to be executed after tests have been compiled
-          # Have to skip 'test-jpms' module because it requires that full Gson JAR has been built
-          mvn --batch-mode --no-transfer-progress test animal-sniffer:check@check-android-compatibility -DskipTests --projects '!test-jpms'
+          mvn --batch-mode --no-transfer-progress compile animal-sniffer:check@check-android-compatibility -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
