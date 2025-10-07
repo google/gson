@@ -63,7 +63,7 @@ public class MapTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   @Test
@@ -567,7 +567,7 @@ public class MapTest {
                 + "{\n    \"test\": 1,\n    \"TestStringArray\": "
                 + "[\n      \"one\",\n      \"two\"\n    ]\n  }\n}");
     innerMap.put("d", "e");
-    assertThat(new Gson().toJson(map))
+    assertThat(Gson.DEFAULT.toJson(map))
         .isEqualTo(
             "{\"a\":12,\"c\":{\"test\":1,\"TestStringArray\":[\"one\",\"two\"],\"d\":\"e\"}}");
   }
@@ -579,7 +579,7 @@ public class MapTest {
     element.addBase("Test", subType);
     element.addSub("Test", subType);
 
-    String subTypeJson = new Gson().toJson(subType);
+    String subTypeJson = Gson.DEFAULT.toJson(subType);
     String expected =
         "{\"bases\":{\"Test\":" + subTypeJson + "},\"subs\":{\"Test\":" + subTypeJson + "}}";
 
@@ -587,7 +587,7 @@ public class MapTest {
     String json = gsonWithComplexKeys.toJson(element);
     assertThat(json).isEqualTo(expected);
 
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     json = gson.toJson(element);
     assertThat(json).isEqualTo(expected);
   }
@@ -599,7 +599,7 @@ public class MapTest {
     element.addBase("Test", subType);
     element.addSub("Test", subType);
 
-    Gson tempGson = new Gson();
+    Gson tempGson = Gson.DEFAULT;
     String subTypeJson = tempGson.toJson(subType);
     JsonElement baseTypeJsonElement = tempGson.toJsonTree(subType, TestTypes.Base.class);
     String baseTypeJson = tempGson.toJson(baseTypeJsonElement);

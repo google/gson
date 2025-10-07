@@ -48,7 +48,7 @@ public class RecursiveTypesResolveTest {
   @Test
   public void testRecursiveResolveSimple() {
     @SuppressWarnings("rawtypes")
-    TypeAdapter<Foo1> adapter = new Gson().getAdapter(Foo1.class);
+    TypeAdapter<Foo1> adapter = Gson.DEFAULT.getAdapter(Foo1.class);
     assertThat(adapter).isNotNull();
   }
 
@@ -91,14 +91,14 @@ public class RecursiveTypesResolveTest {
   @Test
   public void testRecursiveTypeVariablesResolve1() {
     @SuppressWarnings("rawtypes")
-    TypeAdapter<TestType> adapter = new Gson().getAdapter(TestType.class);
+    TypeAdapter<TestType> adapter = Gson.DEFAULT.getAdapter(TestType.class);
     assertThat(adapter).isNotNull();
   }
 
   @Test
   public void testRecursiveTypeVariablesResolve12() {
     @SuppressWarnings("rawtypes")
-    TypeAdapter<TestType2> adapter = new Gson().getAdapter(TestType2.class);
+    TypeAdapter<TestType2> adapter = Gson.DEFAULT.getAdapter(TestType2.class);
     assertThat(adapter).isNotNull();
   }
 }

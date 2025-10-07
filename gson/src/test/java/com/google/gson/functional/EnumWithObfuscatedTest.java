@@ -34,7 +34,7 @@ public class EnumWithObfuscatedTest {
 
   @Before
   public void setUp() throws Exception {
-    gson = new Gson();
+    gson = Gson.DEFAULT;
   }
 
   public enum Gender {

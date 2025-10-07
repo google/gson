@@ -32,7 +32,7 @@ class Java17RecordReflectionTest {
 
   @Test
   void testPublicRecord() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     PublicRecord r = gson.fromJson("{\"i\":1}", PublicRecord.class);
     assertThat(r.i).isEqualTo(1);
   }
@@ -42,7 +42,7 @@ class Java17RecordReflectionTest {
 
   @Test
   void testPrivateRecord() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     PrivateRecord r = gson.fromJson("{\"i\":1}", PrivateRecord.class);
     assertThat(r.i).isEqualTo(1);
   }
@@ -51,7 +51,7 @@ class Java17RecordReflectionTest {
   void testLocalRecord() {
     record LocalRecordDeserialization(int i) {}
 
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     LocalRecordDeserialization r = gson.fromJson("{\"i\":1}", LocalRecordDeserialization.class);
     assertThat(r.i).isEqualTo(1);
   }
@@ -60,7 +60,7 @@ class Java17RecordReflectionTest {
   void testLocalRecordSerialization() {
     record LocalRecordSerialization(int i) {}
 
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     assertThat(gson.toJson(new LocalRecordSerialization(1))).isEqualTo("{\"i\":1}");
   }
 
@@ -68,7 +68,7 @@ class Java17RecordReflectionTest {
 
   @Test
   void testSerializedName() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     RecordWithSerializedName r =
         gson.fromJson("{\"custom-name\":1}", RecordWithSerializedName.class);
     assertThat(r.i).isEqualTo(1);
@@ -85,7 +85,7 @@ class Java17RecordReflectionTest {
 
   @Test
   void testCustomConstructor() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     RecordWithCustomConstructor r = gson.fromJson("{\"i\":1}", RecordWithCustomConstructor.class);
     assertThat(r.i).isEqualTo(6);
   }
@@ -100,7 +100,7 @@ class Java17RecordReflectionTest {
 
   @Test
   void testCustomAccessor() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     assertThat(gson.toJson(new RecordWithCustomAccessor(2))).isEqualTo("{\"i\":7}");
   }
 
@@ -121,7 +121,7 @@ class Java17RecordReflectionTest {
 
   @Test
   void testCustomClassAdapter() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     RecordWithCustomClassAdapter r = gson.fromJson("1", RecordWithCustomClassAdapter.class);
     assertThat(r.i).isEqualTo(6);
 
@@ -145,7 +145,7 @@ class Java17RecordReflectionTest {
 
   @Test
   void testCustomFieldAdapter() {
-    Gson gson = new Gson();
+    Gson gson = Gson.DEFAULT;
     RecordWithCustomFieldAdapter r = gson.fromJson("{\"i\":1}", RecordWithCustomFieldAdapter.class);
     assertThat(r.i).isEqualTo(6);
 
