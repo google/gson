@@ -21,6 +21,7 @@ import com.google.gson.internal.NonNullElementWrapperList;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -58,6 +59,20 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   @SuppressWarnings("deprecation") // superclass constructor
   public JsonArray(int capacity) {
     elements = new ArrayList<>(capacity);
+  }
+
+  /**
+   * Creates a JsonArray with the specified elements.
+   *
+   * @return a new JsonArray.
+   * @since $next-version$
+   */
+  public static JsonArray of(JsonElement... elements) {
+    JsonArray array = new JsonArray(elements.length);
+    for (JsonElement element : elements) {
+      array.add(element);
+    }
+    return array;
   }
 
   /**
@@ -123,10 +138,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param element the element that needs to be added to the array.
    */
   public void add(JsonElement element) {
-    if (element == null) {
-      element = JsonNull.INSTANCE;
-    }
-    elements.add(element);
+    elements.add(element == null ? JsonNull.INSTANCE : element);
   }
 
   /**
@@ -136,6 +148,25 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    */
   public void addAll(JsonArray array) {
     elements.addAll(array.elements);
+  }
+
+  /**
+   * Adds all the elements of the specified iterable to self.
+   *
+   * @param iterable the iterable whose elements need to be added to the array.
+   * @since $next-version$
+   */
+  public void addAll(Iterable<JsonElement> iterable) {
+    if (iterable instanceof JsonArray) {
+      addAll((JsonArray) iterable);
+      return;
+    } else if (iterable instanceof Collection) {
+      elements.ensureCapacity(((Collection<?>) iterable).size() + elements.size());
+    }
+
+    for (JsonElement element : iterable) {
+      add(element);
+    }
   }
 
   /**
