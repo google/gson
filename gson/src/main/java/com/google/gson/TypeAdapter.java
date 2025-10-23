@@ -16,7 +16,6 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.stream.JsonReader;
@@ -25,7 +24,6 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.Writer;
 
 /**
  * Converts Java objects to and from JSON.
@@ -139,7 +137,7 @@ public abstract class TypeAdapter<T> {
    * @param value the Java object to convert. May be {@code null}.
    * @since 2.2
    */
-  public final void toJson(Writer out, T value) throws IOException {
+  public final void toJson(Appendable out, T value) throws IOException {
     JsonWriter writer = new JsonWriter(out);
     write(writer, value);
   }
@@ -159,7 +157,7 @@ public abstract class TypeAdapter<T> {
   public final String toJson(T value) {
     StringBuilder stringBuilder = new StringBuilder();
     try {
-      toJson(Streams.writerForAppendable(stringBuilder), value);
+      toJson(stringBuilder, value);
     } catch (IOException e) {
       throw new JsonIOException(e);
     }
