@@ -69,9 +69,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    */
   public static JsonArray of(JsonElement... elements) {
     JsonArray array = new JsonArray(elements.length);
-    for (JsonElement element : elements) {
-      array.add(element);
-    }
+    array.addAll(elements);
     return array;
   }
 
@@ -148,6 +146,19 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    */
   public void addAll(JsonArray array) {
     elements.addAll(array.elements);
+  }
+
+  /**
+   * Adds all the elements to self.
+   *
+   * @param elements the elements to be added.
+   * @since $next-version$
+   */
+  public void addAll(JsonElement... elements) {
+    this.elements.ensureCapacity(elements.length + this.elements.size());
+    for (JsonElement element : elements) {
+      add(element);
+    }
   }
 
   /**
