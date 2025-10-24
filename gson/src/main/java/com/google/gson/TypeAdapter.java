@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.stream.JsonReader;
@@ -131,6 +132,7 @@ public abstract class TypeAdapter<T> {
   /**
    * @deprecated Use {@link #toJson(Appendable, Object)} instead. For compatibility only!
    */
+  @InlineMe(replacement = "this.toJson((Appendable) out, value)")
   @Deprecated
   public final void toJson(Writer out, T value) throws IOException {
     toJson((Appendable) out, value);

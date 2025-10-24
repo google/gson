@@ -25,6 +25,7 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_DOCUMENT;
 import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -227,6 +228,7 @@ public class JsonWriter implements Closeable, Flushable {
   /**
    * @deprecated Use {@link #JsonWriter(Appendable)} instead. For compatibility only!
    */
+  @InlineMe(replacement = "this((Appendable) out)")
   @Deprecated
   public JsonWriter(Writer out) {
     this((Appendable) out);
@@ -709,8 +711,8 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Ensures all buffered data is written to the underlying {@link Appendable}
-   * and flushes it if it is an instance of {@link Flushable}.
+   * Ensures all buffered data is written to the underlying {@link Appendable} and flushes it if it
+   * is an instance of {@link Flushable}.
    *
    * @throws IllegalStateException if this writer is closed.
    */

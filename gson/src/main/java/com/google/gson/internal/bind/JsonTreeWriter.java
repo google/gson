@@ -31,7 +31,7 @@ import java.util.Objects;
 
 /** This writer creates a JsonElement. */
 public final class JsonTreeWriter extends JsonWriter {
-  private static final Writer UNWRITABLE_WRITER =
+  private static final Appendable UNWRITABLE_WRITER =
       new Writer() {
         @Override
         public void write(char[] buffer, int offset, int counter) {

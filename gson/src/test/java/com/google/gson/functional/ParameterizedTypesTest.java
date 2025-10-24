@@ -32,8 +32,6 @@ import com.google.gson.stream.JsonReader;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -152,7 +150,7 @@ public class ParameterizedTypesTest {
 
   @Test
   public void testParameterizedTypesWithWriterSerialization() {
-    Writer writer = new StringWriter();
+    StringBuilder writer = new StringBuilder();
     MyParameterizedType<Integer> src = new MyParameterizedType<>(10);
     Type typeOfSrc = new TypeToken<MyParameterizedType<Integer>>() {}.getType();
     gson.toJson(src, typeOfSrc, writer);

@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
@@ -1035,6 +1036,7 @@ public final class Gson {
   /**
    * @deprecated Use {@link #newJsonWriter(Appendable)} instead. For compatibility only!
    */
+  @InlineMe(replacement = "this.newJsonWriter((Appendable) writer)")
   @Deprecated
   public JsonWriter newJsonWriter(Writer writer) throws IOException {
     return newJsonWriter((Appendable) writer);
