@@ -36,20 +36,21 @@ public final class MixedStreamTest {
   private static final Car RED_MIATA = new Car("miata", 0xFF0000);
   private static final String CARS_JSON =
       """
-          [
-            {
-              "name": "mustang",
-              "color": 255
-            },
-            {
-              "name": "bmw",
-              "color": 0
-            },
-            {
-              "name": "miata",
-              "color": 16711680
-            }
-          ]""";
+      [
+        {
+          "name": "mustang",
+          "color": 255
+        },
+        {
+          "name": "bmw",
+          "color": 0
+        },
+        {
+          "name": "miata",
+          "color": 16711680
+        }
+      ]\
+      """;
 
   @Test
   public void testWriteMixedStreamed() throws IOException {

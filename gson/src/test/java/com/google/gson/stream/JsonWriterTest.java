@@ -719,8 +719,7 @@ public final class JsonWriterTest {
     jsonWriter.name("d").value(true);
     jsonWriter.endObject();
     jsonWriter.endArray();
-    assertThat(writer.toString())
-        .isEqualTo("[{\"a\":5,\"b\":false}," + "{\"c\":6,\"d\":true}]");
+    assertThat(writer.toString()).isEqualTo("[{\"a\":5,\"b\":false}," + "{\"c\":6,\"d\":true}]");
   }
 
   @Test
