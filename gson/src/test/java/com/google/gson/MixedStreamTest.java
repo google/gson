@@ -35,22 +35,20 @@ public final class MixedStreamTest {
   private static final Car BLACK_BMW = new Car("bmw", 0x000000);
   private static final Car RED_MIATA = new Car("miata", 0xFF0000);
   private static final String CARS_JSON =
-      """
-      [
-        {
-          "name": "mustang",
-          "color": 255
-        },
-        {
-          "name": "bmw",
-          "color": 0
-        },
-        {
-          "name": "miata",
-          "color": 16711680
-        }
-      ]\
-      """;
+      "[\n"
+          + "  {\n"
+          + "    \"name\": \"mustang\",\n"
+          + "    \"color\": 255\n"
+          + "  },\n"
+          + "  {\n"
+          + "    \"name\": \"bmw\",\n"
+          + "    \"color\": 0\n"
+          + "  },\n"
+          + "  {\n"
+          + "    \"name\": \"miata\",\n"
+          + "    \"color\": 16711680\n"
+          + "  }\n"
+          + "]";
 
   @Test
   public void testWriteMixedStreamed() throws IOException {
