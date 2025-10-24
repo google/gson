@@ -57,7 +57,7 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Creates a JsonObject with the specified member.
+   * Creates a JsonObject with the specified members.
    *
    * @return a new JsonObject.
    * @since $next-version$
@@ -70,7 +70,7 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Creates a JsonObject with the specified member.
+   * Creates a JsonObject with the specified members.
    *
    * @return a new JsonObject.
    * @since $next-version$
@@ -88,7 +88,7 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Creates a JsonObject with the specified member.
+   * Creates a JsonObject with the specified members.
    *
    * @return a new JsonObject.
    * @since $next-version$
@@ -102,13 +102,16 @@ public final class JsonObject extends JsonElement {
       JsonElement value3,
       String key4,
       JsonElement value4) {
-    JsonObject object = of(key1, value1, key2, value2, key3, value3);
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
     object.add(key4, value4);
     return object;
   }
 
   /**
-   * Creates a JsonObject with the specified member.
+   * Creates a JsonObject with the specified members.
    *
    * @return a new JsonObject.
    * @since $next-version$
@@ -124,13 +127,17 @@ public final class JsonObject extends JsonElement {
       JsonElement value4,
       String key5,
       JsonElement value5) {
-    JsonObject object = of(key1, value1, key2, value2, key3, value3, key4, value4);
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
     object.add(key5, value5);
     return object;
   }
 
   /**
-   * Creates a JsonObject with the specified member.
+   * Creates a JsonObject with the specified members.
    *
    * @return a new JsonObject.
    * @since $next-version$
@@ -148,13 +155,18 @@ public final class JsonObject extends JsonElement {
       JsonElement value5,
       String key6,
       JsonElement value6) {
-    JsonObject object = of(key1, value1, key2, value2, key3, value3, key4, value4, key5, value5);
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
     object.add(key6, value6);
     return object;
   }
 
   /**
-   * Creates a JsonObject with the specified member.
+   * Creates a JsonObject with the specified members.
    *
    * @return a new JsonObject.
    * @since $next-version$
@@ -174,14 +186,19 @@ public final class JsonObject extends JsonElement {
       JsonElement value6,
       String key7,
       JsonElement value7) {
-    JsonObject object =
-        of(key1, value1, key2, value2, key3, value3, key4, value4, key5, value5, key6, value6);
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
+    object.add(key6, value6);
     object.add(key7, value7);
     return object;
   }
 
   /**
-   * Creates a JsonObject with the specified member.
+   * Creates a JsonObject with the specified members.
    *
    * @return a new JsonObject.
    * @since $next-version$
@@ -203,16 +220,20 @@ public final class JsonObject extends JsonElement {
       JsonElement value7,
       String key8,
       JsonElement value8) {
-    JsonObject object =
-        of(
-            key1, value1, key2, value2, key3, value3, key4, value4, key5, value5, key6, value6,
-            key7, value7);
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
+    object.add(key6, value6);
+    object.add(key7, value7);
     object.add(key8, value8);
     return object;
   }
 
   /**
-   * Creates a JsonObject with the specified member.
+   * Creates a JsonObject with the specified members.
    *
    * @return a new JsonObject.
    * @since $next-version$
@@ -236,16 +257,21 @@ public final class JsonObject extends JsonElement {
       JsonElement value8,
       String key9,
       JsonElement value9) {
-    JsonObject object =
-        of(
-            key1, value1, key2, value2, key3, value3, key4, value4, key5, value5, key6, value6,
-            key7, value7, key8, value8);
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
+    object.add(key6, value6);
+    object.add(key7, value7);
+    object.add(key8, value8);
     object.add(key9, value9);
     return object;
   }
 
   /**
-   * Creates a JsonObject with the specified member.
+   * Creates a JsonObject with the specified members.
    *
    * @return a new JsonObject.
    * @since $next-version$
@@ -271,10 +297,16 @@ public final class JsonObject extends JsonElement {
       JsonElement value9,
       String key10,
       JsonElement value10) {
-    JsonObject object =
-        of(
-            key1, value1, key2, value2, key3, value3, key4, value4, key5, value5, key6, value6,
-            key7, value7, key8, value8, key9, value9);
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
+    object.add(key6, value6);
+    object.add(key7, value7);
+    object.add(key8, value8);
+    object.add(key9, value9);
     object.add(key10, value10);
     return object;
   }
