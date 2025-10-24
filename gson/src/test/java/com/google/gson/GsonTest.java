@@ -27,7 +27,6 @@ import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -455,7 +454,7 @@ public final class GsonTest {
 
   @Test
   public void testNewJsonWriter_Default() throws IOException {
-    StringWriter writer = new StringWriter();
+    StringBuilder writer = new StringBuilder();
     JsonWriter jsonWriter = new Gson().newJsonWriter(writer);
     jsonWriter.beginObject();
     jsonWriter.name("test");
@@ -475,7 +474,7 @@ public final class GsonTest {
   @SuppressWarnings({"deprecation", "InlineMeInliner"}) // for GsonBuilder.setLenient
   @Test
   public void testNewJsonWriter_Custom() throws IOException {
-    StringWriter writer = new StringWriter();
+    StringBuilder writer = new StringBuilder();
     JsonWriter jsonWriter =
         new GsonBuilder()
             .disableHtmlEscaping()
