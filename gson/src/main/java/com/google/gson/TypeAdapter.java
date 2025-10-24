@@ -24,6 +24,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 
 /**
  * Converts Java objects to and from JSON.
@@ -126,6 +127,14 @@ public abstract class TypeAdapter<T> {
    * @param value the Java object to write. May be null.
    */
   public abstract void write(JsonWriter out, T value) throws IOException;
+
+  /**
+   * @deprecated Use {@link #toJson(Appendable, Object)} instead. For compatibility only!
+   */
+  @Deprecated
+  public final void toJson(Writer out, T value) throws IOException {
+    toJson((Appendable) out, value);
+  }
 
   /**
    * Converts {@code value} to a JSON document and writes it to {@code out}.

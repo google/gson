@@ -225,6 +225,14 @@ public class JsonWriter implements Closeable, Flushable {
   private boolean serializeNulls = true;
 
   /**
+   * @deprecated Use {@link #JsonWriter(Appendable)} instead. For compatibility only!
+   */
+  @Deprecated
+  public JsonWriter(Writer out) {
+    this((Appendable) out);
+  }
+
+  /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}. For best performance,
    * ensure {@link Writer} is buffered; wrapping in {@link java.io.BufferedWriter BufferedWriter} if
    * necessary.
@@ -701,7 +709,8 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Ensures all buffered data is written to the underlying {@link Appendable} and flushes it if it is an instance of {@link Flushable}.
+   * Ensures all buffered data is written to the underlying {@link Appendable}
+   * and flushes it if it is an instance of {@link Flushable}.
    *
    * @throws IllegalStateException if this writer is closed.
    */

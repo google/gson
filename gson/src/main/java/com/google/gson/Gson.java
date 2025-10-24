@@ -45,6 +45,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -1029,6 +1030,14 @@ public final class Gson {
       writer.setHtmlSafe(oldHtmlSafe);
       writer.setSerializeNulls(oldSerializeNulls);
     }
+  }
+
+  /**
+   * @deprecated Use {@link #newJsonWriter(Appendable)} instead. For compatibility only!
+   */
+  @Deprecated
+  public JsonWriter newJsonWriter(Writer writer) throws IOException {
+    return newJsonWriter((Appendable) writer);
   }
 
   /**
