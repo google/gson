@@ -312,6 +312,46 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
+   * Creates a JsonObject with the specified entries.
+   *
+   * @return a new JsonObject with given entries.
+   * @since $next-version$
+   */
+  @SafeVarargs
+  public static JsonObject ofEntries(Map.Entry<String, JsonElement>... entries) {
+    JsonObject object = new JsonObject();
+    for (Map.Entry<String, JsonElement> entry : entries) {
+      object.add(entry.getKey(), entry.getValue());
+    }
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified entries.
+   *
+   * @return a new JsonObject with given entries.
+   * @since $next-version$
+   */
+  public static JsonObject ofEntries(Iterable<Map.Entry<String, JsonElement>> entries) {
+    JsonObject object = new JsonObject();
+    for (Map.Entry<String, JsonElement> entry : entries) {
+      object.add(entry.getKey(), entry.getValue());
+    }
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified map. All entries of the map will be shallow copied into
+   * the new JsonObject.
+   *
+   * @return a new JsonObject with all entries of given map.
+   * @since $next-version$
+   */
+  public static JsonObject copyOf(Map<String, JsonElement> map) {
+    return ofEntries(map.entrySet());
+  }
+
+  /**
    * Creates a deep copy of this element and all its children.
    *
    * @since 2.8.2
