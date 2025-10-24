@@ -701,8 +701,7 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   /**
-   * Ensures all buffered data is written to the underlying {@link Appendable} if it is an instance
-   * of {@link Flushable} and flushes that writer.
+   * Ensures all buffered data is written to the underlying {@link Appendable} and flushes it if it is an instance of {@link Flushable}.
    *
    * @throws IllegalStateException if this writer is closed.
    */
