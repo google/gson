@@ -50,9 +50,9 @@ class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
         }
       };
 
-  private final Map<String, T> nameToConstant = new HashMap<>();
-  private final Map<String, T> stringToConstant = new HashMap<>();
-  private final Map<T, String> constantToName = new HashMap<>();
+  private final Map<String, T> nameToConstant;
+  private final Map<String, T> stringToConstant;
+  private final Map<T, String> constantToName;
 
   private EnumTypeAdapter(Class<T> classOfT) {
     try {
@@ -72,6 +72,11 @@ class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
       fields = Arrays.copyOf(fields, constantCount);
 
       AccessibleObject.setAccessible(fields, true);
+
+      nameToConstant = new HashMap<>(constantCount);
+      stringToConstant = new HashMap<>(constantCount);
+      // Don't use `EnumMap` here; that can break when using ProGuard or R8
+      constantToName = new HashMap<>(constantCount);
 
       for (Field constantField : fields) {
         @SuppressWarnings("unchecked")
