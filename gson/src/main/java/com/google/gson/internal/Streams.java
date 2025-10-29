@@ -26,7 +26,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
+import java.io.Closeable;
 import java.io.EOFException;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
@@ -89,10 +91,18 @@ public final class Streams {
     }
 
     @Override
-    public void flush() {}
+    public void flush() throws IOException {
+      if (appendable instanceof Flushable) {
+        ((Flushable) appendable).flush();
+      }
+    }
 
     @Override
-    public void close() {}
+    public void close() throws IOException {
+      if (appendable instanceof Closeable) {
+        ((Closeable) appendable).close();
+      }
+    }
 
     // Override these methods for better performance
     // They would otherwise unnecessarily create Strings or char arrays
