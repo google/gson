@@ -30,6 +30,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -43,6 +44,11 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 /** Returns a function that can construct an instance of a requested type. */
 public final class ConstructorConstructor {
+  public static final boolean DEFAULT_USE_JDK_UNSAFE = true;
+  public static final ConstructorConstructor DEFAULT =
+      new ConstructorConstructor(
+          Collections.emptyMap(), DEFAULT_USE_JDK_UNSAFE, Collections.emptyList());
+
   private final Map<Type, InstanceCreator<?>> instanceCreators;
   private final boolean useJdkUnsafe;
   private final List<ReflectionAccessFilter> reflectionFilters;
