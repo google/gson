@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,11 +51,14 @@ class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
         }
       };
 
-  private final Map<String, T> nameToConstant = new HashMap<>();
-  private final Map<String, T> stringToConstant = new HashMap<>();
-  private final Map<T, String> constantToName = new HashMap<>();
+  private final Map<String, T> nameToConstant;
+  private final Map<String, T> stringToConstant;
+  private final Map<T, String> constantToName;
 
   private EnumTypeAdapter(Class<T> classOfT) {
+    nameToConstant = new HashMap<>();
+    stringToConstant = new HashMap<>();
+    constantToName = new EnumMap<>(classOfT);
     try {
       // Uses reflection to find enum constants to work around name mismatches for obfuscated
       // classes

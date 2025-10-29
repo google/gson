@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.bind.TypeAdapters;
+
 /**
  * Defines the expected format for a {@code long} or {@code Long} type when it is serialized.
  *
@@ -39,6 +41,11 @@ public enum LongSerializationPolicy {
       }
       return new JsonPrimitive(value);
     }
+
+    @Override
+    public TypeAdapter<Number> typeAdapter() {
+      return TypeAdapters.LONG;
+    }
   },
 
   /**
@@ -55,6 +62,11 @@ public enum LongSerializationPolicy {
       }
       return new JsonPrimitive(value.toString());
     }
+
+    @Override
+    public TypeAdapter<Number> typeAdapter() {
+      return TypeAdapters.LONG_AS_STRING;
+    }
   };
 
   /**
@@ -64,4 +76,11 @@ public enum LongSerializationPolicy {
    * @return the serialized version of {@code value}
    */
   public abstract JsonElement serialize(Long value);
+
+  /**
+   * Returns the corresponding {@link TypeAdapter} for this serialization policy.
+   *
+   * @since $next-version$
+   */
+  public abstract TypeAdapter<Number> typeAdapter();
 }

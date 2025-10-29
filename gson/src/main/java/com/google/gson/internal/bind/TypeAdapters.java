@@ -374,6 +374,27 @@ public final class TypeAdapters {
         }
       };
 
+  public static final TypeAdapter<Number> LONG_AS_STRING =
+      new TypeAdapter<Number>() {
+        @Override
+        public Number read(JsonReader in) throws IOException {
+          if (in.peek() == JsonToken.NULL) {
+            in.nextNull();
+            return null;
+          }
+          return in.nextLong();
+        }
+
+        @Override
+        public void write(JsonWriter out, Number value) throws IOException {
+          if (value == null) {
+            out.nullValue();
+            return;
+          }
+          out.value(value.toString());
+        }
+      };
+
   public static final TypeAdapter<Number> FLOAT =
       new TypeAdapter<Number>() {
         @Override
@@ -490,6 +511,9 @@ public final class TypeAdapters {
         }
       };
 
+  public static final TypeAdapterFactory BIG_DECIMAL_FACTORY =
+      newFactory(BigDecimal.class, BIG_DECIMAL);
+
   public static final TypeAdapter<BigInteger> BIG_INTEGER =
       new TypeAdapter<BigInteger>() {
         @Override
@@ -513,6 +537,9 @@ public final class TypeAdapters {
         }
       };
 
+  public static final TypeAdapterFactory BIG_INTEGER_FACTORY =
+      newFactory(BigInteger.class, BIG_INTEGER);
+
   public static final TypeAdapter<LazilyParsedNumber> LAZILY_PARSED_NUMBER =
       new TypeAdapter<LazilyParsedNumber>() {
         // Normally users should not be able to access and deserialize LazilyParsedNumber because
@@ -532,6 +559,9 @@ public final class TypeAdapters {
           out.value(value);
         }
       };
+
+  public static final TypeAdapterFactory LAZILY_PARSED_NUMBER_FACTORY =
+      newFactory(LazilyParsedNumber.class, LAZILY_PARSED_NUMBER);
 
   public static final TypeAdapterFactory STRING_FACTORY = newFactory(String.class, STRING);
 

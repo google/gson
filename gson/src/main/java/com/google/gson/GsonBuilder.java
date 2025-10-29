@@ -16,9 +16,18 @@
 
 package com.google.gson;
 
+import static com.google.gson.BuilderHelper.DEFAULT_TYPE_ADAPTER_FACTORIES;
+import static com.google.gson.BuilderHelper.EXPECTED_FACTORIES_SIZE;
+import static com.google.gson.BuilderHelper.addTypeAdaptersForDate;
+import static com.google.gson.BuilderHelper.atomicLongAdapter;
+import static com.google.gson.BuilderHelper.atomicLongArrayAdapter;
+import static com.google.gson.BuilderHelper.doubleAdapter;
+import static com.google.gson.BuilderHelper.floatAdapter;
+import static com.google.gson.BuilderHelper.immutableList;
 import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
 import static com.google.gson.Gson.DEFAULT_DATE_PATTERN;
 import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
+import static com.google.gson.Gson.DEFAULT_FIELD_NAMING_STRATEGY;
 import static com.google.gson.Gson.DEFAULT_FORMATTING_STYLE;
 import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
 import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
@@ -32,8 +41,16 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
+import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
+import com.google.gson.internal.bind.ArrayTypeAdapter;
+import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter;
+import com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
+import com.google.gson.internal.bind.MapTypeAdapterFactory;
+import com.google.gson.internal.bind.NumberTypeAdapter;
+import com.google.gson.internal.bind.ObjectTypeAdapter;
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.internal.sql.SqlTypesSupport;
@@ -51,6 +68,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
  * Use this builder to construct a {@link Gson} instance when you need to set configuration options
@@ -90,29 +109,31 @@ import java.util.Objects;
  * @author Jesse Wilson
  */
 public final class GsonBuilder {
-  private Excluder excluder = Excluder.DEFAULT;
-  private LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
-  private FieldNamingStrategy fieldNamingPolicy = FieldNamingPolicy.IDENTITY;
-  private final Map<Type, InstanceCreator<?>> instanceCreators = new HashMap<>();
-  private final List<TypeAdapterFactory> factories = new ArrayList<>();
+  Excluder excluder = Excluder.DEFAULT;
+  LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
+  FieldNamingStrategy fieldNamingPolicy = DEFAULT_FIELD_NAMING_STRATEGY;
+  final Map<Type, InstanceCreator<?>> instanceCreators = new HashMap<>();
+  final List<TypeAdapterFactory> factories = new ArrayList<>();
 
   /** tree-style hierarchy factories. These come after factories for backwards compatibility. */
-  private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>();
+  final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>();
 
-  private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
-  private String datePattern = DEFAULT_DATE_PATTERN;
-  private int dateStyle = DateFormat.DEFAULT;
-  private int timeStyle = DateFormat.DEFAULT;
-  private boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
-  private boolean serializeSpecialFloatingPointValues = DEFAULT_SPECIALIZE_FLOAT_VALUES;
-  private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
-  private FormattingStyle formattingStyle = DEFAULT_FORMATTING_STYLE;
-  private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
-  private Strictness strictness = DEFAULT_STRICTNESS;
-  private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
-  private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
-  private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
-  private final ArrayDeque<ReflectionAccessFilter> reflectionFilters = new ArrayDeque<>();
+  boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
+  String datePattern = DEFAULT_DATE_PATTERN;
+  int dateStyle = DateFormat.DEFAULT;
+  int timeStyle = DateFormat.DEFAULT;
+  boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
+  boolean serializeSpecialFloatingPointValues = DEFAULT_SPECIALIZE_FLOAT_VALUES;
+  boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
+  FormattingStyle formattingStyle = DEFAULT_FORMATTING_STYLE;
+  boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
+  Strictness strictness = DEFAULT_STRICTNESS;
+  boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
+  ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
+  ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
+  final ArrayDeque<ReflectionAccessFilter> reflectionFilters = new ArrayDeque<>();
+
+  static final GsonBuilder DEFAULT = new GsonBuilder();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -884,74 +905,102 @@ public final class GsonBuilder {
    * @return an instance of Gson configured with the options currently set in this builder
    */
   public Gson create() {
-    List<TypeAdapterFactory> factories =
-        new ArrayList<>(this.factories.size() + this.hierarchyFactories.size() + 3);
-    factories.addAll(this.factories);
-    Collections.reverse(factories);
-
-    List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>(this.hierarchyFactories);
-    Collections.reverse(hierarchyFactories);
-    factories.addAll(hierarchyFactories);
-
-    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, factories);
-
-    return new Gson(
-        excluder,
-        fieldNamingPolicy,
-        new HashMap<>(instanceCreators),
-        serializeNulls,
-        complexMapKeySerialization,
-        generateNonExecutableJson,
-        escapeHtmlChars,
-        formattingStyle,
-        strictness,
-        serializeSpecialFloatingPointValues,
-        useJdkUnsafe,
-        longSerializationPolicy,
-        datePattern,
-        dateStyle,
-        timeStyle,
-        new ArrayList<>(this.factories),
-        new ArrayList<>(this.hierarchyFactories),
-        factories,
-        objectToNumberStrategy,
-        numberToNumberStrategy,
-        new ArrayList<>(reflectionFilters));
+    return new Gson(this);
   }
 
-  private static void addTypeAdaptersForDate(
-      String datePattern, int dateStyle, int timeStyle, List<TypeAdapterFactory> factories) {
-    TypeAdapterFactory dateAdapterFactory;
-    boolean sqlTypesSupported = SqlTypesSupport.SUPPORTS_SQL_TYPES;
-    TypeAdapterFactory sqlTimestampAdapterFactory = null;
-    TypeAdapterFactory sqlDateAdapterFactory = null;
-
-    if (datePattern != null && !datePattern.trim().isEmpty()) {
-      dateAdapterFactory = DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(datePattern);
-
-      if (sqlTypesSupported) {
-        sqlTimestampAdapterFactory =
-            SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(datePattern);
-        sqlDateAdapterFactory = SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(datePattern);
-      }
-    } else if (dateStyle != DateFormat.DEFAULT || timeStyle != DateFormat.DEFAULT) {
-      dateAdapterFactory =
-          DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(dateStyle, timeStyle);
-
-      if (sqlTypesSupported) {
-        sqlTimestampAdapterFactory =
-            SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(dateStyle, timeStyle);
-        sqlDateAdapterFactory =
-            SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(dateStyle, timeStyle);
-      }
-    } else {
-      return;
+  List<TypeAdapterFactory> createFactories(
+      ConstructorConstructor constructorConstructor,
+      JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
+    if (this == DEFAULT) {
+      return DEFAULT_TYPE_ADAPTER_FACTORIES;
     }
 
-    factories.add(dateAdapterFactory);
-    if (sqlTypesSupported) {
-      factories.add(sqlTimestampAdapterFactory);
-      factories.add(sqlDateAdapterFactory);
+    ArrayList<TypeAdapterFactory> factories = new ArrayList<>(EXPECTED_FACTORIES_SIZE);
+
+    // built-in type adapters that cannot be overridden
+    factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
+    factories.add(ObjectTypeAdapter.getFactory(objectToNumberStrategy));
+
+    // the excluder must precede all adapters that handle user-defined types
+    factories.add(excluder);
+
+    // users' type adapters
+    factories.ensureCapacity(
+        factories.size() + this.factories.size() + this.hierarchyFactories.size() + 3);
+    addUserDefinedAdapters(factories);
+
+    // type adapters for basic platform types
+    factories.add(TypeAdapters.STRING_FACTORY);
+    factories.add(TypeAdapters.INTEGER_FACTORY);
+    factories.add(TypeAdapters.BOOLEAN_FACTORY);
+    factories.add(TypeAdapters.BYTE_FACTORY);
+    factories.add(TypeAdapters.SHORT_FACTORY);
+    TypeAdapter<Number> longAdapter = longSerializationPolicy.typeAdapter();
+    factories.add(TypeAdapters.newFactory(long.class, Long.class, longAdapter));
+    factories.add(
+        TypeAdapters.newFactory(
+            double.class, Double.class, doubleAdapter(serializeSpecialFloatingPointValues)));
+    factories.add(
+        TypeAdapters.newFactory(
+            float.class, Float.class, floatAdapter(serializeSpecialFloatingPointValues)));
+    factories.add(NumberTypeAdapter.getFactory(numberToNumberStrategy));
+    factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
+    factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
+    factories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));
+    factories.add(
+        TypeAdapters.newFactory(AtomicLongArray.class, atomicLongArrayAdapter(longAdapter)));
+    factories.add(TypeAdapters.ATOMIC_INTEGER_ARRAY_FACTORY);
+    factories.add(TypeAdapters.CHARACTER_FACTORY);
+    factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
+    factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
+    factories.add(TypeAdapters.BIG_DECIMAL_FACTORY);
+    factories.add(TypeAdapters.BIG_INTEGER_FACTORY);
+    // Add adapter for LazilyParsedNumber because user can obtain it from Gson and then try to
+    // serialize it again
+    factories.add(TypeAdapters.LAZILY_PARSED_NUMBER_FACTORY);
+    factories.add(TypeAdapters.URL_FACTORY);
+    factories.add(TypeAdapters.URI_FACTORY);
+    factories.add(TypeAdapters.UUID_FACTORY);
+    factories.add(TypeAdapters.CURRENCY_FACTORY);
+    factories.add(TypeAdapters.LOCALE_FACTORY);
+    factories.add(TypeAdapters.INET_ADDRESS_FACTORY);
+    factories.add(TypeAdapters.BIT_SET_FACTORY);
+    factories.add(DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
+    factories.add(TypeAdapters.CALENDAR_FACTORY);
+    factories.addAll(SqlTypesSupport.SQL_TYPE_FACTORIES);
+    factories.add(ArrayTypeAdapter.FACTORY);
+    factories.add(TypeAdapters.CLASS_FACTORY);
+
+    // type adapters for composite and user-defined types
+    factories.add(new CollectionTypeAdapterFactory(constructorConstructor));
+    factories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));
+    factories.add(jsonAdapterFactory);
+    factories.add(TypeAdapters.ENUM_FACTORY);
+    factories.add(
+        new ReflectiveTypeAdapterFactory(
+            constructorConstructor,
+            fieldNamingPolicy,
+            excluder,
+            jsonAdapterFactory,
+            immutableList(reflectionFilters)));
+
+    return factories;
+  }
+
+  private void addUserDefinedAdapters(List<TypeAdapterFactory> all) {
+    if (!this.factories.isEmpty()) {
+      List<TypeAdapterFactory> reversedFactories = new ArrayList<>(this.factories);
+      Collections.reverse(reversedFactories);
+      all.addAll(reversedFactories);
     }
+
+    if (!this.hierarchyFactories.isEmpty()) {
+      List<TypeAdapterFactory> reversedHierarchyFactories =
+          new ArrayList<>(this.hierarchyFactories);
+      Collections.reverse(reversedHierarchyFactories);
+      all.addAll(reversedHierarchyFactories);
+    }
+
+    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, all);
   }
 }
