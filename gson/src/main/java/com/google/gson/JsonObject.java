@@ -318,7 +318,7 @@ public final class JsonObject extends JsonElement {
    * @since $next-version$
    */
   @SafeVarargs
-  public static JsonObject ofEntries(Map.Entry<String, JsonElement>... entries) {
+  public static JsonObject ofEntries(Map.Entry<String, ? extends JsonElement>... entries) {
     JsonObject object = new JsonObject();
     for (Map.Entry<String, JsonElement> entry : entries) {
       object.add(entry.getKey(), entry.getValue());
