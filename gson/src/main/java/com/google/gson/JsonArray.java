@@ -167,7 +167,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param iterable the iterable whose elements need to be added to the array.
    * @since $next-version$
    */
-  public void addAll(Iterable<JsonElement> iterable) {
+  public void addAll(Iterable<? extends JsonElement> iterable) {
     if (iterable instanceof JsonArray) {
       addAll((JsonArray) iterable);
       return;
