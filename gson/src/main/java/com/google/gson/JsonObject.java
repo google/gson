@@ -341,10 +341,10 @@ public final class JsonObject extends JsonElement {
   }
 
   /**
-   * Creates a JsonObject with the specified map. All entries of the map will be shallow copied into
+   * Creates a JsonObject from the specified map. All entries of the map will be shallow copied into
    * the new JsonObject.
    *
-   * @return a new JsonObject with all entries of given map.
+   * @return a new JsonObject with all entries of the given map.
    * @since $next-version$
    */
   public static JsonObject copyOf(Map<String, JsonElement> map) {
