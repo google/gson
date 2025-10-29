@@ -226,18 +226,20 @@ public class JsonWriter implements Closeable, Flushable {
   private boolean serializeNulls = true;
 
   /**
+   * Creates a new instance that writes a JSON-encoded stream to {@code out}. For best performance,
+   * ensure {@link Writer} is buffered; wrapping in {@link java.io.BufferedWriter BufferedWriter} if
+   * necessary.
+   *
    * @deprecated Use {@link #JsonWriter(Appendable)} instead. For compatibility only!
    */
   @InlineMe(replacement = "this((Appendable) out)")
-  @Deprecated
   public JsonWriter(Writer out) {
     this((Appendable) out);
   }
 
   /**
    * Creates a new instance that writes a JSON-encoded stream to {@code out}. For best performance,
-   * ensure {@link Writer} is buffered; wrapping in {@link java.io.BufferedWriter BufferedWriter} if
-   * necessary.
+   * ensure the {@link Appendable} is buffered if there are actual IO operations.
    */
   public JsonWriter(Appendable out) {
     this.out = Objects.requireNonNull(out, "out == null");
