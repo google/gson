@@ -347,7 +347,7 @@ public final class JsonObject extends JsonElement {
    * @return a new JsonObject with all entries of the given map.
    * @since $next-version$
    */
-  public static JsonObject copyOf(Map<String, JsonElement> map) {
+  public static JsonObject copyOf(Map<String, ? extends JsonElement> map) {
     return ofEntries(map.entrySet());
   }
 
