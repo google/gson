@@ -332,7 +332,7 @@ public final class JsonObject extends JsonElement {
    * @return a new JsonObject with given entries.
    * @since $next-version$
    */
-  public static JsonObject ofEntries(Iterable<Map.Entry<String, JsonElement>> entries) {
+  public static JsonObject ofEntries(Iterable<? extends Map.Entry<String, ? extends JsonElement>> entries) {
     JsonObject object = new JsonObject();
     for (Map.Entry<String, JsonElement> entry : entries) {
       object.add(entry.getKey(), entry.getValue());
