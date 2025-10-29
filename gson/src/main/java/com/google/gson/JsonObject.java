@@ -320,7 +320,7 @@ public final class JsonObject extends JsonElement {
   @SafeVarargs
   public static JsonObject ofEntries(Map.Entry<String, ? extends JsonElement>... entries) {
     JsonObject object = new JsonObject();
-    for (Map.Entry<String, JsonElement> entry : entries) {
+    for (Map.Entry<? extends String, ? extends JsonElement> entry : entries) {
       object.add(entry.getKey(), entry.getValue());
     }
     return object;
@@ -334,7 +334,7 @@ public final class JsonObject extends JsonElement {
    */
   public static JsonObject ofEntries(Iterable<? extends Map.Entry<String, ? extends JsonElement>> entries) {
     JsonObject object = new JsonObject();
-    for (Map.Entry<String, JsonElement> entry : entries) {
+    for (Map.Entry<? extends String, ? extends JsonElement> entry : entries) {
       object.add(entry.getKey(), entry.getValue());
     }
     return object;
