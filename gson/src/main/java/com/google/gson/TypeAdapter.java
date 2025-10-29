@@ -130,10 +130,11 @@ public abstract class TypeAdapter<T> {
   public abstract void write(JsonWriter out, T value) throws IOException;
 
   /**
-   * @deprecated Use {@link #toJson(Appendable, Object)} instead. For compatibility only!
+   * For compatibility only!
+   *
+   * @see TypeAdapter#toJson(Appendable, Object)
    */
   @InlineMe(replacement = "this.toJson((Appendable) out, value)")
-  @Deprecated
   public final void toJson(Writer out, T value) throws IOException {
     toJson((Appendable) out, value);
   }

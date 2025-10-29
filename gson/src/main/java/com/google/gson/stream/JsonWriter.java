@@ -229,8 +229,6 @@ public class JsonWriter implements Closeable, Flushable {
    * Creates a new instance that writes a JSON-encoded stream to {@code out}. For best performance,
    * ensure {@link Writer} is buffered; wrapping in {@link java.io.BufferedWriter BufferedWriter} if
    * necessary.
-   *
-   * @deprecated Use {@link #JsonWriter(Appendable)} instead. For compatibility only!
    */
   @InlineMe(replacement = "this((Appendable) out)")
   public JsonWriter(Writer out) {

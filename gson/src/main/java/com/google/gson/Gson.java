@@ -1034,10 +1034,11 @@ public final class Gson {
   }
 
   /**
-   * @deprecated Use {@link #newJsonWriter(Appendable)} instead. For compatibility only!
+   * For compatibility only!
+   *
+   * @see Gson#newJsonWriter(Appendable)
    */
   @InlineMe(replacement = "this.newJsonWriter((Appendable) writer)")
-  @Deprecated
   public JsonWriter newJsonWriter(Writer writer) throws IOException {
     return newJsonWriter((Appendable) writer);
   }
