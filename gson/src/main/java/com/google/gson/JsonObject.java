@@ -82,7 +82,9 @@ public final class JsonObject extends JsonElement {
       JsonElement value2,
       String key3,
       JsonElement value3) {
-    JsonObject object = of(key1, value1, key2, value2);
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
     object.add(key3, value3);
     return object;
   }
@@ -320,7 +322,7 @@ public final class JsonObject extends JsonElement {
   @SafeVarargs
   public static JsonObject ofEntries(Map.Entry<String, ? extends JsonElement>... entries) {
     JsonObject object = new JsonObject();
-    for (Map.Entry<? extends String, ? extends JsonElement> entry : entries) {
+    for (Map.Entry<String, ? extends JsonElement> entry : entries) {
       object.add(entry.getKey(), entry.getValue());
     }
     return object;
@@ -335,7 +337,7 @@ public final class JsonObject extends JsonElement {
   public static JsonObject ofEntries(
       Iterable<? extends Map.Entry<String, ? extends JsonElement>> entries) {
     JsonObject object = new JsonObject();
-    for (Map.Entry<? extends String, ? extends JsonElement> entry : entries) {
+    for (Map.Entry<String, ? extends JsonElement> entry : entries) {
       object.add(entry.getKey(), entry.getValue());
     }
     return object;
