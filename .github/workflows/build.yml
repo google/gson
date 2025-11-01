@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: "Set up GraalVM"
-        uses: graalvm/setup-graalvm@2a2412009026a83f51d179f92dc2b3fd4c8142df  # v1.4.1
+        uses: graalvm/setup-graalvm@eec48106e0bf45f2976c2ff0c3e22395cced8243  # v1.4.2
         with:
           java-version: ${{ matrix.java }}
           distribution: 'graalvm'
