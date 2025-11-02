@@ -296,7 +296,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.42.0</version>
+                <version>2.43.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -563,11 +563,11 @@
         </plugins>
       </build>
     </profile>
-    <!-- Disable Error Prone before Java 17 -->
+    <!-- Disable Error Prone before Java 21 -->
     <profile>
       <id>disable-error-prone</id>
       <activation>
-        <jdk>[,17)</jdk>
+        <jdk>[,21)</jdk>
       </activation>
       <build>
         <plugins>
