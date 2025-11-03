@@ -578,6 +578,7 @@
               <compilerArgs combine.self="override">
                 <compilerArg>-Xlint:all,-options</compilerArg>
               </compilerArgs>
+              <annotationProcessorPaths combine.self="override" />
             </configuration>
           </plugin>
         </plugins>
