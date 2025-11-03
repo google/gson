@@ -4,6 +4,8 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 14
     groups:
       # Name is used for branch name and pull request title
       maven:
@@ -15,6 +17,8 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 14
     groups:
       # Name is used for branch name and pull request title
       github-actions:
