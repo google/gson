@@ -15,6 +15,10 @@ on:
 permissions:
   contents: read #  to fetch code (actions/checkout)
 
+env:
+  # Common Maven arguments
+  MAVEN_ARGS: --show-version --batch-mode --no-transfer-progress
+
 jobs:
   check-android-compatibility:
     runs-on: ubuntu-latest
@@ -31,4 +35,4 @@ jobs:
 
       - name: Check Android compatibility
         run: |
-          mvn --batch-mode --no-transfer-progress compile animal-sniffer:check@check-android-compatibility -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
+          mvn compile animal-sniffer:check@check-android-compatibility -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'

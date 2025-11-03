@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read #  to fetch code (actions/checkout)
 
+env:
+  # Common Maven arguments
+  MAVEN_ARGS: --show-version --batch-mode --no-transfer-progress
+
 jobs:
   build:
     name: "Build on JDK ${{ matrix.java }}"
@@ -42,7 +46,7 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
-        run: mvn --batch-mode --no-transfer-progress verify javadoc:jar ${{ matrix.extra-mvn-args || '' }}
+        run: mvn verify javadoc:jar ${{ matrix.extra-mvn-args || '' }}
 
   native-image-test:
     name: "GraalVM Native Image test (JDK ${{ matrix.java }})"
@@ -69,7 +73,7 @@ jobs:
       - name: Build and run tests
         # Only run tests in `test-graal-native-image` (and implicitly build and run tests in `gson`),
         # everything else is covered already by regular build job above
-        run: mvn test --batch-mode --no-transfer-progress --activate-profiles native-image-test --projects test-graal-native-image --also-make ${{ matrix.extra-mvn-args || '' }}
+        run: mvn test --activate-profiles native-image-test --projects test-graal-native-image --also-make ${{ matrix.extra-mvn-args || '' }}
 
   verify-reproducible-build:
     name: "Verify reproducible build"
@@ -85,13 +89,13 @@ jobs:
           cache: 'maven'
 
       - name: "Verify no plugin issues"
-        run: mvn artifact:check-buildplan --batch-mode --no-transfer-progress --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
+        run: mvn artifact:check-buildplan --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
 
       - name: "Verify reproducible build"
         # See https://maven.apache.org/guides/mini/guide-reproducible-builds.html#how-to-test-my-maven-build-reproducibility
         run: |
-          mvn clean install --batch-mode --no-transfer-progress -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
+          mvn clean install -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
           # Run with `-Dbuildinfo.attach=false`; otherwise `artifact:compare` fails because it creates a `.buildinfo` file which
           # erroneously references the existing `.buildinfo` file (respectively because it is overwriting it, a file with size 0)
           # See https://issues.apache.org/jira/browse/MARTIFACT-57
-          mvn clean verify artifact:compare --batch-mode --no-transfer-progress -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker' -Dbuildinfo.attach=false
+          mvn clean verify artifact:compare -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker' -Dbuildinfo.attach=false
