@@ -27,7 +27,8 @@ jobs:
           - java: 11
             # Disable Enforcer check which (intentionally) prevents using JDK 11 for building
             # Exclude 'test-graal-native-image' module because JUnit 6 requires >= Java 17
-            extra-mvn-args: -Denforcer.fail=false --projects '!test-graal-native-image'
+            # Exclude 'proto' module because protobuf-maven-plugin requires >= Java 17
+            extra-mvn-args: -Denforcer.fail=false --projects '!test-graal-native-image,!proto'
           - java: 25
             # Disable Enforcer check which (intentionally) prevents using JDK 25 for building
             # Exclude 'test-shrinker' because ProGuard does not support JDK 25 yet, see
