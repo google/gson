@@ -79,11 +79,13 @@
       <plugin>
         <groupId>io.github.ascopes</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>4.0.1</version>
         <configuration>
           <skip>${maven.test.skip}</skip>
-          <protocVersion>${protobufVersion}</protocVersion>
+          <protoc>${protobufVersion}</protoc>
           <fatalWarnings>true</fatalWarnings>
+          <!-- Embedding sources is redundant for test execution -->
+          <embedSourcesInClassOutputs>false</embedSourcesInClassOutputs>
         </configuration>
         <executions>
           <execution>
