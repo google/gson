@@ -422,7 +422,7 @@ public abstract class JsonElement {
   public String toString() {
     try {
       StringBuilder stringBuilder = new StringBuilder();
-      JsonWriter jsonWriter = new JsonWriter(Streams.writerForAppendable(stringBuilder));
+      JsonWriter jsonWriter = new JsonWriter(stringBuilder);
       // Make writer lenient because toString() must not fail, even if for example JsonPrimitive
       // contains NaN
       jsonWriter.setStrictness(Strictness.LENIENT);
