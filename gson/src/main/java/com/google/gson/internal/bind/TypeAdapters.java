@@ -395,51 +395,83 @@ public final class TypeAdapters {
         }
       };
 
-  public static final TypeAdapter<Number> FLOAT =
-      new TypeAdapter<Number>() {
-        @Override
-        public Number read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          return (float) in.nextDouble();
-        }
+  private static class FloatAdapter extends TypeAdapter<Number> {
+    private final boolean strict;
 
-        @Override
-        public void write(JsonWriter out, Number value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-          } else {
-            // For backward compatibility don't call `JsonWriter.value(float)` because that method
-            // has been newly added and not all custom JsonWriter implementations might override
-            // it yet
-            Number floatNumber = value instanceof Float ? value : value.floatValue();
-            out.value(floatNumber);
-          }
-        }
-      };
+    FloatAdapter(boolean strict) {
+      this.strict = strict;
+    }
 
-  public static final TypeAdapter<Number> DOUBLE =
-      new TypeAdapter<Number>() {
-        @Override
-        public Number read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          return in.nextDouble();
-        }
+    @Override
+    public Float read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      return (float) in.nextDouble();
+    }
 
-        @Override
-        public void write(JsonWriter out, Number value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-          } else {
-            out.value(value.doubleValue());
-          }
-        }
-      };
+    @Override
+    public void write(JsonWriter out, Number value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      float floatValue = value.floatValue();
+      if (strict) {
+        checkValidFloatingPoint(floatValue);
+      }
+      // For backward compatibility don't call `JsonWriter.value(float)` because that method has
+      // been newly added and not all custom JsonWriter implementations might override it yet
+      Number floatNumber = value instanceof Float ? value : floatValue;
+      out.value(floatNumber);
+    }
+  }
+
+  private static class DoubleAdapter extends TypeAdapter<Number> {
+    private final boolean strict;
+
+    DoubleAdapter(boolean strict) {
+      this.strict = strict;
+    }
+
+    @Override
+    public Double read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      return in.nextDouble();
+    }
+
+    @Override
+    public void write(JsonWriter out, Number value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      double doubleValue = value.doubleValue();
+      if (strict) {
+        checkValidFloatingPoint(doubleValue);
+      }
+      out.value(doubleValue);
+    }
+  }
+
+  private static void checkValidFloatingPoint(double value) {
+    if (Double.isNaN(value) || Double.isInfinite(value)) {
+      throw new IllegalArgumentException(
+          value
+              + " is not a valid double value as per JSON specification. To override this"
+              + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
+    }
+  }
+
+  public static final TypeAdapter<Number> FLOAT = new FloatAdapter(false);
+  public static final TypeAdapter<Number> FLOAT_STRICT = new FloatAdapter(true);
+
+  public static final TypeAdapter<Number> DOUBLE = new DoubleAdapter(false);
+  public static final TypeAdapter<Number> DOUBLE_STRICT = new DoubleAdapter(true);
 
   public static final TypeAdapter<Character> CHARACTER =
       new TypeAdapter<Character>() {

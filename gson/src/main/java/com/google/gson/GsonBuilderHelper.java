@@ -51,70 +51,12 @@ final class GsonBuilderHelper {
     return list;
   }
 
-  private static final TypeAdapter<Number> DOUBLE_STRICT =
-      new TypeAdapter<Number>() {
-        @Override
-        public Double read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          return in.nextDouble();
-        }
-
-        @Override
-        public void write(JsonWriter out, Number value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-            return;
-          }
-          double doubleValue = value.doubleValue();
-          checkValidFloatingPoint(doubleValue);
-          out.value(doubleValue);
-        }
-      };
-
-  private static final TypeAdapter<Number> FLOAT_STRICT =
-      new TypeAdapter<Number>() {
-        @Override
-        public Float read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          return (float) in.nextDouble();
-        }
-
-        @Override
-        public void write(JsonWriter out, Number value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-            return;
-          }
-          float floatValue = value.floatValue();
-          checkValidFloatingPoint(floatValue);
-          // For backward compatibility don't call `JsonWriter.value(float)` because that method has
-          // been newly added and not all custom JsonWriter implementations might override it yet
-          Number floatNumber = value instanceof Float ? value : floatValue;
-          out.value(floatNumber);
-        }
-      };
-
-  private static void checkValidFloatingPoint(double value) {
-    if (Double.isNaN(value) || Double.isInfinite(value)) {
-      throw new IllegalArgumentException(
-          value
-              + " is not a valid double value as per JSON specification. To override this"
-              + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
-    }
-  }
-
   static TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
-    return serializeSpecialFloatingPointValues ? TypeAdapters.DOUBLE : DOUBLE_STRICT;
+    return serializeSpecialFloatingPointValues ? TypeAdapters.DOUBLE : TypeAdapters.DOUBLE_STRICT;
   }
 
   static TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
-    return serializeSpecialFloatingPointValues ? TypeAdapters.FLOAT : FLOAT_STRICT;
+    return serializeSpecialFloatingPointValues ? TypeAdapters.FLOAT : TypeAdapters.FLOAT_STRICT;
   }
 
   static TypeAdapter<AtomicLong> atomicLongAdapter(TypeAdapter<Number> longAdapter) {
