@@ -74,6 +74,18 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   }
 
   /**
+   * Creates a JsonArray with the specified elements.
+   *
+   * @return a new JsonArray.
+   * @since $next-version$
+   */
+  public static JsonArray of(Iterable<? extends JsonElement> elements) {
+    JsonArray array = elements instanceof Collection ? new JsonArray(((Collection<?>) elements).size()) : new JsonArray();
+    array.addAll(elements);
+    return array;
+  }
+
+  /**
    * Creates a deep copy of this element and all its children.
    *
    * @since 2.8.2
