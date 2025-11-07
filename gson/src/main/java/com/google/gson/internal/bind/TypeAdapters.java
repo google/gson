@@ -43,11 +43,14 @@ import java.util.Currency;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
  * Type adapters for basic types. More complex adapters exist as separate classes in the enclosing
@@ -299,6 +302,22 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory ATOMIC_INTEGER_FACTORY =
       newFactory(AtomicInteger.class, TypeAdapters.ATOMIC_INTEGER);
 
+  public static TypeAdapter<AtomicLong> atomicLongAdapter(TypeAdapter<Number> longAdapter) {
+    Objects.requireNonNull(longAdapter);
+    return new TypeAdapter<AtomicLong>() {
+      @Override
+      public AtomicLong read(JsonReader in) throws IOException {
+        Number value = longAdapter.read(in);
+        return new AtomicLong(value.longValue());
+      }
+
+      @Override
+      public void write(JsonWriter out, AtomicLong value) throws IOException {
+        longAdapter.write(out, value.get());
+      }
+    }.nullSafe();
+  }
+
   public static final TypeAdapter<AtomicBoolean> ATOMIC_BOOLEAN =
       new TypeAdapter<AtomicBoolean>() {
         @Override
@@ -348,6 +367,38 @@ public final class TypeAdapters {
       }.nullSafe();
   public static final TypeAdapterFactory ATOMIC_INTEGER_ARRAY_FACTORY =
       newFactory(AtomicIntegerArray.class, TypeAdapters.ATOMIC_INTEGER_ARRAY);
+
+  public static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(
+      TypeAdapter<Number> longAdapter) {
+    Objects.requireNonNull(longAdapter);
+    return new TypeAdapter<AtomicLongArray>() {
+      @Override
+      public AtomicLongArray read(JsonReader in) throws IOException {
+        List<Long> list = new ArrayList<>();
+        in.beginArray();
+        while (in.hasNext()) {
+          long value = longAdapter.read(in).longValue();
+          list.add(value);
+        }
+        in.endArray();
+        int length = list.size();
+        AtomicLongArray array = new AtomicLongArray(length);
+        for (int i = 0; i < length; ++i) {
+          array.set(i, list.get(i));
+        }
+        return array;
+      }
+
+      @Override
+      public void write(JsonWriter out, AtomicLongArray value) throws IOException {
+        out.beginArray();
+        for (int i = 0, length = value.length(); i < length; i++) {
+          longAdapter.write(out, value.get(i));
+        }
+        out.endArray();
+      }
+    }.nullSafe();
+  }
 
   public static final TypeAdapter<Number> LONG =
       new TypeAdapter<Number>() {

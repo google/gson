@@ -17,8 +17,6 @@
 package com.google.gson;
 
 import static com.google.gson.GsonBuilderHelper.addDateTypeAdapters;
-import static com.google.gson.GsonBuilderHelper.atomicLongAdapter;
-import static com.google.gson.GsonBuilderHelper.atomicLongArrayAdapter;
 import static com.google.gson.GsonBuilderHelper.doubleAdapter;
 import static com.google.gson.GsonBuilderHelper.floatAdapter;
 import static com.google.gson.GsonBuilderHelper.newImmutableList;
@@ -962,9 +960,11 @@ public final class GsonBuilder {
     factories.add(NumberTypeAdapter.getFactory(numberToNumberStrategy));
     factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
     factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
-    factories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));
     factories.add(
-        TypeAdapters.newFactory(AtomicLongArray.class, atomicLongArrayAdapter(longAdapter)));
+        TypeAdapters.newFactory(AtomicLong.class, TypeAdapters.atomicLongAdapter(longAdapter)));
+    factories.add(
+        TypeAdapters.newFactory(
+            AtomicLongArray.class, TypeAdapters.atomicLongArrayAdapter(longAdapter)));
     factories.add(TypeAdapters.ATOMIC_INTEGER_ARRAY_FACTORY);
     factories.add(TypeAdapters.CHARACTER_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);

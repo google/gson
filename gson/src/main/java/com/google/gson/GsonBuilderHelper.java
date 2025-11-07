@@ -19,18 +19,11 @@ package com.google.gson;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.internal.sql.SqlTypesSupport;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicLongArray;
 
 final class GsonBuilderHelper {
 
@@ -57,51 +50,6 @@ final class GsonBuilderHelper {
 
   static TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
     return serializeSpecialFloatingPointValues ? TypeAdapters.FLOAT : TypeAdapters.FLOAT_STRICT;
-  }
-
-  static TypeAdapter<AtomicLong> atomicLongAdapter(TypeAdapter<Number> longAdapter) {
-    return new TypeAdapter<AtomicLong>() {
-      @Override
-      public void write(JsonWriter out, AtomicLong value) throws IOException {
-        longAdapter.write(out, value.get());
-      }
-
-      @Override
-      public AtomicLong read(JsonReader in) throws IOException {
-        Number value = longAdapter.read(in);
-        return new AtomicLong(value.longValue());
-      }
-    }.nullSafe();
-  }
-
-  static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(TypeAdapter<Number> longAdapter) {
-    return new TypeAdapter<AtomicLongArray>() {
-      @Override
-      public void write(JsonWriter out, AtomicLongArray value) throws IOException {
-        out.beginArray();
-        for (int i = 0, length = value.length(); i < length; i++) {
-          longAdapter.write(out, value.get(i));
-        }
-        out.endArray();
-      }
-
-      @Override
-      public AtomicLongArray read(JsonReader in) throws IOException {
-        List<Long> list = new ArrayList<>();
-        in.beginArray();
-        while (in.hasNext()) {
-          long value = longAdapter.read(in).longValue();
-          list.add(value);
-        }
-        in.endArray();
-        int length = list.size();
-        AtomicLongArray array = new AtomicLongArray(length);
-        for (int i = 0; i < length; ++i) {
-          array.set(i, list.get(i));
-        }
-        return array;
-      }
-    }.nullSafe();
   }
 
   static void addDateTypeAdapters(
