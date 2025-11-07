@@ -41,12 +41,17 @@ import java.util.List;
  * @author Joel Leitch
  */
 public final class JsonArray extends JsonElement implements Iterable<JsonElement> {
+  /** All elements in this list are nonnull. */
   private final ArrayList<JsonElement> elements;
 
-  /** Creates an empty JsonArray. */
   @SuppressWarnings("deprecation") // superclass constructor
+  private JsonArray(ArrayList<JsonElement> elements) {
+    this.elements = elements;
+  }
+
+  /** Creates an empty JsonArray. */
   public JsonArray() {
-    elements = new ArrayList<>();
+    this(new ArrayList<>());
   }
 
   /**
@@ -56,9 +61,8 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @throws IllegalArgumentException if the {@code capacity} is negative
    * @since 2.8.1
    */
-  @SuppressWarnings("deprecation") // superclass constructor
   public JsonArray(int capacity) {
-    elements = new ArrayList<>(capacity);
+    this(new ArrayList<>(capacity));
   }
 
   /**
@@ -80,7 +84,10 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @since $next-version$
    */
   public static JsonArray of(Iterable<? extends JsonElement> elements) {
-    JsonArray array = elements instanceof Collection ? new JsonArray(((Collection<?>) elements).size()) : new JsonArray();
+    JsonArray array =
+        elements instanceof Collection
+            ? new JsonArray(((Collection<?>) elements).size())
+            : new JsonArray();
     array.addAll(elements);
     return array;
   }
