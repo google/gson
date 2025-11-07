@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import static com.google.gson.GsonBuilderHelper.newImmutableList;
+import static com.google.gson.GsonBuilder.newImmutableList;
 
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;

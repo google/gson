@@ -16,11 +16,6 @@
 
 package com.google.gson;
 
-import static com.google.gson.GsonBuilderHelper.addDateTypeAdapters;
-import static com.google.gson.GsonBuilderHelper.doubleAdapter;
-import static com.google.gson.GsonBuilderHelper.floatAdapter;
-import static com.google.gson.GsonBuilderHelper.newImmutableList;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.annotations.Since;
@@ -46,6 +41,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -941,7 +938,7 @@ public final class GsonBuilder {
     addUserDefinedAdapters(factories);
 
     // custom Date adapters
-    addDateTypeAdapters(datePattern, dateStyle, timeStyle, factories);
+    addDateTypeAdapters(factories);
 
     // type adapters for basic platform types
     factories.add(TypeAdapters.STRING_FACTORY);
@@ -951,12 +948,8 @@ public final class GsonBuilder {
     factories.add(TypeAdapters.SHORT_FACTORY);
     TypeAdapter<Number> longAdapter = longSerializationPolicy.typeAdapter();
     factories.add(TypeAdapters.newFactory(long.class, Long.class, longAdapter));
-    factories.add(
-        TypeAdapters.newFactory(
-            double.class, Double.class, doubleAdapter(serializeSpecialFloatingPointValues)));
-    factories.add(
-        TypeAdapters.newFactory(
-            float.class, Float.class, floatAdapter(serializeSpecialFloatingPointValues)));
+    factories.add(TypeAdapters.newFactory(double.class, Double.class, doubleAdapter()));
+    factories.add(TypeAdapters.newFactory(float.class, Float.class, floatAdapter()));
     factories.add(NumberTypeAdapter.getFactory(numberToNumberStrategy));
     factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
     factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
@@ -1004,6 +997,29 @@ public final class GsonBuilder {
     return Collections.unmodifiableList(factories);
   }
 
+  static <E> List<E> newImmutableList(Collection<E> collection) {
+    if (collection.isEmpty()) {
+      return Collections.emptyList();
+    }
+    if (collection.size() == 1) {
+      return Collections.singletonList(
+          collection instanceof List
+              ? ((List<E>) collection).get(0)
+              : collection.iterator().next());
+    }
+    @SuppressWarnings("unchecked")
+    List<E> list = (List<E>) Collections.unmodifiableList(Arrays.asList(collection.toArray()));
+    return list;
+  }
+
+  private TypeAdapter<Number> doubleAdapter() {
+    return serializeSpecialFloatingPointValues ? TypeAdapters.DOUBLE : TypeAdapters.DOUBLE_STRICT;
+  }
+
+  private TypeAdapter<Number> floatAdapter() {
+    return serializeSpecialFloatingPointValues ? TypeAdapters.FLOAT : TypeAdapters.FLOAT_STRICT;
+  }
+
   private void addUserDefinedAdapters(List<TypeAdapterFactory> all) {
     if (!this.factories.isEmpty()) {
       List<TypeAdapterFactory> reversedFactories = new ArrayList<>(this.factories);
@@ -1016,6 +1032,41 @@ public final class GsonBuilder {
           new ArrayList<>(this.hierarchyFactories);
       Collections.reverse(reversedHierarchyFactories);
       all.addAll(reversedHierarchyFactories);
+    }
+  }
+
+  private void addDateTypeAdapters(List<TypeAdapterFactory> factories) {
+    TypeAdapterFactory dateAdapterFactory;
+    boolean sqlTypesSupported = SqlTypesSupport.SUPPORTS_SQL_TYPES;
+    TypeAdapterFactory sqlTimestampAdapterFactory = null;
+    TypeAdapterFactory sqlDateAdapterFactory = null;
+
+    if (datePattern != null && !datePattern.trim().isEmpty()) {
+      dateAdapterFactory = DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(datePattern);
+
+      if (sqlTypesSupported) {
+        sqlTimestampAdapterFactory =
+            SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(datePattern);
+        sqlDateAdapterFactory = SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(datePattern);
+      }
+    } else if (dateStyle != DateFormat.DEFAULT || timeStyle != DateFormat.DEFAULT) {
+      dateAdapterFactory =
+          DefaultDateTypeAdapter.DateType.DATE.createAdapterFactory(dateStyle, timeStyle);
+
+      if (sqlTypesSupported) {
+        sqlTimestampAdapterFactory =
+            SqlTypesSupport.TIMESTAMP_DATE_TYPE.createAdapterFactory(dateStyle, timeStyle);
+        sqlDateAdapterFactory =
+            SqlTypesSupport.DATE_DATE_TYPE.createAdapterFactory(dateStyle, timeStyle);
+      }
+    } else {
+      return;
+    }
+
+    factories.add(dateAdapterFactory);
+    if (sqlTypesSupported) {
+      factories.add(sqlTimestampAdapterFactory);
+      factories.add(sqlDateAdapterFactory);
     }
   }
 }
