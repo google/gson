@@ -16,26 +16,12 @@
 
 package com.google.gson;
 
-import static com.google.gson.BuilderHelper.DEFAULT_TYPE_ADAPTER_FACTORIES;
-import static com.google.gson.BuilderHelper.EXPECTED_FACTORIES_SIZE;
-import static com.google.gson.BuilderHelper.addTypeAdaptersForDate;
-import static com.google.gson.BuilderHelper.atomicLongAdapter;
-import static com.google.gson.BuilderHelper.atomicLongArrayAdapter;
-import static com.google.gson.BuilderHelper.doubleAdapter;
-import static com.google.gson.BuilderHelper.floatAdapter;
-import static com.google.gson.BuilderHelper.immutableList;
-import static com.google.gson.Gson.DEFAULT_COMPLEX_MAP_KEYS;
-import static com.google.gson.Gson.DEFAULT_DATE_PATTERN;
-import static com.google.gson.Gson.DEFAULT_ESCAPE_HTML;
-import static com.google.gson.Gson.DEFAULT_FIELD_NAMING_STRATEGY;
-import static com.google.gson.Gson.DEFAULT_FORMATTING_STYLE;
-import static com.google.gson.Gson.DEFAULT_JSON_NON_EXECUTABLE;
-import static com.google.gson.Gson.DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
-import static com.google.gson.Gson.DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
-import static com.google.gson.Gson.DEFAULT_SERIALIZE_NULLS;
-import static com.google.gson.Gson.DEFAULT_SPECIALIZE_FLOAT_VALUES;
-import static com.google.gson.Gson.DEFAULT_STRICTNESS;
-import static com.google.gson.Gson.DEFAULT_USE_JDK_UNSAFE;
+import static com.google.gson.GsonBuilderHelper.addDateTypeAdapters;
+import static com.google.gson.GsonBuilderHelper.atomicLongAdapter;
+import static com.google.gson.GsonBuilderHelper.atomicLongArrayAdapter;
+import static com.google.gson.GsonBuilderHelper.doubleAdapter;
+import static com.google.gson.GsonBuilderHelper.floatAdapter;
+import static com.google.gson.GsonBuilderHelper.newImmutableList;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
@@ -109,6 +95,41 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * @author Jesse Wilson
  */
 public final class GsonBuilder {
+  private static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
+  // Strictness of `null` is the legacy mode where some Gson APIs are always lenient
+  private static final Strictness DEFAULT_STRICTNESS = null;
+  private static final FormattingStyle DEFAULT_FORMATTING_STYLE = FormattingStyle.COMPACT;
+  private static final boolean DEFAULT_ESCAPE_HTML = true;
+  private static final boolean DEFAULT_SERIALIZE_NULLS = false;
+  private static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
+  private static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
+  private static final boolean DEFAULT_USE_JDK_UNSAFE = true;
+  private static final String DEFAULT_DATE_PATTERN = null;
+  private static final FieldNamingStrategy DEFAULT_FIELD_NAMING_STRATEGY =
+      FieldNamingPolicy.IDENTITY;
+  private static final ToNumberStrategy DEFAULT_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
+  private static final ToNumberStrategy DEFAULT_NUMBER_TO_NUMBER_STRATEGY =
+      ToNumberPolicy.LAZILY_PARSED_NUMBER;
+
+  static final ConstructorConstructor DEFAULT_CONSTRUCTOR_CONSTRUCTOR =
+      new ConstructorConstructor(
+          Collections.emptyMap(), DEFAULT_USE_JDK_UNSAFE, Collections.emptyList());
+
+  static final JsonAdapterAnnotationTypeAdapterFactory
+      DEFAULT_JSON_ADAPTER_ANNOTATION_TYPE_ADAPTER_FACTORY =
+          new JsonAdapterAnnotationTypeAdapterFactory(DEFAULT_CONSTRUCTOR_CONSTRUCTOR);
+
+  /**
+   * Default instance of the builder, to be used only by the default {@link Gson#Gson()}
+   * constructor. Must not be used for anything else and must not be leaked to user code, since that
+   * could lead to accidental modification of this default builder.
+   */
+  static final GsonBuilder DEFAULT = new GsonBuilder();
+
+  static final List<TypeAdapterFactory> DEFAULT_TYPE_ADAPTER_FACTORIES =
+      GsonBuilder.DEFAULT.createFactories(
+          DEFAULT_CONSTRUCTOR_CONSTRUCTOR, DEFAULT_JSON_ADAPTER_ANNOTATION_TYPE_ADAPTER_FACTORY);
+
   Excluder excluder = Excluder.DEFAULT;
   LongSerializationPolicy longSerializationPolicy = LongSerializationPolicy.DEFAULT;
   FieldNamingStrategy fieldNamingPolicy = DEFAULT_FIELD_NAMING_STRATEGY;
@@ -132,8 +153,6 @@ public final class GsonBuilder {
   ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
   final ArrayDeque<ReflectionAccessFilter> reflectionFilters = new ArrayDeque<>();
-
-  static final GsonBuilder DEFAULT = new GsonBuilder();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
@@ -911,11 +930,7 @@ public final class GsonBuilder {
   List<TypeAdapterFactory> createFactories(
       ConstructorConstructor constructorConstructor,
       JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
-    if (this == DEFAULT) {
-      return DEFAULT_TYPE_ADAPTER_FACTORIES;
-    }
-
-    ArrayList<TypeAdapterFactory> factories = new ArrayList<>(EXPECTED_FACTORIES_SIZE);
+    ArrayList<TypeAdapterFactory> factories = new ArrayList<>();
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
@@ -925,9 +940,10 @@ public final class GsonBuilder {
     factories.add(excluder);
 
     // users' type adapters
-    factories.ensureCapacity(
-        factories.size() + this.factories.size() + this.hierarchyFactories.size() + 3);
     addUserDefinedAdapters(factories);
+
+    // custom Date adapters
+    addDateTypeAdapters(datePattern, dateStyle, timeStyle, factories);
 
     // type adapters for basic platform types
     factories.add(TypeAdapters.STRING_FACTORY);
@@ -982,9 +998,10 @@ public final class GsonBuilder {
             fieldNamingPolicy,
             excluder,
             jsonAdapterFactory,
-            immutableList(reflectionFilters)));
+            newImmutableList(reflectionFilters)));
 
-    return factories;
+    factories.trimToSize();
+    return Collections.unmodifiableList(factories);
   }
 
   private void addUserDefinedAdapters(List<TypeAdapterFactory> all) {
@@ -1000,7 +1017,5 @@ public final class GsonBuilder {
       Collections.reverse(reversedHierarchyFactories);
       all.addAll(reversedHierarchyFactories);
     }
-
-    addTypeAdaptersForDate(datePattern, dateStyle, timeStyle, all);
   }
 }

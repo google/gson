@@ -43,7 +43,7 @@ public enum LongSerializationPolicy {
     }
 
     @Override
-    public TypeAdapter<Number> typeAdapter() {
+    TypeAdapter<Number> typeAdapter() {
       return TypeAdapters.LONG;
     }
   },
@@ -64,7 +64,7 @@ public enum LongSerializationPolicy {
     }
 
     @Override
-    public TypeAdapter<Number> typeAdapter() {
+    TypeAdapter<Number> typeAdapter() {
       return TypeAdapters.LONG_AS_STRING;
     }
   };
@@ -77,10 +77,7 @@ public enum LongSerializationPolicy {
    */
   public abstract JsonElement serialize(Long value);
 
-  /**
-   * Returns the corresponding {@link TypeAdapter} for this serialization policy.
-   *
-   * @since $next-version$
-   */
-  public abstract TypeAdapter<Number> typeAdapter();
+  /** Returns the corresponding {@link TypeAdapter} for this serialization policy. */
+  // Internal method
+  abstract TypeAdapter<Number> typeAdapter();
 }

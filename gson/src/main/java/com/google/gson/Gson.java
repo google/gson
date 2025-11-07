@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import static com.google.gson.BuilderHelper.immutableList;
+import static com.google.gson.GsonBuilderHelper.newImmutableList;
 
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;
@@ -134,21 +134,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class Gson {
 
-  static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
-  // Strictness of `null` is the legacy mode where some Gson APIs are always lenient
-  static final Strictness DEFAULT_STRICTNESS = null;
-  static final FormattingStyle DEFAULT_FORMATTING_STYLE = FormattingStyle.COMPACT;
-  static final boolean DEFAULT_ESCAPE_HTML = true;
-  static final boolean DEFAULT_SERIALIZE_NULLS = false;
-  static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
-  static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
-  static final boolean DEFAULT_USE_JDK_UNSAFE = true;
-  static final String DEFAULT_DATE_PATTERN = null;
-  static final FieldNamingStrategy DEFAULT_FIELD_NAMING_STRATEGY = FieldNamingPolicy.IDENTITY;
-  static final ToNumberStrategy DEFAULT_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
-  static final ToNumberStrategy DEFAULT_NUMBER_TO_NUMBER_STRATEGY =
-      ToNumberPolicy.LAZILY_PARSED_NUMBER;
-
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
   /**
@@ -254,16 +239,21 @@ public final class Gson {
     this.datePattern = builder.datePattern;
     this.dateStyle = builder.dateStyle;
     this.timeStyle = builder.timeStyle;
-    this.builderFactories = immutableList(builder.factories);
-    this.builderHierarchyFactories = immutableList(builder.hierarchyFactories);
+    this.builderFactories = newImmutableList(builder.factories);
+    this.builderHierarchyFactories = newImmutableList(builder.hierarchyFactories);
     this.objectToNumberStrategy = builder.objectToNumberStrategy;
     this.numberToNumberStrategy = builder.numberToNumberStrategy;
-    this.reflectionFilters = immutableList(builder.reflectionFilters);
-    this.constructorConstructor =
-        new ConstructorConstructor(instanceCreators, useJdkUnsafe, reflectionFilters);
-    this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
-    this.factories =
-        immutableList(builder.createFactories(constructorConstructor, jsonAdapterFactory));
+    this.reflectionFilters = newImmutableList(builder.reflectionFilters);
+    if (builder == GsonBuilder.DEFAULT) {
+      this.constructorConstructor = GsonBuilder.DEFAULT_CONSTRUCTOR_CONSTRUCTOR;
+      this.jsonAdapterFactory = GsonBuilder.DEFAULT_JSON_ADAPTER_ANNOTATION_TYPE_ADAPTER_FACTORY;
+      this.factories = GsonBuilder.DEFAULT_TYPE_ADAPTER_FACTORIES;
+    } else {
+      this.constructorConstructor =
+          new ConstructorConstructor(instanceCreators, useJdkUnsafe, reflectionFilters);
+      this.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);
+      this.factories = builder.createFactories(constructorConstructor, jsonAdapterFactory);
+    }
   }
 
   /**

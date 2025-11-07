@@ -31,7 +31,8 @@ import java.util.List;
  *
  * <p>If {@link #SUPPORTS_SQL_TYPES} is {@code true}, all other constants of this class will be
  * non-{@code null}. However, if it is {@code false} all other constants will be {@code null} and
- * there will be no support for {@code java.sql} types.
+ * {@link #SQL_TYPE_FACTORIES} will be empty, and there will be no support for {@code java.sql}
+ * types.
  */
 @SuppressWarnings("JavaUtilDate")
 public final class SqlTypesSupport {
@@ -41,9 +42,9 @@ public final class SqlTypesSupport {
   public static final DateType<? extends Date> DATE_DATE_TYPE;
   public static final DateType<? extends Date> TIMESTAMP_DATE_TYPE;
 
-  public static final TypeAdapterFactory DATE_FACTORY;
-  public static final TypeAdapterFactory TIME_FACTORY;
-  public static final TypeAdapterFactory TIMESTAMP_FACTORY;
+  static final TypeAdapterFactory DATE_FACTORY;
+  static final TypeAdapterFactory TIME_FACTORY;
+  static final TypeAdapterFactory TIMESTAMP_FACTORY;
 
   public static final List<TypeAdapterFactory> SQL_TYPE_FACTORIES;
 
@@ -79,7 +80,7 @@ public final class SqlTypesSupport {
 
       SQL_TYPE_FACTORIES =
           Collections.unmodifiableList(
-              Arrays.asList(DATE_FACTORY, TIME_FACTORY, TIMESTAMP_FACTORY));
+              Arrays.asList(TIME_FACTORY, DATE_FACTORY, TIMESTAMP_FACTORY));
     } else {
       DATE_DATE_TYPE = null;
       TIMESTAMP_DATE_TYPE = null;

@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,7 +57,8 @@ class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
   private EnumTypeAdapter(Class<T> classOfT) {
     nameToConstant = new HashMap<>();
     stringToConstant = new HashMap<>();
-    constantToName = new EnumMap<>(classOfT);
+    // Don't use `EnumMap` here; that can break when using ProGuard or R8
+    constantToName = new HashMap<>();
     try {
       // Uses reflection to find enum constants to work around name mismatches for obfuscated
       // classes
