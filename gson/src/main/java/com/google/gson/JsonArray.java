@@ -41,7 +41,7 @@ import java.util.List;
  * @author Joel Leitch
  */
 public final class JsonArray extends JsonElement implements Iterable<JsonElement> {
-  /** All elements in this list are nonnull. */
+  /** All elements in this list are non-null. */
   private final ArrayList<JsonElement> elements;
 
   @SuppressWarnings({"deprecation", "NonApiType"}) // superclass constructor
