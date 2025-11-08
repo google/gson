@@ -100,7 +100,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.6.1</version>
+        <version>3.6.2</version>
         <executions>
           <execution>
             <id>enforce-versions</id>
@@ -186,13 +186,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-artifact-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.6.1</version>
         <executions>
           <execution>
             <goals>
-              <!-- This logs a warning about `source.scm.tag=HEAD`, but this can be ignored;
-                during release Maven Release Plugin temporarily changes the `source.scm.tag`
-                value to the actual Git tag, which will then not cause a warning -->
               <goal>buildinfo</goal>
             </goals>
           </execution>
@@ -296,7 +293,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.42.0</version>
+                <version>2.43.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -412,7 +409,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-antrun-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.2.0</version>
           <executions>
             <!-- Replaces version placeholders with the current version; this is mainly useful for
               Javadoc where this allows writing `@since $next-version$` -->
@@ -480,7 +477,7 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.23.1</version>
+          <version>0.24.2</version>
           <configuration>
             <skip>${gson.isTestModule}</skip>
 
@@ -515,7 +512,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>animal-sniffer-maven-plugin</artifactId>
-          <version>1.24</version>
+          <version>1.26</version>
           <executions>
             <execution>
               <id>check-android-compatibility</id>
@@ -563,11 +560,11 @@
         </plugins>
       </build>
     </profile>
-    <!-- Disable Error Prone before Java 17 -->
+    <!-- Disable Error Prone before Java 21 -->
     <profile>
       <id>disable-error-prone</id>
       <activation>
-        <jdk>[,17)</jdk>
+        <jdk>[,21)</jdk>
       </activation>
       <build>
         <plugins>
@@ -578,6 +575,7 @@
               <compilerArgs combine.self="override">
                 <compilerArg>-Xlint:all,-options</compilerArg>
               </compilerArgs>
+              <annotationProcessorPaths combine.self="override" />
             </configuration>
           </plugin>
         </plugins>

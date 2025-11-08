@@ -14,6 +14,10 @@ on:
 permissions:
   contents: read #  to fetch code (actions/checkout)
 
+env:
+  # Common Maven arguments
+  MAVEN_ARGS: --show-version --batch-mode --no-transfer-progress
+
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
@@ -45,7 +49,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@64d10c13136e1c5bce3e5fbde8d4906eeaafc885  # v3.30.6
+      uses: github/codeql-action/init@0499de31b99561a6d14a36a5f662c2a54f91beee  # v4.31.2
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
@@ -58,9 +62,9 @@ jobs:
     - name: Compile sources (Java)
       if: ${{ matrix.language == 'java' }}
       run: |
-        mvn compile --batch-mode --no-transfer-progress
+        mvn compile
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@64d10c13136e1c5bce3e5fbde8d4906eeaafc885  # v3.30.6
+      uses: github/codeql-action/analyze@0499de31b99561a6d14a36a5f662c2a54f91beee  # v4.31.2
       with:
         category: "/language:${{ matrix.language }}"
