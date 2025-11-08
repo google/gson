@@ -44,7 +44,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   /** All elements in this list are nonnull. */
   private final ArrayList<JsonElement> elements;
 
-  @SuppressWarnings("deprecation") // superclass constructor
+  @SuppressWarnings({"deprecation", "NonApiType"}) // superclass constructor
   private JsonArray(ArrayList<JsonElement> elements) {
     this.elements = elements;
   }
