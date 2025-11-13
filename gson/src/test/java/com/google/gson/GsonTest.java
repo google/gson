@@ -28,10 +28,6 @@ import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -53,6 +49,17 @@ public final class GsonTest {
   private static final ToNumberStrategy CUSTOM_NUMBER_TO_NUMBER_STRATEGY =
       ToNumberPolicy.LAZILY_PARSED_NUMBER;
 
+  private static Gson createGson() {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gsonBuilder.excluder = CUSTOM_EXCLUDER;
+    gsonBuilder.fieldNamingPolicy = CUSTOM_FIELD_NAMING_STRATEGY;
+    gsonBuilder.serializeNulls = true;
+    gsonBuilder.disableHtmlEscaping();
+    gsonBuilder.objectToNumberStrategy = CUSTOM_OBJECT_TO_NUMBER_STRATEGY;
+    gsonBuilder.numberToNumberStrategy = CUSTOM_NUMBER_TO_NUMBER_STRATEGY;
+    return gsonBuilder.create();
+  }
+
   @Test
   public void testStrictnessDefault() {
     assertThat(new Gson().strictness).isNull();
@@ -60,29 +67,7 @@ public final class GsonTest {
 
   @Test
   public void testOverridesDefaultExcluder() {
-    Gson gson =
-        new Gson(
-            CUSTOM_EXCLUDER,
-            CUSTOM_FIELD_NAMING_STRATEGY,
-            new HashMap<>(),
-            true,
-            false,
-            true,
-            false,
-            FormattingStyle.PRETTY,
-            Strictness.LENIENT,
-            false,
-            true,
-            LongSerializationPolicy.DEFAULT,
-            null,
-            DateFormat.DEFAULT,
-            DateFormat.DEFAULT,
-            new ArrayList<>(),
-            new ArrayList<>(),
-            new ArrayList<>(),
-            CUSTOM_OBJECT_TO_NUMBER_STRATEGY,
-            CUSTOM_NUMBER_TO_NUMBER_STRATEGY,
-            Collections.emptyList());
+    Gson gson = createGson();
 
     assertThat(gson.excluder).isEqualTo(CUSTOM_EXCLUDER);
     assertThat(gson.fieldNamingStrategy()).isEqualTo(CUSTOM_FIELD_NAMING_STRATEGY);
@@ -92,29 +77,7 @@ public final class GsonTest {
 
   @Test
   public void testClonedTypeAdapterFactoryListsAreIndependent() {
-    Gson original =
-        new Gson(
-            CUSTOM_EXCLUDER,
-            CUSTOM_FIELD_NAMING_STRATEGY,
-            new HashMap<>(),
-            true,
-            false,
-            true,
-            false,
-            FormattingStyle.PRETTY,
-            Strictness.LENIENT,
-            false,
-            true,
-            LongSerializationPolicy.DEFAULT,
-            null,
-            DateFormat.DEFAULT,
-            DateFormat.DEFAULT,
-            new ArrayList<>(),
-            new ArrayList<>(),
-            new ArrayList<>(),
-            CUSTOM_OBJECT_TO_NUMBER_STRATEGY,
-            CUSTOM_NUMBER_TO_NUMBER_STRATEGY,
-            Collections.emptyList());
+    Gson original = createGson();
 
     Gson clone =
         original.newBuilder().registerTypeAdapter(int.class, new TestTypeAdapter()).create();
