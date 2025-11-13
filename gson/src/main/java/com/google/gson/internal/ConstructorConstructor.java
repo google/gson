@@ -378,7 +378,10 @@ public final class ConstructorConstructor {
      * values for older JDKs; use own LinkedTreeMap<String, Object> instead
      */
     if (rawType.isAssignableFrom(LinkedTreeMap.class) && hasStringKeyType(type)) {
-      return LinkedTreeMap::new;
+      // Must use lambda instead of method reference (`LinkedTreeMap::new`) here, otherwise this
+      // causes an exception when Gson is used by a custom system class loader, see
+      // https://github.com/google/gson/pull/2864#issuecomment-3528623716
+      return () -> new LinkedTreeMap<>();
     } else if (rawType.isAssignableFrom(LinkedHashMap.class)) {
       return LinkedHashMap::new;
     }
