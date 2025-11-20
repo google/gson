@@ -424,7 +424,7 @@ public class JsonReader implements Closeable {
    * fail at the inner {@code [true]}.
    *
    * <p>The nesting limit can help to protect against a {@link StackOverflowError} when recursive
-   * {@link TypeAdapter} implementations process deeply nested JSON data.
+   * {@link com.google.gson.TypeAdapter} implementations process deeply nested JSON data.
    *
    * <p>The default nesting limit is {@value #DEFAULT_NESTING_LIMIT}.
    *
