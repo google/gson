@@ -18,6 +18,7 @@ package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.gson.internal.bind.JsonElementTypeAdapter;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +41,7 @@ public class JsonParserParameterizedTest {
         "{\"\":1.0,\"a\":true,\"b\":null,\"c\":[],\"d\":{\"a1\":2.0,\"b2\":[true,{\"a3\":3.0}]},\"e\":[{\"f\":4.0},\"test\"]}");
   }
 
-  private final TypeAdapter<JsonElement> adapter = new Gson().getAdapter(JsonElement.class);
+  private final TypeAdapter<JsonElement> adapter = JsonElementTypeAdapter.ADAPTER;
   @Parameter public String json;
 
   @Test

@@ -16,10 +16,7 @@
 
 package com.google.gson.stream;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
-import com.google.gson.TypeAdapter;
 import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.TroubleshootingGuide;
 import com.google.gson.internal.bind.JsonTreeReader;
@@ -74,8 +71,9 @@ import java.util.Objects;
  *   <li>{@link #setNestingLimit(int)}, the default is {@value #DEFAULT_NESTING_LIMIT}
  * </ul>
  *
- * The default configuration of {@code JsonReader} instances used internally by the {@link Gson}
- * class differs, and can be adjusted with the various {@link GsonBuilder} methods.
+ * The default configuration of {@code JsonReader} instances used internally by the {@link
+ * com.google.gson.Gson} class differs, and can be adjusted with the various {@link
+ * com.google.gson.GsonBuilder} methods.
  *
  * <h2>Example</h2>
  *
@@ -426,7 +424,7 @@ public class JsonReader implements Closeable {
    * fail at the inner {@code [true]}.
    *
    * <p>The nesting limit can help to protect against a {@link StackOverflowError} when recursive
-   * {@link TypeAdapter} implementations process deeply nested JSON data.
+   * {@link com.google.gson.TypeAdapter} implementations process deeply nested JSON data.
    *
    * <p>The default nesting limit is {@value #DEFAULT_NESTING_LIMIT}.
    *
