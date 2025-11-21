@@ -50,11 +50,15 @@ class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
         }
       };
 
-  private final Map<String, T> nameToConstant = new HashMap<>();
-  private final Map<String, T> stringToConstant = new HashMap<>();
-  private final Map<T, String> constantToName = new HashMap<>();
+  private final Map<String, T> nameToConstant;
+  private final Map<String, T> stringToConstant;
+  private final Map<T, String> constantToName;
 
   private EnumTypeAdapter(Class<T> classOfT) {
+    nameToConstant = new HashMap<>();
+    stringToConstant = new HashMap<>();
+    // Don't use `EnumMap` here; that can break when using ProGuard or R8
+    constantToName = new HashMap<>();
     try {
       // Uses reflection to find enum constants to work around name mismatches for obfuscated
       // classes
