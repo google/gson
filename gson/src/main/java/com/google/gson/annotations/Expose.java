@@ -71,7 +71,7 @@ public @interface Expose {
    *
    * @since 1.4
    */
-  public boolean serialize() default true;
+  boolean serialize() default true;
 
   /**
    * If {@code true}, the field marked with this annotation is deserialized from the JSON. If {@code
@@ -80,5 +80,5 @@ public @interface Expose {
    *
    * @since 1.4
    */
-  public boolean deserialize() default true;
+  boolean deserialize() default true;
 }
