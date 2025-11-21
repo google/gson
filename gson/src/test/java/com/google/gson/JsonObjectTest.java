@@ -135,7 +135,7 @@ public class JsonObjectTest {
   public void testPropertyWithQuotes() {
     JsonObject jsonObj = new JsonObject();
     jsonObj.add("a\"b", new JsonPrimitive("c\"d"));
-    String json = new Gson().toJson(jsonObj);
+    String json = jsonObj.toString();
     assertThat(json).isEqualTo("{\"a\\\"b\":\"c\\\"d\"}");
   }
 
@@ -144,7 +144,7 @@ public class JsonObjectTest {
   public void testWritePropertyWithEmptyStringName() {
     JsonObject jsonObj = new JsonObject();
     jsonObj.add("", new JsonPrimitive(true));
-    assertThat(new Gson().toJson(jsonObj)).isEqualTo("{\"\":true}");
+    assertThat(jsonObj.toString()).isEqualTo("{\"\":true}");
   }
 
   @Test

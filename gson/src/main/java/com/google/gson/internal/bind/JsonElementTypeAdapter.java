@@ -32,8 +32,8 @@ import java.util.Deque;
 import java.util.Map;
 
 /** Adapter for {@link JsonElement} and subclasses. */
-class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
-  static final JsonElementTypeAdapter ADAPTER = new JsonElementTypeAdapter();
+public class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
+  public static final JsonElementTypeAdapter ADAPTER = new JsonElementTypeAdapter();
 
   private JsonElementTypeAdapter() {}
 
