@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
-import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -204,7 +203,7 @@ public class PerformanceTest {
     for (int i = 0; i < COLLECTION_SIZE; ++i) {
       c.list.add(new ClassWithField("element-" + i));
     }
-    StringWriter w = new StringWriter();
+    StringBuilder w = new StringBuilder();
     long t1 = System.currentTimeMillis();
     for (int i = 0; i < NUM_ITERATIONS; ++i) {
       gson.toJson(c, w);
@@ -255,7 +254,7 @@ public class PerformanceTest {
       c1.list.add(new ClassWithExposedField("element-" + i1));
     }
     ClassWithListOfObjects c = c1;
-    StringWriter w = new StringWriter();
+    StringBuilder w = new StringBuilder();
     long t1 = System.currentTimeMillis();
     for (int i = 0; i < NUM_ITERATIONS; ++i) {
       gson.toJson(c, w);

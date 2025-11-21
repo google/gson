@@ -30,7 +30,6 @@ import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -54,7 +53,7 @@ public class ReadersWritersTest {
 
   @Test
   public void testWriterForSerialization() {
-    Writer writer = new StringWriter();
+    StringBuilder writer = new StringBuilder();
     BagOfPrimitives src = new BagOfPrimitives();
     gson.toJson(src, writer);
     assertThat(writer.toString()).isEqualTo(src.getExpectedJson());
@@ -70,7 +69,7 @@ public class ReadersWritersTest {
 
   @Test
   public void testTopLevelNullObjectSerializationWithWriter() {
-    StringWriter writer = new StringWriter();
+    StringBuilder writer = new StringBuilder();
     gson.toJson(null, writer);
     assertThat(writer.toString()).isEqualTo("null");
   }
@@ -85,7 +84,7 @@ public class ReadersWritersTest {
   @Test
   public void testTopLevelNullObjectSerializationWithWriterAndSerializeNulls() {
     Gson gson = new GsonBuilder().serializeNulls().create();
-    StringWriter writer = new StringWriter();
+    StringBuilder writer = new StringBuilder();
     gson.toJson(null, writer);
     assertThat(writer.toString()).isEqualTo("null");
   }
