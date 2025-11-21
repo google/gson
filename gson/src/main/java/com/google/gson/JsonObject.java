@@ -45,6 +45,316 @@ public final class JsonObject extends JsonElement {
   public JsonObject() {}
 
   /**
+   * Creates a JsonObject with the specified member.
+   *
+   * @return a new JsonObject.
+   * @since $next-version$
+   */
+  public static JsonObject of(String key, JsonElement value) {
+    JsonObject object = new JsonObject();
+    object.add(key, value);
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified members.
+   *
+   * @return a new JsonObject.
+   * @since $next-version$
+   */
+  public static JsonObject of(String key1, JsonElement value1, String key2, JsonElement value2) {
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified members.
+   *
+   * @return a new JsonObject.
+   * @since $next-version$
+   */
+  public static JsonObject of(
+      String key1,
+      JsonElement value1,
+      String key2,
+      JsonElement value2,
+      String key3,
+      JsonElement value3) {
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified members.
+   *
+   * @return a new JsonObject.
+   * @since $next-version$
+   */
+  public static JsonObject of(
+      String key1,
+      JsonElement value1,
+      String key2,
+      JsonElement value2,
+      String key3,
+      JsonElement value3,
+      String key4,
+      JsonElement value4) {
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified members.
+   *
+   * @return a new JsonObject.
+   * @since $next-version$
+   */
+  public static JsonObject of(
+      String key1,
+      JsonElement value1,
+      String key2,
+      JsonElement value2,
+      String key3,
+      JsonElement value3,
+      String key4,
+      JsonElement value4,
+      String key5,
+      JsonElement value5) {
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified members.
+   *
+   * @return a new JsonObject.
+   * @since $next-version$
+   */
+  public static JsonObject of(
+      String key1,
+      JsonElement value1,
+      String key2,
+      JsonElement value2,
+      String key3,
+      JsonElement value3,
+      String key4,
+      JsonElement value4,
+      String key5,
+      JsonElement value5,
+      String key6,
+      JsonElement value6) {
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
+    object.add(key6, value6);
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified members.
+   *
+   * @return a new JsonObject.
+   * @since $next-version$
+   */
+  public static JsonObject of(
+      String key1,
+      JsonElement value1,
+      String key2,
+      JsonElement value2,
+      String key3,
+      JsonElement value3,
+      String key4,
+      JsonElement value4,
+      String key5,
+      JsonElement value5,
+      String key6,
+      JsonElement value6,
+      String key7,
+      JsonElement value7) {
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
+    object.add(key6, value6);
+    object.add(key7, value7);
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified members.
+   *
+   * @return a new JsonObject.
+   * @since $next-version$
+   */
+  public static JsonObject of(
+      String key1,
+      JsonElement value1,
+      String key2,
+      JsonElement value2,
+      String key3,
+      JsonElement value3,
+      String key4,
+      JsonElement value4,
+      String key5,
+      JsonElement value5,
+      String key6,
+      JsonElement value6,
+      String key7,
+      JsonElement value7,
+      String key8,
+      JsonElement value8) {
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
+    object.add(key6, value6);
+    object.add(key7, value7);
+    object.add(key8, value8);
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified members.
+   *
+   * @return a new JsonObject.
+   * @since $next-version$
+   */
+  public static JsonObject of(
+      String key1,
+      JsonElement value1,
+      String key2,
+      JsonElement value2,
+      String key3,
+      JsonElement value3,
+      String key4,
+      JsonElement value4,
+      String key5,
+      JsonElement value5,
+      String key6,
+      JsonElement value6,
+      String key7,
+      JsonElement value7,
+      String key8,
+      JsonElement value8,
+      String key9,
+      JsonElement value9) {
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
+    object.add(key6, value6);
+    object.add(key7, value7);
+    object.add(key8, value8);
+    object.add(key9, value9);
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified members.
+   *
+   * @return a new JsonObject.
+   * @since $next-version$
+   */
+  public static JsonObject of(
+      String key1,
+      JsonElement value1,
+      String key2,
+      JsonElement value2,
+      String key3,
+      JsonElement value3,
+      String key4,
+      JsonElement value4,
+      String key5,
+      JsonElement value5,
+      String key6,
+      JsonElement value6,
+      String key7,
+      JsonElement value7,
+      String key8,
+      JsonElement value8,
+      String key9,
+      JsonElement value9,
+      String key10,
+      JsonElement value10) {
+    JsonObject object = new JsonObject();
+    object.add(key1, value1);
+    object.add(key2, value2);
+    object.add(key3, value3);
+    object.add(key4, value4);
+    object.add(key5, value5);
+    object.add(key6, value6);
+    object.add(key7, value7);
+    object.add(key8, value8);
+    object.add(key9, value9);
+    object.add(key10, value10);
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified entries.
+   *
+   * @return a new JsonObject with given entries.
+   * @since $next-version$
+   */
+  @SafeVarargs
+  public static JsonObject ofEntries(Map.Entry<String, ? extends JsonElement>... entries) {
+    JsonObject object = new JsonObject();
+    for (Map.Entry<String, ? extends JsonElement> entry : entries) {
+      object.add(entry.getKey(), entry.getValue());
+    }
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject with the specified entries.
+   *
+   * @return a new JsonObject with given entries.
+   * @since $next-version$
+   */
+  public static JsonObject ofEntries(
+      Iterable<? extends Map.Entry<String, ? extends JsonElement>> entries) {
+    JsonObject object = new JsonObject();
+    for (Map.Entry<String, ? extends JsonElement> entry : entries) {
+      object.add(entry.getKey(), entry.getValue());
+    }
+    return object;
+  }
+
+  /**
+   * Creates a JsonObject from the specified map. All entries of the map will be shallow copied into
+   * the new JsonObject.
+   *
+   * @return a new JsonObject with all entries of the given map.
+   * @since $next-version$
+   */
+  public static JsonObject copyOf(Map<String, ? extends JsonElement> map) {
+    return ofEntries(map.entrySet());
+  }
+
+  /**
    * Creates a deep copy of this element and all its children.
    *
    * @since 2.8.2
