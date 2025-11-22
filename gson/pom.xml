@@ -414,32 +414,35 @@
                       <directory>${project.build.sourceDirectory}</directory>
                       <includes>
                         <include>com/google/gson/stream/*</include>
-                        <include>com/google/gson/Strictness.java</include>
                         <include>com/google/gson/FormattingStyle.java</include>
+                        <include>com/google/gson/Strictness.java</include>
+                        <!-- Exception types -->
                         <include>com/google/gson/JsonParseException.java</include>
-                        <include>com/google/gson/JsonSyntaxException.java</include>
                         <include>com/google/gson/JsonIOException.java</include>
-                        <include>com/google/gson/JsonDeserializer.java</include>
-                        <include>com/google/gson/JsonDeserializationContext.java</include>
+                        <include>com/google/gson/JsonSyntaxException.java</include>
+                        <!-- Type adapter, serializer and deserializer -->
+                        <include>com/google/gson/TypeAdapter.java</include>
                         <include>com/google/gson/JsonSerializer.java</include>
                         <include>com/google/gson/JsonSerializationContext.java</include>
+                        <include>com/google/gson/JsonDeserializer.java</include>
+                        <include>com/google/gson/JsonDeserializationContext.java</include>
+                        <!-- JsonElement and subclasses -->
                         <include>com/google/gson/JsonElement.java</include>
                         <include>com/google/gson/JsonNull.java</include>
                         <include>com/google/gson/JsonPrimitive.java</include>
                         <include>com/google/gson/JsonArray.java</include>
                         <include>com/google/gson/JsonObject.java</include>
-                        <include>com/google/gson/TypeAdapter.java</include>
                         <!-- Internal classes used by the classes above -->
-                        <include>com/google/gson/internal/JsonReaderInternalAccess.java</include>
-                        <include>com/google/gson/internal/TroubleshootingGuide.java</include>
-                        <include>com/google/gson/internal/Streams.java</include>
-                        <include>com/google/gson/internal/LazilyParsedNumber.java</include>
-                        <include>com/google/gson/internal/NumberLimits.java</include>
-                        <include>com/google/gson/internal/LinkedTreeMap.java</include>
-                        <include>com/google/gson/internal/NonNullElementWrapperList.java</include>
+                        <include>com/google/gson/internal/bind/JsonElementTypeAdapter.java</include>
                         <include>com/google/gson/internal/bind/JsonTreeReader.java</include>
                         <include>com/google/gson/internal/bind/JsonTreeWriter.java</include>
-                        <include>com/google/gson/internal/bind/JsonElementTypeAdapter.java</include>
+                        <include>com/google/gson/internal/JsonReaderInternalAccess.java</include>
+                        <include>com/google/gson/internal/LazilyParsedNumber.java</include>
+                        <include>com/google/gson/internal/LinkedTreeMap.java</include>
+                        <include>com/google/gson/internal/NonNullElementWrapperList.java</include>
+                        <include>com/google/gson/internal/NumberLimits.java</include>
+                        <include>com/google/gson/internal/Streams.java</include>
+                        <include>com/google/gson/internal/TroubleshootingGuide.java</include>
                       </includes>
                     </resource>
                   </resources>

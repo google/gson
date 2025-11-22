@@ -51,14 +51,11 @@ jobs:
 
   # Build a subset of the Gson API, see also https://github.com/google/gson/pull/2946
   build-gson-subset:
-    name: "Build Gson subset"
-    # For now allow this job to fail, since this "Gson subset" is not something official yet
-    continue-on-error: true
+    name: Build Gson subset
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
-      - name: "Set up JDK"
+      - name: Set up JDK
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165  # v5.0.0
         with:
           distribution: 'temurin'
