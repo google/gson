@@ -39,7 +39,7 @@ public interface FieldNamingStrategy {
    * @return the translated field name.
    * @since 1.3
    */
-  public String translateName(Field f);
+  String translateName(Field f);
 
   /**
    * Returns alternative names for this field when it is being deserialized. This is similar to

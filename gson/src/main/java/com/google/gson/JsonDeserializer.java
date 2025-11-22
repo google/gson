@@ -90,6 +90,6 @@ public interface JsonDeserializer<T> {
    * @return a deserialized object of the specified type typeOfT which is a subclass of {@code T}
    * @throws JsonParseException if json is not in the expected format of {@code typeOfT}
    */
-  public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+  T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
       throws JsonParseException;
 }
