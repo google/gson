@@ -387,5 +387,89 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- Profile for compiling a subset of Gson; can be executed with `mvn clean compile -pl gson -P gson-subset` -->
+    <profile>
+      <id>gson-subset</id>
+      <properties>
+        <gsonSubsetSrcDir>${project.build.directory}/gson-subset-src</gsonSubsetSrcDir>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>prepare-gson-subset-src</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${gsonSubsetSrcDir}</outputDirectory>
+                  <overwrite>true</overwrite>
+                  <resources>
+                    <resource>
+                      <directory>${project.build.sourceDirectory}</directory>
+                      <includes>
+                        <include>com/google/gson/stream/*</include>
+                        <include>com/google/gson/Strictness.java</include>
+                        <include>com/google/gson/FormattingStyle.java</include>
+                        <include>com/google/gson/JsonParseException.java</include>
+                        <include>com/google/gson/JsonSyntaxException.java</include>
+                        <include>com/google/gson/JsonIOException.java</include>
+                        <include>com/google/gson/JsonDeserializer.java</include>
+                        <include>com/google/gson/JsonDeserializationContext.java</include>
+                        <include>com/google/gson/JsonSerializer.java</include>
+                        <include>com/google/gson/JsonSerializationContext.java</include>
+                        <include>com/google/gson/JsonElement.java</include>
+                        <include>com/google/gson/JsonNull.java</include>
+                        <include>com/google/gson/JsonPrimitive.java</include>
+                        <include>com/google/gson/JsonArray.java</include>
+                        <include>com/google/gson/JsonObject.java</include>
+                        <include>com/google/gson/TypeAdapter.java</include>
+                        <!-- Internal classes used by the classes above -->
+                        <include>com/google/gson/internal/JsonReaderInternalAccess.java</include>
+                        <include>com/google/gson/internal/TroubleshootingGuide.java</include>
+                        <include>com/google/gson/internal/Streams.java</include>
+                        <include>com/google/gson/internal/LazilyParsedNumber.java</include>
+                        <include>com/google/gson/internal/NumberLimits.java</include>
+                        <include>com/google/gson/internal/LinkedTreeMap.java</include>
+                        <include>com/google/gson/internal/NonNullElementWrapperList.java</include>
+                        <include>com/google/gson/internal/bind/JsonTreeReader.java</include>
+                        <include>com/google/gson/internal/bind/JsonTreeWriter.java</include>
+                        <include>com/google/gson/internal/bind/JsonElementTypeAdapter.java</include>
+                      </includes>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <executions>
+              <execution>
+                <!-- Overwrite default compilation execution; otherwise it would run as well and maven-compiler-plugin
+                  seems to include `target/classes` as classpath for compilation, so custom compilation setup here would
+                  succeed even if classes are missing (because in that case they are taken from the classpath) -->
+                <!-- Alternative would be to use a custom id here, e.g. 'gson-subset', and then run with
+                  `mvn ... compiler:compile@gson-subset` -->
+                <id>default-compile</id>
+                <configuration>
+                  <!-- Use custom source root dir; using the default `src/main/java` would otherwise implicitly
+                    compile needed classes, even if they are not explicitly listed in `<includes>` -->
+                  <compileSourceRoots>${gsonSubsetSrcDir}</compileSourceRoots>
+                  <!-- Use custom output directory to avoid interfering with normal Gson build -->
+                  <outputDirectory>${project.build.directory}/gson-subset-classes</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>

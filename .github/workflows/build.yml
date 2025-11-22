@@ -49,6 +49,24 @@ jobs:
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
         run: mvn verify javadoc:jar ${{ matrix.extra-mvn-args || '' }}
 
+  # Build a subset of the Gson API, see also https://github.com/google/gson/pull/2946
+  build-gson-subset:
+    name: "Build Gson subset"
+    # For now allow this job to fail, since this "Gson subset" is not something official yet
+    continue-on-error: true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+      - name: "Set up JDK"
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165  # v5.0.0
+        with:
+          distribution: 'temurin'
+          java-version: 21
+          cache: 'maven'
+      - name: Build with Maven
+        run: mvn clean compile --projects gson --activate-profiles gson-subset
+
   native-image-test:
     name: "GraalVM Native Image test (JDK ${{ matrix.java }})"
     strategy:
