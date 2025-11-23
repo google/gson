@@ -89,5 +89,5 @@ public interface InstanceCreator<T> {
    * @param type the parameterized T represented as a {@link Type}.
    * @return a default object instance of type T.
    */
-  public T createInstance(Type type);
+  T createInstance(Type type);
 }

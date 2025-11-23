@@ -87,5 +87,5 @@ public interface JsonSerializer<T> {
    * @param typeOfSrc the actual type (fully genericized version) of the source object.
    * @return a JsonElement corresponding to the specified object.
    */
-  public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context);
+  JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context);
 }
