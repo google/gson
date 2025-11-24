@@ -21,8 +21,6 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.common.testing.EqualsTester;
 import com.google.gson.common.MoreAsserts;
-import com.google.gson.internal.bind.JsonElementTypeAdapter;
-import java.io.IOException;
 import java.math.BigInteger;
 import org.junit.Test;
 
@@ -130,10 +128,10 @@ public final class JsonArrayTest {
   }
 
   @Test
-  public void testFailedGetArrayValues() throws IOException {
+  public void testFailedGetArrayValues() {
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(
-        JsonElementTypeAdapter.ADAPTER.fromJson(
+        JsonParser.parseString(
             "{"
                 + "\"key1\":\"value1\","
                 + "\"key2\":\"value2\","

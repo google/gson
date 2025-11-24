@@ -413,7 +413,6 @@
                     <resource>
                       <directory>${project.build.sourceDirectory}</directory>
                       <includes>
-                        <include>com/google/gson/stream/*</include>
                         <include>com/google/gson/FormattingStyle.java</include>
                         <include>com/google/gson/JsonArray.java</include>
                         <include>com/google/gson/JsonElement.java</include>
@@ -421,14 +420,20 @@
                         <include>com/google/gson/JsonNull.java</include>
                         <include>com/google/gson/JsonObject.java</include>
                         <include>com/google/gson/JsonParseException.java</include>
+                        <include>com/google/gson/JsonParser.java</include>
                         <include>com/google/gson/JsonPrimitive.java</include>
+                        <include>com/google/gson/JsonStreamParser.java</include>
                         <include>com/google/gson/JsonSyntaxException.java</include>
                         <include>com/google/gson/Strictness.java</include>
                         <include>com/google/gson/TypeAdapter.java</include>
+                        <include>com/google/gson/package-info.java</include>
+                        <include>com/google/gson/stream/JsonReader.java</include>
+                        <include>com/google/gson/stream/JsonScope.java</include>
+                        <include>com/google/gson/stream/JsonToken.java</include>
+                        <include>com/google/gson/stream/JsonWriter.java</include>
+                        <include>com/google/gson/stream/MalformedJsonException.java</include>
+                        <include>com/google/gson/stream/package-info.java</include>
                         <!-- Internal classes used by the classes above -->
-                        <include>com/google/gson/internal/bind/JsonElementTypeAdapter.java</include>
-                        <include>com/google/gson/internal/bind/JsonTreeReader.java</include>
-                        <include>com/google/gson/internal/bind/JsonTreeWriter.java</include>
                         <include>com/google/gson/internal/JsonReaderInternalAccess.java</include>
                         <include>com/google/gson/internal/LazilyParsedNumber.java</include>
                         <include>com/google/gson/internal/LinkedTreeMap.java</include>
@@ -436,6 +441,9 @@
                         <include>com/google/gson/internal/NumberLimits.java</include>
                         <include>com/google/gson/internal/Streams.java</include>
                         <include>com/google/gson/internal/TroubleshootingGuide.java</include>
+                        <include>com/google/gson/internal/bind/JsonElementTypeAdapter.java</include>
+                        <include>com/google/gson/internal/bind/JsonTreeReader.java</include>
+                        <include>com/google/gson/internal/bind/JsonTreeWriter.java</include>
                       </includes>
                     </resource>
                   </resources>
@@ -485,7 +493,9 @@
                     <testInclude>com/google/gson/JsonObjectAsMapSuiteTest.java</testInclude>
                     <testInclude>com/google/gson/JsonObjectAsMapTest.java</testInclude>
                     <testInclude>com/google/gson/JsonObjectTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonParserParameterizedTest.java</testInclude>
                     <testInclude>com/google/gson/JsonPrimitiveTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonStreamParserTest.java</testInclude>
                     <testInclude>com/google/gson/SubsetTest.java</testInclude>
                     <testInclude>com/google/gson/TypeAdapterTest.java</testInclude>
                   </testIncludes>
