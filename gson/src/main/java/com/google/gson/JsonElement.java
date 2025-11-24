@@ -20,7 +20,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -45,7 +44,7 @@ import java.math.BigInteger;
  *       <pre>
  * JsonObject jsonObject = JsonParser.parseString("{}").getAsJsonObject();
  * </pre>
- *   <li>{@link Gson#fromJson(Reader, Class) Gson.fromJson(..., JsonElement.class)}<br>
+ *   <li>{@link Gson#fromJson(java.io.Reader, Class) Gson.fromJson(..., JsonElement.class)}<br>
  *       It is possible to directly specify a {@code JsonElement} subclass, for example:
  *       <pre>
  * JsonObject jsonObject = gson.fromJson("{}", JsonObject.class);

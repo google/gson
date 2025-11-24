@@ -387,5 +387,132 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- Profile for building a subset of Gson; can be executed with `mvn clean test -pl gson -P gson-subset` -->
+    <profile>
+      <id>gson-subset</id>
+      <properties>
+        <gsonSubsetSrcDir>${project.build.directory}/gson-subset-src</gsonSubsetSrcDir>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>prepare-gson-subset-src</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${gsonSubsetSrcDir}</outputDirectory>
+                  <overwrite>true</overwrite>
+                  <resources>
+                    <resource>
+                      <directory>${project.build.sourceDirectory}</directory>
+                      <includes>
+                        <include>com/google/gson/FormattingStyle.java</include>
+                        <include>com/google/gson/JsonArray.java</include>
+                        <include>com/google/gson/JsonElement.java</include>
+                        <include>com/google/gson/JsonIOException.java</include>
+                        <include>com/google/gson/JsonNull.java</include>
+                        <include>com/google/gson/JsonObject.java</include>
+                        <include>com/google/gson/JsonParseException.java</include>
+                        <include>com/google/gson/JsonParser.java</include>
+                        <include>com/google/gson/JsonPrimitive.java</include>
+                        <include>com/google/gson/JsonStreamParser.java</include>
+                        <include>com/google/gson/JsonSyntaxException.java</include>
+                        <include>com/google/gson/Strictness.java</include>
+                        <include>com/google/gson/TypeAdapter.java</include>
+                        <include>com/google/gson/package-info.java</include>
+                        <include>com/google/gson/stream/JsonReader.java</include>
+                        <include>com/google/gson/stream/JsonScope.java</include>
+                        <include>com/google/gson/stream/JsonToken.java</include>
+                        <include>com/google/gson/stream/JsonWriter.java</include>
+                        <include>com/google/gson/stream/MalformedJsonException.java</include>
+                        <include>com/google/gson/stream/package-info.java</include>
+                        <!-- Internal classes used by the classes above -->
+                        <include>com/google/gson/internal/JsonReaderInternalAccess.java</include>
+                        <include>com/google/gson/internal/LazilyParsedNumber.java</include>
+                        <include>com/google/gson/internal/LinkedTreeMap.java</include>
+                        <include>com/google/gson/internal/NonNullElementWrapperList.java</include>
+                        <include>com/google/gson/internal/NumberLimits.java</include>
+                        <include>com/google/gson/internal/Streams.java</include>
+                        <include>com/google/gson/internal/TroubleshootingGuide.java</include>
+                        <include>com/google/gson/internal/bind/JsonElementTypeAdapter.java</include>
+                        <include>com/google/gson/internal/bind/JsonTreeReader.java</include>
+                        <include>com/google/gson/internal/bind/JsonTreeWriter.java</include>
+                      </includes>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <executions>
+              <execution>
+                <!-- Overwrite default compilation execution; otherwise the default would run as well and maven-compiler-plugin
+                  seems to include `target/classes` as classpath for compilation, so custom compilation setup here would
+                  succeed even if classes are missing (because in that case they are taken from the classpath) -->
+                <!-- Alternative would be to use a custom id here, e.g. 'gson-subset', and then run with
+                  `mvn ... compiler:compile@gson-subset` -->
+                <id>default-compile</id>
+                <configuration>
+                  <!-- Use custom source root dir; using the default `src/main/java` would otherwise implicitly
+                    compile needed classes, even if they are not explicitly listed in `<includes>` -->
+                  <compileSourceRoots>${gsonSubsetSrcDir}</compileSourceRoots>
+                </configuration>
+              </execution>
+              <execution>
+                <!-- Overwrite default test compilation execution, to only build a subset of the tests -->
+                <id>default-testCompile</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>testCompile</goal>
+                </goals>
+                <configuration>
+                  <testIncludes>
+                    <testInclude>com/google/gson/internal/bind/JsonTreeReaderTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/bind/JsonTreeWriterTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/LazilyParsedNumberTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/LinkedTreeMapSuiteTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/LinkedTreeMapTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/StreamsTest.java</testInclude>
+                    <testInclude>com/google/gson/stream/JsonReaderPathTest.java</testInclude>
+                    <testInclude>com/google/gson/stream/JsonReaderTest.java</testInclude>
+                    <testInclude>com/google/gson/stream/JsonWriterTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonArrayAsListSuiteTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonArrayAsListTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonArrayTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonNullTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonObjectAsMapSuiteTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonObjectAsMapTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonObjectTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonParserParameterizedTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonPrimitiveTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonStreamParserTest.java</testInclude>
+                    <testInclude>com/google/gson/SubsetTest.java</testInclude>
+                    <testInclude>com/google/gson/TypeAdapterTest.java</testInclude>
+                  </testIncludes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Skip ProGuard execution configured above for obfuscation tests; they cannot run for Gson subset -->
+          <plugin>
+            <groupId>com.github.wvengen</groupId>
+            <artifactId>proguard-maven-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>
