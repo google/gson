@@ -388,7 +388,7 @@
       </build>
     </profile>
 
-    <!-- Profile for compiling a subset of Gson; can be executed with `mvn clean compile -pl gson -P gson-subset` -->
+    <!-- Profile for building a subset of Gson; can be executed with `mvn clean test -pl gson -P gson-subset` -->
     <profile>
       <id>gson-subset</id>
       <properties>
@@ -448,7 +448,7 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <executions>
               <execution>
-                <!-- Overwrite default compilation execution; otherwise it would run as well and maven-compiler-plugin
+                <!-- Overwrite default compilation execution; otherwise the default would run as well and maven-compiler-plugin
                   seems to include `target/classes` as classpath for compilation, so custom compilation setup here would
                   succeed even if classes are missing (because in that case they are taken from the classpath) -->
                 <!-- Alternative would be to use a custom id here, e.g. 'gson-subset', and then run with
@@ -458,11 +458,48 @@
                   <!-- Use custom source root dir; using the default `src/main/java` would otherwise implicitly
                     compile needed classes, even if they are not explicitly listed in `<includes>` -->
                   <compileSourceRoots>${gsonSubsetSrcDir}</compileSourceRoots>
-                  <!-- Use custom output directory to avoid interfering with normal Gson build -->
-                  <outputDirectory>${project.build.directory}/gson-subset-classes</outputDirectory>
+                </configuration>
+              </execution>
+              <execution>
+                <!-- Overwrite default test compilation execution, to only build a subset of the tests -->
+                <id>default-testCompile</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>testCompile</goal>
+                </goals>
+                <configuration>
+                  <testIncludes>
+                    <testInclude>com/google/gson/internal/bind/JsonTreeReaderTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/bind/JsonTreeWriterTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/LazilyParsedNumberTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/LinkedTreeMapSuiteTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/LinkedTreeMapTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/StreamsTest.java</testInclude>
+                    <testInclude>com/google/gson/stream/JsonReaderPathTest.java</testInclude>
+                    <testInclude>com/google/gson/stream/JsonReaderTest.java</testInclude>
+                    <testInclude>com/google/gson/stream/JsonWriterTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonArrayAsListSuiteTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonArrayAsListTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonArrayTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonNullTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonObjectAsMapSuiteTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonObjectAsMapTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonObjectTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonPrimitiveTest.java</testInclude>
+                    <testInclude>com/google/gson/SubsetTest.java</testInclude>
+                    <testInclude>com/google/gson/TypeAdapterTest.java</testInclude>
+                  </testIncludes>
                 </configuration>
               </execution>
             </executions>
+          </plugin>
+          <!-- Skip ProGuard execution configured above for obfuscation tests; they cannot run for Gson subset -->
+          <plugin>
+            <groupId>com.github.wvengen</groupId>
+            <artifactId>proguard-maven-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
           </plugin>
         </plugins>
       </build>

@@ -21,6 +21,8 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.common.testing.EqualsTester;
 import com.google.gson.common.MoreAsserts;
+import com.google.gson.internal.bind.JsonElementTypeAdapter;
+import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -148,8 +150,8 @@ public class JsonObjectTest {
   }
 
   @Test
-  public void testReadPropertyWithEmptyStringName() {
-    JsonObject jsonObj = JsonParser.parseString("{\"\":true}").getAsJsonObject();
+  public void testReadPropertyWithEmptyStringName() throws IOException {
+    JsonObject jsonObj = JsonElementTypeAdapter.ADAPTER.fromJson("{\"\":true}").getAsJsonObject();
     assertThat(jsonObj.get("").getAsBoolean()).isTrue();
   }
 

@@ -2,14 +2,16 @@ package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.gson.internal.bind.JsonElementTypeAdapter;
+import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
 
 /** Tests that we can parse and create JSON using the {@link JsonElement} subset. */
 public final class SubsetTest {
   @Test
-  public void read() {
-    JsonElement json = JsonParser.parseString("{\"a\":1,\"b\":[2.1, null]}");
+  public void read() throws IOException {
+    JsonElement json = JsonElementTypeAdapter.ADAPTER.fromJson("{\"a\":1,\"b\":[2.1, null]}");
     assertThat(json.isJsonObject()).isTrue();
     JsonObject jsonObject = json.getAsJsonObject();
     assertThat(jsonObject.get("a").getAsInt()).isEqualTo(1);

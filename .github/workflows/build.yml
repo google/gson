@@ -62,7 +62,7 @@ jobs:
           java-version: 21
           cache: 'maven'
       - name: Build with Maven
-        run: mvn clean compile --projects gson --activate-profiles gson-subset
+        run: mvn clean test --projects gson --activate-profiles gson-subset
 
   native-image-test:
     name: "GraalVM Native Image test (JDK ${{ matrix.java }})"
