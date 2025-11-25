@@ -16,8 +16,6 @@
 
 package com.google.gson;
 
-import static com.google.gson.internal.bind.TypeAdapters.*;
-
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
@@ -59,6 +57,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
+
+import static com.google.gson.internal.bind.TypeAdapters.atomicLongAdapter;
+import static com.google.gson.internal.bind.TypeAdapters.atomicLongArrayAdapter;
+import static com.google.gson.internal.bind.TypeAdapters.doubleAdapter;
+import static com.google.gson.internal.bind.TypeAdapters.floatAdapter;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a Gson
