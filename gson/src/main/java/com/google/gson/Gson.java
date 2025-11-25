@@ -16,11 +16,13 @@
 
 package com.google.gson;
 
+import static com.google.gson.internal.bind.TypeAdapters.atomicLongAdapter;
+import static com.google.gson.internal.bind.TypeAdapters.atomicLongArrayAdapter;
+
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.GsonBuildConfig;
-import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.Primitives;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.ArrayTypeAdapter;
@@ -47,8 +49,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -337,14 +337,10 @@ public final class Gson {
     factories.add(TypeAdapters.BOOLEAN_FACTORY);
     factories.add(TypeAdapters.BYTE_FACTORY);
     factories.add(TypeAdapters.SHORT_FACTORY);
-    TypeAdapter<Number> longAdapter = longAdapter(longSerializationPolicy);
+    TypeAdapter<Number> longAdapter = longSerializationPolicy.typeAdapter();
     factories.add(TypeAdapters.newFactory(long.class, Long.class, longAdapter));
-    factories.add(
-        TypeAdapters.newFactory(
-            double.class, Double.class, doubleAdapter(serializeSpecialFloatingPointValues)));
-    factories.add(
-        TypeAdapters.newFactory(
-            float.class, Float.class, floatAdapter(serializeSpecialFloatingPointValues)));
+    factories.add(TypeAdapters.newFactory(double.class, Double.class, doubleAdapter()));
+    factories.add(TypeAdapters.newFactory(float.class, Float.class, floatAdapter()));
     factories.add(NumberTypeAdapter.getFactory(numberToNumberStrategy));
     factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
     factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
@@ -355,12 +351,11 @@ public final class Gson {
     factories.add(TypeAdapters.CHARACTER_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
     factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
-    factories.add(TypeAdapters.newFactory(BigDecimal.class, TypeAdapters.BIG_DECIMAL));
-    factories.add(TypeAdapters.newFactory(BigInteger.class, TypeAdapters.BIG_INTEGER));
+    factories.add(TypeAdapters.BIG_DECIMAL_FACTORY);
+    factories.add(TypeAdapters.BIG_INTEGER_FACTORY);
     // Add adapter for LazilyParsedNumber because user can obtain it from Gson and then try to
     // serialize it again
-    factories.add(
-        TypeAdapters.newFactory(LazilyParsedNumber.class, TypeAdapters.LAZILY_PARSED_NUMBER));
+    factories.add(TypeAdapters.LAZILY_PARSED_NUMBER_FACTORY);
     factories.add(TypeAdapters.URL_FACTORY);
     factories.add(TypeAdapters.URI_FACTORY);
     factories.add(TypeAdapters.UUID_FACTORY);
@@ -370,17 +365,11 @@ public final class Gson {
     factories.add(TypeAdapters.BIT_SET_FACTORY);
     factories.add(DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
     factories.add(TypeAdapters.CALENDAR_FACTORY);
+    factories.addAll(SqlTypesSupport.SQL_TYPE_FACTORIES);
     TypeAdapterFactory javaTimeFactory = TypeAdapters.javaTimeTypeAdapterFactory();
     if (javaTimeFactory != null) {
       factories.add(javaTimeFactory);
     }
-
-    if (SqlTypesSupport.SUPPORTS_SQL_TYPES) {
-      factories.add(SqlTypesSupport.TIME_FACTORY);
-      factories.add(SqlTypesSupport.DATE_FACTORY);
-      factories.add(SqlTypesSupport.TIMESTAMP_FACTORY);
-    }
-
     factories.add(ArrayTypeAdapter.FACTORY);
     factories.add(TypeAdapters.CLASS_FACTORY);
 
@@ -450,141 +439,12 @@ public final class Gson {
     return htmlSafe;
   }
 
-  private TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
-    if (serializeSpecialFloatingPointValues) {
-      return TypeAdapters.DOUBLE;
-    }
-    return new TypeAdapter<Number>() {
-      @Override
-      public Double read(JsonReader in) throws IOException {
-        if (in.peek() == JsonToken.NULL) {
-          in.nextNull();
-          return null;
-        }
-        return in.nextDouble();
-      }
-
-      @Override
-      public void write(JsonWriter out, Number value) throws IOException {
-        if (value == null) {
-          out.nullValue();
-          return;
-        }
-        double doubleValue = value.doubleValue();
-        checkValidFloatingPoint(doubleValue);
-        out.value(doubleValue);
-      }
-    };
+  private TypeAdapter<Number> floatAdapter() {
+    return serializeSpecialFloatingPointValues ? TypeAdapters.FLOAT : TypeAdapters.FLOAT_STRICT;
   }
 
-  private TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
-    if (serializeSpecialFloatingPointValues) {
-      return TypeAdapters.FLOAT;
-    }
-    return new TypeAdapter<Number>() {
-      @Override
-      public Float read(JsonReader in) throws IOException {
-        if (in.peek() == JsonToken.NULL) {
-          in.nextNull();
-          return null;
-        }
-        return (float) in.nextDouble();
-      }
-
-      @Override
-      public void write(JsonWriter out, Number value) throws IOException {
-        if (value == null) {
-          out.nullValue();
-          return;
-        }
-        float floatValue = value.floatValue();
-        checkValidFloatingPoint(floatValue);
-        // For backward compatibility don't call `JsonWriter.value(float)` because that method has
-        // been newly added and not all custom JsonWriter implementations might override it yet
-        Number floatNumber = value instanceof Float ? value : floatValue;
-        out.value(floatNumber);
-      }
-    };
-  }
-
-  static void checkValidFloatingPoint(double value) {
-    if (Double.isNaN(value) || Double.isInfinite(value)) {
-      throw new IllegalArgumentException(
-          value
-              + " is not a valid double value as per JSON specification. To override this"
-              + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
-    }
-  }
-
-  private static TypeAdapter<Number> longAdapter(LongSerializationPolicy longSerializationPolicy) {
-    if (longSerializationPolicy == LongSerializationPolicy.DEFAULT) {
-      return TypeAdapters.LONG;
-    }
-    return new TypeAdapter<Number>() {
-      @Override
-      public Number read(JsonReader in) throws IOException {
-        if (in.peek() == JsonToken.NULL) {
-          in.nextNull();
-          return null;
-        }
-        return in.nextLong();
-      }
-
-      @Override
-      public void write(JsonWriter out, Number value) throws IOException {
-        if (value == null) {
-          out.nullValue();
-          return;
-        }
-        out.value(value.toString());
-      }
-    };
-  }
-
-  private static TypeAdapter<AtomicLong> atomicLongAdapter(TypeAdapter<Number> longAdapter) {
-    return new TypeAdapter<AtomicLong>() {
-      @Override
-      public void write(JsonWriter out, AtomicLong value) throws IOException {
-        longAdapter.write(out, value.get());
-      }
-
-      @Override
-      public AtomicLong read(JsonReader in) throws IOException {
-        Number value = longAdapter.read(in);
-        return new AtomicLong(value.longValue());
-      }
-    }.nullSafe();
-  }
-
-  private static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(
-      TypeAdapter<Number> longAdapter) {
-    return new TypeAdapter<AtomicLongArray>() {
-      @Override
-      public void write(JsonWriter out, AtomicLongArray value) throws IOException {
-        out.beginArray();
-        for (int i = 0, length = value.length(); i < length; i++) {
-          longAdapter.write(out, value.get(i));
-        }
-        out.endArray();
-      }
-
-      @Override
-      public AtomicLongArray read(JsonReader in) throws IOException {
-        List<Long> list = new ArrayList<>();
-        in.beginArray();
-        while (in.hasNext()) {
-          long value = longAdapter.read(in).longValue();
-          list.add(value);
-        }
-        in.endArray();
-        int length = list.size();
-        AtomicLongArray array = new AtomicLongArray(length);
-        for (int i = 0; i < length; ++i) {
-          array.set(i, list.get(i));
-        }
-        return array;
-      }
-    }.nullSafe();
+  private TypeAdapter<Number> doubleAdapter() {
+    return serializeSpecialFloatingPointValues ? TypeAdapters.DOUBLE : TypeAdapters.DOUBLE_STRICT;
   }
 
   /**
