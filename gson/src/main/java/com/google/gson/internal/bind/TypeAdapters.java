@@ -1027,8 +1027,8 @@ public final class TypeAdapters {
             adapter = ZONE_OFFSET;
           } else if (ZoneId.class.isAssignableFrom(rawType)) {
             adapter = ZONE_REGION;
-          // } else if (rawType == ZonedDateTime.class) {
-          //   adapter = ZONED_DATE_TIME;
+            // } else if (rawType == ZonedDateTime.class) {
+            //   adapter = ZONED_DATE_TIME;
           }
           @SuppressWarnings("unchecked")
           TypeAdapter<T> result = (TypeAdapter<T>) adapter;

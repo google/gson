@@ -880,9 +880,7 @@ public class DefaultTypeAdaptersTest {
   public void testJavaZonedDateTime() {
     ZonedDateTime zonedDateTime =
         ZonedDateTime.of(
-            LocalDate.of(2021, 12, 2),
-            LocalTime.of(12, 34, 56, 789_012_345),
-            ZoneOffset.UTC);
+            LocalDate.of(2021, 12, 2), LocalTime.of(12, 34, 56, 789_012_345), ZoneOffset.UTC);
     String json =
         "{\"dateTime\":{\"date\":{\"year\":2021,\"month\":12,\"day\":2},"
             + "\"time\":{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345}},"
