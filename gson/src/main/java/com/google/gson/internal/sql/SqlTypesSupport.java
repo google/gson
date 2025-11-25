@@ -19,7 +19,10 @@ package com.google.gson.internal.sql;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter.DateType;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Encapsulates access to {@code java.sql} types, to allow Gson to work without the {@code java.sql}
@@ -41,6 +44,8 @@ public final class SqlTypesSupport {
   public static final TypeAdapterFactory DATE_FACTORY;
   public static final TypeAdapterFactory TIME_FACTORY;
   public static final TypeAdapterFactory TIMESTAMP_FACTORY;
+
+  public static final List<TypeAdapterFactory> SQL_TYPE_FACTORIES;
 
   static {
     boolean sqlTypesSupport;
@@ -71,6 +76,10 @@ public final class SqlTypesSupport {
       DATE_FACTORY = SqlDateTypeAdapter.FACTORY;
       TIME_FACTORY = SqlTimeTypeAdapter.FACTORY;
       TIMESTAMP_FACTORY = SqlTimestampTypeAdapter.FACTORY;
+
+      SQL_TYPE_FACTORIES =
+          Collections.unmodifiableList(
+              Arrays.asList(TIME_FACTORY, DATE_FACTORY, TIMESTAMP_FACTORY));
     } else {
       DATE_DATE_TYPE = null;
       TIMESTAMP_DATE_TYPE = null;
@@ -78,6 +87,8 @@ public final class SqlTypesSupport {
       DATE_FACTORY = null;
       TIME_FACTORY = null;
       TIMESTAMP_FACTORY = null;
+
+      SQL_TYPE_FACTORIES = Collections.emptyList();
     }
   }
 
