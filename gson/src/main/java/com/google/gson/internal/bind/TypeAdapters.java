@@ -849,7 +849,7 @@ public final class TypeAdapters {
         }
       };
 
-  public static TypeAdapter<LocalDateTime> LOCAL_DATE_TIME =
+  public static final TypeAdapter<LocalDateTime> LOCAL_DATE_TIME =
       new TypeAdapter<LocalDateTime>() {
         @Override
         public LocalDateTime read(JsonReader in) throws IOException {
@@ -874,9 +874,8 @@ public final class TypeAdapters {
             }
           }
           in.endObject();
-          return LocalDateTime.of(
-              requireNonNull(localDate, "Missing date field"),
-              requireNonNull(localTime, "Missing time field"));
+          return requireNonNull(localTime, "Missing time field")
+              .atDate(requireNonNull(localDate, "Missing date field"));
         }
 
         @Override
