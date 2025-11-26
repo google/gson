@@ -30,8 +30,10 @@ import java.util.List;
  * java.sql} module is not present.
  *
  * <p>If {@link #SUPPORTS_SQL_TYPES} is {@code true}, all other constants of this class will be
- * non-{@code null}. However, if it is {@code false} all other constants will be {@code null} and
- * there will be no support for {@code java.sql} types.
+ * non-{@code null} and {@link #SQL_TYPE_FACTORIES} will contain the SQL type adapter factories.
+ * However, if it is {@code false} all other constants will be {@code null} and {@link
+ * #SQL_TYPE_FACTORIES} will be an empty list, and there will be no support for {@code java.sql}
+ * types.
  */
 @SuppressWarnings("JavaUtilDate")
 public final class SqlTypesSupport {
