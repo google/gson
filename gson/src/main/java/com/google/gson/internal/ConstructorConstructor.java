@@ -143,7 +143,7 @@ public final class ConstructorConstructor {
     // of adjusting filter suggested below is irrelevant since it would not solve the problem
     String exceptionMessage = checkInstantiable(rawType);
     if (exceptionMessage != null) {
-      return new ExceptionObjectConstructor<>(exceptionMessage);
+      return new ThrowingObjectConstructor<>(exceptionMessage);
     }
 
     if (!allowUnsafe) {
@@ -151,7 +151,7 @@ public final class ConstructorConstructor {
           "Unable to create instance of "
               + rawType
               + "; Register an InstanceCreator or a TypeAdapter for this type.";
-      return new ExceptionObjectConstructor<>(message);
+      return new ThrowingObjectConstructor<>(message);
     }
 
     // Consider usage of Unsafe as reflection, so don't use if BLOCK_ALL
@@ -163,7 +163,7 @@ public final class ConstructorConstructor {
               + "; ReflectionAccessFilter does not permit using reflection or Unsafe. Register an"
               + " InstanceCreator or a TypeAdapter for this type or adjust the access filter to"
               + " allow using reflection.";
-      return new ExceptionObjectConstructor<>(message);
+      return new ThrowingObjectConstructor<>(message);
     }
 
     // finally try unsafe
@@ -244,7 +244,7 @@ public final class ConstructorConstructor {
               + " constructor is not accessible and ReflectionAccessFilter does not permit making"
               + " it accessible. Register an InstanceCreator or a TypeAdapter for this type, change"
               + " the visibility of the constructor or adjust the access filter.";
-      return new ExceptionObjectConstructor<>(message);
+      return new ThrowingObjectConstructor<>(message);
     }
 
     // Only try to make accessible if allowed; in all other cases checks above should
@@ -252,7 +252,7 @@ public final class ConstructorConstructor {
     if (filterResult == FilterResult.ALLOW) {
       String exceptionMessage = ReflectionHelper.tryMakeAccessible(constructor);
       if (exceptionMessage != null) {
-        return new ExceptionObjectConstructor<>(exceptionMessage);
+        return new ThrowingObjectConstructor<>(exceptionMessage);
       }
     }
 
@@ -413,7 +413,7 @@ public final class ConstructorConstructor {
             " Or adjust your R8 configuration to keep the no-args constructor of the class.";
       }
 
-      return new ExceptionObjectConstructor<>(exceptionMessage);
+      return new ThrowingObjectConstructor<>(exceptionMessage);
     }
   }
 
@@ -422,25 +422,28 @@ public final class ConstructorConstructor {
     return instanceCreators.toString();
   }
 
-  /*
-   * Create ObjectConstructor which throws exception.
-   * This keeps backward compatibility (compared to returning `null` which
-   * would then choose another way of creating object).
-   * And it supports types which are only serialized but not deserialized
-   * (compared to directly throwing exception here), e.g. when runtime type
-   * of object is inaccessible, but compile-time type is accessible.
+  /**
+   * {@link ObjectConstructor} which always throws an exception.
+   *
+   * <p>This keeps backward compatibility, compared to using a {@code null} {@code
+   * ObjectConstructor}, which would then choose another way of creating the object. And it supports
+   * types which are only serialized but not deserialized (compared to directly throwing an
+   * exception when the {@code ObjectConstructor} is requested), e.g. when the runtime type of an
+   * object is inaccessible, but the compile-time type is accessible.
    */
-  private static final class ExceptionObjectConstructor<T> implements ObjectConstructor<T> {
+  private static final class ThrowingObjectConstructor<T> implements ObjectConstructor<T> {
     private final String exceptionMessage;
 
-    ExceptionObjectConstructor(String exceptionMessage) {
+    ThrowingObjectConstructor(String exceptionMessage) {
       this.exceptionMessage = exceptionMessage;
     }
 
     @Override
     public T construct() {
-      // New exception is created every time to avoid keeping a reference to an exception with potentially long stack trace, causing a memory leak
-      // (which would happen if the exception was already created when the `ExceptionObjectConstructor` is created)
+      // New exception is created every time to avoid keeping a reference to an exception with
+      // potentially long stack trace, causing a memory leak
+      // (which would happen if the exception was already created when the
+      // `ExceptionObjectConstructor` is created)
       throw new JsonIOException(exceptionMessage);
     }
   }
