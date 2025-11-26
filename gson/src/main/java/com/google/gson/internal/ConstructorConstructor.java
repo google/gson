@@ -109,14 +109,14 @@ public final class ConstructorConstructor {
     @SuppressWarnings("unchecked") // types must agree
     InstanceCreator<T> typeCreator = (InstanceCreator<T>) instanceCreators.get(type);
     if (typeCreator != null) {
-      return () -> typeCreator.createInstance(type);
+      return new InstanceCreatorConstructor<>(typeCreator, type);
     }
 
     // Next try raw type match for instance creators
     @SuppressWarnings("unchecked") // types must agree
     InstanceCreator<T> rawTypeCreator = (InstanceCreator<T>) instanceCreators.get(rawType);
     if (rawTypeCreator != null) {
-      return () -> rawTypeCreator.createInstance(type);
+      return new InstanceCreatorConstructor<>(rawTypeCreator, type);
     }
 
     // First consider special constructors before checking for no-args constructors
@@ -143,9 +143,7 @@ public final class ConstructorConstructor {
     // of adjusting filter suggested below is irrelevant since it would not solve the problem
     String exceptionMessage = checkInstantiable(rawType);
     if (exceptionMessage != null) {
-      return () -> {
-        throw new JsonIOException(exceptionMessage);
-      };
+      return new ThrowingObjectConstructor<>(exceptionMessage);
     }
 
     if (!allowUnsafe) {
@@ -153,9 +151,7 @@ public final class ConstructorConstructor {
           "Unable to create instance of "
               + rawType
               + "; Register an InstanceCreator or a TypeAdapter for this type.";
-      return () -> {
-        throw new JsonIOException(message);
-      };
+      return new ThrowingObjectConstructor<>(message);
     }
 
     // Consider usage of Unsafe as reflection, so don't use if BLOCK_ALL
@@ -167,9 +163,7 @@ public final class ConstructorConstructor {
               + "; ReflectionAccessFilter does not permit using reflection or Unsafe. Register an"
               + " InstanceCreator or a TypeAdapter for this type or adjust the access filter to"
               + " allow using reflection.";
-      return () -> {
-        throw new JsonIOException(message);
-      };
+      return new ThrowingObjectConstructor<>(message);
     }
 
     // finally try unsafe
@@ -191,10 +185,10 @@ public final class ConstructorConstructor {
             T set = (T) EnumSet.noneOf((Class) elementType);
             return set;
           } else {
-            throw new JsonIOException("Invalid EnumSet type: " + type.toString());
+            throw new JsonIOException("Invalid EnumSet type: " + type);
           }
         } else {
-          throw new JsonIOException("Invalid EnumSet type: " + type.toString());
+          throw new JsonIOException("Invalid EnumSet type: " + type);
         }
       };
     }
@@ -209,10 +203,10 @@ public final class ConstructorConstructor {
             T map = (T) new EnumMap((Class) elementType);
             return map;
           } else {
-            throw new JsonIOException("Invalid EnumMap type: " + type.toString());
+            throw new JsonIOException("Invalid EnumMap type: " + type);
           }
         } else {
-          throw new JsonIOException("Invalid EnumMap type: " + type.toString());
+          throw new JsonIOException("Invalid EnumMap type: " + type);
         }
       };
     }
@@ -250,9 +244,7 @@ public final class ConstructorConstructor {
               + " constructor is not accessible and ReflectionAccessFilter does not permit making"
               + " it accessible. Register an InstanceCreator or a TypeAdapter for this type, change"
               + " the visibility of the constructor or adjust the access filter.";
-      return () -> {
-        throw new JsonIOException(message);
-      };
+      return new ThrowingObjectConstructor<>(message);
     }
 
     // Only try to make accessible if allowed; in all other cases checks above should
@@ -260,20 +252,7 @@ public final class ConstructorConstructor {
     if (filterResult == FilterResult.ALLOW) {
       String exceptionMessage = ReflectionHelper.tryMakeAccessible(constructor);
       if (exceptionMessage != null) {
-        /*
-         * Create ObjectConstructor which throws exception.
-         * This keeps backward compatibility (compared to returning `null` which
-         * would then choose another way of creating object).
-         * And it supports types which are only serialized but not deserialized
-         * (compared to directly throwing exception here), e.g. when runtime type
-         * of object is inaccessible, but compile-time type is accessible.
-         */
-        return () -> {
-          // New exception is created every time to avoid keeping reference
-          // to exception with potentially long stack trace, causing a
-          // memory leak
-          throw new JsonIOException(exceptionMessage);
-        };
+        return new ThrowingObjectConstructor<>(exceptionMessage);
       }
     }
 
@@ -333,24 +312,24 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private static ObjectConstructor<? extends Collection<? extends Object>> newCollectionConstructor(
+  private static ObjectConstructor<? extends Collection<?>> newCollectionConstructor(
       Class<?> rawType) {
 
     // First try List implementation
     if (rawType.isAssignableFrom(ArrayList.class)) {
-      return () -> new ArrayList<>();
+      return ArrayList::new;
     }
     // Then try Set implementation
     else if (rawType.isAssignableFrom(LinkedHashSet.class)) {
-      return () -> new LinkedHashSet<>();
+      return LinkedHashSet::new;
     }
     // Then try SortedSet / NavigableSet implementation
     else if (rawType.isAssignableFrom(TreeSet.class)) {
-      return () -> new TreeSet<>();
+      return TreeSet::new;
     }
     // Then try Queue implementation
     else if (rawType.isAssignableFrom(ArrayDeque.class)) {
-      return () -> new ArrayDeque<>();
+      return ArrayDeque::new;
     }
 
     // Was unable to create matching Collection constructor
@@ -370,7 +349,7 @@ public final class ConstructorConstructor {
     return GsonTypes.getRawType(typeArguments[0]) == String.class;
   }
 
-  private static ObjectConstructor<? extends Map<? extends Object, Object>> newMapConstructor(
+  private static ObjectConstructor<? extends Map<?, Object>> newMapConstructor(
       Type type, Class<?> rawType) {
     // First try Map implementation
     /*
@@ -378,21 +357,24 @@ public final class ConstructorConstructor {
      * values for older JDKs; use own LinkedTreeMap<String, Object> instead
      */
     if (rawType.isAssignableFrom(LinkedTreeMap.class) && hasStringKeyType(type)) {
+      // Must use lambda instead of method reference (`LinkedTreeMap::new`) here, otherwise this
+      // causes an exception when Gson is used by a custom system class loader, see
+      // https://github.com/google/gson/pull/2864#issuecomment-3528623716
       return () -> new LinkedTreeMap<>();
     } else if (rawType.isAssignableFrom(LinkedHashMap.class)) {
-      return () -> new LinkedHashMap<>();
+      return LinkedHashMap::new;
     }
     // Then try SortedMap / NavigableMap implementation
     else if (rawType.isAssignableFrom(TreeMap.class)) {
-      return () -> new TreeMap<>();
+      return TreeMap::new;
     }
     // Then try ConcurrentMap implementation
     else if (rawType.isAssignableFrom(ConcurrentHashMap.class)) {
-      return () -> new ConcurrentHashMap<>();
+      return ConcurrentHashMap::new;
     }
     // Then try ConcurrentNavigableMap implementation
     else if (rawType.isAssignableFrom(ConcurrentSkipListMap.class)) {
-      return () -> new ConcurrentSkipListMap<>();
+      return ConcurrentSkipListMap::new;
     }
 
     // Was unable to create matching Map constructor
@@ -431,17 +413,53 @@ public final class ConstructorConstructor {
             " Or adjust your R8 configuration to keep the no-args constructor of the class.";
       }
 
-      // Separate effectively final variable to allow usage in the lambda below
-      String exceptionMessageF = exceptionMessage;
-
-      return () -> {
-        throw new JsonIOException(exceptionMessageF);
-      };
+      return new ThrowingObjectConstructor<>(exceptionMessage);
     }
   }
 
   @Override
   public String toString() {
     return instanceCreators.toString();
+  }
+
+  /**
+   * {@link ObjectConstructor} which always throws an exception.
+   *
+   * <p>This keeps backward compatibility, compared to using a {@code null} {@code
+   * ObjectConstructor}, which would then choose another way of creating the object. And it supports
+   * types which are only serialized but not deserialized (compared to directly throwing an
+   * exception when the {@code ObjectConstructor} is requested), e.g. when the runtime type of an
+   * object is inaccessible, but the compile-time type is accessible.
+   */
+  private static final class ThrowingObjectConstructor<T> implements ObjectConstructor<T> {
+    private final String exceptionMessage;
+
+    ThrowingObjectConstructor(String exceptionMessage) {
+      this.exceptionMessage = exceptionMessage;
+    }
+
+    @Override
+    public T construct() {
+      // New exception is created every time to avoid keeping a reference to an exception with
+      // potentially long stack trace, causing a memory leak
+      // (which would happen if the exception was already created when the
+      // `ExceptionObjectConstructor` is created)
+      throw new JsonIOException(exceptionMessage);
+    }
+  }
+
+  private static final class InstanceCreatorConstructor<T> implements ObjectConstructor<T> {
+    private final InstanceCreator<T> instanceCreator;
+    private final Type type;
+
+    InstanceCreatorConstructor(InstanceCreator<T> instanceCreator, Type type) {
+      this.instanceCreator = instanceCreator;
+      this.type = type;
+    }
+
+    @Override
+    public T construct() {
+      return instanceCreator.createInstance(type);
+    }
   }
 }
