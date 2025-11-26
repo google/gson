@@ -521,16 +521,8 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> FLOAT = new FloatAdapter(false);
   public static final TypeAdapter<Number> FLOAT_STRICT = new FloatAdapter(true);
 
-  public static TypeAdapter<Number> floatAdapter(boolean serializeSpecialFloatingPointValues) {
-    return serializeSpecialFloatingPointValues ? TypeAdapters.FLOAT : TypeAdapters.FLOAT_STRICT;
-  }
-
   public static final TypeAdapter<Number> DOUBLE = new DoubleAdapter(false);
   public static final TypeAdapter<Number> DOUBLE_STRICT = new DoubleAdapter(true);
-
-  public static TypeAdapter<Number> doubleAdapter(boolean serializeSpecialFloatingPointValues) {
-    return serializeSpecialFloatingPointValues ? TypeAdapters.DOUBLE : TypeAdapters.DOUBLE_STRICT;
-  }
 
   public static final TypeAdapter<Character> CHARACTER =
       new TypeAdapter<Character>() {

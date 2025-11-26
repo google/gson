@@ -18,8 +18,6 @@ package com.google.gson;
 
 import static com.google.gson.internal.bind.TypeAdapters.atomicLongAdapter;
 import static com.google.gson.internal.bind.TypeAdapters.atomicLongArrayAdapter;
-import static com.google.gson.internal.bind.TypeAdapters.doubleAdapter;
-import static com.google.gson.internal.bind.TypeAdapters.floatAdapter;
 
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;
@@ -341,12 +339,8 @@ public final class Gson {
     factories.add(TypeAdapters.SHORT_FACTORY);
     TypeAdapter<Number> longAdapter = longSerializationPolicy.typeAdapter();
     factories.add(TypeAdapters.newFactory(long.class, Long.class, longAdapter));
-    factories.add(
-        TypeAdapters.newFactory(
-            double.class, Double.class, doubleAdapter(serializeSpecialFloatingPointValues)));
-    factories.add(
-        TypeAdapters.newFactory(
-            float.class, Float.class, floatAdapter(serializeSpecialFloatingPointValues)));
+    factories.add(TypeAdapters.newFactory(double.class, Double.class, doubleAdapter()));
+    factories.add(TypeAdapters.newFactory(float.class, Float.class, floatAdapter()));
     factories.add(NumberTypeAdapter.getFactory(numberToNumberStrategy));
     factories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);
     factories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);
@@ -439,6 +433,14 @@ public final class Gson {
    */
   public boolean htmlSafe() {
     return htmlSafe;
+  }
+
+  private TypeAdapter<Number> floatAdapter() {
+    return serializeSpecialFloatingPointValues ? TypeAdapters.FLOAT : TypeAdapters.FLOAT_STRICT;
+  }
+
+  private TypeAdapter<Number> doubleAdapter() {
+    return serializeSpecialFloatingPointValues ? TypeAdapters.DOUBLE : TypeAdapters.DOUBLE_STRICT;
   }
 
   /**
