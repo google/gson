@@ -439,9 +439,8 @@ public final class ConstructorConstructor {
 
     @Override
     public T construct() {
-      // New exception is created every time to avoid keeping reference
-      // to exception with potentially long stack trace, causing a
-      // memory leak
+      // New exception is created every time to avoid keeping a reference to an exception with potentially long stack trace, causing a memory leak
+      // (which would happen if the exception was already created when the `ExceptionObjectConstructor` is created)
       throw new JsonIOException(exceptionMessage);
     }
   }
