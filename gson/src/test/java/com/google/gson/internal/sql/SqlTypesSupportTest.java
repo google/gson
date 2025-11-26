@@ -31,5 +31,8 @@ public class SqlTypesSupportTest {
     assertThat(SqlTypesSupport.DATE_FACTORY).isNotNull();
     assertThat(SqlTypesSupport.TIME_FACTORY).isNotNull();
     assertThat(SqlTypesSupport.TIMESTAMP_FACTORY).isNotNull();
+
+    // DATE_FACTORY, TIME_FACTORY, TIMESTAMP_FACTORY
+    assertThat(SqlTypesSupport.SQL_TYPE_FACTORIES.size()).isEqualTo(3);
   }
 }
