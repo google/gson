@@ -293,7 +293,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.43.0</version>
+                <version>2.44.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -341,7 +341,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.4.2</version>
+          <version>3.5.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -388,7 +388,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.2.0</version>
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <!-- Disable Maven Super POM release profile and instead use own one -->
