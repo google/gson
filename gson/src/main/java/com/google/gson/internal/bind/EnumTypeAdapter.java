@@ -50,9 +50,9 @@ class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
         }
       };
 
-  private final Map<String, T> nameToConstant = new HashMap<>();
-  private final Map<String, T> stringToConstant = new HashMap<>();
-  private final Map<T, String> constantToName = new HashMap<>();
+  private final Map<String, T> nameToConstant;
+  private final Map<String, T> stringToConstant;
+  private final Map<T, String> constantToName;
 
   private EnumTypeAdapter(Class<T> classOfT) {
     try {
@@ -69,7 +69,12 @@ class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
 
       // Trim the array to the new length. Every enum type can be expected to have at least
       // one declared field which is not an enum constant, namely the implicit $VALUES array
-      fields = Arrays.copyOf(fields, constantCount);
+      fields = (constantCount == fields.length) ? fields : Arrays.copyOf(fields, constantCount);
+
+      nameToConstant = new HashMap<>(constantCount, 1F);
+      stringToConstant = new HashMap<>(constantCount, 1F);
+      // Don't use `EnumMap` here; that can break when using ProGuard or R8
+      constantToName = new HashMap<>(constantCount, 1F);
 
       AccessibleObject.setAccessible(fields, true);
 
