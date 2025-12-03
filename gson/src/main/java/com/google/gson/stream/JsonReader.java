@@ -1187,6 +1187,7 @@ public class JsonReader implements Closeable {
     while (true) {
       for (; pos + i < limit; i++) {
         switch (buffer[pos + i]) {
+          case '"':
           case '/':
           case '\\':
           case ';':
