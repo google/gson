@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 import com.google.common.testing.EqualsTester;
 import com.google.gson.common.MoreAsserts;
 import java.math.BigInteger;
+import java.util.Arrays;
 import org.junit.Test;
 
 /**
@@ -353,5 +354,18 @@ public final class JsonArrayTest {
     nestedObject.addProperty("n\0", 1);
     array.add(nestedObject);
     assertThat(array.toString()).isEqualTo("[null,NaN,\"a\\u0000\",[\"\\\"\"],{\"n\\u0000\":1}]");
+  }
+
+  @Test
+  public void testParseIterable() {
+    JsonArray array = JsonArray.parse(Arrays.asList(1, "a"));
+    assertThat(array.get(0).getAsInt()).isEqualTo(1);
+    assertThat(array.get(1).getAsString()).isEqualTo("a");
+  }
+
+  @Test
+  public void testOfIterable() {
+    JsonArray array = JsonArray.of(Arrays.asList(new JsonPrimitive(1)));
+    assertThat(array.get(0).getAsInt()).isEqualTo(1);
   }
 }

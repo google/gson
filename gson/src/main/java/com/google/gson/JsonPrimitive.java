@@ -44,7 +44,7 @@ public final class JsonPrimitive extends JsonElement {
   // "deprecation" suppression for superclass constructor
   // "UnnecessaryBoxedVariable" Error Prone warning is correct since method does not accept
   // null, but cannot be changed anymore since this is public API
-  @SuppressWarnings({"deprecation", "UnnecessaryBoxedVariable"})
+  @SuppressWarnings({ "deprecation", "UnnecessaryBoxedVariable" })
   public JsonPrimitive(Boolean bool) {
     value = Objects.requireNonNull(bool);
   }
@@ -78,7 +78,7 @@ public final class JsonPrimitive extends JsonElement {
   // "deprecation" suppression for superclass constructor
   // "UnnecessaryBoxedVariable" Error Prone warning is correct since method does not accept
   // null, but cannot be changed anymore since this is public API
-  @SuppressWarnings({"deprecation", "UnnecessaryBoxedVariable"})
+  @SuppressWarnings({ "deprecation", "UnnecessaryBoxedVariable" })
   public JsonPrimitive(Character c) {
     // convert characters to strings since in JSON, characters are represented as a single
     // character string
@@ -324,5 +324,35 @@ public final class JsonPrimitive extends JsonElement {
           || number instanceof Byte;
     }
     return false;
+  }
+
+  /**
+   * Convenience method to create a {@link JsonPrimitive} from a Java object.
+   *
+   * <p>This method supports the following types:
+   *
+   * <ul>
+   *   <li>{@link Boolean}
+   *   <li>{@link Number}
+   *   <li>{@link String}
+   *   <li>{@link Character}
+   * </ul>
+   *
+   * @param object the object to convert to a {@link JsonPrimitive}
+   * @return a {@link JsonPrimitive} representing the object
+   * @throws IllegalArgumentException if the object is not one of the supported types
+   */
+  public static JsonPrimitive parse(Object object) {
+    if (object instanceof Boolean) {
+      return new JsonPrimitive((Boolean) object);
+    } else if (object instanceof Number) {
+      return new JsonPrimitive((Number) object);
+    } else if (object instanceof String) {
+      return new JsonPrimitive((String) object);
+    } else if (object instanceof Character) {
+      return new JsonPrimitive((Character) object);
+    } else {
+      throw new IllegalArgumentException("Cannot parse " + object.getClass().getName() + " as a JsonPrimitive");
+    }
   }
 }

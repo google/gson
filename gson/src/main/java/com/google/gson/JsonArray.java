@@ -433,4 +433,34 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   public int hashCode() {
     return elements.hashCode();
   }
+
+  /**
+   * Creates a {@link JsonArray} from an {@link Iterable}.
+   *
+   * @param iterable the iterable to convert to a {@link JsonArray}
+   * @return a {@link JsonArray} representing the iterable
+   * @since 2.11.0
+   */
+  public static JsonArray parse(Iterable<?> iterable) {
+    JsonArray jsonArray = new JsonArray();
+    for (Object element : iterable) {
+      jsonArray.add(JsonElement.parse(element));
+    }
+    return jsonArray;
+  }
+
+  /**
+   * Creates a {@link JsonArray} from an {@link Iterable} of {@link JsonElement}s.
+   *
+   * @param iterable the iterable to convert to a {@link JsonArray}
+   * @return a {@link JsonArray} representing the iterable
+   * @since 2.11.0
+   */
+  public static JsonArray of(Iterable<? extends JsonElement> iterable) {
+    JsonArray jsonArray = new JsonArray();
+    for (JsonElement element : iterable) {
+      jsonArray.add(element);
+    }
+    return jsonArray;
+  }
 }

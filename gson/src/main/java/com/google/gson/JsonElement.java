@@ -22,6 +22,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
 
 /**
  * A class representing an element of JSON. It could either be a {@link JsonObject}, a {@link
@@ -100,7 +101,8 @@ public abstract class JsonElement {
    *     This constructor is only kept for backward compatibility.
    */
   @Deprecated
-  public JsonElement() {}
+  public JsonElement() {
+  }
 
   /**
    * Returns a deep copy of this element. Immutable elements like primitives and nulls are not
@@ -430,5 +432,44 @@ public abstract class JsonElement {
     } catch (IOException e) {
       throw new AssertionError(e);
     }
+  }
+
+  /**
+   * Convenience method to create a {@link JsonElement} from a Java object.
+   *
+   * <p>This method supports the following types:
+   *
+   * <ul>
+   *   <li>{@code null} (returns {@link JsonNull#INSTANCE})
+   *   <li>{@link JsonElement}
+   *   <li>{@link Map} (returns {@link JsonObject})
+   *   <li>{@link Iterable} (returns {@link JsonArray})
+   *   <li>{@link Boolean} (returns {@link JsonPrimitive})
+   *   <li>{@link Number} (returns {@link JsonPrimitive})
+   *   <li>{@link String} (returns {@link JsonPrimitive})
+   *   <li>{@link Character} (returns {@link JsonPrimitive})
+   * </ul>
+   *
+   * @param object the object to convert to a {@link JsonElement}
+   * @return a {@link JsonElement} representing the object
+   * @throws IllegalArgumentException if the object is not one of the supported types
+   * @since 2.11.0
+   */
+  public static JsonElement parse(Object object) {
+    if (object == null) {
+      return JsonNull.INSTANCE;
+    }
+    if (object instanceof JsonElement) {
+      return (JsonElement) object;
+    }
+    if (object instanceof Map) {
+      @SuppressWarnings("unchecked")
+      Map<String, ?> map = (Map<String, ?>) object;
+      return JsonObject.parse(map);
+    }
+    if (object instanceof Iterable) {
+      return JsonArray.parse((Iterable<?>) object);
+    }
+    return JsonPrimitive.parse(object);
   }
 }

@@ -42,7 +42,8 @@ public final class JsonObject extends JsonElement {
 
   /** Creates an empty JsonObject. */
   @SuppressWarnings("deprecation") // superclass constructor
-  public JsonObject() {}
+  public JsonObject() {
+  }
 
   /**
    * Creates a deep copy of this element and all its children.
@@ -255,5 +256,35 @@ public final class JsonObject extends JsonElement {
   @Override
   public int hashCode() {
     return members.hashCode();
+  }
+
+  /**
+   * Creates a {@link JsonObject} from a {@link Map}.
+   *
+   * @param map the map to convert to a {@link JsonObject}
+   * @return a {@link JsonObject} representing the map
+   * @since 2.11.0
+   */
+  public static JsonObject parse(Map<String, ?> map) {
+    JsonObject jsonObject = new JsonObject();
+    for (Map.Entry<String, ?> entry : map.entrySet()) {
+      jsonObject.add(entry.getKey(), JsonElement.parse(entry.getValue()));
+    }
+    return jsonObject;
+  }
+
+  /**
+   * Creates a {@link JsonObject} from a {@link Map} of {@link JsonElement}s.
+   *
+   * @param map the map to convert to a {@link JsonObject}
+   * @return a {@link JsonObject} representing the map
+   * @since 2.11.0
+   */
+  public static JsonObject of(Map<String, ? extends JsonElement> map) {
+    JsonObject jsonObject = new JsonObject();
+    for (Map.Entry<String, ? extends JsonElement> entry : map.entrySet()) {
+      jsonObject.add(entry.getKey(), entry.getValue());
+    }
+    return jsonObject;
   }
 }

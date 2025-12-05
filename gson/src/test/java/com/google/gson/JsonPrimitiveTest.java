@@ -333,13 +333,13 @@ public class JsonPrimitiveTest {
   @Test
   public void testBigDecimalEqualsZero() {
     assertThat(
-            new JsonPrimitive(new BigDecimal("0.0"))
-                .equals(new JsonPrimitive(new BigDecimal("0.00"))))
+        new JsonPrimitive(new BigDecimal("0.0"))
+            .equals(new JsonPrimitive(new BigDecimal("0.00"))))
         .isTrue();
 
     assertThat(
-            new JsonPrimitive(new BigDecimal("0.00"))
-                .equals(new JsonPrimitive(Double.valueOf("0.00"))))
+        new JsonPrimitive(new BigDecimal("0.00"))
+            .equals(new JsonPrimitive(Double.valueOf("0.00"))))
         .isTrue();
   }
 
@@ -363,5 +363,14 @@ public class JsonPrimitiveTest {
   public void testEqualsDoubleNaNAndBigDecimal() {
     assertThat(new JsonPrimitive(Double.NaN).equals(new JsonPrimitive(new BigDecimal("1.0"))))
         .isFalse();
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  public void testParse() {
+    assertThat(JsonPrimitive.parse(1).getAsInt()).isEqualTo(1);
+    assertThat(JsonPrimitive.parse("a").getAsString()).isEqualTo("a");
+    assertThat(JsonPrimitive.parse(true).getAsBoolean()).isTrue();
+    assertThat(JsonPrimitive.parse('c').getAsCharacter()).isEqualTo('c');
   }
 }

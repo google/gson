@@ -27,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.junit.Test;
@@ -284,10 +286,9 @@ public class JsonObjectTest {
 
     o.addProperty("a", false);
     // Insertion order should be preserved by entrySet()
-    List<?> expectedEntriesList =
-        Arrays.asList(
-            new SimpleEntry<>("b", new JsonPrimitive(true)),
-            new SimpleEntry<>("a", new JsonPrimitive(false)));
+    List<?> expectedEntriesList = Arrays.asList(
+        new SimpleEntry<>("b", new JsonPrimitive(true)),
+        new SimpleEntry<>("a", new JsonPrimitive(false)));
     assertThat(new ArrayList<>(o.entrySet())).isEqualTo(expectedEntriesList);
 
     Iterator<Entry<String, JsonElement>> iterator = o.entrySet().iterator();
@@ -299,10 +300,9 @@ public class JsonObjectTest {
       assertThat(entry.getValue()).isEqualTo(new JsonPrimitive(i));
     }
 
-    expectedEntriesList =
-        Arrays.asList(
-            new SimpleEntry<>("b", new JsonPrimitive(0)),
-            new SimpleEntry<>("a", new JsonPrimitive(1)));
+    expectedEntriesList = Arrays.asList(
+        new SimpleEntry<>("b", new JsonPrimitive(0)),
+        new SimpleEntry<>("a", new JsonPrimitive(1)));
     assertThat(new ArrayList<>(o.entrySet())).isEqualTo(expectedEntriesList);
 
     Entry<String, JsonElement> entry = o.entrySet().iterator().next();
@@ -316,13 +316,12 @@ public class JsonObjectTest {
     o.addProperty("key1", 1);
     o.addProperty("key2", 2);
 
-    Deque<?> expectedEntriesQueue =
-        new ArrayDeque<>(
-            Arrays.asList(
-                new SimpleEntry<>("b", new JsonPrimitive(0)),
-                new SimpleEntry<>("a", new JsonPrimitive(1)),
-                new SimpleEntry<>("key1", new JsonPrimitive(1)),
-                new SimpleEntry<>("key2", new JsonPrimitive(2))));
+    Deque<?> expectedEntriesQueue = new ArrayDeque<>(
+        Arrays.asList(
+            new SimpleEntry<>("b", new JsonPrimitive(0)),
+            new SimpleEntry<>("a", new JsonPrimitive(1)),
+            new SimpleEntry<>("key1", new JsonPrimitive(1)),
+            new SimpleEntry<>("key2", new JsonPrimitive(2))));
     // Note: Must wrap in ArrayList because Deque implementations do not implement `equals`
     assertThat(new ArrayList<>(o.entrySet())).isEqualTo(new ArrayList<>(expectedEntriesQueue));
     iterator = o.entrySet().iterator();
@@ -354,5 +353,25 @@ public class JsonObjectTest {
     object.add("d", nestedObject);
     assertThat(object.toString())
         .isEqualTo("{\"a\":null,\"b\\u0000\":NaN,\"c\":[\"\\\"\"],\"d\":{\"n\\u0000\":1}}");
+  }
+
+  @Test
+  public void testParseMap() {
+    Map<String, Object> map = new HashMap<>();
+    map.put("a", 1);
+    map.put("b", "string");
+
+    JsonObject jsonObject = JsonObject.parse(map);
+    assertThat(jsonObject.get("a").getAsInt()).isEqualTo(1);
+    assertThat(jsonObject.get("b").getAsString()).isEqualTo("string");
+  }
+
+  @Test
+  public void testOfMap() {
+    Map<String, JsonElement> map = new HashMap<>();
+    map.put("a", new JsonPrimitive(1));
+
+    JsonObject jsonObject = JsonObject.of(map);
+    assertThat(jsonObject.get("a").getAsInt()).isEqualTo(1);
   }
 }
