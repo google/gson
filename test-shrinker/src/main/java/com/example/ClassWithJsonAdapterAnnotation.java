@@ -15,6 +15,8 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -82,7 +84,7 @@ public class ClassWithJsonAdapterAnnotation {
 
   static class Factory implements TypeAdapterFactory {
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       // the code below is not type-safe, but does not matter for this test
       @SuppressWarnings("unchecked")
       TypeAdapter<T> r =

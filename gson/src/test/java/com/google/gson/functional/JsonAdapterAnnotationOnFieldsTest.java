@@ -40,6 +40,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 /** Functional tests for the {@link JsonAdapter} annotation on fields. */
@@ -146,7 +147,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static class GizmoPartTypeAdapterFactory implements TypeAdapterFactory {
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       return new TypeAdapter<>() {
         @Override
         public void write(JsonWriter out, T value) throws IOException {
@@ -317,7 +318,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       Class<?> cls = type.getRawType();
       if (Long.class.isAssignableFrom(cls)) {
         return (TypeAdapter<T>) ADAPTER;
@@ -351,7 +352,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static class Gizmo2PartTypeAdapterFactory implements TypeAdapterFactory {
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       return new TypeAdapter<>() {
         @Override
         public void write(JsonWriter out, T value) throws IOException {
@@ -532,7 +533,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
     static class DelegatingAdapterFactory implements TypeAdapterFactory {
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return gson.getDelegateAdapter(this, type);
       }
     }
@@ -568,7 +569,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     static class Factory implements TypeAdapterFactory {
       @SuppressWarnings("unchecked")
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         TypeAdapter<String> delegate = (TypeAdapter<String>) gson.getDelegateAdapter(this, type);
 
         return (TypeAdapter<T>)
@@ -613,7 +614,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     static class Factory implements TypeAdapterFactory {
       @SuppressWarnings("unchecked")
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return (TypeAdapter<T>)
             new TypeAdapter<String>() {
               private TypeAdapter<String> delegate() {
@@ -665,7 +666,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     static class Factory implements TypeAdapterFactory {
       @SuppressWarnings("unchecked")
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         // Uses `Gson.getAdapter` instead of `Gson.getDelegateAdapter`
         TypeAdapter<String> delegate = (TypeAdapter<String>) gson.getAdapter(type);
 

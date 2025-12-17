@@ -40,6 +40,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Locale;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 /** Functional tests for the {@link JsonAdapter} annotation on classes. */
@@ -186,7 +187,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     static class NullReturningFactory implements TypeAdapterFactory {
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         // Don't handle raw (non-parameterized) type
         if (type.getType() instanceof Class) {
           return null;
@@ -250,7 +251,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     static final class JsonAdapterFactory implements TypeAdapterFactory {
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return new TypeAdapter<>() {
           @Override
           public void write(JsonWriter out, T value) throws IOException {
@@ -406,7 +407,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     static class Factory implements TypeAdapterFactory {
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         if (type.getRawType() != WithDelegatingFactory.class) {
           return null;
         }
@@ -462,7 +463,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     static class Factory implements TypeAdapterFactory {
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return new TypeAdapter<>() {
           // suppress Error Prone warning; should be clear that `Factory` refers to enclosing class
           @SuppressWarnings("SameNameButDifferent")
@@ -652,7 +653,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     static class Factory implements TypeAdapterFactory {
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
 
         return new TypeAdapter<>() {

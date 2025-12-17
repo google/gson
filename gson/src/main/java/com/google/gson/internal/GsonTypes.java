@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Properties;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Static methods for working with types.
@@ -55,7 +56,7 @@ public final class GsonTypes {
    * @return a {@link java.io.Serializable serializable} parameterized type.
    */
   public static ParameterizedType newParameterizedTypeWithOwner(
-      Type ownerType, Class<?> rawType, Type... typeArguments) {
+      @Nullable Type ownerType, Class<?> rawType, Type... typeArguments) {
     return new ParameterizedTypeImpl(ownerType, rawType, typeArguments);
   }
 
@@ -512,7 +513,7 @@ public final class GsonTypes {
   // the nested Type implementations here (which are also serializable).
   private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
     @SuppressWarnings("serial")
-    private final Type ownerType;
+    private final @Nullable Type ownerType;
 
     @SuppressWarnings("serial")
     private final Type rawType;
@@ -520,7 +521,7 @@ public final class GsonTypes {
     @SuppressWarnings("serial")
     private final Type[] typeArguments;
 
-    ParameterizedTypeImpl(Type ownerType, Class<?> rawType, Type... typeArguments) {
+    ParameterizedTypeImpl(@Nullable Type ownerType, Class<?> rawType, Type... typeArguments) {
       requireNonNull(rawType);
 
       if (ownerType == null && requiresOwnerType(rawType)) {
@@ -548,17 +549,17 @@ public final class GsonTypes {
     }
 
     @Override
-    public Type getOwnerType() {
+    public @Nullable Type getOwnerType() {
       return ownerType;
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(@Nullable Object other) {
       return other instanceof ParameterizedType
           && GsonTypes.equals(this, (ParameterizedType) other);
     }
 
-    private static int hashCodeOrZero(Object o) {
+    private static int hashCodeOrZero(@Nullable Object o) {
       return o != null ? o.hashCode() : 0;
     }
 
@@ -631,7 +632,7 @@ public final class GsonTypes {
     private final Type upperBound;
 
     @SuppressWarnings("serial")
-    private final Type lowerBound;
+    private final @Nullable Type lowerBound;
 
     WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
       if (lowerBounds.length > 1) {

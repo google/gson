@@ -22,6 +22,8 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,7 +32,7 @@ import javax.annotation.PostConstruct;
 public class PostConstructAdapterFactory implements TypeAdapterFactory {
   // copied from https://gist.github.com/swankjesse/20df26adaf639ed7fd160f145a0b661a
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     for (Class<?> t = type.getRawType();
         (t != Object.class) && (t.getSuperclass() != null);
         t = t.getSuperclass()) {

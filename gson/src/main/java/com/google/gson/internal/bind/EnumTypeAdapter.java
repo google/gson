@@ -30,13 +30,14 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /** Adapter for enum classes (but not for the base class {@code java.lang.Enum}). */
 class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
   static final TypeAdapterFactory FACTORY =
       new TypeAdapterFactory() {
         @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+        public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
           Class<? super T> rawType = typeToken.getRawType();
           if (!Enum.class.isAssignableFrom(rawType) || rawType == Enum.class) {
             return null;
@@ -110,7 +111,7 @@ class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
   }
 
   @Override
-  public void write(JsonWriter out, T value) throws IOException {
+  public void write(JsonWriter out, @Nullable T value) throws IOException {
     out.value(value == null ? null : constantToName.get(value));
   }
 }

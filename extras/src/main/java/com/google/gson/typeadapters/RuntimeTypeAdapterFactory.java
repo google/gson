@@ -27,6 +27,8 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -241,7 +243,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
   }
 
   @Override
-  public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
+  public @Nullable <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
     if (type == null) {
       return null;
     }

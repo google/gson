@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 /**
@@ -222,7 +223,7 @@ public final class GsonTest {
                   private volatile boolean isFirstCall = true;
 
                   @Override
-                  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+                  public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
                     if (isFirstCall) {
                       isFirstCall = false;
 
@@ -312,7 +313,7 @@ public final class GsonTest {
                   volatile boolean isFirstCaller = true;
 
                   @Override
-                  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+                  public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
                     Class<?> raw = type.getRawType();
 
                     if (raw == CustomClass1.class) {
@@ -402,7 +403,7 @@ public final class GsonTest {
 
       @SuppressWarnings("unchecked")
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return (TypeAdapter<T>) adapter;
       }
 

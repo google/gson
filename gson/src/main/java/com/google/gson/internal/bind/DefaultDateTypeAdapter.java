@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This type adapter supports subclasses of date by defining a {@link
@@ -65,7 +66,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
       new TypeAdapterFactory() {
         @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
         @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+        public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
           return typeToken.getRawType() == Date.class
               ? (TypeAdapter<T>)
                   new DefaultDateTypeAdapter<>(

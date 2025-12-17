@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Adapts types whose static type is only 'Object'. Uses getClass() on serialization and a
@@ -53,7 +54,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         if (type.getRawType() == Object.class) {
           return (TypeAdapter<T>) new ObjectTypeAdapter(gson, toNumberStrategy);
         }

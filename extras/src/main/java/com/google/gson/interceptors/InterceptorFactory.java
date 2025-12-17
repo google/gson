@@ -22,12 +22,14 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 /** A type adapter factory that implements {@code @Intercept}. */
 public final class InterceptorFactory implements TypeAdapterFactory {
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     Intercept intercept = type.getRawType().getAnnotation(Intercept.class);
     if (intercept == null) {
       return null;
