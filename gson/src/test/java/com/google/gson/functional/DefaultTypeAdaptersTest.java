@@ -1048,7 +1048,7 @@ public class DefaultTypeAdaptersTest {
       factoriesField.setAccessible(true);
       factories = (List<?>) factoriesField.get(gson);
     } catch (ReflectiveOperationException e) {
-      throw new LinkageError(e);
+      throw new LinkageError(e.getMessage(), e);
     }
     ReflectiveTypeAdapterFactory adapterFactory =
         factories.stream()
