@@ -49,7 +49,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Type adapters for basic types. More complex adapters exist as separate classes in the enclosing
@@ -770,16 +769,16 @@ public final class TypeAdapters {
             calendar.get(Calendar.SECOND)
           };
         }
-
-        // This is Math.toIntExact, but works on Android level 23.
-        private static int toIntExact(long value) {
-          int castValue = (int) value;
-          if (castValue != value) {
-            throw new ArithmeticException("Too big for an int: " + value);
-          }
-          return castValue;
-        }
       };
+
+  // This is Math.toIntExact, but works on Android level 23.
+  private static int toIntExact(long value) {
+    int castValue = (int) value;
+    if (castValue != value) {
+      throw new ArithmeticException("Too big for an int: " + value);
+    }
+    return castValue;
+  }
 
   public static final TypeAdapterFactory CALENDAR_FACTORY =
       newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
@@ -834,7 +833,7 @@ public final class TypeAdapters {
     TypeAdapterFactory get();
   }
 
-  public static @Nullable TypeAdapterFactory javaTimeTypeAdapterFactory() {
+  public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
     try {
       Class<?> javaTimeTypeAdapterFactoryClass =
           Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");
