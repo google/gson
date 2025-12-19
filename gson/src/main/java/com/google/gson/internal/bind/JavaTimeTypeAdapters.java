@@ -1,7 +1,6 @@
 package com.google.gson.internal.bind;
 
 import static java.lang.Math.toIntExact;
-import static java.util.Objects.requireNonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -290,7 +289,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
   // ZoneRegion if we have a ZoneRegion, and we need to write the "totalSeconds" field of ZoneOffset
   // if we have a ZoneOffset. When reading, we need to construct the the appropriate thing depending
   // on which of those two fields we see.
-  private static TypeAdapter<ZoneId> ZONE_ID =
+  private static final TypeAdapter<ZoneId> ZONE_ID =
       new TypeAdapter<ZoneId>() {
         @Override
         public ZoneId read(JsonReader in) throws IOException {
