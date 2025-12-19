@@ -370,7 +370,10 @@ public final class Gson {
     factories.add(TypeAdapters.BIT_SET_FACTORY);
     factories.add(DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
     factories.add(TypeAdapters.CALENDAR_FACTORY);
-    factories.add(TypeAdapters.JAVA_TIME_FACTORY);
+    TypeAdapterFactory javaTimeFactory = TypeAdapters.javaTimeTypeAdapterFactory();
+    if (javaTimeFactory != null) {
+      factories.add(javaTimeFactory);
+    }
 
     if (SqlTypesSupport.SUPPORTS_SQL_TYPES) {
       factories.add(SqlTypesSupport.TIME_FACTORY);

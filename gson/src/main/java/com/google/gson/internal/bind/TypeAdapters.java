@@ -16,9 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import static java.lang.Math.toIntExact;
-import static java.util.Objects.requireNonNull;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
@@ -39,15 +36,6 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.DateTimeException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -61,6 +49,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Type adapters for basic types. More complex adapters exist as separate classes in the enclosing
@@ -704,13 +693,10 @@ public final class TypeAdapters {
 
   /**
    * An abstract {@link TypeAdapter} for classes whose JSON serialization consists of a fixed set of
-   * integer fields. That is the case for the legacy serialization of various {@code java.time}
-   * types.
-   *
-   * <p>This is a base class for {@link Calendar}, {@link Duration}, {@link Instant}, {@link
-   * LocalDate}, {@link LocalTime}, {@link LocalDateTime}, and {@link ZoneOffset}.
+   * integer fields. That is the case for {@link Calendar} and the legacy serialization of various
+   * {@code java.time} types.
    */
-  private abstract static class IntegerFieldsTypeAdapter<T> extends TypeAdapter<T> {
+  abstract static class IntegerFieldsTypeAdapter<T> extends TypeAdapter<T> {
     private final List<String> fields;
 
     IntegerFieldsTypeAdapter(String... fields) {
@@ -734,6 +720,8 @@ public final class TypeAdapters {
         int index = fields.indexOf(name);
         if (index >= 0) {
           values[index] = in.nextLong();
+        } else {
+          in.skipValue();
         }
       }
       in.endObject();
@@ -782,259 +770,19 @@ public final class TypeAdapters {
             calendar.get(Calendar.SECOND)
           };
         }
+
+        // This is Math.toIntExact, but works on Android level 23.
+        private static int toIntExact(long value) {
+          int castValue = (int) value;
+          if (castValue != value) {
+            throw new ArithmeticException("Too big for an int: " + value);
+          }
+          return castValue;
+        }
       };
 
   public static final TypeAdapterFactory CALENDAR_FACTORY =
       newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
-
-  public static final TypeAdapter<Duration> DURATION =
-      new IntegerFieldsTypeAdapter<Duration>("seconds", "nanos") {
-        @Override
-        Duration create(long[] values) {
-          return Duration.ofSeconds(values[0], values[1]);
-        }
-
-        @Override
-        @SuppressWarnings("JavaDurationGetSecondsGetNano")
-        long[] integerValues(Duration duration) {
-          return new long[] {duration.getSeconds(), duration.getNano()};
-        }
-      };
-
-  public static final TypeAdapter<Instant> INSTANT =
-      new IntegerFieldsTypeAdapter<Instant>("seconds", "nanos") {
-        @Override
-        Instant create(long[] values) {
-          return Instant.ofEpochSecond(values[0], values[1]);
-        }
-
-        @Override
-        @SuppressWarnings("JavaInstantGetSecondsGetNano")
-        long[] integerValues(Instant instant) {
-          return new long[] {instant.getEpochSecond(), instant.getNano()};
-        }
-      };
-
-  public static final TypeAdapter<LocalDate> LOCAL_DATE =
-      new IntegerFieldsTypeAdapter<LocalDate>("year", "month", "day") {
-        @Override
-        LocalDate create(long[] values) {
-          return LocalDate.of(toIntExact(values[0]), toIntExact(values[1]), toIntExact(values[2]));
-        }
-
-        @Override
-        long[] integerValues(LocalDate localDate) {
-          return new long[] {
-            localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth()
-          };
-        }
-      };
-
-  public static final TypeAdapter<LocalTime> LOCAL_TIME =
-      new IntegerFieldsTypeAdapter<LocalTime>("hour", "minute", "second", "nano") {
-        @Override
-        LocalTime create(long[] values) {
-          return LocalTime.of(
-              toIntExact(values[0]),
-              toIntExact(values[1]),
-              toIntExact(values[2]),
-              toIntExact(values[3]));
-        }
-
-        @Override
-        long[] integerValues(LocalTime localTime) {
-          return new long[] {
-            localTime.getHour(), localTime.getMinute(), localTime.getSecond(), localTime.getNano()
-          };
-        }
-      };
-
-  public static final TypeAdapter<LocalDateTime> LOCAL_DATE_TIME =
-      new TypeAdapter<LocalDateTime>() {
-        @Override
-        public LocalDateTime read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          LocalDate localDate = null;
-          LocalTime localTime = null;
-          in.beginObject();
-          while (in.peek() != JsonToken.END_OBJECT) {
-            String name = in.nextName();
-            switch (name) {
-              case "date":
-                localDate = LOCAL_DATE.read(in);
-                break;
-              case "time":
-                localTime = LOCAL_TIME.read(in);
-                break;
-              default:
-                // Ignore other fields.
-            }
-          }
-          in.endObject();
-          return requireNonNull(localTime, "Missing time field")
-              .atDate(requireNonNull(localDate, "Missing date field"));
-        }
-
-        @Override
-        public void write(JsonWriter out, LocalDateTime value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-            return;
-          }
-          out.beginObject();
-          out.name("date");
-          LOCAL_DATE.write(out, value.toLocalDate());
-          out.name("time");
-          LOCAL_TIME.write(out, value.toLocalTime());
-          out.endObject();
-        }
-      };
-
-  public static final TypeAdapter<ZoneOffset> ZONE_OFFSET =
-      new IntegerFieldsTypeAdapter<ZoneOffset>("totalSeconds") {
-        @Override
-        ZoneOffset create(long[] values) {
-          return ZoneOffset.ofTotalSeconds(toIntExact(values[0]));
-        }
-
-        @Override
-        long[] integerValues(ZoneOffset zoneOffset) {
-          return new long[] {zoneOffset.getTotalSeconds()};
-        }
-      };
-
-  // The ZoneRegion class is not public and is the other possible implementation of ZoneId alongside
-  // ZoneOffset. If we have a ZoneId that is not a ZoneOffset, we assume it is a ZoneRegion.
-  private static final TypeAdapter<ZoneId> ZONE_REGION =
-      new TypeAdapter<ZoneId>() {
-        @Override
-        public ZoneId read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          in.beginObject();
-          ZoneId zoneId = null;
-          while (in.peek() != JsonToken.END_OBJECT) {
-            if (in.nextName().equals("id")) {
-              String id = in.nextString();
-              try {
-                zoneId = ZoneId.of(id);
-              } catch (DateTimeException e) {
-                throw new JsonSyntaxException(
-                    "Failed parsing '" + id + "' as ZoneId; at path " + in.getPreviousPath(), e);
-              }
-            }
-          }
-          in.endObject();
-          if (zoneId == null) {
-            throw new JsonSyntaxException("Missing id field; at path " + in.getPreviousPath());
-          }
-          return zoneId;
-        }
-
-        @Override
-        public void write(JsonWriter out, ZoneId value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-            return;
-          }
-          out.beginObject();
-          out.name("id");
-          out.value(value.getId());
-          out.endObject();
-        }
-      };
-
-  // TODO: this does not currently work correctly.
-  public static final TypeAdapter<ZonedDateTime> ZONED_DATE_TIME =
-      new TypeAdapter<ZonedDateTime>() {
-        @Override
-        public ZonedDateTime read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          in.beginObject();
-          LocalDateTime localDateTime = null;
-          ZoneOffset zoneOffset = null;
-          ZoneId zoneId = null;
-          while (in.peek() != JsonToken.END_OBJECT) {
-            String name = in.nextName();
-            switch (name) {
-              case "dateTime":
-                localDateTime = LOCAL_DATE_TIME.read(in);
-                break;
-              case "offset":
-                zoneOffset = ZONE_OFFSET.read(in);
-                break;
-              case "zone":
-                zoneId = ZONE_REGION.read(in);
-                break;
-              default:
-                // Ignore other fields.
-            }
-          }
-          in.endObject();
-          return ZonedDateTime.ofInstant(
-              requireNonNull(localDateTime, "Missing dateTime field"),
-              requireNonNull(zoneOffset, "Missing offset field"),
-              requireNonNull(zoneId, "Missing zone field"));
-        }
-
-        @Override
-        public void write(JsonWriter out, ZonedDateTime value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-            return;
-          }
-          out.beginObject();
-          out.name("dateTime");
-          LOCAL_DATE_TIME.write(out, value.toLocalDateTime());
-          out.name("offset");
-          ZONE_OFFSET.write(out, value.getOffset());
-          out.name("zone");
-          ZONE_REGION.write(out, value.getZone());
-          out.endObject();
-        }
-      };
-
-  public static final TypeAdapterFactory JAVA_TIME_FACTORY =
-      new TypeAdapterFactory() {
-        @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-          Class<? super T> rawType = typeToken.getRawType();
-          if (!rawType.getName().startsWith("java.time.")) {
-            // Immediately return null so we don't load all these classes when nobody's doing
-            // anything with java.time.
-            return null;
-          }
-          TypeAdapter<?> adapter = null;
-          if (rawType == Duration.class) {
-            adapter = DURATION;
-          } else if (rawType == Instant.class) {
-            adapter = INSTANT;
-          } else if (rawType == LocalDate.class) {
-            adapter = LOCAL_DATE;
-          } else if (rawType == LocalTime.class) {
-            adapter = LOCAL_TIME;
-          } else if (rawType == LocalDateTime.class) {
-            adapter = LOCAL_DATE_TIME;
-          } else if (rawType == ZoneOffset.class) {
-            adapter = ZONE_OFFSET;
-          } else if (ZoneId.class.isAssignableFrom(rawType)) {
-            adapter = ZONE_REGION;
-            // } else if (rawType == ZonedDateTime.class) {
-            //   adapter = ZONED_DATE_TIME;
-          }
-          @SuppressWarnings("unchecked")
-          TypeAdapter<T> result = (TypeAdapter<T>) adapter;
-          return result;
-        }
-      };
 
   public static final TypeAdapter<Locale> LOCALE =
       new TypeAdapter<Locale>() {
@@ -1081,6 +829,22 @@ public final class TypeAdapters {
       newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
+
+  interface FactorySupplier {
+    TypeAdapterFactory get();
+  }
+
+  public static @Nullable TypeAdapterFactory javaTimeTypeAdapterFactory() {
+    try {
+      Class<?> javaTimeTypeAdapterFactoryClass =
+          Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");
+      FactorySupplier supplier =
+          (FactorySupplier) javaTimeTypeAdapterFactoryClass.getDeclaredConstructor().newInstance();
+      return supplier.get();
+    } catch (ReflectiveOperationException e) {
+      return null;
+    }
+  }
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
