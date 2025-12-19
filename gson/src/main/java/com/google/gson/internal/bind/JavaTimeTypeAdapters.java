@@ -134,8 +134,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         }
         in.endObject();
         return LocalDateTime.of(
-            requireNonNullField(localDate, "date", in),
-            requireNonNullField(localTime, "time", in));
+            requireNonNullField(localDate, "date", in), requireNonNullField(localTime, "time", in));
       }
 
       @Override

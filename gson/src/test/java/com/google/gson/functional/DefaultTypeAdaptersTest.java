@@ -976,17 +976,18 @@ public class DefaultTypeAdaptersTest {
 
   @Test
   public void testJavaTimeZonedDateTimeWithZoneIdThatHasAdapter() {
-    TypeAdapter<ZoneId> zoneIdAdapter = new TypeAdapter<ZoneId>() {
-      @Override
-      public void write(JsonWriter out, ZoneId value) throws IOException {
-        out.value(value.getId());
-      }
+    TypeAdapter<ZoneId> zoneIdAdapter =
+        new TypeAdapter<ZoneId>() {
+          @Override
+          public void write(JsonWriter out, ZoneId value) throws IOException {
+            out.value(value.getId());
+          }
 
-      @Override
-      public ZoneId read(JsonReader in) throws IOException {
-        return ZoneId.of(in.nextString());
-      }
-    };
+          @Override
+          public ZoneId read(JsonReader in) throws IOException {
+            return ZoneId.of(in.nextString());
+          }
+        };
     Gson customGson = new GsonBuilder().registerTypeAdapter(ZoneId.class, zoneIdAdapter).create();
     ZoneId zoneId = ZoneId.of("UTC+01:00");
     int totalSeconds = ((ZoneOffset) zoneId.normalized()).getTotalSeconds();
@@ -1032,9 +1033,8 @@ public class DefaultTypeAdaptersTest {
   }
 
   private void roundTrip(Gson customGson, Object value, Class<?> valueClass, String expectedJson) {
-    assertThat(customGson.getAdapter(valueClass).getClass().getName())
-        .doesNotContain("Reflective");
-    assertThat(customGson.toJson(value)).isEqualTo(expectedJson);
+    assertThat(customGson.getAdapter(valueClass).getClass().getName()).doesNotContain("Reflective");
+    assertThat(customGson.toJson(value, valueClass)).isEqualTo(expectedJson);
     assertThat(customGson.fromJson(expectedJson, valueClass)).isEqualTo(value);
   }
 
