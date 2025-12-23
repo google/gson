@@ -16,6 +16,8 @@
 
 package com.google.gson.internal.bind;
 
+import static java.lang.Math.toIntExact;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
@@ -37,6 +39,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Currency;
@@ -689,78 +692,84 @@ public final class TypeAdapters {
       }.nullSafe();
   public static final TypeAdapterFactory CURRENCY_FACTORY = newFactory(Currency.class, CURRENCY);
 
+  /**
+   * An abstract {@link TypeAdapter} for classes whose JSON serialization consists of a fixed set of
+   * integer fields. That is the case for {@link Calendar} and the legacy serialization of various
+   * {@code java.time} types.
+   */
+  abstract static class IntegerFieldsTypeAdapter<T> extends TypeAdapter<T> {
+    private final List<String> fields;
+
+    IntegerFieldsTypeAdapter(String... fields) {
+      this.fields = Arrays.asList(fields);
+    }
+
+    abstract T create(long[] values);
+
+    abstract long[] integerValues(T t);
+
+    @Override
+    public T read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      in.beginObject();
+      long[] values = new long[fields.size()];
+      while (in.peek() != JsonToken.END_OBJECT) {
+        String name = in.nextName();
+        int index = fields.indexOf(name);
+        if (index >= 0) {
+          values[index] = in.nextLong();
+        } else {
+          in.skipValue();
+        }
+      }
+      in.endObject();
+      return create(values);
+    }
+
+    @Override
+    public void write(JsonWriter out, T value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      out.beginObject();
+      long[] values = integerValues(value);
+      for (int i = 0; i < fields.size(); i++) {
+        out.name(fields.get(i));
+        out.value(values[i]);
+      }
+      out.endObject();
+    }
+  }
+
   public static final TypeAdapter<Calendar> CALENDAR =
-      new TypeAdapter<Calendar>() {
-        private static final String YEAR = "year";
-        private static final String MONTH = "month";
-        private static final String DAY_OF_MONTH = "dayOfMonth";
-        private static final String HOUR_OF_DAY = "hourOfDay";
-        private static final String MINUTE = "minute";
-        private static final String SECOND = "second";
+      new IntegerFieldsTypeAdapter<Calendar>(
+          "year", "month", "dayOfMonth", "hourOfDay", "minute", "second") {
 
         @Override
-        public Calendar read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          in.beginObject();
-          int year = 0;
-          int month = 0;
-          int dayOfMonth = 0;
-          int hourOfDay = 0;
-          int minute = 0;
-          int second = 0;
-          while (in.peek() != JsonToken.END_OBJECT) {
-            String name = in.nextName();
-            int value = in.nextInt();
-            switch (name) {
-              case YEAR:
-                year = value;
-                break;
-              case MONTH:
-                month = value;
-                break;
-              case DAY_OF_MONTH:
-                dayOfMonth = value;
-                break;
-              case HOUR_OF_DAY:
-                hourOfDay = value;
-                break;
-              case MINUTE:
-                minute = value;
-                break;
-              case SECOND:
-                second = value;
-                break;
-              default:
-                // Ignore unknown JSON property
-            }
-          }
-          in.endObject();
-          return new GregorianCalendar(year, month, dayOfMonth, hourOfDay, minute, second);
+        Calendar create(long[] values) {
+          return new GregorianCalendar(
+              toIntExact(values[0]),
+              toIntExact(values[1]),
+              toIntExact(values[2]),
+              toIntExact(values[3]),
+              toIntExact(values[4]),
+              toIntExact(values[5]));
         }
 
         @Override
-        public void write(JsonWriter out, Calendar value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-            return;
-          }
-          out.beginObject();
-          out.name(YEAR);
-          out.value(value.get(Calendar.YEAR));
-          out.name(MONTH);
-          out.value(value.get(Calendar.MONTH));
-          out.name(DAY_OF_MONTH);
-          out.value(value.get(Calendar.DAY_OF_MONTH));
-          out.name(HOUR_OF_DAY);
-          out.value(value.get(Calendar.HOUR_OF_DAY));
-          out.name(MINUTE);
-          out.value(value.get(Calendar.MINUTE));
-          out.name(SECOND);
-          out.value(value.get(Calendar.SECOND));
-          out.endObject();
+        long[] integerValues(Calendar calendar) {
+          return new long[] {
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH),
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            calendar.get(Calendar.SECOND)
+          };
         }
       };
 
@@ -812,6 +821,22 @@ public final class TypeAdapters {
       newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
+
+  interface FactorySupplier {
+    TypeAdapterFactory get();
+  }
+
+  public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
+    try {
+      Class<?> javaTimeTypeAdapterFactoryClass =
+          Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");
+      FactorySupplier supplier =
+          (FactorySupplier) javaTimeTypeAdapterFactoryClass.getDeclaredConstructor().newInstance();
+      return supplier.get();
+    } catch (ReflectiveOperationException e) {
+      return null;
+    }
+  }
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
