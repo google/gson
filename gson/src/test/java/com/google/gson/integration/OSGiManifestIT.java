@@ -174,13 +174,16 @@ public class OSGiManifestIT {
       String version = null;
       String uses = null;
       for (String part : parts.subList(1, parts.size())) {
-        Matcher matcher;
-        if ((matcher = USES.matcher(part)).matches()) {
+        Matcher matcher = USES.matcher(part);
+        if (matcher.matches()) {
           checkState(uses == null, "More than one `uses`");
           uses = matcher.group(1);
-        } else if (version == null && (matcher = VERSION.matcher(part)).matches()) {
-          checkState(version == null, "More than one `version`");
-          version = matcher.group(1);
+        } else {
+          matcher = VERSION.matcher(part);
+          if (matcher.matches()) {
+            checkState(version == null, "More than one `version`");
+            version = matcher.group(1);
+          }
         }
       }
       checkNotNull(version, "Missing `version`");
