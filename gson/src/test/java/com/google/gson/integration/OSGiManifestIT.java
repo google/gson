@@ -15,6 +15,8 @@
  */
 package com.google.gson.integration;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
@@ -27,8 +29,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,11 +132,73 @@ public class OSGiManifestIT {
     }
   }
 
+  private static class ParsedExportLine {
+    private final String pkg;
+    private final String version;
+    private final Optional<String> uses;
+
+    ParsedExportLine(String pkg, String version, Optional<String> uses) {
+      this.pkg = pkg;
+      this.version = version;
+      this.uses = uses;
+    }
+
+    @Override
+    public String toString() {
+      String s = pkg + ";version=\"" + version + "\"";
+      if (uses.isPresent()) {
+        s += ";uses:=\"" + uses.get() + "\"";
+      }
+      return s;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o instanceof ParsedExportLine) {
+        var that = (ParsedExportLine) o;
+        return this.pkg.equals(that.pkg)
+            && this.version.equals(that.version)
+            && this.uses.equals(that.uses);
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(pkg, version, uses);
+    }
+
+    private static final ParsedExportLine parse(String line) {
+      List<String> parts = Splitter.on(';').splitToList(line);
+      String pkg = parts.get(0);
+      String version = null;
+      String uses = null;
+      for (String part : parts.subList(1, parts.size())) {
+        Matcher matcher;
+        if ((matcher = USES.matcher(part)).matches()) {
+          checkState(uses == null, "More than one `uses`");
+          uses = matcher.group(1);
+        } else if (version == null && (matcher = VERSION.matcher(part)).matches()) {
+          checkState(version == null, "More than one `version`");
+          version = matcher.group(1);
+        }
+      }
+      checkNotNull(version, "Missing `version`");
+      return new ParsedExportLine(pkg, version, Optional.ofNullable(uses));
+    }
+
+    private static final Pattern USES = Pattern.compile("uses:=\"([^\"]+)\"");
+    private static final Pattern VERSION = Pattern.compile("version=\"([^\"]+)\"");
+  }
+
   @Test
   public void testExports() {
     String gsonVersion = GSON_VERSION.replace("-SNAPSHOT", "");
 
-    List<String> exports = splitPackages(getAttribute("Export-Package"));
+    List<ParsedExportLine> exports =
+        splitPackages(getAttribute("Export-Package")).stream()
+            .map(ParsedExportLine::parse)
+            .collect(Collectors.toList());
     // When not running `mvn clean` the exports might differ slightly, see
     // https://github.com/bndtools/bnd/issues/6221
     assertWithMessage("Unexpected exports; make sure you are running `mvn clean ...`")
@@ -138,12 +206,17 @@ public class OSGiManifestIT {
         // Note: This just represents the currently generated exports; especially the `uses` can be
         // adjusted if necessary when Gson's implementation changes
         .containsExactly(
-            "com.google.gson;uses:=\"com.google.gson.reflect,com.google.gson.stream\";version=\""
-                + gsonVersion
-                + "\"",
-            "com.google.gson.annotations;version=\"" + gsonVersion + "\"",
-            "com.google.gson.reflect;version=\"" + gsonVersion + "\"",
-            "com.google.gson.stream;uses:=\"com.google.gson\";version=\"" + gsonVersion + "\"");
+            ParsedExportLine.parse(
+                "com.google.gson;uses:=\"com.google.gson.reflect,com.google.gson.stream\""
+                    + ";version=\""
+                    + gsonVersion
+                    + "\""),
+            ParsedExportLine.parse("com.google.gson.annotations;version=\"" + gsonVersion + "\""),
+            ParsedExportLine.parse("com.google.gson.reflect;version=\"" + gsonVersion + "\""),
+            ParsedExportLine.parse(
+                "com.google.gson.stream;uses:=\"com.google.gson\";version=\""
+                    + gsonVersion
+                    + "\""));
   }
 
   @Test
