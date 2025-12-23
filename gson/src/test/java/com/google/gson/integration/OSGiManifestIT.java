@@ -130,7 +130,10 @@ public class OSGiManifestIT {
   public void testExports() {
     String gsonVersion = GSON_VERSION.replace("-SNAPSHOT", "");
 
-    List<String> exports = splitPackages(getAttribute("Export-Package"));
+    List<String> exports =
+        splitPackages(getAttribute("Export-Package")).stream()
+            .map(line -> line.replaceAll("(;version=\".*\")(;uses:=\".*\")", "$2$1"))
+            .collect(Collectors.toList());
     // When not running `mvn clean` the exports might differ slightly, see
     // https://github.com/bndtools/bnd/issues/6221
     assertWithMessage("Unexpected exports; make sure you are running `mvn clean ...`")
@@ -138,7 +141,8 @@ public class OSGiManifestIT {
         // Note: This just represents the currently generated exports; especially the `uses` can be
         // adjusted if necessary when Gson's implementation changes
         .containsExactly(
-            "com.google.gson;uses:=\"com.google.gson.reflect,com.google.gson.stream\";version=\""
+            "com.google.gson;uses:=\"com.google.gson.reflect,com.google.gson.stream\""
+                + ";version=\""
                 + gsonVersion
                 + "\"",
             "com.google.gson.annotations;version=\"" + gsonVersion + "\"",

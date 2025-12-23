@@ -79,7 +79,7 @@
       <plugin>
         <groupId>io.github.ascopes</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <version>4.0.2</version>
+        <version>4.0.3</version>
         <configuration>
           <skip>${maven.test.skip}</skip>
           <protoc>${protobufVersion}</protoc>
