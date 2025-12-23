@@ -16,6 +16,8 @@
 
 package com.google.gson.internal.bind;
 
+import static java.lang.Math.toIntExact;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
@@ -770,15 +772,6 @@ public final class TypeAdapters {
           };
         }
       };
-
-  // This is Math.toIntExact, but works on Android level 23.
-  private static int toIntExact(long value) {
-    int castValue = (int) value;
-    if (castValue != value) {
-      throw new ArithmeticException("Too big for an int: " + value);
-    }
-    return castValue;
-  }
 
   public static final TypeAdapterFactory CALENDAR_FACTORY =
       newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
