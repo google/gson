@@ -523,12 +523,9 @@
                 <skip>${gson.isTestModule}</skip>
 
                 <signature>
-                  <!-- Note: In case Android compatibility impedes Gson development too much in the
-                    future, could consider switching to https://github.com/open-toast/gummy-bears
-                    which accounts for Android desugaring and might allow usage of more Java classes -->
-                  <groupId>net.sf.androidscents.signature</groupId>
-                  <artifactId>android-api-level-26</artifactId>
-                  <version>8.0.0_r2</version>
+                  <groupId>com.toasttab.android</groupId>
+                  <artifactId>gummy-bears-api-23</artifactId>
+                  <version>0.8.0</version>
                 </signature>
               </configuration>
             </execution>
