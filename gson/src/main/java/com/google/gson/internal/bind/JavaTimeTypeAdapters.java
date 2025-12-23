@@ -26,6 +26,7 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 
 /**
  * Type adapters for {@code java.time} types.
@@ -40,6 +41,7 @@ import java.time.ZonedDateTime;
  * recent JDK versions. So here we freeze the representation that was current with JDK 21, in a way
  * that does not use reflection.
  */
+@IgnoreJRERequirement // Protected by a reflective check
 final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
 
   @Override
