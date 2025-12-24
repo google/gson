@@ -538,11 +538,11 @@ public class DefaultTypeAdaptersTest {
 
         Gson gson = new GsonBuilder().setDateFormat(dateStyle, timeStyle).create();
         String json = gson.toJson(date);
-        assertWithMessage("dateStyle=" + dateStyle + ", timeStyle=" + timeStyle)
+        assertWithMessage("dateStyle=%s, timeStyle=%s", dateStyle, timeStyle)
             .that(json)
             .isEqualTo("\"" + expectedFormatted + "\"");
 
-        assertWithMessage("dateStyle=" + dateStyle + ", timeStyle=" + timeStyle)
+        assertWithMessage("dateStyle=%s, timeStyle=%s", dateStyle, timeStyle)
             .that(gson.fromJson(json, Date.class).getTime())
             .isEqualTo(date.getTime());
       }
@@ -568,11 +568,11 @@ public class DefaultTypeAdaptersTest {
 
       Gson gson = new GsonBuilder().setDateFormat(dateStyle).create();
       String json = gson.toJson(date);
-      assertWithMessage("dateStyle=" + dateStyle)
+      assertWithMessage("dateStyle=%s", dateStyle)
           .that(json)
           .isEqualTo("\"" + expectedFormatted + "\"");
 
-      assertWithMessage("dateStyle=" + dateStyle)
+      assertWithMessage("dateStyle=%s", dateStyle)
           .that(gson.fromJson(json, Date.class).getTime())
           .isEqualTo(date.getTime());
     }
