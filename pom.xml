@@ -522,9 +522,10 @@
               <configuration>
                 <skip>${gson.isTestModule}</skip>
                 <signature>
-                  <groupId>com.toasttab.android</groupId>
-                  <artifactId>gummy-bears-api-23</artifactId>
-                  <version>0.8.0</version>
+                  <!-- Google's internal use currently requires API Level 23 without desugaring. -->
+                  <groupId>net.sf.androidscents.signature</groupId>
+                  <artifactId>android-api-level-23</artifactId>
+                  <version>6.0_r3</version>
                 </signature>
                 <annotations>
                   <annotation>com.google.gson.internal.bind.IgnoreJRERequirement</annotation>

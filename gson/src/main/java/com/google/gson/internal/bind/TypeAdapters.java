@@ -16,8 +16,6 @@
 
 package com.google.gson.internal.bind;
 
-import static java.lang.Math.toIntExact;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
@@ -773,6 +771,15 @@ public final class TypeAdapters {
         }
       };
 
+  // TODO: update this when we are on at least Android API Level 24.
+  private static int toIntExact(long x) {
+    int i = (int) x;
+    if (i != x) {
+      throw new IllegalArgumentException("Too big for an int: " + x);
+    }
+    return i;
+  }
+
   public static final TypeAdapterFactory CALENDAR_FACTORY =
       newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
 
@@ -833,7 +840,7 @@ public final class TypeAdapters {
       FactorySupplier supplier =
           (FactorySupplier) javaTimeTypeAdapterFactoryClass.getDeclaredConstructor().newInstance();
       return supplier.get();
-    } catch (ReflectiveOperationException e) {
+    } catch (ReflectiveOperationException | LinkageError e) {
       return null;
     }
   }
