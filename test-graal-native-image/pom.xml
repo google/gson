@@ -39,7 +39,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>6.0.0</version>
+        <version>6.0.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -137,7 +137,7 @@
           <plugin>
             <groupId>org.graalvm.buildtools</groupId>
             <artifactId>native-maven-plugin</artifactId>
-            <version>0.11.2</version>
+            <version>0.11.3</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -150,6 +150,7 @@
                   <buildArgs>
                     <!-- Show stack traces to make troubleshooting build issues easier -->
                     <buildArg>-H:+ReportExceptionStackTraces</buildArg>
+                    <buildArg>--initialize-at-build-time=org.junit.jupiter.engine.discovery.MethodSegmentResolver</buildArg>
                   </buildArgs>
                 </configuration>
               </execution>
