@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Converts Java objects to and from JSON.
@@ -127,7 +128,7 @@ public abstract class TypeAdapter<T> {
    *
    * @param value the Java object to write. May be null.
    */
-  public abstract void write(JsonWriter out, T value) throws IOException;
+  public abstract void write(JsonWriter out, @Nullable T value) throws IOException;
 
   /**
    * Converts {@code value} to a JSON document and writes it to {@code out}.
@@ -191,7 +192,7 @@ public abstract class TypeAdapter<T> {
    *
    * @return the converted Java object. May be {@code null}.
    */
-  public abstract T read(JsonReader in) throws IOException;
+  public abstract @Nullable T read(JsonReader in) throws IOException;
 
   /**
    * Converts the JSON document in {@code in} to a Java object.
@@ -207,7 +208,7 @@ public abstract class TypeAdapter<T> {
    * @return the converted Java object. May be {@code null}.
    * @since 2.2
    */
-  public final T fromJson(Reader in) throws IOException {
+  public final @Nullable T fromJson(Reader in) throws IOException {
     JsonReader reader = new JsonReader(in);
     return read(reader);
   }
@@ -226,7 +227,7 @@ public abstract class TypeAdapter<T> {
    * @return the converted Java object. May be {@code null}.
    * @since 2.2
    */
-  public final T fromJson(String json) throws IOException {
+  public final @Nullable T fromJson(String json) throws IOException {
     return fromJson(new StringReader(json));
   }
 
@@ -238,7 +239,7 @@ public abstract class TypeAdapter<T> {
    * @throws JsonIOException wrapping {@code IOException}s thrown by {@link #read(JsonReader)}
    * @since 2.2
    */
-  public final T fromJsonTree(JsonElement jsonTree) {
+  public final @Nullable T fromJsonTree(JsonElement jsonTree) {
     try {
       JsonReader jsonReader = new JsonTreeReader(jsonTree);
       return read(jsonReader);
@@ -297,7 +298,7 @@ public abstract class TypeAdapter<T> {
 
   private final class NullSafeTypeAdapter extends TypeAdapter<T> {
     @Override
-    public void write(JsonWriter out, T value) throws IOException {
+    public void write(JsonWriter out, @Nullable T value) throws IOException {
       if (value == null) {
         out.nullValue();
       } else {
@@ -306,7 +307,7 @@ public abstract class TypeAdapter<T> {
     }
 
     @Override
-    public T read(JsonReader reader) throws IOException {
+    public @Nullable T read(JsonReader reader) throws IOException {
       if (reader.peek() == JsonToken.NULL) {
         reader.nextNull();
         return null;

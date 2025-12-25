@@ -16,4 +16,5 @@
 
 /** This package provides classes for processing JSON in an efficient streaming way. */
 @com.google.errorprone.annotations.CheckReturnValue
+@org.jspecify.annotations.NullMarked
 package com.google.gson.stream;

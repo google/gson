@@ -28,6 +28,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -76,7 +77,7 @@ public class DelegateTypeAdapterTest {
     int numWrites = 0;
 
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
       return new TypeAdapter<>() {
         @Override

@@ -25,6 +25,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
+import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("JavaUtilDate")
 class SqlTimestampTypeAdapter extends TypeAdapter<Timestamp> {
@@ -32,7 +33,7 @@ class SqlTimestampTypeAdapter extends TypeAdapter<Timestamp> {
       new TypeAdapterFactory() {
         @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
         @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+        public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
           if (typeToken.getRawType() == Timestamp.class) {
             TypeAdapter<Date> dateTypeAdapter = gson.getAdapter(Date.class);
             return (TypeAdapter<T>) new SqlTimestampTypeAdapter(dateTypeAdapter);

@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /** Type adapter that reflects over the fields and methods of a class. */
 public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
@@ -107,7 +108,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     Class<? super T> raw = type.getRawType();
 
     if (!Object.class.isAssignableFrom(raw)) {

@@ -29,6 +29,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import org.jspecify.annotations.Nullable;
 
 /** Adapt a homogeneous collection of objects. */
 public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
@@ -39,7 +40,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+  public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
     Type type = typeToken.getType();
 
     Class<? super T> rawType = typeToken.getRawType();

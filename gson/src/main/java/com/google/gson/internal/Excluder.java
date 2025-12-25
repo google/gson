@@ -34,6 +34,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This class selects which fields and types to omit. It is configurable, supporting version
@@ -108,7 +109,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   }
 
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
 
     boolean skipSerialize = excludeClass(rawType, true);

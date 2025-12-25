@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Google Inc.
+ * Copyright (C) 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
  */
 
 /**
- * This package provides utility classes for finding type information for generic types.
+ * Do NOT use any class in this package as they are meant for internal use in Gson. These classes
+ * will very likely change incompatibly in future versions. You have been warned.
  *
- * @author Inderjeet Singh, Joel Leitch
+ * @author Inderjeet Singh, Joel Leitch, Jesse Wilson
  */
 @com.google.errorprone.annotations.CheckReturnValue
 @org.jspecify.annotations.NullMarked
-package com.google.gson.reflect;
+package com.google.gson.internal.bind;

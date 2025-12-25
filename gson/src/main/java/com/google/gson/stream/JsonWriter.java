@@ -27,6 +27,8 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.FormattingStyle;
 import com.google.gson.Strictness;
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -175,8 +177,8 @@ public class JsonWriter implements Closeable, Flushable {
    * newline characters. This prevents eval() from failing with a syntax
    * error. http://code.google.com/p/google-gson/issues/detail?id=341
    */
-  private static final String[] REPLACEMENT_CHARS;
-  private static final String[] HTML_SAFE_REPLACEMENT_CHARS;
+  private static final @Nullable String[] REPLACEMENT_CHARS;
+  private static final @Nullable String[] HTML_SAFE_REPLACEMENT_CHARS;
 
   static {
     REPLACEMENT_CHARS = new String[128];
@@ -219,7 +221,7 @@ public class JsonWriter implements Closeable, Flushable {
 
   private boolean htmlSafe;
 
-  private String deferredName;
+  private @Nullable String deferredName;
 
   private boolean serializeNulls = true;
 
@@ -524,7 +526,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @return this writer.
    */
   @CanIgnoreReturnValue
-  public JsonWriter value(String value) throws IOException {
+  public JsonWriter value(@Nullable String value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -554,7 +556,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @since 2.7
    */
   @CanIgnoreReturnValue
-  public JsonWriter value(Boolean value) throws IOException {
+  public JsonWriter value(@Nullable Boolean value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -630,7 +632,7 @@ public class JsonWriter implements Closeable, Flushable {
    *     JSON number.
    */
   @CanIgnoreReturnValue
-  public JsonWriter value(Number value) throws IOException {
+  public JsonWriter value(@Nullable Number value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -689,7 +691,7 @@ public class JsonWriter implements Closeable, Flushable {
    * @since 2.4
    */
   @CanIgnoreReturnValue
-  public JsonWriter jsonValue(String value) throws IOException {
+  public JsonWriter jsonValue(@Nullable String value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -741,7 +743,7 @@ public class JsonWriter implements Closeable, Flushable {
   }
 
   private void string(String value) throws IOException {
-    String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
+    @Nullable String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
     out.write('\"');
     int last = 0;
     int length = value.length();

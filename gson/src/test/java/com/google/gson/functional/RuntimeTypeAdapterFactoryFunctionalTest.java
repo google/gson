@@ -33,6 +33,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 /** Functional tests for the RuntimeTypeAdapterFactory feature in extras. */
@@ -161,7 +162,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
     }
 
     @Override
-    public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
+    public @Nullable <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
       if (type.getRawType() != baseType) {
         return null;
       }

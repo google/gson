@@ -21,6 +21,7 @@ import com.google.gson.ReflectionAccessFilter.FilterResult;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** Internal helper class for {@link ReflectionAccessFilter}. */
 public class ReflectionAccessFilterHelper {
@@ -73,7 +74,7 @@ public class ReflectionAccessFilterHelper {
   }
 
   /** See {@link AccessibleObject#canAccess(Object)} (Java >= 9) */
-  public static boolean canAccess(AccessibleObject accessibleObject, Object object) {
+  public static boolean canAccess(AccessibleObject accessibleObject, @Nullable Object object) {
     return AccessChecker.INSTANCE.canAccess(accessibleObject, object);
   }
 
@@ -90,7 +91,8 @@ public class ReflectionAccessFilterHelper {
           accessChecker =
               new AccessChecker() {
                 @Override
-                public boolean canAccess(AccessibleObject accessibleObject, Object object) {
+                public boolean canAccess(
+                    AccessibleObject accessibleObject, @Nullable Object object) {
                   try {
                     return (Boolean) canAccessMethod.invoke(accessibleObject, object);
                   } catch (Exception e) {
@@ -107,7 +109,7 @@ public class ReflectionAccessFilterHelper {
         accessChecker =
             new AccessChecker() {
               @Override
-              public boolean canAccess(AccessibleObject accessibleObject, Object object) {
+              public boolean canAccess(AccessibleObject accessibleObject, @Nullable Object object) {
                 // Cannot determine whether object can be accessed, so assume it can be accessed
                 return true;
               }
@@ -116,6 +118,6 @@ public class ReflectionAccessFilterHelper {
       INSTANCE = accessChecker;
     }
 
-    abstract boolean canAccess(AccessibleObject accessibleObject, Object object);
+    abstract boolean canAccess(AccessibleObject accessibleObject, @Nullable Object object);
   }
 }
