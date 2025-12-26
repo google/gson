@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.Streams;
+import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.stream.JsonReader;
@@ -130,6 +130,16 @@ public abstract class TypeAdapter<T> {
   public abstract void write(JsonWriter out, T value) throws IOException;
 
   /**
+   * For compatibility only!
+   *
+   * @see TypeAdapter#toJson(Appendable, Object)
+   */
+  @InlineMe(replacement = "this.toJson((Appendable) out, value)")
+  public final void toJson(Writer out, T value) throws IOException {
+    toJson((Appendable) out, value);
+  }
+
+  /**
    * Converts {@code value} to a JSON document and writes it to {@code out}.
    *
    * <p>A {@link JsonWriter} with default configuration is used for writing the JSON data. To
@@ -139,7 +149,7 @@ public abstract class TypeAdapter<T> {
    * @param value the Java object to convert. May be {@code null}.
    * @since 2.2
    */
-  public final void toJson(Writer out, T value) throws IOException {
+  public final void toJson(Appendable out, T value) throws IOException {
     JsonWriter writer = new JsonWriter(out);
     write(writer, value);
   }
@@ -159,7 +169,7 @@ public abstract class TypeAdapter<T> {
   public final String toJson(T value) {
     StringBuilder stringBuilder = new StringBuilder();
     try {
-      toJson(Streams.writerForAppendable(stringBuilder), value);
+      toJson(stringBuilder, value);
     } catch (IOException e) {
       throw new JsonIOException(e);
     }

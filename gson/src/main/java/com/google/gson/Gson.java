@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
@@ -119,9 +120,9 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * <ol>
  *   <li>Use {@link #getAdapter(Class)} to obtain the adapter for the type to be serialized
  *   <li>When using an existing {@code JsonWriter}, manually apply the writer settings of this
- *       {@code Gson} instance listed by {@link #newJsonWriter(Writer)}.<br>
+ *       {@code Gson} instance listed by {@link #newJsonWriter(Appendable)}.<br>
  *       Otherwise, when not using an existing {@code JsonWriter}, use {@link
- *       #newJsonWriter(Writer)} to construct one.
+ *       #newJsonWriter(Appendable)} to construct one.
  *   <li>Call {@link TypeAdapter#write(JsonWriter, Object)}
  * </ol>
  *
@@ -813,8 +814,8 @@ public final class Gson {
    * the generic type information because of the Type Erasure feature of Java. Note that this method
    * works fine if any of the object fields are of generic type, just the object itself should not
    * be of a generic type. If the object is of generic type, use {@link #toJson(Object, Type)}
-   * instead. If you want to write out the object to a {@link Writer}, use {@link #toJson(Object,
-   * Appendable)} instead.
+   * instead. If you want to write out the object to an {@link Appendable}, use {@link
+   * #toJson(Object, Appendable)} instead.
    *
    * @param src the object for which JSON representation is to be created
    * @return JSON representation of {@code src}.
@@ -832,7 +833,7 @@ public final class Gson {
    * This method serializes the specified object, including those of generic types, into its
    * equivalent JSON representation. This method must be used if the specified object is a generic
    * type. For non-generic objects, use {@link #toJson(Object)} instead. If you want to write out
-   * the object to a {@link Appendable}, use {@link #toJson(Object, Type, Appendable)} instead.
+   * the object to an {@link Appendable}, use {@link #toJson(Object, Type, Appendable)} instead.
    *
    * @param src the object for which JSON representation is to be created
    * @param typeOfSrc The specific genericized type of src. You can obtain this type by using the
@@ -898,7 +899,7 @@ public final class Gson {
    */
   public void toJson(Object src, Type typeOfSrc, Appendable writer) throws JsonIOException {
     try {
-      JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
+      JsonWriter jsonWriter = newJsonWriter(writer);
       toJson(src, typeOfSrc, jsonWriter);
     } catch (IOException e) {
       throw new JsonIOException(e);
@@ -980,7 +981,7 @@ public final class Gson {
    */
   public void toJson(JsonElement jsonElement, Appendable writer) throws JsonIOException {
     try {
-      JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
+      JsonWriter jsonWriter = newJsonWriter(writer);
       toJson(jsonElement, jsonWriter);
     } catch (IOException e) {
       throw new JsonIOException(e);
@@ -1037,6 +1038,16 @@ public final class Gson {
   }
 
   /**
+   * For compatibility only!
+   *
+   * @see Gson#newJsonWriter(Appendable)
+   */
+  @InlineMe(replacement = "this.newJsonWriter((Appendable) writer)")
+  public JsonWriter newJsonWriter(Writer writer) throws IOException {
+    return newJsonWriter((Appendable) writer);
+  }
+
+  /**
    * Returns a new JSON writer configured for the settings on this Gson instance.
    *
    * <p>The following settings are considered:
@@ -1053,9 +1064,9 @@ public final class Gson {
    *   <li>{@link GsonBuilder#setFormattingStyle(FormattingStyle)}
    * </ul>
    */
-  public JsonWriter newJsonWriter(Writer writer) throws IOException {
+  public JsonWriter newJsonWriter(Appendable writer) throws IOException {
     if (generateNonExecutableJson) {
-      writer.write(JSON_NON_EXECUTABLE_PREFIX);
+      writer.append(JSON_NON_EXECUTABLE_PREFIX);
     }
     JsonWriter jsonWriter = new JsonWriter(writer);
     jsonWriter.setFormattingStyle(formattingStyle);
