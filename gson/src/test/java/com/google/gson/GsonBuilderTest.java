@@ -23,7 +23,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
@@ -222,7 +221,7 @@ public class GsonBuilderTest {
     Gson gson = builder.create();
     assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness())
         .isEqualTo(Strictness.LEGACY_STRICT);
-    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness())
+    assertThat(gson.newJsonWriter(new StringBuilder()).getStrictness())
         .isEqualTo(Strictness.LEGACY_STRICT);
   }
 
@@ -234,7 +233,7 @@ public class GsonBuilderTest {
     Gson gson = builder.create();
     assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness())
         .isEqualTo(Strictness.LENIENT);
-    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness())
+    assertThat(gson.newJsonWriter(new StringBuilder()).getStrictness())
         .isEqualTo(Strictness.LENIENT);
   }
 
@@ -245,7 +244,7 @@ public class GsonBuilderTest {
     builder.setStrictness(strictness);
     Gson gson = builder.create();
     assertThat(gson.newJsonReader(new StringReader("{}")).getStrictness()).isEqualTo(strictness);
-    assertThat(gson.newJsonWriter(new StringWriter()).getStrictness()).isEqualTo(strictness);
+    assertThat(gson.newJsonWriter(new StringBuilder()).getStrictness()).isEqualTo(strictness);
   }
 
   @Test
