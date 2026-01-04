@@ -40,8 +40,8 @@ import org.jspecify.annotations.Nullable;
  * adapter on demand.
  */
 public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter<T> {
-  private final JsonSerializer<T> serializer;
-  private final JsonDeserializer<T> deserializer;
+  private final @Nullable JsonSerializer<T> serializer;
+  private final @Nullable JsonDeserializer<T> deserializer;
   final Gson gson;
   private final TypeToken<T> typeToken;
 
@@ -58,11 +58,11 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
    * The delegate is lazily created because it may not be needed, and creating it may fail. Field
    * has to be {@code volatile} because {@link Gson} guarantees to be thread-safe.
    */
-  private volatile TypeAdapter<T> delegate;
+  private volatile @Nullable TypeAdapter<T> delegate;
 
   public TreeTypeAdapter(
-      JsonSerializer<T> serializer,
-      JsonDeserializer<T> deserializer,
+      @Nullable JsonSerializer<T> serializer,
+      @Nullable JsonDeserializer<T> deserializer,
       Gson gson,
       TypeToken<T> typeToken,
       TypeAdapterFactory skipPast,
@@ -76,8 +76,8 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
   }
 
   public TreeTypeAdapter(
-      JsonSerializer<T> serializer,
-      JsonDeserializer<T> deserializer,
+      @Nullable JsonSerializer<T> serializer,
+      @Nullable JsonDeserializer<T> deserializer,
       Gson gson,
       TypeToken<T> typeToken,
       TypeAdapterFactory skipPast) {
@@ -152,14 +152,17 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
   }
 
   private static final class SingleTypeFactory implements TypeAdapterFactory {
-    private final TypeToken<?> exactType;
+    private final @Nullable TypeToken<?> exactType;
     private final boolean matchRawType;
-    private final Class<?> hierarchyType;
-    private final JsonSerializer<?> serializer;
-    private final JsonDeserializer<?> deserializer;
+    private final @Nullable Class<?> hierarchyType;
+    private final @Nullable JsonSerializer<?> serializer;
+    private final @Nullable JsonDeserializer<?> deserializer;
 
     SingleTypeFactory(
-        Object typeAdapter, TypeToken<?> exactType, boolean matchRawType, Class<?> hierarchyType) {
+        Object typeAdapter,
+        @Nullable TypeToken<?> exactType,
+        boolean matchRawType,
+        @Nullable Class<?> hierarchyType) {
       serializer = typeAdapter instanceof JsonSerializer ? (JsonSerializer<?>) typeAdapter : null;
       deserializer =
           typeAdapter instanceof JsonDeserializer ? (JsonDeserializer<?>) typeAdapter : null;

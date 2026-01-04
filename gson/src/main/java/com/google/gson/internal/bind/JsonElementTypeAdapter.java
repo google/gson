@@ -42,7 +42,8 @@ public class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
    * Tries to begin reading a JSON array or JSON object, returning {@code null} if the next element
    * is neither of those.
    */
-  private JsonElement tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
+  private @Nullable JsonElement tryBeginNesting(JsonReader in, JsonToken peeked)
+      throws IOException {
     switch (peeked) {
       case BEGIN_ARRAY:
         in.beginArray();

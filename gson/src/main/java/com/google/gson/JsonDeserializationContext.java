@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import java.lang.reflect.Type;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Context for deserialization that is passed to a custom deserializer during invocation of its
@@ -40,5 +41,5 @@ public interface JsonDeserializationContext {
    * @throws JsonParseException if the parse tree does not contain expected data.
    */
   @SuppressWarnings("TypeParameterUnusedInFormals")
-  <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException;
+  <T> @Nullable T deserialize(JsonElement json, Type typeOfT) throws JsonParseException;
 }

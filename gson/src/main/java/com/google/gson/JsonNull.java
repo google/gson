@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A class representing a JSON {@code null} value.
  *

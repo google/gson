@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import org.jspecify.annotations.Nullable;
 
 public class ReflectionHelper {
 
@@ -163,7 +164,7 @@ public class ReflectionHelper {
    * @param constructor constructor to make accessible
    * @return exception message; {@code null} if successful, non-{@code null} if unsuccessful
    */
-  public static String tryMakeAccessible(Constructor<?> constructor) {
+  public static @Nullable String tryMakeAccessible(Constructor<?> constructor) {
     try {
       constructor.setAccessible(true);
       return null;

@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -75,7 +76,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
    * Tries to begin reading a JSON array or JSON object, returning {@code null} if the next element
    * is neither of those.
    */
-  private Object tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
+  private @Nullable Object tryBeginNesting(JsonReader in, JsonToken peeked) throws IOException {
     switch (peeked) {
       case BEGIN_ARRAY:
         in.beginArray();
@@ -89,7 +90,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   }
 
   /** Reads an {@code Object} which cannot have any nested elements */
-  private Object readTerminal(JsonReader in, JsonToken peeked) throws IOException {
+  private @Nullable Object readTerminal(JsonReader in, JsonToken peeked) throws IOException {
     switch (peeked) {
       case STRING:
         return in.nextString();
@@ -175,7 +176,8 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
     }
 
     @SuppressWarnings("unchecked")
-    TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) gson.getAdapter(value.getClass());
+    TypeAdapter<Object> typeAdapter =
+        (TypeAdapter<@NonNull Object>) gson.getAdapter(value.getClass());
     if (typeAdapter instanceof ObjectTypeAdapter) {
       out.beginObject();
       out.endObject();

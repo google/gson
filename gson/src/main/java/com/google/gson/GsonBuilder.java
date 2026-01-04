@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Use this builder to construct a {@link Gson} instance when you need to set configuration options
@@ -100,7 +101,7 @@ public final class GsonBuilder {
   private final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>();
 
   private boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
-  private String datePattern = DEFAULT_DATE_PATTERN;
+  private @Nullable String datePattern = DEFAULT_DATE_PATTERN;
   private int dateStyle = DateFormat.DEFAULT;
   private int timeStyle = DateFormat.DEFAULT;
   private boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
@@ -108,7 +109,7 @@ public final class GsonBuilder {
   private boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
   private FormattingStyle formattingStyle = DEFAULT_FORMATTING_STYLE;
   private boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
-  private Strictness strictness = DEFAULT_STRICTNESS;
+  private @Nullable Strictness strictness = DEFAULT_STRICTNESS;
   private boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   private ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   private ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
@@ -600,7 +601,7 @@ public final class GsonBuilder {
    * @since 1.2
    */
   @CanIgnoreReturnValue
-  public GsonBuilder setDateFormat(String pattern) {
+  public GsonBuilder setDateFormat(@Nullable String pattern) {
     if (pattern != null) {
       try {
         new SimpleDateFormat(pattern);
@@ -920,7 +921,10 @@ public final class GsonBuilder {
   }
 
   private static void addTypeAdaptersForDate(
-      String datePattern, int dateStyle, int timeStyle, List<TypeAdapterFactory> factories) {
+      @Nullable String datePattern,
+      int dateStyle,
+      int timeStyle,
+      List<TypeAdapterFactory> factories) {
     TypeAdapterFactory dateAdapterFactory;
     boolean sqlTypesSupported = SqlTypesSupport.SUPPORTS_SQL_TYPES;
     TypeAdapterFactory sqlTimestampAdapterFactory = null;

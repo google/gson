@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Reads a JSON (<a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>) encoded value as a
@@ -288,7 +289,7 @@ public class JsonReader implements Closeable {
    * A peeked string that should be parsed on the next double, long or string. This is populated
    * before a numeric value is parsed and used if that parsing fails.
    */
-  private String peekedString;
+  private @Nullable String peekedString;
 
   /** The nesting stack. Using a manual array rather than an ArrayList saves 20%. */
   private int[] stack = new int[32];
@@ -307,7 +308,7 @@ public class JsonReader implements Closeable {
    * that array. Otherwise the value is undefined, and we take advantage of that
    * by incrementing pathIndices when doing so isn't useful.
    */
-  private String[] pathNames = new String[32];
+  private @Nullable String[] pathNames = new String[32];
   private int[] pathIndices = new int[32];
 
   /** Creates a new instance that reads a JSON-encoded stream from {@code in}. */
@@ -948,7 +949,7 @@ public class JsonReader implements Closeable {
    *
    * @throws IllegalStateException if the next token is not a string.
    */
-  public String nextString() throws IOException {
+  public @Nullable String nextString() throws IOException {
     int p = peeked;
     if (p == PEEKED_NONE) {
       p = doPeek();

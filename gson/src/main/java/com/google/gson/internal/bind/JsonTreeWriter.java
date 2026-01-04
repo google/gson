@@ -28,6 +28,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /** This writer creates a JsonElement. */
 public final class JsonTreeWriter extends JsonWriter {
@@ -56,7 +57,7 @@ public final class JsonTreeWriter extends JsonWriter {
   private final List<JsonElement> stack = new ArrayList<>();
 
   /** The name for the next JSON object value. If non-null, the top of the stack is a JsonObject. */
-  private String pendingName;
+  private @Nullable String pendingName;
 
   /** the JSON element constructed by this writer. */
   private JsonElement product = JsonNull.INSTANCE; // TODO: is this really what we want?;
@@ -159,7 +160,7 @@ public final class JsonTreeWriter extends JsonWriter {
 
   @CanIgnoreReturnValue
   @Override
-  public JsonWriter value(String value) throws IOException {
+  public JsonWriter value(@Nullable String value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -176,7 +177,7 @@ public final class JsonTreeWriter extends JsonWriter {
 
   @CanIgnoreReturnValue
   @Override
-  public JsonWriter value(Boolean value) throws IOException {
+  public JsonWriter value(@Nullable Boolean value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -213,7 +214,7 @@ public final class JsonTreeWriter extends JsonWriter {
 
   @CanIgnoreReturnValue
   @Override
-  public JsonWriter value(Number value) throws IOException {
+  public JsonWriter value(@Nullable Number value) throws IOException {
     if (value == null) {
       return nullValue();
     }
@@ -237,7 +238,7 @@ public final class JsonTreeWriter extends JsonWriter {
   }
 
   @Override
-  public JsonWriter jsonValue(String value) throws IOException {
+  public JsonWriter jsonValue(@Nullable String value) throws IOException {
     throw new UnsupportedOperationException();
   }
 

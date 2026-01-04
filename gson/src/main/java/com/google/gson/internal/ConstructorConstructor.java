@@ -313,7 +313,7 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private static ObjectConstructor<? extends Collection<?>> newCollectionConstructor(
+  private static @Nullable ObjectConstructor<? extends Collection<?>> newCollectionConstructor(
       Class<?> rawType) {
 
     // First try List implementation

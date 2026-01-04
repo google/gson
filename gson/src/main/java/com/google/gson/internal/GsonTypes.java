@@ -127,7 +127,7 @@ public final class GsonTypes {
     }
   }
 
-  public static Class<?> getRawType(Type type) {
+  public static Class<?> getRawType(@Nullable Type type) {
     if (type instanceof Class<?>) {
       // type is a normal class.
       return (Class<?>) type;
@@ -480,7 +480,7 @@ public final class GsonTypes {
    * Returns the declaring class of {@code typeVariable}, or {@code null} if it was not declared by
    * a class.
    */
-  private static Class<?> declaringClassOf(TypeVariable<?> typeVariable) {
+  private static @Nullable Class<?> declaringClassOf(TypeVariable<?> typeVariable) {
     GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
     return genericDeclaration instanceof Class ? (Class<?>) genericDeclaration : null;
   }

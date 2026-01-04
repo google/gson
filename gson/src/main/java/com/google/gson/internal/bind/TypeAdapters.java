@@ -834,7 +834,7 @@ public final class TypeAdapters {
     TypeAdapterFactory get();
   }
 
-  public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
+  public static @Nullable TypeAdapterFactory javaTimeTypeAdapterFactory() {
     try {
       Class<?> javaTimeTypeAdapterFactoryClass =
           Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");

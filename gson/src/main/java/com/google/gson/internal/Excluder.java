@@ -124,7 +124,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
        * The delegate is lazily created because it may not be needed, and creating it may fail.
        * Field has to be {@code volatile} because {@link Gson} guarantees to be thread-safe.
        */
-      private volatile TypeAdapter<T> delegate;
+      private volatile @Nullable TypeAdapter<T> delegate;
 
       @Override
       public @Nullable T read(JsonReader in) throws IOException {

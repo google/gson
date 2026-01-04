@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Defines the expected format for a {@code long} or {@code Long} type when it is serialized.
  *
@@ -33,7 +35,7 @@ public enum LongSerializationPolicy {
    */
   DEFAULT() {
     @Override
-    public JsonElement serialize(Long value) {
+    public JsonElement serialize(@Nullable Long value) {
       if (value == null) {
         return JsonNull.INSTANCE;
       }
@@ -49,7 +51,7 @@ public enum LongSerializationPolicy {
    */
   STRING() {
     @Override
-    public JsonElement serialize(Long value) {
+    public JsonElement serialize(@Nullable Long value) {
       if (value == null) {
         return JsonNull.INSTANCE;
       }
@@ -63,5 +65,5 @@ public enum LongSerializationPolicy {
    * @param value the long value to be serialized into a {@link JsonElement}
    * @return the serialized version of {@code value}
    */
-  public abstract JsonElement serialize(Long value);
+  public abstract JsonElement serialize(@Nullable Long value);
 }
