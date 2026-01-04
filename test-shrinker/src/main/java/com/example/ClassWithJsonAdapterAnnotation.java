@@ -72,12 +72,12 @@ public class ClassWithJsonAdapterAnnotation {
 
   static class Adapter extends TypeAdapter<DummyClass> {
     @Override
-    public DummyClass read(JsonReader in) throws IOException {
+    public @Nullable DummyClass read(JsonReader in) throws IOException {
       return new DummyClass("adapter-" + in.nextInt());
     }
 
     @Override
-    public void write(JsonWriter out, DummyClass value) throws IOException {
+    public void write(JsonWriter out, @Nullable DummyClass value) throws IOException {
       out.value("adapter-" + value);
     }
   }
@@ -91,12 +91,12 @@ public class ClassWithJsonAdapterAnnotation {
           (TypeAdapter<T>)
               new TypeAdapter<DummyClass>() {
                 @Override
-                public DummyClass read(JsonReader in) throws IOException {
+                public @Nullable DummyClass read(JsonReader in) throws IOException {
                   return new DummyClass("factory-" + in.nextInt());
                 }
 
                 @Override
-                public void write(JsonWriter out, DummyClass value) throws IOException {
+                public void write(JsonWriter out, @Nullable DummyClass value) throws IOException {
                   out.value("factory-" + value.s);
                 }
               };

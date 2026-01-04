@@ -138,7 +138,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
   }
 
   @Override
-  public void write(JsonWriter out, Date value) throws IOException {
+  public void write(JsonWriter out, @Nullable T value) throws IOException {
     if (value == null) {
       out.nullValue();
       return;
@@ -154,7 +154,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
   }
 
   @Override
-  public T read(JsonReader in) throws IOException {
+  public @Nullable T read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
       in.nextNull();
       return null;

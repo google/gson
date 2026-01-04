@@ -85,7 +85,7 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
   }
 
   @Override
-  public T read(JsonReader in) throws IOException {
+  public @Nullable T read(JsonReader in) throws IOException {
     if (deserializer == null) {
       return delegate().read(in);
     }
@@ -97,7 +97,7 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
   }
 
   @Override
-  public void write(JsonWriter out, T value) throws IOException {
+  public void write(JsonWriter out, @Nullable T value) throws IOException {
     if (serializer == null) {
       delegate().write(out, value);
       return;

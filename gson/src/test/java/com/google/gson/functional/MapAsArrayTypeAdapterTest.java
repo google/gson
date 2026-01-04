@@ -131,7 +131,7 @@ public class MapAsArrayTypeAdapterTest {
     Point() {}
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       return o instanceof Point && ((Point) o).x == x && ((Point) o).y == y;
     }
 

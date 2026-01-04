@@ -279,7 +279,7 @@ public final class JsonPrimitive extends JsonElement {
    * to be equal if it is an instance of {@code JsonPrimitive} and has an equal value.
    */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

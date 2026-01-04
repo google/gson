@@ -80,12 +80,12 @@ public final class JsonAdapterAnnotationOnClassesTest {
     TypeAdapter<A> typeAdapter =
         new TypeAdapter<>() {
           @Override
-          public void write(JsonWriter out, A value) throws IOException {
+          public void write(JsonWriter out, @Nullable A value) throws IOException {
             out.value("registeredAdapter");
           }
 
           @Override
-          public A read(JsonReader in) throws IOException {
+          public @Nullable A read(JsonReader in) throws IOException {
             return new A(in.nextString());
           }
         };
@@ -204,13 +204,15 @@ public final class JsonAdapterAnnotationOnClassesTest {
             (TypeAdapter<T>)
                 new TypeAdapter<WithNullReturningFactory<String>>() {
                   @Override
-                  public void write(JsonWriter out, WithNullReturningFactory<String> value)
+                  public void write(
+                      JsonWriter out, @Nullable WithNullReturningFactory<String> value)
                       throws IOException {
                     out.value("custom-write:" + value.t);
                   }
 
                   @Override
-                  public WithNullReturningFactory<String> read(JsonReader in) throws IOException {
+                  public @Nullable WithNullReturningFactory<String> read(JsonReader in)
+                      throws IOException {
                     return new WithNullReturningFactory<>("custom-read:" + in.nextString());
                   }
                 };
@@ -229,12 +231,12 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     static final class JsonAdapter extends TypeAdapter<A> {
       @Override
-      public void write(JsonWriter out, A value) throws IOException {
+      public void write(JsonWriter out, @Nullable A value) throws IOException {
         out.value("jsonAdapter");
       }
 
       @Override
-      public A read(JsonReader in) throws IOException {
+      public @Nullable A read(JsonReader in) throws IOException {
         String unused = in.nextString();
         return new A("jsonAdapter");
       }
@@ -254,13 +256,13 @@ public final class JsonAdapterAnnotationOnClassesTest {
       public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return new TypeAdapter<>() {
           @Override
-          public void write(JsonWriter out, T value) throws IOException {
+          public void write(JsonWriter out, @Nullable T value) throws IOException {
             out.value("jsonAdapterFactory");
           }
 
           @SuppressWarnings("unchecked")
           @Override
-          public T read(JsonReader in) throws IOException {
+          public @Nullable T read(JsonReader in) throws IOException {
             String unused = in.nextString();
             return (T) new C("jsonAdapterFactory");
           }
@@ -301,7 +303,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   private static class UserJsonAdapter extends TypeAdapter<User> {
     @Override
-    public void write(JsonWriter out, User user) throws IOException {
+    public void write(JsonWriter out, @Nullable User user) throws IOException {
       // implement write: combine firstName and lastName into name
       out.beginObject();
       out.name("name");
@@ -310,7 +312,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
     }
 
     @Override
-    public User read(JsonReader in) throws IOException {
+    public @Nullable User read(JsonReader in) throws IOException {
       // implement read: split name into firstName and lastName
       in.beginObject();
       String unused = in.nextName();
@@ -326,12 +328,12 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   private static class NullableClassJsonAdapter extends TypeAdapter<NullableClass> {
     @Override
-    public void write(JsonWriter out, NullableClass value) throws IOException {
+    public void write(JsonWriter out, @Nullable NullableClass value) throws IOException {
       out.value("nullable");
     }
 
     @Override
-    public NullableClass read(JsonReader in) throws IOException {
+    public @Nullable NullableClass read(JsonReader in) throws IOException {
       String unused = in.nextString();
       return new NullableClass();
     }
@@ -345,12 +347,12 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
   private static class FooJsonAdapter extends TypeAdapter<Foo> {
     @Override
-    public void write(JsonWriter out, Foo value) throws IOException {
+    public void write(JsonWriter out, @Nullable Foo value) throws IOException {
       out.value(value.name().toLowerCase(Locale.US));
     }
 
     @Override
-    public Foo read(JsonReader in) throws IOException {
+    public @Nullable Foo read(JsonReader in) throws IOException {
       return Foo.valueOf(in.nextString().toUpperCase(Locale.US));
     }
   }
@@ -416,7 +418,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
         return new TypeAdapter<>() {
           @Override
-          public T read(JsonReader in) throws IOException {
+          public @Nullable T read(JsonReader in) throws IOException {
             // Perform custom deserialization
             in.beginObject();
             assertThat(in.nextName()).isEqualTo("custom");
@@ -427,7 +429,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
           }
 
           @Override
-          public void write(JsonWriter out, T value) throws IOException {
+          public void write(JsonWriter out, @Nullable T value) throws IOException {
             // Perform custom serialization
             out.beginObject();
             out.name("custom");
@@ -472,7 +474,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
           }
 
           @Override
-          public T read(JsonReader in) throws IOException {
+          public @Nullable T read(JsonReader in) throws IOException {
             // Perform custom deserialization
             in.beginObject();
             assertThat(in.nextName()).isEqualTo("custom");
@@ -483,7 +485,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
           }
 
           @Override
-          public void write(JsonWriter out, T value) throws IOException {
+          public void write(JsonWriter out, @Nullable T value) throws IOException {
             // Perform custom serialization
             out.beginObject();
             out.name("custom");
@@ -566,12 +568,12 @@ public final class JsonAdapterAnnotationOnClassesTest {
                 String.class,
                 new TypeAdapter<String>() {
                   @Override
-                  public String read(JsonReader in) throws IOException {
+                  public @Nullable String read(JsonReader in) throws IOException {
                     return in.nextString() + "-str";
                   }
 
                   @Override
-                  public void write(JsonWriter out, String value) throws IOException {
+                  public void write(JsonWriter out, @Nullable String value) throws IOException {
                     out.value(value + "-str");
                   }
                 })
@@ -610,12 +612,12 @@ public final class JsonAdapterAnnotationOnClassesTest {
                 String.class,
                 new TypeAdapter<String>() {
                   @Override
-                  public String read(JsonReader in) throws IOException {
+                  public @Nullable String read(JsonReader in) throws IOException {
                     return in.nextString() + "-str";
                   }
 
                   @Override
-                  public void write(JsonWriter out, String value) throws IOException {
+                  public void write(JsonWriter out, @Nullable String value) throws IOException {
                     out.value(value + "-str");
                   }
                 })
@@ -658,7 +660,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
         return new TypeAdapter<>() {
           @Override
-          public T read(JsonReader in) throws IOException {
+          public @Nullable T read(JsonReader in) throws IOException {
             // Perform custom deserialization
             in.beginObject();
             assertThat(in.nextName()).isEqualTo("custom");
@@ -669,7 +671,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
           }
 
           @Override
-          public void write(JsonWriter out, T value) throws IOException {
+          public void write(JsonWriter out, @Nullable T value) throws IOException {
             // Perform custom serialization
             out.beginObject();
             out.name("custom");

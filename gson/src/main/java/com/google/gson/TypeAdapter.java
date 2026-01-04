@@ -140,7 +140,7 @@ public abstract class TypeAdapter<T> {
    * @param value the Java object to convert. May be {@code null}.
    * @since 2.2
    */
-  public final void toJson(Writer out, T value) throws IOException {
+  public final void toJson(Writer out, @Nullable T value) throws IOException {
     JsonWriter writer = new JsonWriter(out);
     write(writer, value);
   }

@@ -265,7 +265,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 
     return new TypeAdapter<R>() {
       @Override
-      public R read(JsonReader in) throws IOException {
+      public @Nullable R read(JsonReader in) throws IOException {
         JsonElement jsonElement = jsonElementAdapter.read(in);
         JsonElement labelJsonElement;
         if (maintainType) {
@@ -296,7 +296,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
       }
 
       @Override
-      public void write(JsonWriter out, R value) throws IOException {
+      public void write(JsonWriter out, @Nullable R value) throws IOException {
         Class<?> srcType = value.getClass();
         String label = subtypeToLabel.get(srcType);
         @SuppressWarnings("unchecked") // registration requires that subtype extends T

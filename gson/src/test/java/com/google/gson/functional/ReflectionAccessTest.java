@@ -34,6 +34,7 @@ import java.net.URLClassLoader;
 import java.security.Permission;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 public class ReflectionAccessTest {
@@ -90,12 +91,12 @@ public class ReflectionAccessTest {
                   clazz,
                   new TypeAdapter<Object>() {
                     @Override
-                    public void write(JsonWriter out, Object value) throws IOException {
+                    public void write(JsonWriter out, @Nullable Object value) throws IOException {
                       out.value("custom-write");
                     }
 
                     @Override
-                    public Object read(JsonReader in) throws IOException {
+                    public @Nullable Object read(JsonReader in) throws IOException {
                       in.skipValue();
                       wasReadCalled.set(true);
                       return null;

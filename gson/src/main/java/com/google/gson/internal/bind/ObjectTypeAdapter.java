@@ -107,7 +107,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   }
 
   @Override
-  public Object read(JsonReader in) throws IOException {
+  public @Nullable Object read(JsonReader in) throws IOException {
     // Either List or Map
     Object current;
     JsonToken peeked = in.peek();
@@ -168,7 +168,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
   }
 
   @Override
-  public void write(JsonWriter out, Object value) throws IOException {
+  public void write(JsonWriter out, @Nullable Object value) throws IOException {
     if (value == null) {
       out.nullValue();
       return;

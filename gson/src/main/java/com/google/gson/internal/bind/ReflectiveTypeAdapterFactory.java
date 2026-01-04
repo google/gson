@@ -123,13 +123,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       // exceptions
       return new TypeAdapter<T>() {
         @Override
-        public T read(JsonReader in) throws IOException {
+        public @Nullable T read(JsonReader in) throws IOException {
           in.skipValue();
           return null;
         }
 
         @Override
-        public void write(JsonWriter out, T value) throws IOException {
+        public void write(JsonWriter out, @Nullable T value) throws IOException {
           out.nullValue();
         }
 
@@ -480,7 +480,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public void write(JsonWriter out, T value) throws IOException {
+    public void write(JsonWriter out, @Nullable T value) throws IOException {
       if (value == null) {
         out.nullValue();
         return;
@@ -498,7 +498,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public T read(JsonReader in) throws IOException {
+    public @Nullable T read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;

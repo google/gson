@@ -154,7 +154,7 @@ public class TestTypes {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (this == o) {
         return true;
       }
@@ -233,7 +233,7 @@ public class TestTypes {
   public static class ClassWithNoFields {
     // Nothing here..
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(@Nullable Object other) {
       return other instanceof ClassWithNoFields;
     }
   }
@@ -362,7 +362,7 @@ public class TestTypes {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
       return true;
     }
 

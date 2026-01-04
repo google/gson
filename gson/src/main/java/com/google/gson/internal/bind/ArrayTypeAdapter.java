@@ -64,7 +64,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   }
 
   @Override
-  public Object read(JsonReader in) throws IOException {
+  public @Nullable Object read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
       in.nextNull();
       return null;
@@ -96,7 +96,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   }
 
   @Override
-  public void write(JsonWriter out, Object array) throws IOException {
+  public void write(JsonWriter out, @Nullable Object array) throws IOException {
     if (array == null) {
       out.nullValue();
       return;

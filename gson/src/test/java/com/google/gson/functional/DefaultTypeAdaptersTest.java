@@ -73,6 +73,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -979,12 +980,12 @@ public class DefaultTypeAdaptersTest {
     TypeAdapter<ZoneId> zoneIdAdapter =
         new TypeAdapter<ZoneId>() {
           @Override
-          public void write(JsonWriter out, ZoneId value) throws IOException {
+          public void write(JsonWriter out, @Nullable ZoneId value) throws IOException {
             out.value(value.getId());
           }
 
           @Override
-          public ZoneId read(JsonReader in) throws IOException {
+          public @Nullable ZoneId read(JsonReader in) throws IOException {
             return ZoneId.of(in.nextString());
           }
         };
@@ -1064,12 +1065,12 @@ public class DefaultTypeAdaptersTest {
 
   private static class MyClassTypeAdapter extends TypeAdapter<Class<?>> {
     @Override
-    public void write(JsonWriter out, Class<?> value) throws IOException {
+    public void write(JsonWriter out, @Nullable Class<?> value) throws IOException {
       out.value(value.getName());
     }
 
     @Override
-    public Class<?> read(JsonReader in) throws IOException {
+    public @Nullable Class<?> read(JsonReader in) throws IOException {
       String className = in.nextString();
       try {
         return Class.forName(className);
@@ -1087,12 +1088,12 @@ public class DefaultTypeAdaptersTest {
     }
 
     @Override
-    public void write(JsonWriter out, Number value) throws IOException {
+    public void write(JsonWriter out, @Nullable Number value) throws IOException {
       out.value(value.toString());
     }
 
     @Override
-    public Number read(JsonReader in) throws IOException {
+    public @Nullable Number read(JsonReader in) throws IOException {
       try {
         return constructor.newInstance(in.nextString());
       } catch (Exception e) {

@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /** Adapter for {@link JsonElement} and subclasses. */
 public class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
@@ -74,7 +75,7 @@ public class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
   }
 
   @Override
-  public JsonElement read(JsonReader in) throws IOException {
+  public @Nullable JsonElement read(JsonReader in) throws IOException {
     // Optimization if value already exists as JsonElement
     if (in instanceof JsonTreeReader) {
       return ((JsonTreeReader) in).nextJsonElement();
@@ -136,7 +137,7 @@ public class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
   }
 
   @Override
-  public void write(JsonWriter out, JsonElement value) throws IOException {
+  public void write(JsonWriter out, @Nullable JsonElement value) throws IOException {
     if (value == null || value.isJsonNull()) {
       out.nullValue();
     } else if (value.isJsonPrimitive()) {

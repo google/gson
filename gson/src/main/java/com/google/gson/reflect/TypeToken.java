@@ -343,7 +343,7 @@ public class TypeToken<T> {
   }
 
   @Override
-  public final boolean equals(Object o) {
+  public final boolean equals(@Nullable Object o) {
     return o instanceof TypeToken<?> && GsonTypes.equals(type, ((TypeToken<?>) o).type);
   }
 

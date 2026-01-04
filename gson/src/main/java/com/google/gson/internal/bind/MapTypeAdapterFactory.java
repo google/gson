@@ -174,7 +174,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public Map<K, V> read(JsonReader in) throws IOException {
+    public @Nullable Map<K, V> read(JsonReader in) throws IOException {
       JsonToken peek = in.peek();
       if (peek == JsonToken.NULL) {
         in.nextNull();
@@ -213,7 +213,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public void write(JsonWriter out, Map<K, V> map) throws IOException {
+    public void write(JsonWriter out, @Nullable Map<K, V> map) throws IOException {
       if (map == null) {
         out.nullValue();
         return;

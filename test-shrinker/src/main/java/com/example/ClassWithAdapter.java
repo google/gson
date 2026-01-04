@@ -4,13 +4,15 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 @JsonAdapter(ClassWithAdapter.Adapter.class)
 public class ClassWithAdapter {
   static class Adapter extends TypeAdapter<ClassWithAdapter> {
     @Override
-    public ClassWithAdapter read(JsonReader in) throws IOException {
+    public @Nullable ClassWithAdapter read(JsonReader in) throws IOException {
       in.beginObject();
       String name = in.nextName();
       if (!name.equals("custom")) {
@@ -23,7 +25,7 @@ public class ClassWithAdapter {
     }
 
     @Override
-    public void write(JsonWriter out, ClassWithAdapter value) throws IOException {
+    public void write(JsonWriter out, @Nullable ClassWithAdapter value) throws IOException {
       out.beginObject();
       out.name("custom");
       out.value(value.i);

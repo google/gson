@@ -57,7 +57,7 @@ public class PostConstructAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public T read(JsonReader in) throws IOException {
+    public @Nullable T read(JsonReader in) throws IOException {
       T result = delegate.read(in);
       if (result != null) {
         try {
@@ -75,7 +75,7 @@ public class PostConstructAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public void write(JsonWriter out, T value) throws IOException {
+    public void write(JsonWriter out, @Nullable T value) throws IOException {
       delegate.write(out, value);
     }
   }

@@ -604,7 +604,7 @@ public final class GsonTypes {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       return o instanceof GenericArrayType && GsonTypes.equals(this, (GenericArrayType) o);
     }
 
@@ -671,7 +671,7 @@ public final class GsonTypes {
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(@Nullable Object other) {
       return other instanceof WildcardType && GsonTypes.equals(this, (WildcardType) other);
     }
 

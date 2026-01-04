@@ -55,7 +55,7 @@ final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
   private SqlDateTypeAdapter() {}
 
   @Override
-  public java.sql.Date read(JsonReader in) throws IOException {
+  public java.sql.@Nullable Date read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
       in.nextNull();
       return null;
@@ -76,7 +76,7 @@ final class SqlDateTypeAdapter extends TypeAdapter<java.sql.Date> {
   }
 
   @Override
-  public void write(JsonWriter out, java.sql.Date value) throws IOException {
+  public void write(JsonWriter out, java.sql.@Nullable Date value) throws IOException {
     if (value == null) {
       out.nullValue();
       return;

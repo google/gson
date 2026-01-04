@@ -517,7 +517,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (o instanceof Entry) {
         Entry<?, ?> other = (Entry<?, ?>) o;
         return (key == null ? other.getKey() == null : key.equals(other.getKey()))

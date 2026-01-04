@@ -125,12 +125,12 @@ public final class GsonTest {
 
   private static final class TestTypeAdapter extends TypeAdapter<Object> {
     @Override
-    public void write(JsonWriter out, Object value) {
+    public void write(JsonWriter out, @Nullable Object value) {
       // Test stub.
     }
 
     @Override
-    public Object read(JsonReader in) {
+    public @Nullable Object read(JsonReader in) {
       return null;
     }
   }
@@ -139,13 +139,13 @@ public final class GsonTest {
   public void testFromJson_WrongResultType() {
     class IntegerAdapter extends TypeAdapter<Integer> {
       @Override
-      public Integer read(JsonReader in) throws IOException {
+      public @Nullable Integer read(JsonReader in) throws IOException {
         in.skipValue();
         return 3;
       }
 
       @Override
-      public void write(JsonWriter out, Integer value) {
+      public void write(JsonWriter out, @Nullable Integer value) {
         throw new AssertionError("not needed for test");
       }
 
@@ -174,13 +174,13 @@ public final class GsonTest {
 
     class NullAdapter extends TypeAdapter<Object> {
       @Override
-      public Object read(JsonReader in) throws IOException {
+      public @Nullable Object read(JsonReader in) throws IOException {
         in.skipValue();
         return null;
       }
 
       @Override
-      public void write(JsonWriter out, Object value) {
+      public void write(JsonWriter out, @Nullable Object value) {
         throw new AssertionError("not needed for test");
       }
     }
@@ -202,12 +202,12 @@ public final class GsonTest {
   public void testGetAdapter_Concurrency() {
     class DummyAdapter<T> extends TypeAdapter<T> {
       @Override
-      public void write(JsonWriter out, T value) throws IOException {
+      public void write(JsonWriter out, @Nullable T value) throws IOException {
         throw new AssertionError("not needed for this test");
       }
 
       @Override
-      public T read(JsonReader in) throws IOException {
+      public @Nullable T read(JsonReader in) throws IOException {
         throw new AssertionError("not needed for this test");
       }
     }
@@ -281,7 +281,7 @@ public final class GsonTest {
       }
 
       @Override
-      public void write(JsonWriter out, T value) throws IOException {
+      public void write(JsonWriter out, @Nullable T value) throws IOException {
         // Due to how this test is set up there is infinite recursion, therefore
         // need to track how deeply nested this call is
         if (isFirstCall) {
@@ -296,7 +296,7 @@ public final class GsonTest {
       }
 
       @Override
-      public T read(JsonReader in) throws IOException {
+      public @Nullable T read(JsonReader in) throws IOException {
         throw new AssertionError("not needed for this test");
       }
     }
@@ -378,12 +378,12 @@ public final class GsonTest {
       }
 
       @Override
-      public Number read(JsonReader in) throws IOException {
+      public @Nullable Number read(JsonReader in) throws IOException {
         throw new AssertionError("not needed for test");
       }
 
       @Override
-      public void write(JsonWriter out, Number value) throws IOException {
+      public void write(JsonWriter out, @Nullable Number value) throws IOException {
         throw new AssertionError("not needed for test");
       }
 
@@ -410,7 +410,7 @@ public final class GsonTest {
       // Override equals to verify that reference equality check is performed by Gson,
       // and this method is ignored
       @Override
-      public boolean equals(Object obj) {
+      public boolean equals(@Nullable Object obj) {
         return obj instanceof DummyFactory && ((DummyFactory) obj).adapter.equals(adapter);
       }
 
@@ -532,12 +532,12 @@ public final class GsonTest {
         CustomClass1.class,
         new TypeAdapter<CustomClass1>() {
           @Override
-          public CustomClass1 read(JsonReader in) throws IOException {
+          public @Nullable CustomClass1 read(JsonReader in) throws IOException {
             throw new UnsupportedOperationException();
           }
 
           @Override
-          public void write(JsonWriter out, CustomClass1 value) throws IOException {
+          public void write(JsonWriter out, @Nullable CustomClass1 value) throws IOException {
             out.value("custom-adapter");
           }
         });
@@ -585,12 +585,13 @@ public final class GsonTest {
                 CustomClass1.class,
                 new TypeAdapter<CustomClass1>() {
                   @Override
-                  public CustomClass1 read(JsonReader in) throws IOException {
+                  public @Nullable CustomClass1 read(JsonReader in) throws IOException {
                     throw new UnsupportedOperationException();
                   }
 
                   @Override
-                  public void write(JsonWriter out, CustomClass1 value) throws IOException {
+                  public void write(JsonWriter out, @Nullable CustomClass1 value)
+                      throws IOException {
                     out.value("custom-adapter");
                   }
                 })
@@ -611,12 +612,12 @@ public final class GsonTest {
         CustomClass1.class,
         new TypeAdapter<CustomClass1>() {
           @Override
-          public CustomClass1 read(JsonReader in) throws IOException {
+          public @Nullable CustomClass1 read(JsonReader in) throws IOException {
             throw new UnsupportedOperationException();
           }
 
           @Override
-          public void write(JsonWriter out, CustomClass1 value) throws IOException {
+          public void write(JsonWriter out, @Nullable CustomClass1 value) throws IOException {
             out.value("overwritten custom-adapter");
           }
         });

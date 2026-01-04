@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -114,12 +116,12 @@ public final class InterceptorTest {
                 User.class,
                 new TypeAdapter<User>() {
                   @Override
-                  public void write(JsonWriter out, User value) throws IOException {
+                  public void write(JsonWriter out, @Nullable User value) throws IOException {
                     throw new UnsupportedOperationException();
                   }
 
                   @Override
-                  public User read(JsonReader in) throws IOException {
+                  public @Nullable User read(JsonReader in) throws IOException {
                     in.beginObject();
                     assertThat(in.nextName()).isEqualTo("name");
                     String name = in.nextString();

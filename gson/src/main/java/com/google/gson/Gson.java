@@ -60,6 +60,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a Gson
@@ -197,7 +198,7 @@ public final class Gson {
   final boolean generateNonExecutableJson;
   final boolean htmlSafe;
   final FormattingStyle formattingStyle;
-  final Strictness strictness;
+  final @Nullable Strictness strictness;
   final boolean serializeSpecialFloatingPointValues;
   final boolean useJdkUnsafe;
   final String datePattern;
@@ -465,7 +466,7 @@ public final class Gson {
       }
 
       @Override
-      public void write(JsonWriter out, Number value) throws IOException {
+      public void write(JsonWriter out, @Nullable Number value) throws IOException {
         if (value == null) {
           out.nullValue();
           return;
@@ -492,7 +493,7 @@ public final class Gson {
       }
 
       @Override
-      public void write(JsonWriter out, Number value) throws IOException {
+      public void write(JsonWriter out, @Nullable Number value) throws IOException {
         if (value == null) {
           out.nullValue();
           return;
@@ -522,7 +523,7 @@ public final class Gson {
     }
     return new TypeAdapter<Number>() {
       @Override
-      public Number read(JsonReader in) throws IOException {
+      public @Nullable Number read(JsonReader in) throws IOException {
         if (in.peek() == JsonToken.NULL) {
           in.nextNull();
           return null;
@@ -531,7 +532,7 @@ public final class Gson {
       }
 
       @Override
-      public void write(JsonWriter out, Number value) throws IOException {
+      public void write(JsonWriter out, @Nullable Number value) throws IOException {
         if (value == null) {
           out.nullValue();
           return;
@@ -544,12 +545,12 @@ public final class Gson {
   private static TypeAdapter<AtomicLong> atomicLongAdapter(TypeAdapter<Number> longAdapter) {
     return new TypeAdapter<AtomicLong>() {
       @Override
-      public void write(JsonWriter out, AtomicLong value) throws IOException {
+      public void write(JsonWriter out, @Nullable AtomicLong value) throws IOException {
         longAdapter.write(out, value.get());
       }
 
       @Override
-      public AtomicLong read(JsonReader in) throws IOException {
+      public @Nullable AtomicLong read(JsonReader in) throws IOException {
         Number value = longAdapter.read(in);
         return new AtomicLong(value.longValue());
       }
@@ -560,7 +561,7 @@ public final class Gson {
       TypeAdapter<Number> longAdapter) {
     return new TypeAdapter<AtomicLongArray>() {
       @Override
-      public void write(JsonWriter out, AtomicLongArray value) throws IOException {
+      public void write(JsonWriter out, @Nullable AtomicLongArray value) throws IOException {
         out.beginArray();
         for (int i = 0, length = value.length(); i < length; i++) {
           longAdapter.write(out, value.get(i));
@@ -569,7 +570,7 @@ public final class Gson {
       }
 
       @Override
-      public AtomicLongArray read(JsonReader in) throws IOException {
+      public @Nullable AtomicLongArray read(JsonReader in) throws IOException {
         List<Long> list = new ArrayList<>();
         in.beginArray();
         while (in.hasNext()) {
@@ -1524,12 +1525,12 @@ public final class Gson {
     }
 
     @Override
-    public T read(JsonReader in) throws IOException {
+    public @Nullable T read(JsonReader in) throws IOException {
       return delegate().read(in);
     }
 
     @Override
-    public void write(JsonWriter out, T value) throws IOException {
+    public void write(JsonWriter out, @Nullable T value) throws IOException {
       delegate().write(out, value);
     }
   }

@@ -741,7 +741,7 @@ public class MapTest {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       return o instanceof Point && x == ((Point) o).x && y == ((Point) o).y;
     }
 

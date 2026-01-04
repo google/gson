@@ -34,6 +34,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 /**
@@ -209,13 +210,13 @@ public final class JsonAdapterSerializerDeserializerTest {
                 User.class,
                 new TypeAdapter<User>() {
                   @Override
-                  public User read(JsonReader in) throws IOException {
+                  public @Nullable User read(JsonReader in) throws IOException {
                     in.nextNull();
                     return new User("fallback-read");
                   }
 
                   @Override
-                  public void write(JsonWriter out, User value) throws IOException {
+                  public void write(JsonWriter out, @Nullable User value) throws IOException {
                     assertThat(value).isNull();
                     out.value("fallback-write");
                   }

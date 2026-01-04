@@ -177,7 +177,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
 
       return new TypeAdapter<>() {
         @Override
-        public R read(JsonReader in) {
+        public @Nullable R read(JsonReader in) {
           JsonElement jsonElement = Streams.parse(in);
           JsonElement labelJsonElement = jsonElement.getAsJsonObject().get(typeFieldName);
           if (labelJsonElement == null) {
@@ -202,7 +202,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
         }
 
         @Override
-        public void write(JsonWriter out, R value) throws IOException {
+        public void write(JsonWriter out, @Nullable R value) throws IOException {
           Class<?> srcType = value.getClass();
           String label = subtypeToLabel.get(srcType);
           @SuppressWarnings("unchecked") // registration requires that subtype extends T

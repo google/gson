@@ -27,8 +27,6 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.FormattingStyle;
 import com.google.gson.Strictness;
-import org.jspecify.annotations.Nullable;
-
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -40,6 +38,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Writes a JSON (<a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>) encoded value to a

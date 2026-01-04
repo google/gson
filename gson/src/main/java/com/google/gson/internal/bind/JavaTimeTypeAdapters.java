@@ -26,6 +26,7 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Type adapters for {@code java.time} types.
@@ -115,7 +116,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
     TypeAdapter<LocalTime> localTimeAdapter = gson.getAdapter(LocalTime.class);
     return new TypeAdapter<LocalDateTime>() {
       @Override
-      public LocalDateTime read(JsonReader in) throws IOException {
+      public @Nullable LocalDateTime read(JsonReader in) throws IOException {
         LocalDate localDate = null;
         LocalTime localTime = null;
         in.beginObject();
@@ -139,7 +140,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
       }
 
       @Override
-      public void write(JsonWriter out, LocalDateTime value) throws IOException {
+      public void write(JsonWriter out, @Nullable LocalDateTime value) throws IOException {
         out.beginObject();
         out.name("date");
         localDateAdapter.write(out, value.toLocalDate());
@@ -168,7 +169,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
     TypeAdapter<ZoneOffset> zoneOffsetAdapter = gson.getAdapter(ZoneOffset.class);
     return new TypeAdapter<OffsetDateTime>() {
       @Override
-      public OffsetDateTime read(JsonReader in) throws IOException {
+      public @Nullable OffsetDateTime read(JsonReader in) throws IOException {
         in.beginObject();
         LocalDateTime localDateTime = null;
         ZoneOffset zoneOffset = null;
@@ -193,7 +194,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
       }
 
       @Override
-      public void write(JsonWriter out, OffsetDateTime value) throws IOException {
+      public void write(JsonWriter out, @Nullable OffsetDateTime value) throws IOException {
         out.beginObject();
         out.name("dateTime");
         localDateTimeAdapter.write(out, value.toLocalDateTime());
@@ -209,7 +210,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
     TypeAdapter<ZoneOffset> zoneOffsetAdapter = gson.getAdapter(ZoneOffset.class);
     return new TypeAdapter<OffsetTime>() {
       @Override
-      public OffsetTime read(JsonReader in) throws IOException {
+      public @Nullable OffsetTime read(JsonReader in) throws IOException {
         in.beginObject();
         LocalTime localTime = null;
         ZoneOffset zoneOffset = null;
@@ -234,7 +235,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
       }
 
       @Override
-      public void write(JsonWriter out, OffsetTime value) throws IOException {
+      public void write(JsonWriter out, @Nullable OffsetTime value) throws IOException {
         out.beginObject();
         out.name("time");
         localTimeAdapter.write(out, value.toLocalTime());
@@ -292,7 +293,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
   private static final TypeAdapter<ZoneId> ZONE_ID =
       new TypeAdapter<ZoneId>() {
         @Override
-        public ZoneId read(JsonReader in) throws IOException {
+        public @Nullable ZoneId read(JsonReader in) throws IOException {
           in.beginObject();
           String id = null;
           Integer totalSeconds = null;
@@ -322,7 +323,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         }
 
         @Override
-        public void write(JsonWriter out, ZoneId value) throws IOException {
+        public void write(JsonWriter out, @Nullable ZoneId value) throws IOException {
           if (value instanceof ZoneOffset) {
             out.beginObject();
             out.name("totalSeconds");
@@ -343,7 +344,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
     TypeAdapter<ZoneId> zoneIdAdapter = gson.getAdapter(ZoneId.class);
     return new TypeAdapter<ZonedDateTime>() {
       @Override
-      public ZonedDateTime read(JsonReader in) throws IOException {
+      public @Nullable ZonedDateTime read(JsonReader in) throws IOException {
         in.beginObject();
         LocalDateTime localDateTime = null;
         ZoneOffset zoneOffset = null;
@@ -373,7 +374,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
       }
 
       @Override
-      public void write(JsonWriter out, ZonedDateTime value) throws IOException {
+      public void write(JsonWriter out, @Nullable ZonedDateTime value) throws IOException {
         if (value == null) {
           out.nullValue();
           return;

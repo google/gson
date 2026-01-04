@@ -73,7 +73,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public Collection<E> read(JsonReader in) throws IOException {
+    public @Nullable Collection<E> read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;
@@ -90,7 +90,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public void write(JsonWriter out, Collection<E> collection) throws IOException {
+    public void write(JsonWriter out, @Nullable Collection<E> collection) throws IOException {
       if (collection == null) {
         out.nullValue();
         return;

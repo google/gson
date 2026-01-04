@@ -25,6 +25,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
@@ -52,7 +54,7 @@ public final class JsonTreeReader extends JsonReader {
   private static final Object SENTINEL_CLOSED = new Object();
 
   /** The nesting stack. Using a manual array rather than an ArrayList saves 20%. */
-  private Object[] stack = new Object[32];
+  private @Nullable Object[] stack = new Object[32];
 
   /**
    * The used size of {@link #stack}; the value at {@code stackSize - 1} is the value last placed on
@@ -70,7 +72,7 @@ public final class JsonTreeReader extends JsonReader {
    * that array. Otherwise the value is undefined, and we take advantage of that
    * by incrementing pathIndices when doing so isn't useful.
    */
-  private String[] pathNames = new String[32];
+  private @Nullable String[] pathNames = new String[32];
   private int[] pathIndices = new int[32];
 
   public JsonTreeReader(JsonElement element) {
@@ -167,7 +169,7 @@ public final class JsonTreeReader extends JsonReader {
     }
   }
 
-  private Object peekStack() {
+  private @Nullable Object peekStack() {
     return stack[stackSize - 1];
   }
 

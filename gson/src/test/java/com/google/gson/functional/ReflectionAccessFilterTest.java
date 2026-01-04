@@ -42,6 +42,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.junit.AssumptionViolatedException;
 import org.junit.Test;
 
@@ -369,13 +370,14 @@ public class ReflectionAccessFilterTest {
                 ClassWithoutNoArgsConstructor.class,
                 new TypeAdapter<ClassWithoutNoArgsConstructor>() {
                   @Override
-                  public ClassWithoutNoArgsConstructor read(JsonReader in) throws IOException {
+                  public @Nullable ClassWithoutNoArgsConstructor read(JsonReader in)
+                      throws IOException {
                     in.skipValue();
                     return new ClassWithoutNoArgsConstructor("TypeAdapter");
                   }
 
                   @Override
-                  public void write(JsonWriter out, ClassWithoutNoArgsConstructor value) {
+                  public void write(JsonWriter out, @Nullable ClassWithoutNoArgsConstructor value) {
                     throw new AssertionError("Not needed for test");
                   }
                 })

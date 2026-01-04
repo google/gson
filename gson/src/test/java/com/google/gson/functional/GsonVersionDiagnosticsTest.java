@@ -24,6 +24,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,12 +48,12 @@ public class GsonVersionDiagnosticsTest {
                 TestType.class,
                 new TypeAdapter<TestType>() {
                   @Override
-                  public void write(JsonWriter out, TestType value) {
+                  public void write(JsonWriter out, @Nullable TestType value) {
                     throw new AssertionError("Expected during serialization");
                   }
 
                   @Override
-                  public TestType read(JsonReader in) {
+                  public @Nullable TestType read(JsonReader in) {
                     throw new AssertionError("Expected during deserialization");
                   }
                 })

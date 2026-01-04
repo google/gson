@@ -118,7 +118,7 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     return delegate.equals(o);
   }
 

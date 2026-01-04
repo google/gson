@@ -162,7 +162,7 @@ public final class GraphAdapterBuilder {
       TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
       return new TypeAdapter<T>() {
         @Override
-        public void write(JsonWriter out, T value) throws IOException {
+        public void write(JsonWriter out, @Nullable T value) throws IOException {
           if (value == null) {
             out.nullValue();
             return;
@@ -212,7 +212,7 @@ public final class GraphAdapterBuilder {
         }
 
         @Override
-        public T read(JsonReader in) throws IOException {
+        public @Nullable T read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;

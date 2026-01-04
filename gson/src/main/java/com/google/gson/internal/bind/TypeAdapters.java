@@ -64,7 +64,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Class> CLASS =
       new TypeAdapter<Class>() {
         @Override
-        public void write(JsonWriter out, Class value) throws IOException {
+        public void write(JsonWriter out, @Nullable Class value) throws IOException {
           throw new UnsupportedOperationException(
               "Attempted to serialize java.lang.Class: "
                   + value.getName()
@@ -74,7 +74,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public Class read(JsonReader in) throws IOException {
+        public @Nullable Class read(JsonReader in) throws IOException {
           throw new UnsupportedOperationException(
               "Attempted to deserialize a java.lang.Class. Forgot to register a type adapter?"
                   + "\nSee "
@@ -87,7 +87,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<BitSet> BIT_SET =
       new TypeAdapter<BitSet>() {
         @Override
-        public BitSet read(JsonReader in) throws IOException {
+        public @Nullable BitSet read(JsonReader in) throws IOException {
           BitSet bitset = new BitSet();
           in.beginArray();
           int i = 0;
@@ -128,7 +128,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, BitSet src) throws IOException {
+        public void write(JsonWriter out, @Nullable BitSet src) throws IOException {
           out.beginArray();
           for (int i = 0, length = src.length(); i < length; i++) {
             int value = src.get(i) ? 1 : 0;
@@ -143,7 +143,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Boolean> BOOLEAN =
       new TypeAdapter<Boolean>() {
         @Override
-        public Boolean read(JsonReader in) throws IOException {
+        public @Nullable Boolean read(JsonReader in) throws IOException {
           JsonToken peek = in.peek();
           if (peek == JsonToken.NULL) {
             in.nextNull();
@@ -156,7 +156,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Boolean value) throws IOException {
+        public void write(JsonWriter out, @Nullable Boolean value) throws IOException {
           out.value(value);
         }
       };
@@ -167,7 +167,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Boolean> BOOLEAN_AS_STRING =
       new TypeAdapter<Boolean>() {
         @Override
-        public Boolean read(JsonReader in) throws IOException {
+        public @Nullable Boolean read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -176,7 +176,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Boolean value) throws IOException {
+        public void write(JsonWriter out, @Nullable Boolean value) throws IOException {
           out.value(value == null ? "null" : value.toString());
         }
       };
@@ -187,7 +187,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> BYTE =
       new TypeAdapter<Number>() {
         @Override
-        public Number read(JsonReader in) throws IOException {
+        public @Nullable Number read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -208,7 +208,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Number value) throws IOException {
+        public void write(JsonWriter out, @Nullable Number value) throws IOException {
           if (value == null) {
             out.nullValue();
           } else {
@@ -222,7 +222,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> SHORT =
       new TypeAdapter<Number>() {
         @Override
-        public Number read(JsonReader in) throws IOException {
+        public @Nullable Number read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -243,7 +243,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Number value) throws IOException {
+        public void write(JsonWriter out, @Nullable Number value) throws IOException {
           if (value == null) {
             out.nullValue();
           } else {
@@ -258,7 +258,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> INTEGER =
       new TypeAdapter<Number>() {
         @Override
-        public Number read(JsonReader in) throws IOException {
+        public @Nullable Number read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -271,7 +271,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Number value) throws IOException {
+        public void write(JsonWriter out, @Nullable Number value) throws IOException {
           if (value == null) {
             out.nullValue();
           } else {
@@ -285,7 +285,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<AtomicInteger> ATOMIC_INTEGER =
       new TypeAdapter<AtomicInteger>() {
         @Override
-        public AtomicInteger read(JsonReader in) throws IOException {
+        public @Nullable AtomicInteger read(JsonReader in) throws IOException {
           try {
             return new AtomicInteger(in.nextInt());
           } catch (NumberFormatException e) {
@@ -294,7 +294,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, AtomicInteger value) throws IOException {
+        public void write(JsonWriter out, @Nullable AtomicInteger value) throws IOException {
           out.value(value.get());
         }
       }.nullSafe();
@@ -304,12 +304,12 @@ public final class TypeAdapters {
   public static final TypeAdapter<AtomicBoolean> ATOMIC_BOOLEAN =
       new TypeAdapter<AtomicBoolean>() {
         @Override
-        public AtomicBoolean read(JsonReader in) throws IOException {
+        public @Nullable AtomicBoolean read(JsonReader in) throws IOException {
           return new AtomicBoolean(in.nextBoolean());
         }
 
         @Override
-        public void write(JsonWriter out, AtomicBoolean value) throws IOException {
+        public void write(JsonWriter out, @Nullable AtomicBoolean value) throws IOException {
           out.value(value.get());
         }
       }.nullSafe();
@@ -319,7 +319,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<AtomicIntegerArray> ATOMIC_INTEGER_ARRAY =
       new TypeAdapter<AtomicIntegerArray>() {
         @Override
-        public AtomicIntegerArray read(JsonReader in) throws IOException {
+        public @Nullable AtomicIntegerArray read(JsonReader in) throws IOException {
           List<Integer> list = new ArrayList<>();
           in.beginArray();
           while (in.hasNext()) {
@@ -340,7 +340,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, AtomicIntegerArray value) throws IOException {
+        public void write(JsonWriter out, @Nullable AtomicIntegerArray value) throws IOException {
           out.beginArray();
           for (int i = 0, length = value.length(); i < length; i++) {
             out.value(value.get(i));
@@ -354,7 +354,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> LONG =
       new TypeAdapter<Number>() {
         @Override
-        public Number read(JsonReader in) throws IOException {
+        public @Nullable Number read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -367,7 +367,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Number value) throws IOException {
+        public void write(JsonWriter out, @Nullable Number value) throws IOException {
           if (value == null) {
             out.nullValue();
           } else {
@@ -379,7 +379,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> FLOAT =
       new TypeAdapter<Number>() {
         @Override
-        public Number read(JsonReader in) throws IOException {
+        public @Nullable Number read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -388,7 +388,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Number value) throws IOException {
+        public void write(JsonWriter out, @Nullable Number value) throws IOException {
           if (value == null) {
             out.nullValue();
           } else {
@@ -404,7 +404,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Number> DOUBLE =
       new TypeAdapter<Number>() {
         @Override
-        public Number read(JsonReader in) throws IOException {
+        public @Nullable Number read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -413,7 +413,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Number value) throws IOException {
+        public void write(JsonWriter out, @Nullable Number value) throws IOException {
           if (value == null) {
             out.nullValue();
           } else {
@@ -425,7 +425,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Character> CHARACTER =
       new TypeAdapter<Character>() {
         @Override
-        public Character read(JsonReader in) throws IOException {
+        public @Nullable Character read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -439,7 +439,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Character value) throws IOException {
+        public void write(JsonWriter out, @Nullable Character value) throws IOException {
           out.value(value == null ? null : String.valueOf(value));
         }
       };
@@ -450,7 +450,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<String> STRING =
       new TypeAdapter<String>() {
         @Override
-        public String read(JsonReader in) throws IOException {
+        public @Nullable String read(JsonReader in) throws IOException {
           JsonToken peek = in.peek();
           if (peek == JsonToken.NULL) {
             in.nextNull();
@@ -464,7 +464,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, String value) throws IOException {
+        public void write(JsonWriter out, @Nullable String value) throws IOException {
           out.value(value);
         }
       };
@@ -472,7 +472,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<BigDecimal> BIG_DECIMAL =
       new TypeAdapter<BigDecimal>() {
         @Override
-        public BigDecimal read(JsonReader in) throws IOException {
+        public @Nullable BigDecimal read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -487,7 +487,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, BigDecimal value) throws IOException {
+        public void write(JsonWriter out, @Nullable BigDecimal value) throws IOException {
           out.value(value);
         }
       };
@@ -495,7 +495,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<BigInteger> BIG_INTEGER =
       new TypeAdapter<BigInteger>() {
         @Override
-        public BigInteger read(JsonReader in) throws IOException {
+        public @Nullable BigInteger read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -510,7 +510,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, BigInteger value) throws IOException {
+        public void write(JsonWriter out, @Nullable BigInteger value) throws IOException {
           out.value(value);
         }
       };
@@ -521,7 +521,7 @@ public final class TypeAdapters {
         // it is an internal type, but implement this nonetheless in case there are legit corner
         // cases where this is possible
         @Override
-        public LazilyParsedNumber read(JsonReader in) throws IOException {
+        public @Nullable LazilyParsedNumber read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -530,7 +530,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, LazilyParsedNumber value) throws IOException {
+        public void write(JsonWriter out, @Nullable LazilyParsedNumber value) throws IOException {
           out.value(value);
         }
       };
@@ -540,7 +540,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<StringBuilder> STRING_BUILDER =
       new TypeAdapter<StringBuilder>() {
         @Override
-        public StringBuilder read(JsonReader in) throws IOException {
+        public @Nullable StringBuilder read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -549,7 +549,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, StringBuilder value) throws IOException {
+        public void write(JsonWriter out, @Nullable StringBuilder value) throws IOException {
           out.value(value == null ? null : value.toString());
         }
       };
@@ -560,7 +560,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<StringBuffer> STRING_BUFFER =
       new TypeAdapter<StringBuffer>() {
         @Override
-        public StringBuffer read(JsonReader in) throws IOException {
+        public @Nullable StringBuffer read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -569,7 +569,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, StringBuffer value) throws IOException {
+        public void write(JsonWriter out, @Nullable StringBuffer value) throws IOException {
           out.value(value == null ? null : value.toString());
         }
       };
@@ -580,7 +580,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<URL> URL =
       new TypeAdapter<URL>() {
         @Override
-        public URL read(JsonReader in) throws IOException {
+        public @Nullable URL read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -590,7 +590,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, URL value) throws IOException {
+        public void write(JsonWriter out, @Nullable URL value) throws IOException {
           out.value(value == null ? null : value.toExternalForm());
         }
       };
@@ -600,7 +600,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<URI> URI =
       new TypeAdapter<URI>() {
         @Override
-        public URI read(JsonReader in) throws IOException {
+        public @Nullable URI read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -614,7 +614,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, URI value) throws IOException {
+        public void write(JsonWriter out, @Nullable URI value) throws IOException {
           out.value(value == null ? null : value.toASCIIString());
         }
       };
@@ -624,7 +624,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<InetAddress> INET_ADDRESS =
       new TypeAdapter<InetAddress>() {
         @Override
-        public InetAddress read(JsonReader in) throws IOException {
+        public @Nullable InetAddress read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -638,7 +638,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, InetAddress value) throws IOException {
+        public void write(JsonWriter out, @Nullable InetAddress value) throws IOException {
           out.value(value == null ? null : value.getHostAddress());
         }
       };
@@ -649,7 +649,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<UUID> UUID =
       new TypeAdapter<UUID>() {
         @Override
-        public UUID read(JsonReader in) throws IOException {
+        public @Nullable UUID read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -664,7 +664,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, UUID value) throws IOException {
+        public void write(JsonWriter out, @Nullable UUID value) throws IOException {
           out.value(value == null ? null : value.toString());
         }
       };
@@ -674,7 +674,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Currency> CURRENCY =
       new TypeAdapter<Currency>() {
         @Override
-        public Currency read(JsonReader in) throws IOException {
+        public @Nullable Currency read(JsonReader in) throws IOException {
           String s = in.nextString();
           try {
             return Currency.getInstance(s);
@@ -685,7 +685,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Currency value) throws IOException {
+        public void write(JsonWriter out, @Nullable Currency value) throws IOException {
           out.value(value.getCurrencyCode());
         }
       }.nullSafe();
@@ -708,7 +708,7 @@ public final class TypeAdapters {
     abstract long[] integerValues(T t);
 
     @Override
-    public T read(JsonReader in) throws IOException {
+    public @Nullable T read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;
@@ -729,7 +729,7 @@ public final class TypeAdapters {
     }
 
     @Override
-    public void write(JsonWriter out, T value) throws IOException {
+    public void write(JsonWriter out, @Nullable T value) throws IOException {
       if (value == null) {
         out.nullValue();
         return;
@@ -787,7 +787,7 @@ public final class TypeAdapters {
   public static final TypeAdapter<Locale> LOCALE =
       new TypeAdapter<Locale>() {
         @Override
-        public Locale read(JsonReader in) throws IOException {
+        public @Nullable Locale read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
@@ -816,7 +816,7 @@ public final class TypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, Locale value) throws IOException {
+        public void write(JsonWriter out, @Nullable Locale value) throws IOException {
           out.value(value == null ? null : value.toString());
         }
       };
@@ -939,12 +939,12 @@ public final class TypeAdapters {
         return (TypeAdapter<T2>)
             new TypeAdapter<T1>() {
               @Override
-              public void write(JsonWriter out, T1 value) throws IOException {
+              public void write(JsonWriter out, @Nullable T1 value) throws IOException {
                 typeAdapter.write(out, value);
               }
 
               @Override
-              public T1 read(JsonReader in) throws IOException {
+              public @Nullable T1 read(JsonReader in) throws IOException {
                 T1 result = typeAdapter.read(in);
                 if (result != null && !requestedType.isInstance(result)) {
                   throw new JsonSyntaxException(

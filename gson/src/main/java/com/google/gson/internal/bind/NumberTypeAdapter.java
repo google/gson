@@ -61,7 +61,7 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
   }
 
   @Override
-  public Number read(JsonReader in) throws IOException {
+  public @Nullable Number read(JsonReader in) throws IOException {
     JsonToken jsonToken = in.peek();
     switch (jsonToken) {
       case NULL:
@@ -77,7 +77,7 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
   }
 
   @Override
-  public void write(JsonWriter out, Number value) throws IOException {
+  public void write(JsonWriter out, @Nullable Number value) throws IOException {
     out.value(value);
   }
 }

@@ -56,7 +56,7 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
   private SqlTimeTypeAdapter() {}
 
   @Override
-  public Time read(JsonReader in) throws IOException {
+  public @Nullable Time read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
       in.nextNull();
       return null;
@@ -77,7 +77,7 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
   }
 
   @Override
-  public void write(JsonWriter out, Time value) throws IOException {
+  public void write(JsonWriter out, @Nullable Time value) throws IOException {
     if (value == null) {
       out.nullValue();
       return;

@@ -421,7 +421,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * to be equal if it is an instance of {@code JsonArray} and has equal elements in the same order.
    */
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     return (o == this) || (o instanceof JsonArray && ((JsonArray) o).elements.equals(elements));
   }
 

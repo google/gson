@@ -59,7 +59,7 @@ public final class JsonNull extends JsonElement {
 
   /** All instances of {@code JsonNull} are considered equal. */
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     return other instanceof JsonNull;
   }
 }

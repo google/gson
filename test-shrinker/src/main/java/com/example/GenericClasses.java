@@ -5,6 +5,8 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 public class GenericClasses {
@@ -55,12 +57,12 @@ public class GenericClasses {
 
     static class Adapter extends TypeAdapter<DummyClass> {
       @Override
-      public DummyClass read(JsonReader in) throws IOException {
+      public @Nullable DummyClass read(JsonReader in) throws IOException {
         return new DummyClass("read-" + in.nextInt());
       }
 
       @Override
-      public void write(JsonWriter out, DummyClass value) throws IOException {
+      public void write(JsonWriter out, @Nullable DummyClass value) throws IOException {
         throw new UnsupportedOperationException();
       }
     }

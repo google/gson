@@ -244,7 +244,7 @@ public final class JsonObject extends JsonElement {
    * to be equal if it is an instance of {@code JsonObject} and has equal members, ignoring order.
    */
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     return (o == this) || (o instanceof JsonObject && ((JsonObject) o).members.equals(members));
   }
 

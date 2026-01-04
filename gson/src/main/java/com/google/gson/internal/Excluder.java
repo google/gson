@@ -127,7 +127,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       private volatile TypeAdapter<T> delegate;
 
       @Override
-      public T read(JsonReader in) throws IOException {
+      public @Nullable T read(JsonReader in) throws IOException {
         if (skipDeserialize) {
           in.skipValue();
           return null;
@@ -136,7 +136,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       }
 
       @Override
-      public void write(JsonWriter out, T value) throws IOException {
+      public void write(JsonWriter out, @Nullable T value) throws IOException {
         if (skipSerialize) {
           out.nullValue();
           return;

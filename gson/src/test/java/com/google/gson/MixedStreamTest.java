@@ -249,7 +249,7 @@ public final class MixedStreamTest {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       return o instanceof Car && ((Car) o).name.equals(name) && ((Car) o).color == color;
     }
   }

@@ -39,6 +39,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -256,14 +257,14 @@ public final class Java17RecordTest {
                 byte.class,
                 new TypeAdapter<Byte>() {
                   @Override
-                  public Byte read(JsonReader in) throws IOException {
+                  public @Nullable Byte read(JsonReader in) throws IOException {
                     in.skipValue();
                     // Always return null
                     return null;
                   }
 
                   @Override
-                  public void write(JsonWriter out, Byte value) {
+                  public void write(JsonWriter out, @Nullable Byte value) {
                     throw new AssertionError("not needed for test");
                   }
                 })

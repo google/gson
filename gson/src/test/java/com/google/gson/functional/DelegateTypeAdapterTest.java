@@ -81,13 +81,13 @@ public class DelegateTypeAdapterTest {
       TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
       return new TypeAdapter<>() {
         @Override
-        public void write(JsonWriter out, T value) throws IOException {
+        public void write(JsonWriter out, @Nullable T value) throws IOException {
           ++numWrites;
           delegate.write(out, value);
         }
 
         @Override
-        public T read(JsonReader in) throws IOException {
+        public @Nullable T read(JsonReader in) throws IOException {
           ++numReads;
           return delegate.read(in);
         }

@@ -22,6 +22,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Locale;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 /**
@@ -33,12 +34,12 @@ public class OverrideCoreTypeAdaptersTest {
   private static final TypeAdapter<Boolean> booleanAsIntAdapter =
       new TypeAdapter<>() {
         @Override
-        public void write(JsonWriter out, Boolean value) throws IOException {
+        public void write(JsonWriter out, @Nullable Boolean value) throws IOException {
           out.value(value ? 1 : 0);
         }
 
         @Override
-        public Boolean read(JsonReader in) throws IOException {
+        public @Nullable Boolean read(JsonReader in) throws IOException {
           int value = in.nextInt();
           return value != 0;
         }
@@ -47,12 +48,12 @@ public class OverrideCoreTypeAdaptersTest {
   private static final TypeAdapter<String> swapCaseStringAdapter =
       new TypeAdapter<>() {
         @Override
-        public void write(JsonWriter out, String value) throws IOException {
+        public void write(JsonWriter out, @Nullable String value) throws IOException {
           out.value(value.toUpperCase(Locale.US));
         }
 
         @Override
-        public String read(JsonReader in) throws IOException {
+        public @Nullable String read(JsonReader in) throws IOException {
           return in.nextString().toLowerCase(Locale.US);
         }
       };

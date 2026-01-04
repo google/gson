@@ -25,6 +25,8 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 class Java17RecordReflectionTest {
@@ -108,12 +110,12 @@ class Java17RecordReflectionTest {
   private record RecordWithCustomClassAdapter(int i) {
     private static class CustomAdapter extends TypeAdapter<RecordWithCustomClassAdapter> {
       @Override
-      public RecordWithCustomClassAdapter read(JsonReader in) throws IOException {
+      public @Nullable RecordWithCustomClassAdapter read(JsonReader in) throws IOException {
         return new RecordWithCustomClassAdapter(in.nextInt() + 5);
       }
 
       @Override
-      public void write(JsonWriter out, RecordWithCustomClassAdapter value) throws IOException {
+      public void write(JsonWriter out, @Nullable RecordWithCustomClassAdapter value) throws IOException {
         out.value(value.i + 6);
       }
     }
@@ -132,12 +134,12 @@ class Java17RecordReflectionTest {
       @JsonAdapter(RecordWithCustomFieldAdapter.CustomAdapter.class) int i) {
     private static class CustomAdapter extends TypeAdapter<Integer> {
       @Override
-      public Integer read(JsonReader in) throws IOException {
+      public @Nullable Integer read(JsonReader in) throws IOException {
         return in.nextInt() + 5;
       }
 
       @Override
-      public void write(JsonWriter out, Integer value) throws IOException {
+      public void write(JsonWriter out, @Nullable Integer value) throws IOException {
         out.value(value + 6);
       }
     }
@@ -162,12 +164,12 @@ class Java17RecordReflectionTest {
                 RecordWithRegisteredAdapter.class,
                 new TypeAdapter<RecordWithRegisteredAdapter>() {
                   @Override
-                  public RecordWithRegisteredAdapter read(JsonReader in) throws IOException {
+                  public @Nullable RecordWithRegisteredAdapter read(JsonReader in) throws IOException {
                     return new RecordWithRegisteredAdapter(in.nextInt() + 5);
                   }
 
                   @Override
-                  public void write(JsonWriter out, RecordWithRegisteredAdapter value)
+                  public void write(JsonWriter out, @Nullable RecordWithRegisteredAdapter value)
                       throws IOException {
                     out.value(value.i + 6);
                   }
