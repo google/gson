@@ -126,8 +126,7 @@ public class ConstructorConstructorTest {
           constructorConstructor
               .get(TypeToken.getParameterized(collectionType, Integer.class))
               .construct();
-      assertWithMessage(
-              "Failed for " + collectionType + "; created instance of " + actual.getClass())
+      assertWithMessage("Failed for %s; created instance of %s", collectionType, actual.getClass())
           .that(actual)
           .isInstanceOf(collectionType);
     }
@@ -182,7 +181,7 @@ public class ConstructorConstructorTest {
               .get(TypeToken.getParameterized(Map.class, keyType, Integer.class))
               .construct();
       assertWithMessage(
-              "Failed for key type " + keyType + "; created instance of " + actual.getClass())
+              "Failed for key type %s; created instance of %s", keyType, actual.getClass())
           .that(actual)
           .isInstanceOf(LinkedHashMap.class);
     }
@@ -249,7 +248,7 @@ public class ConstructorConstructorTest {
           constructorConstructor
               .get(TypeToken.getParameterized(mapType, String.class, Integer.class))
               .construct();
-      assertWithMessage("Failed for " + mapType + "; created instance of " + actual.getClass())
+      assertWithMessage("Failed for %s; created instance of %s", mapType, actual.getClass())
           .that(actual)
           .isInstanceOf(mapType);
     }

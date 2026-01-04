@@ -444,7 +444,7 @@ public final class ConstructorConstructor {
       // New exception is created every time to avoid keeping a reference to an exception with
       // potentially long stack trace, causing a memory leak
       // (which would happen if the exception was already created when the
-      // `ExceptionObjectConstructor` is created)
+      // `ThrowingObjectConstructor` is created)
       throw new JsonIOException(exceptionMessage);
     }
   }

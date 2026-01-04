@@ -138,7 +138,7 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <goals>
@@ -299,7 +299,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.43.0</version>
+                <version>2.45.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -347,7 +347,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.4.2</version>
+          <version>3.5.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -360,7 +360,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>3.4.0</version>
           <configuration>
             <skipSource>${gson.isTestModule}</skipSource>
           </configuration>
@@ -394,7 +394,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.3.0</version>
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <!-- Disable Maven Super POM release profile and instead use own one -->
@@ -527,15 +527,15 @@
               </goals>
               <configuration>
                 <skip>${gson.isTestModule}</skip>
-
                 <signature>
-                  <!-- Note: In case Android compatibility impedes Gson development too much in the
-                    future, could consider switching to https://github.com/open-toast/gummy-bears
-                    which accounts for Android desugaring and might allow usage of more Java classes -->
+                  <!-- Google's internal use currently requires API Level 23 without desugaring. -->
                   <groupId>net.sf.androidscents.signature</groupId>
-                  <artifactId>android-api-level-21</artifactId>
-                  <version>5.0.1_r2</version>
+                  <artifactId>android-api-level-23</artifactId>
+                  <version>6.0_r3</version>
                 </signature>
+                <annotations>
+                  <annotation>com.google.gson.internal.bind.IgnoreJRERequirement</annotation>
+                </annotations>
               </configuration>
             </execution>
           </executions>
