@@ -282,7 +282,7 @@ public final class JsonTreeReader extends JsonReader {
     return result;
   }
 
-  JsonElement nextJsonElement() throws IOException {
+  @Nullable JsonElement nextJsonElement() throws IOException {
     JsonToken peeked = peek();
     if (peeked == JsonToken.NAME
         || peeked == JsonToken.END_ARRAY

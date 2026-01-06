@@ -107,14 +107,14 @@ public class ClassWithJsonAdapterAnnotation {
 
   static class Serializer implements JsonSerializer<DummyClass> {
     @Override
-    public JsonElement serialize(DummyClass src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable DummyClass src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("serializer-" + src.s);
     }
   }
 
   static class Deserializer implements JsonDeserializer<DummyClass> {
     @Override
-    public DummyClass deserialize(
+    public @Nullable DummyClass deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return new DummyClass("deserializer-" + json.getAsInt());

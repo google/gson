@@ -969,7 +969,7 @@ public final class Gson {
    * @return JSON String representation of the tree.
    * @since 1.4
    */
-  public String toJson(JsonElement jsonElement) {
+  public String toJson(@Nullable JsonElement jsonElement) {
     StringBuilder writer = new StringBuilder();
     toJson(jsonElement, writer);
     return writer.toString();
@@ -983,7 +983,7 @@ public final class Gson {
    * @throws JsonIOException if there was a problem writing to the writer
    * @since 1.4
    */
-  public void toJson(JsonElement jsonElement, Appendable writer) throws JsonIOException {
+  public void toJson(@Nullable JsonElement jsonElement, Appendable writer) throws JsonIOException {
     try {
       JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
       toJson(jsonElement, jsonWriter);
@@ -1012,7 +1012,7 @@ public final class Gson {
    * @param writer the JSON writer to which the provided element will be written
    * @throws JsonIOException if there was a problem writing to the writer
    */
-  public void toJson(JsonElement jsonElement, JsonWriter writer) throws JsonIOException {
+  public void toJson(@Nullable JsonElement jsonElement, JsonWriter writer) throws JsonIOException {
     Strictness oldStrictness = writer.getStrictness();
     boolean oldHtmlSafe = writer.isHtmlSafe();
     boolean oldSerializeNulls = writer.getSerializeNulls();
@@ -1422,7 +1422,7 @@ public final class Gson {
    * @see #fromJson(Reader, Class)
    * @see #fromJson(JsonElement, TypeToken)
    */
-  public <T> @Nullable T fromJson(JsonElement json, Class<T> classOfT) throws JsonSyntaxException {
+  public <T> @Nullable T fromJson(@Nullable JsonElement json, Class<T> classOfT) throws JsonSyntaxException {
     return fromJson(json, TypeToken.get(classOfT));
   }
 
@@ -1449,7 +1449,7 @@ public final class Gson {
    * @see #fromJson(JsonElement, TypeToken)
    */
   @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-  public <T> @Nullable T fromJson(JsonElement json, Type typeOfT) throws JsonSyntaxException {
+  public <T> @Nullable T fromJson(@Nullable JsonElement json, Type typeOfT) throws JsonSyntaxException {
     return (T) fromJson(json, TypeToken.get(typeOfT));
   }
 

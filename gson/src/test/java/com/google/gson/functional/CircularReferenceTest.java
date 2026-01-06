@@ -29,6 +29,8 @@ import com.google.gson.common.TestTypes.ClassOverridingEquals;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
@@ -85,8 +87,8 @@ public class CircularReferenceTest {
                 ClassWithSelfReference.class,
                 new JsonSerializer<ClassWithSelfReference>() {
                   @Override
-                  public JsonElement serialize(
-                      ClassWithSelfReference src,
+                  public @Nullable JsonElement serialize(
+                      @Nullable ClassWithSelfReference src,
                       Type typeOfSrc,
                       JsonSerializationContext context) {
                     JsonObject obj = new JsonObject();

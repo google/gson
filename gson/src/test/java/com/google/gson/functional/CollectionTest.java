@@ -45,6 +45,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -410,8 +412,8 @@ public class CollectionTest {
     Object stringListSerializer =
         new JsonSerializer<List<String>>() {
           @Override
-          public JsonElement serialize(
-              List<String> src, Type typeOfSrc, JsonSerializationContext context) {
+          public @Nullable JsonElement serialize(
+              @Nullable List<String> src, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(src.get(0) + ";" + src.get(1));
           }
         };

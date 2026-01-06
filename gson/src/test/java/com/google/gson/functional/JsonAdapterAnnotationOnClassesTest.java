@@ -702,8 +702,8 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     static class Serializer implements JsonSerializer<WithJsonSerializer> {
       @Override
-      public JsonElement serialize(
-          WithJsonSerializer src, Type typeOfSrc, JsonSerializationContext context) {
+      public @Nullable JsonElement serialize(
+          @Nullable WithJsonSerializer src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(true);
       }
     }
@@ -733,7 +733,7 @@ public final class JsonAdapterAnnotationOnClassesTest {
 
     static class Deserializer implements JsonDeserializer<WithJsonDeserializer> {
       @Override
-      public WithJsonDeserializer deserialize(
+      public @Nullable WithJsonDeserializer deserialize(
           JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         return new WithJsonDeserializer("123");
       }
@@ -773,8 +773,8 @@ public final class JsonAdapterAnnotationOnClassesTest {
       }
 
       @Override
-      public JsonElement serialize(
-          CreatedByInstanceCreator src, Type typeOfSrc, JsonSerializationContext context) {
+      public @Nullable JsonElement serialize(
+          @Nullable CreatedByInstanceCreator src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(value);
       }
     }
@@ -800,8 +800,8 @@ public final class JsonAdapterAnnotationOnClassesTest {
       }
 
       @Override
-      public JsonElement serialize(
-          CreatedByJdkUnsafe src, Type typeOfSrc, JsonSerializationContext context) {
+      public @Nullable JsonElement serialize(
+          @Nullable CreatedByJdkUnsafe src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(wasInitialized);
       }
     }

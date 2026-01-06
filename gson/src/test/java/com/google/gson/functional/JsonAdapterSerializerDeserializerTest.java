@@ -86,14 +86,14 @@ public final class JsonAdapterSerializerDeserializerTest {
 
   private static final class UserSerializer implements JsonSerializer<User> {
     @Override
-    public JsonElement serialize(User src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable User src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("UserSerializer");
     }
   }
 
   private static final class UserDeserializer implements JsonDeserializer<User> {
     @Override
-    public User deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public @Nullable User deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return new User("UserDeserializer");
     }
@@ -102,12 +102,12 @@ public final class JsonAdapterSerializerDeserializerTest {
   private static final class UserSerializerDeserializer
       implements JsonSerializer<User>, JsonDeserializer<User> {
     @Override
-    public JsonElement serialize(User src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable User src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("UserSerializerDeserializer");
     }
 
     @Override
-    public User deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public @Nullable User deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return new User("UserSerializerDeserializer");
     }
@@ -142,12 +142,12 @@ public final class JsonAdapterSerializerDeserializerTest {
   private static final class UserSerializerDeserializer2
       implements JsonSerializer<User2>, JsonDeserializer<User2> {
     @Override
-    public JsonElement serialize(User2 src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable User2 src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("UserSerializerDeserializer2");
     }
 
     @Override
-    public User2 deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public @Nullable User2 deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return new User2("UserSerializerDeserializer2");
     }
@@ -188,16 +188,16 @@ public final class JsonAdapterSerializerDeserializerTest {
 
   private static final class BaseStringAdapter implements JsonSerializer<Base<String>> {
     @Override
-    public JsonElement serialize(
-        Base<String> src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(
+        @Nullable Base<String> src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("BaseStringAdapter");
     }
   }
 
   private static final class BaseIntegerAdapter implements JsonSerializer<Base<Integer>> {
     @Override
-    public JsonElement serialize(
-        Base<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(
+        @Nullable Base<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("BaseIntegerAdapter");
     }
   }

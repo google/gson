@@ -95,7 +95,7 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   }
 
   /** Finds a compatible runtime type if it is more specific */
-  private static Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
+  private static Type getRuntimeTypeIfMoreSpecific(Type type, @Nullable Object value) {
     if (value != null && (type instanceof Class<?> || type instanceof TypeVariable<?>)) {
       type = value.getClass();
     }

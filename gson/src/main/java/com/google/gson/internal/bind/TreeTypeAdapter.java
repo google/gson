@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -90,6 +91,10 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
       return delegate().read(in);
     }
     JsonElement value = Streams.parse(in);
+    if (value == null) {
+      value = JsonNull.INSTANCE;
+    }
+
     if (nullSafe && value.isJsonNull()) {
       return null;
     }
@@ -195,18 +200,18 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
   private final class GsonContextImpl
       implements JsonSerializationContext, JsonDeserializationContext {
     @Override
-    public JsonElement serialize(Object src) {
+    public JsonElement serialize(@Nullable Object src) {
       return gson.toJsonTree(src);
     }
 
     @Override
-    public JsonElement serialize(Object src, Type typeOfSrc) {
+    public JsonElement serialize(@Nullable Object src, Type typeOfSrc) {
       return gson.toJsonTree(src, typeOfSrc);
     }
 
     @Override
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    public <R> R deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
+    public <R> R deserialize(@Nullable JsonElement json, Type typeOfT) throws JsonParseException {
       return gson.fromJson(json, typeOfT);
     }
   }

@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Type;
 
 /**
@@ -83,9 +85,11 @@ public interface JsonSerializer<T> {
    * src} object itself since that will cause an infinite loop (Gson will call your call-back method
    * again).
    *
-   * @param src the object that needs to be converted to Json.
+   * @param src the object that needs to be converted to Json.{@link com.google.gson.annotations.JsonAdapter#nullSafe()}
+   *     determines whether {@code null} values will be passed to the serializer.
    * @param typeOfSrc the actual type (fully genericized version) of the source object.
-   * @return a JsonElement corresponding to the specified object.
+   * @return a JsonElement corresponding to the specified object. {@code null} is equivalent to
+   *     {@link JsonNull#INSTANCE}.
    */
-  JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context);
+  @Nullable JsonElement serialize(@Nullable T src, Type typeOfSrc, JsonSerializationContext context);
 }

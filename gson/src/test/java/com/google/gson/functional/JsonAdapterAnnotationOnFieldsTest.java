@@ -705,8 +705,8 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
     static class Serializer implements JsonSerializer<List<Integer>> {
       @Override
-      public JsonElement serialize(
-          List<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
+      public @Nullable JsonElement serialize(
+          @Nullable List<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(true);
       }
     }
@@ -735,7 +735,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
     static class Deserializer implements JsonDeserializer<List<Integer>> {
       @Override
-      public List<Integer> deserialize(
+      public @Nullable List<Integer> deserialize(
           JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         return Arrays.asList(3, 2, 1);
       }

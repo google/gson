@@ -41,5 +41,5 @@ public interface JsonDeserializationContext {
    * @throws JsonParseException if the parse tree does not contain expected data.
    */
   @SuppressWarnings("TypeParameterUnusedInFormals")
-  <T> @Nullable T deserialize(JsonElement json, Type typeOfT) throws JsonParseException;
+  <T> @Nullable T deserialize(@Nullable JsonElement json, Type typeOfT) throws JsonParseException;
 }

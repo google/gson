@@ -25,6 +25,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Objects;
@@ -83,7 +85,7 @@ public class TestTypes {
     public static final String NAME = BaseSerializer.class.getSimpleName();
 
     @Override
-    public JsonElement serialize(Base src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable Base src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
       obj.addProperty(Base.SERIALIZER_KEY, NAME);
       return obj;
@@ -94,7 +96,7 @@ public class TestTypes {
     public static final String NAME = SubSerializer.class.getSimpleName();
 
     @Override
-    public JsonElement serialize(Sub src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable Sub src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
       obj.addProperty(Base.SERIALIZER_KEY, NAME);
       return obj;
@@ -421,12 +423,12 @@ public class TestTypes {
     public static final long DIFFERENCE = 5L;
 
     @Override
-    public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable Long src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src + DIFFERENCE);
     }
 
     @Override
-    public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public @Nullable Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return json.getAsLong() - DIFFERENCE;
     }

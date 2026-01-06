@@ -48,7 +48,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
 
   private static class Deserializer implements JsonDeserializer<Base> {
     @Override
-    public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+    public @Nullable Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
       throw new AssertionError("not needed for this test");
     }
   }

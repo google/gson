@@ -33,6 +33,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -100,7 +102,7 @@ public class TreeTypeAdaptersTest {
       implements JsonSerializer<Id<?>>, JsonDeserializer<Id<?>> {
 
     @Override
-    public Id<?> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public @Nullable Id<?> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       if (!(typeOfT instanceof ParameterizedType)) {
         throw new JsonParseException("Id of unknown type: " + typeOfT);
@@ -113,7 +115,7 @@ public class TreeTypeAdaptersTest {
     }
 
     @Override
-    public JsonElement serialize(Id<?> src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable Id<?> src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.getValue());
     }
   }

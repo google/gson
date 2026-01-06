@@ -421,8 +421,8 @@ public class ReflectionAccessFilterTest {
                 OtherClass.class,
                 new JsonSerializer<OtherClass>() {
                   @Override
-                  public JsonElement serialize(
-                      OtherClass src, Type typeOfSrc, JsonSerializationContext context) {
+                  public @Nullable JsonElement serialize(
+                      @Nullable OtherClass src, Type typeOfSrc, JsonSerializationContext context) {
                     return new JsonPrimitive(123);
                   }
                 })

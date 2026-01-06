@@ -390,13 +390,13 @@ public final class Java17RecordTest {
   public void testJsonAdapterAnnotation() {
     record Adapter() implements JsonSerializer<String>, JsonDeserializer<String> {
       @Override
-      public String deserialize(
+      public @Nullable String deserialize(
           JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         return "deserializer-" + json.getAsString();
       }
 
       @Override
-      public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
+      public @Nullable JsonElement serialize(@Nullable String src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive("serializer-" + src);
       }
     }

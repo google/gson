@@ -29,6 +29,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 /** Test that the hierarchy adapter works when subtypes are used. */
@@ -147,22 +149,22 @@ public final class TypeHierarchyAdapterTest {
 
   static class ManagerAdapter implements JsonSerializer<Manager>, JsonDeserializer<Manager> {
     @Override
-    public Manager deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+    public @Nullable Manager deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
       Manager result = new Manager();
       result.userid = json.getAsString();
       return result;
     }
 
     @Override
-    public JsonElement serialize(Manager src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable Manager src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.userid);
     }
   }
 
   static class EmployeeAdapter implements JsonSerializer<Employee>, JsonDeserializer<Employee> {
     @Override
-    public JsonElement serialize(
-        Employee employee, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(
+        @Nullable Employee employee, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject result = new JsonObject();
       result.add("userid", context.serialize(employee.userid, String.class));
       result.add("startDate", context.serialize(employee.startDate, long.class));
@@ -176,7 +178,7 @@ public final class TypeHierarchyAdapterTest {
     }
 
     @Override
-    public Employee deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public @Nullable Employee deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       JsonObject object = json.getAsJsonObject();
       Employee result = null;

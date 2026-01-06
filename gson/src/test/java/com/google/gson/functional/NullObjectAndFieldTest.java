@@ -30,6 +30,8 @@ import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithObjects;
 import java.lang.reflect.Type;
 import java.util.Collection;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -206,8 +208,8 @@ public class NullObjectAndFieldTest {
 
   private static class ClassWithObjectsSerializer implements JsonSerializer<ClassWithObjects> {
     @Override
-    public JsonElement serialize(
-        ClassWithObjects src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(
+        @Nullable ClassWithObjects src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
       obj.add("bag", JsonNull.INSTANCE);
       return obj;

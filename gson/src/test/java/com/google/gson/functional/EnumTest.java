@@ -38,6 +38,8 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -226,12 +228,12 @@ public class EnumTest {
   private static class MyEnumTypeAdapter
       implements JsonSerializer<Roshambo>, JsonDeserializer<Roshambo> {
     @Override
-    public JsonElement serialize(Roshambo src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable Roshambo src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("123" + src.name());
     }
 
     @Override
-    public Roshambo deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
+    public @Nullable Roshambo deserialize(JsonElement json, Type classOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return Roshambo.valueOf(json.getAsString().substring(3));
     }

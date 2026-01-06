@@ -39,6 +39,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -220,13 +222,13 @@ public class CustomTypeAdaptersTest {
 
   public static final class FooTypeAdapter implements JsonSerializer<Foo>, JsonDeserializer<Foo> {
     @Override
-    public Foo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public @Nullable Foo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return context.deserialize(json, typeOfT);
     }
 
     @Override
-    public JsonElement serialize(Foo src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable Foo src, Type typeOfSrc, JsonSerializationContext context) {
       return context.serialize(src, typeOfSrc);
     }
   }
@@ -328,14 +330,14 @@ public class CustomTypeAdaptersTest {
     }
 
     @Override
-    public StringHolder deserialize(
+    public @Nullable StringHolder deserialize(
         JsonElement src, Type type, JsonDeserializationContext context) {
       return new StringHolder(src.getAsString());
     }
 
     @Override
-    public JsonElement serialize(
-        StringHolder src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(
+        @Nullable StringHolder src, Type typeOfSrc, JsonSerializationContext context) {
       String contents = src.part1 + ':' + src.part2;
       return new JsonPrimitive(contents);
     }
@@ -481,7 +483,7 @@ public class CustomTypeAdaptersTest {
 
   private static class DataHolderSerializer implements JsonSerializer<DataHolder> {
     @Override
-    public JsonElement serialize(DataHolder src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable DataHolder src, Type typeOfSrc, JsonSerializationContext context) {
       JsonObject obj = new JsonObject();
       obj.addProperty("myData", src.data);
       return obj;
@@ -490,7 +492,7 @@ public class CustomTypeAdaptersTest {
 
   private static class DataHolderDeserializer implements JsonDeserializer<DataHolder> {
     @Override
-    public DataHolder deserialize(
+    public @Nullable DataHolder deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       JsonObject jsonObj = json.getAsJsonObject();
@@ -505,14 +507,14 @@ public class CustomTypeAdaptersTest {
   @SuppressWarnings("JavaUtilDate")
   private static class DateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
     @Override
-    public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+    public @Nullable Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
       return typeOfT == Date.class
           ? new Date(json.getAsLong())
           : new java.sql.Date(json.getAsLong());
     }
 
     @Override
-    public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable Date src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.getTime());
     }
   }

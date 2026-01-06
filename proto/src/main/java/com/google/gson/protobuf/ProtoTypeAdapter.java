@@ -39,6 +39,8 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Extension;
 import com.google.protobuf.Message;
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -252,7 +254,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
   }
 
   @Override
-  public JsonElement serialize(Message src, Type typeOfSrc, JsonSerializationContext context) {
+  public @Nullable JsonElement serialize(@Nullable Message src, Type typeOfSrc, JsonSerializationContext context) {
     JsonObject ret = new JsonObject();
     Map<FieldDescriptor, Object> fields = src.getAllFields();
 
@@ -284,7 +286,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
   }
 
   @Override
-  public Message deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+  public @Nullable Message deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
       throws JsonParseException {
     try {
       JsonObject jsonObject = json.getAsJsonObject();
