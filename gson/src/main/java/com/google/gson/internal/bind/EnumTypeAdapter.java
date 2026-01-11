@@ -52,9 +52,7 @@ class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
 
   private static final float LOAD_FACTOR_FOR_MAPS = 0.75F;
 
-  /**
-   * Taken from Java 19 method {@link HashMap.newHashMap}.
-   */
+  /** Taken from Java 19 method {@link HashMap.newHashMap}. */
   private static int calculateHashMapCapacity(int numMappings, float loadFactor) {
     return (int) Math.ceil(numMappings / loadFactor);
   }
