@@ -18,13 +18,14 @@ package com.google.gson.internal;
 
 import com.google.gson.stream.JsonReader;
 import java.io.IOException;
+import org.jspecify.annotations.Nullable;
 
 /** Internal-only APIs of JsonReader available only to other classes in Gson. */
 public abstract class JsonReaderInternalAccess {
   // Suppress warnings because field is initialized by `JsonReader` class during class loading
   // (and therefore should be thread-safe), and any usage appears after `JsonReader` was loaded
   @SuppressWarnings({"ConstantField", "NonFinalStaticField"})
-  public static volatile JsonReaderInternalAccess INSTANCE;
+  public static volatile @Nullable JsonReaderInternalAccess INSTANCE;
 
   /** Changes the type of the current property name token to a string value. */
   public abstract void promoteNameToValue(JsonReader reader) throws IOException;

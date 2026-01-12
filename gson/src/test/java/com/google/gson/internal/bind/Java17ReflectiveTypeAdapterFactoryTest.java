@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.attribute.GroupPrincipal;
 import java.nio.file.attribute.UserPrincipal;
 import java.security.Principal;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -81,12 +82,12 @@ public class Java17ReflectiveTypeAdapterFactoryTest {
 
   private static class PrincipalTypeAdapter<T extends Principal> extends TypeAdapter<T> {
     @Override
-    public void write(JsonWriter out, T principal) throws IOException {
+    public void write(JsonWriter out, @Nullable T principal) throws IOException {
       out.value(principal.getName());
     }
 
     @Override
-    public T read(JsonReader in) throws IOException {
+    public @Nullable T read(JsonReader in) throws IOException {
       String name = in.nextString();
       // This type adapter is only used for Group and User Principal, both of which are implemented
       // by PrincipalImpl.

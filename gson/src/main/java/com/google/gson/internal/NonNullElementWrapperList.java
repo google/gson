@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.RandomAccess;
+import org.jspecify.annotations.Nullable;
 
 /**
  * {@link List} which wraps another {@code List} but prevents insertion of {@code null} elements.
@@ -118,7 +119,7 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     return delegate.equals(o);
   }
 

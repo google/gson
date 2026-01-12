@@ -23,6 +23,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import org.jspecify.annotations.Nullable;
 
 final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   private final Gson context;
@@ -36,12 +37,12 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   }
 
   @Override
-  public T read(JsonReader in) throws IOException {
+  public @Nullable T read(JsonReader in) throws IOException {
     return delegate.read(in);
   }
 
   @Override
-  public void write(JsonWriter out, T value) throws IOException {
+  public void write(JsonWriter out, @Nullable T value) throws IOException {
     // Order of preference for choosing type adapters
     // First preference: a type adapter registered for the runtime type
     // Second preference: a type adapter registered for the declared type
@@ -94,7 +95,7 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   }
 
   /** Finds a compatible runtime type if it is more specific */
-  private static Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
+  private static Type getRuntimeTypeIfMoreSpecific(Type type, @Nullable Object value) {
     if (value != null && (type instanceof Class<?> || type instanceof TypeVariable<?>)) {
       type = value.getClass();
     }

@@ -34,6 +34,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This class selects which fields and types to omit. It is configurable, supporting version
@@ -108,7 +109,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   }
 
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     Class<?> rawType = type.getRawType();
 
     boolean skipSerialize = excludeClass(rawType, true);
@@ -123,10 +124,10 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
        * The delegate is lazily created because it may not be needed, and creating it may fail.
        * Field has to be {@code volatile} because {@link Gson} guarantees to be thread-safe.
        */
-      private volatile TypeAdapter<T> delegate;
+      private volatile @Nullable TypeAdapter<T> delegate;
 
       @Override
-      public T read(JsonReader in) throws IOException {
+      public @Nullable T read(JsonReader in) throws IOException {
         if (skipDeserialize) {
           in.skipValue();
           return null;
@@ -135,7 +136,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       }
 
       @Override
-      public void write(JsonWriter out, T value) throws IOException {
+      public void write(JsonWriter out, @Nullable T value) throws IOException {
         if (skipSerialize) {
           out.nullValue();
           return;

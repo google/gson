@@ -20,6 +20,7 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter.DateType;
 import java.sql.Timestamp;
 import java.util.Date;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Encapsulates access to {@code java.sql} types, to allow Gson to work without the {@code java.sql}
@@ -35,12 +36,12 @@ public final class SqlTypesSupport {
   /** {@code true} if {@code java.sql} types are supported, {@code false} otherwise */
   public static final boolean SUPPORTS_SQL_TYPES;
 
-  public static final DateType<? extends Date> DATE_DATE_TYPE;
-  public static final DateType<? extends Date> TIMESTAMP_DATE_TYPE;
+  public static final @Nullable DateType<? extends Date> DATE_DATE_TYPE;
+  public static final @Nullable DateType<? extends Date> TIMESTAMP_DATE_TYPE;
 
-  public static final TypeAdapterFactory DATE_FACTORY;
-  public static final TypeAdapterFactory TIME_FACTORY;
-  public static final TypeAdapterFactory TIMESTAMP_FACTORY;
+  public static final @Nullable TypeAdapterFactory DATE_FACTORY;
+  public static final @Nullable TypeAdapterFactory TIME_FACTORY;
+  public static final @Nullable TypeAdapterFactory TIMESTAMP_FACTORY;
 
   static {
     boolean sqlTypesSupport;

@@ -31,6 +31,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 public final class TypeAdapterPrecedenceTest {
@@ -142,7 +143,7 @@ public final class TypeAdapterPrecedenceTest {
   private static JsonSerializer<Foo> newSerializer(String name) {
     return new JsonSerializer<>() {
       @Override
-      public JsonElement serialize(Foo src, Type typeOfSrc, JsonSerializationContext context) {
+      public @Nullable JsonElement serialize(@Nullable Foo src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(src.name + " via " + name);
       }
     };
@@ -151,7 +152,7 @@ public final class TypeAdapterPrecedenceTest {
   private static JsonDeserializer<Foo> newDeserializer(String name) {
     return new JsonDeserializer<>() {
       @Override
-      public Foo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+      public @Nullable Foo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         return new Foo(json.getAsString() + " via " + name);
       }
     };
@@ -160,12 +161,12 @@ public final class TypeAdapterPrecedenceTest {
   private static TypeAdapter<Foo> newTypeAdapter(String name) {
     return new TypeAdapter<>() {
       @Override
-      public Foo read(JsonReader in) throws IOException {
+      public @Nullable Foo read(JsonReader in) throws IOException {
         return new Foo(in.nextString() + " via " + name);
       }
 
       @Override
-      public void write(JsonWriter out, Foo value) throws IOException {
+      public void write(JsonWriter out, @Nullable Foo value) throws IOException {
         out.value(value.name + " via " + name);
       }
     };

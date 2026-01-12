@@ -30,6 +30,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 public class TypeAdapterRuntimeTypeWrapperTest {
@@ -47,7 +48,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
 
   private static class Deserializer implements JsonDeserializer<Base> {
     @Override
-    public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+    public @Nullable Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
       throw new AssertionError("not needed for this test");
     }
   }
@@ -95,12 +96,12 @@ public class TypeAdapterRuntimeTypeWrapperTest {
                 Base.class,
                 new TypeAdapter<Base>() {
                   @Override
-                  public Base read(JsonReader in) throws IOException {
+                  public @Nullable Base read(JsonReader in) throws IOException {
                     throw new UnsupportedOperationException();
                   }
 
                   @Override
-                  public void write(JsonWriter out, Base value) throws IOException {
+                  public void write(JsonWriter out, @Nullable Base value) throws IOException {
                     out.value("custom delegate");
                   }
                 })

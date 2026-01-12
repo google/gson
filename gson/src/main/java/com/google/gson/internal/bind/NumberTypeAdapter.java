@@ -27,6 +27,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import org.jspecify.annotations.Nullable;
 
 /** Type adapter for {@link Number}. */
 public final class NumberTypeAdapter extends TypeAdapter<Number> {
@@ -45,7 +46,7 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked")
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return type.getRawType() == Number.class ? (TypeAdapter<T>) adapter : null;
       }
     };
@@ -60,7 +61,7 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
   }
 
   @Override
-  public Number read(JsonReader in) throws IOException {
+  public @Nullable Number read(JsonReader in) throws IOException {
     JsonToken jsonToken = in.peek();
     switch (jsonToken) {
       case NULL:
@@ -76,7 +77,7 @@ public final class NumberTypeAdapter extends TypeAdapter<Number> {
   }
 
   @Override
-  public void write(JsonWriter out, Number value) throws IOException {
+  public void write(JsonWriter out, @Nullable Number value) throws IOException {
     out.value(value);
   }
 }

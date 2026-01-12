@@ -23,6 +23,8 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -92,12 +94,12 @@ public class GsonTypeAdapterTest {
         new IllegalStateException("test-exception");
 
     @Override
-    public JsonElement serialize(AtomicLong src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable AtomicLong src, Type typeOfSrc, JsonSerializationContext context) {
       throw thrownException;
     }
 
     @Override
-    public AtomicLong deserialize(
+    public @Nullable AtomicLong deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       throw thrownException;
@@ -107,13 +109,13 @@ public class GsonTypeAdapterTest {
   private static class AtomicIntegerTypeAdapter
       implements JsonSerializer<AtomicInteger>, JsonDeserializer<AtomicInteger> {
     @Override
-    public JsonElement serialize(
-        AtomicInteger src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(
+        @Nullable AtomicInteger src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.incrementAndGet());
     }
 
     @Override
-    public AtomicInteger deserialize(
+    public @Nullable AtomicInteger deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       int intValue = json.getAsInt();

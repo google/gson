@@ -21,6 +21,7 @@ import com.google.gson.internal.NumberLimits;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A class representing a JSON primitive value. A primitive value is either a String, a Java
@@ -34,7 +35,7 @@ import java.util.Objects;
  */
 public final class JsonPrimitive extends JsonElement {
 
-  private final Object value;
+  private final @Nullable Object value;
 
   /**
    * Create a primitive containing a boolean value.
@@ -279,7 +280,7 @@ public final class JsonPrimitive extends JsonElement {
    * to be equal if it is an instance of {@code JsonPrimitive} and has an equal value.
    */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

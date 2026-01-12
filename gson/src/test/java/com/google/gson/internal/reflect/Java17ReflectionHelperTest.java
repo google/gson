@@ -79,7 +79,7 @@ public class Java17ReflectionHelperTest {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (o instanceof PrincipalImpl) {
         return Objects.equals(name, ((PrincipalImpl) o).name);
       }

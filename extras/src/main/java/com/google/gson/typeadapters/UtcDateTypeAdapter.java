@@ -21,6 +21,8 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -34,7 +36,7 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
   private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
 
   @Override
-  public void write(JsonWriter out, Date date) throws IOException {
+  public void write(JsonWriter out, @Nullable Date date) throws IOException {
     if (date == null) {
       out.nullValue();
     } else {
@@ -44,7 +46,7 @@ public final class UtcDateTypeAdapter extends TypeAdapter<Date> {
   }
 
   @Override
-  public Date read(JsonReader in) throws IOException {
+  public @Nullable Date read(JsonReader in) throws IOException {
     try {
       if (in.peek().equals(JsonToken.NULL)) {
         in.nextNull();

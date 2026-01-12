@@ -16,6 +16,8 @@
 
 package com.google.gson;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A class representing a JSON {@code null} value.
  *
@@ -59,7 +61,7 @@ public final class JsonNull extends JsonElement {
 
   /** All instances of {@code JsonNull} are considered equal. */
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     return other instanceof JsonNull;
   }
 }

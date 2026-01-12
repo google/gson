@@ -18,6 +18,8 @@ package com.google.gson;
 
 import com.google.gson.internal.GsonTypes;
 import com.google.gson.internal.Primitives;
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -74,7 +76,7 @@ public class ParameterizedTypeFixtures {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if (this == obj) {
         return true;
       }
@@ -125,8 +127,8 @@ public class ParameterizedTypeFixtures {
     }
 
     @Override
-    public JsonElement serialize(
-        MyParameterizedType<T> src, Type classOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(
+        @Nullable MyParameterizedType<T> src, Type classOfSrc, JsonSerializationContext context) {
       JsonObject json = new JsonObject();
       T value = src.getValue();
       json.add(value.getClass().getSimpleName(), context.serialize(value));
@@ -135,7 +137,7 @@ public class ParameterizedTypeFixtures {
 
     @SuppressWarnings("unchecked")
     @Override
-    public MyParameterizedType<T> deserialize(
+    public @Nullable MyParameterizedType<T> deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       Type genericClass = ((ParameterizedType) typeOfT).getActualTypeArguments()[0];

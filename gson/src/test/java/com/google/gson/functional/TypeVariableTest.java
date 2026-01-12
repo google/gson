@@ -85,7 +85,7 @@ public class TypeVariableTest {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (!(o instanceof Blue)) {
         return false;
       }
@@ -120,7 +120,7 @@ public class TypeVariableTest {
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (!(o instanceof Foo<?, ?>)) {
         return false;
       }

@@ -29,13 +29,14 @@ import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import org.jspecify.annotations.Nullable;
 
 /** Adapter for arrays. */
 public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   public static final TypeAdapterFactory FACTORY =
       new TypeAdapterFactory() {
         @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+        public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
           Type type = typeToken.getType();
           if (!(type instanceof GenericArrayType
               || (type instanceof Class && ((Class<?>) type).isArray()))) {
@@ -63,7 +64,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   }
 
   @Override
-  public Object read(JsonReader in) throws IOException {
+  public @Nullable Object read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
       in.nextNull();
       return null;
@@ -95,7 +96,7 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
   }
 
   @Override
-  public void write(JsonWriter out, Object array) throws IOException {
+  public void write(JsonWriter out, @Nullable Object array) throws IOException {
     if (array == null) {
       out.nullValue();
       return;

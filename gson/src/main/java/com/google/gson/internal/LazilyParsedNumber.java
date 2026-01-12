@@ -20,6 +20,7 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.math.BigDecimal;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This class holds a number value that is lazily converted to a specific number type
@@ -98,7 +99,7 @@ public final class LazilyParsedNumber extends Number {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

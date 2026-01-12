@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 public final class StreamingTypeAdaptersTest {
@@ -120,13 +121,13 @@ public final class StreamingTypeAdaptersTest {
     TypeAdapter<Person> personNameAdapter =
         new TypeAdapter<>() {
           @Override
-          public Person read(JsonReader in) throws IOException {
+          public @Nullable Person read(JsonReader in) throws IOException {
             String name = in.nextString();
             return new Person(name, -1);
           }
 
           @Override
-          public void write(JsonWriter out, Person value) throws IOException {
+          public void write(JsonWriter out, @Nullable Person value) throws IOException {
             out.value(value.name);
           }
         };
@@ -183,13 +184,13 @@ public final class StreamingTypeAdaptersTest {
     TypeAdapter<Person> typeAdapter =
         new TypeAdapter<>() {
           @Override
-          public Person read(JsonReader in) throws IOException {
+          public @Nullable Person read(JsonReader in) throws IOException {
             List<String> values = Splitter.on(',').splitToList(in.nextString());
             return new Person(values.get(0), Integer.parseInt(values.get(1)));
           }
 
           @Override
-          public void write(JsonWriter out, Person person) throws IOException {
+          public void write(JsonWriter out, @Nullable Person person) throws IOException {
             out.value(person.name + "," + person.age);
           }
         };
@@ -265,7 +266,7 @@ public final class StreamingTypeAdaptersTest {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       return o instanceof Person && ((Person) o).name.equals(name) && ((Person) o).age == age;
     }
 

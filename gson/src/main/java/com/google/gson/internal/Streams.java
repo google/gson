@@ -26,6 +26,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.Flushable;
@@ -40,7 +42,7 @@ public final class Streams {
   }
 
   /** Takes a reader in any state and returns the next value as a JsonElement. */
-  public static JsonElement parse(JsonReader reader) throws JsonParseException {
+  public static @Nullable JsonElement parse(JsonReader reader) throws JsonParseException {
     boolean isEmpty = true;
     try {
       JsonToken unused = reader.peek();
@@ -66,7 +68,7 @@ public final class Streams {
   }
 
   /** Writes the JSON element to the writer, recursively. */
-  public static void write(JsonElement element, JsonWriter writer) throws IOException {
+  public static void write(@Nullable JsonElement element, JsonWriter writer) throws IOException {
     JsonElementTypeAdapter.ADAPTER.write(writer, element);
   }
 
@@ -120,21 +122,21 @@ public final class Streams {
     }
 
     @Override
-    public Writer append(CharSequence csq) throws IOException {
+    public Writer append(@Nullable CharSequence csq) throws IOException {
       appendable.append(csq);
       return this;
     }
 
     @Override
-    public Writer append(CharSequence csq, int start, int end) throws IOException {
+    public Writer append(@Nullable CharSequence csq, int start, int end) throws IOException {
       appendable.append(csq, start, end);
       return this;
     }
 
     /** A mutable char sequence pointing at a single char[]. */
     private static class CurrentWrite implements CharSequence {
-      private char[] chars;
-      private String cachedString;
+      private char @Nullable [] chars;
+      private @Nullable String cachedString;
 
       void setChars(char[] chars) {
         this.chars = chars;

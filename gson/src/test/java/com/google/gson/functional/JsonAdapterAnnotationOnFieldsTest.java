@@ -40,6 +40,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 /** Functional tests for the {@link JsonAdapter} annotation on fields. */
@@ -80,12 +81,12 @@ public final class JsonAdapterAnnotationOnFieldsTest {
                 Part.class,
                 new TypeAdapter<Part>() {
                   @Override
-                  public void write(JsonWriter out, Part part) {
+                  public void write(JsonWriter out, @Nullable Part part) {
                     throw new AssertionError();
                   }
 
                   @Override
-                  public Part read(JsonReader in) {
+                  public @Nullable Part read(JsonReader in) {
                     throw new AssertionError();
                   }
                 })
@@ -133,12 +134,12 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static class PartJsonFieldAnnotationAdapter extends TypeAdapter<Part> {
     @Override
-    public void write(JsonWriter out, Part part) throws IOException {
+    public void write(JsonWriter out, @Nullable Part part) throws IOException {
       out.value("PartJsonFieldAnnotationAdapter");
     }
 
     @Override
-    public Part read(JsonReader in) throws IOException {
+    public @Nullable Part read(JsonReader in) throws IOException {
       String unused = in.nextString();
       return new Part("PartJsonFieldAnnotationAdapter");
     }
@@ -146,16 +147,16 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static class GizmoPartTypeAdapterFactory implements TypeAdapterFactory {
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       return new TypeAdapter<>() {
         @Override
-        public void write(JsonWriter out, T value) throws IOException {
+        public void write(JsonWriter out, @Nullable T value) throws IOException {
           out.value("GizmoPartTypeAdapterFactory");
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public T read(JsonReader in) throws IOException {
+        public @Nullable T read(JsonReader in) throws IOException {
           String unused = in.nextString();
           return (T) new Part("GizmoPartTypeAdapterFactory");
         }
@@ -182,12 +183,12 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static class UserClassAnnotationAdapter extends TypeAdapter<User> {
     @Override
-    public void write(JsonWriter out, User user) throws IOException {
+    public void write(JsonWriter out, @Nullable User user) throws IOException {
       out.value("UserClassAnnotationAdapter");
     }
 
     @Override
-    public User read(JsonReader in) throws IOException {
+    public @Nullable User read(JsonReader in) throws IOException {
       String unused = in.nextString();
       return new User("UserClassAnnotationAdapter");
     }
@@ -205,12 +206,12 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static final class UserFieldAnnotationAdapter extends TypeAdapter<User> {
     @Override
-    public void write(JsonWriter out, User user) throws IOException {
+    public void write(JsonWriter out, @Nullable User user) throws IOException {
       out.value("UserFieldAnnotationAdapter");
     }
 
     @Override
-    public User read(JsonReader in) throws IOException {
+    public @Nullable User read(JsonReader in) throws IOException {
       String unused = in.nextString();
       return new User("UserFieldAnnotationAdapter");
     }
@@ -218,12 +219,12 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static final class RegisteredUserAdapter extends TypeAdapter<User> {
     @Override
-    public void write(JsonWriter out, User user) throws IOException {
+    public void write(JsonWriter out, @Nullable User user) throws IOException {
       out.value("RegisteredUserAdapter");
     }
 
     @Override
-    public User read(JsonReader in) throws IOException {
+    public @Nullable User read(JsonReader in) throws IOException {
       String unused = in.nextString();
       return new User("RegisteredUserAdapter");
     }
@@ -305,19 +306,19 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     static final TypeAdapter<Long> ADAPTER =
         new TypeAdapter<>() {
           @Override
-          public void write(JsonWriter out, Long value) throws IOException {
+          public void write(JsonWriter out, @Nullable Long value) throws IOException {
             out.value(value.toString());
           }
 
           @Override
-          public Long read(JsonReader in) throws IOException {
+          public @Nullable Long read(JsonReader in) throws IOException {
             return in.nextLong();
           }
         };
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       Class<?> cls = type.getRawType();
       if (Long.class.isAssignableFrom(cls)) {
         return (TypeAdapter<T>) ADAPTER;
@@ -351,16 +352,16 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   private static class Gizmo2PartTypeAdapterFactory implements TypeAdapterFactory {
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       return new TypeAdapter<>() {
         @Override
-        public void write(JsonWriter out, T value) throws IOException {
+        public void write(JsonWriter out, @Nullable T value) throws IOException {
           out.value("GizmoPartTypeAdapterFactory");
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public T read(JsonReader in) throws IOException {
+        public @Nullable T read(JsonReader in) throws IOException {
           String unused = in.nextString();
           return (T) Arrays.asList(new Part("GizmoPartTypeAdapterFactory"));
         }
@@ -392,7 +393,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     static final JsonPrimitive DESERIALIZED = new JsonPrimitive("deserialized hardcoded");
 
     @Override
-    public JsonElement read(JsonReader in) throws IOException {
+    public @Nullable JsonElement read(JsonReader in) throws IOException {
       in.skipValue();
       return DESERIALIZED;
     }
@@ -400,7 +401,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     static final String SERIALIZED = "serialized hardcoded";
 
     @Override
-    public void write(JsonWriter out, JsonElement value) throws IOException {
+    public void write(JsonWriter out, @Nullable JsonElement value) throws IOException {
       out.value(SERIALIZED);
     }
   }
@@ -532,7 +533,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
     static class DelegatingAdapterFactory implements TypeAdapterFactory {
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return gson.getDelegateAdapter(this, type);
       }
     }
@@ -568,19 +569,19 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     static class Factory implements TypeAdapterFactory {
       @SuppressWarnings("unchecked")
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         TypeAdapter<String> delegate = (TypeAdapter<String>) gson.getDelegateAdapter(this, type);
 
         return (TypeAdapter<T>)
             new TypeAdapter<String>() {
               @Override
-              public String read(JsonReader in) throws IOException {
+              public @Nullable String read(JsonReader in) throws IOException {
                 // Perform custom deserialization
                 return delegate.read(in) + "-custom";
               }
 
               @Override
-              public void write(JsonWriter out, String value) throws IOException {
+              public void write(JsonWriter out, @Nullable String value) throws IOException {
                 // Perform custom serialization
                 delegate.write(out, value + "-custom");
               }
@@ -613,7 +614,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     static class Factory implements TypeAdapterFactory {
       @SuppressWarnings("unchecked")
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         return (TypeAdapter<T>)
             new TypeAdapter<String>() {
               private TypeAdapter<String> delegate() {
@@ -621,13 +622,13 @@ public final class JsonAdapterAnnotationOnFieldsTest {
               }
 
               @Override
-              public String read(JsonReader in) throws IOException {
+              public @Nullable String read(JsonReader in) throws IOException {
                 // Perform custom deserialization
                 return delegate().read(in) + "-custom";
               }
 
               @Override
-              public void write(JsonWriter out, String value) throws IOException {
+              public void write(JsonWriter out, @Nullable String value) throws IOException {
                 // Perform custom serialization
                 delegate().write(out, value + "-custom");
               }
@@ -665,19 +666,19 @@ public final class JsonAdapterAnnotationOnFieldsTest {
     static class Factory implements TypeAdapterFactory {
       @SuppressWarnings("unchecked")
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         // Uses `Gson.getAdapter` instead of `Gson.getDelegateAdapter`
         TypeAdapter<String> delegate = (TypeAdapter<String>) gson.getAdapter(type);
 
         return (TypeAdapter<T>)
             new TypeAdapter<String>() {
               @Override
-              public String read(JsonReader in) throws IOException {
+              public @Nullable String read(JsonReader in) throws IOException {
                 return delegate.read(in) + "-custom";
               }
 
               @Override
-              public void write(JsonWriter out, String value) throws IOException {
+              public void write(JsonWriter out, @Nullable String value) throws IOException {
                 delegate.write(out, value + "-custom");
               }
             };
@@ -704,8 +705,8 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
     static class Serializer implements JsonSerializer<List<Integer>> {
       @Override
-      public JsonElement serialize(
-          List<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
+      public @Nullable JsonElement serialize(
+          @Nullable List<Integer> src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(true);
       }
     }
@@ -734,7 +735,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
     static class Deserializer implements JsonDeserializer<List<Integer>> {
       @Override
-      public List<Integer> deserialize(
+      public @Nullable List<Integer> deserialize(
           JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         return Arrays.asList(3, 2, 1);
       }

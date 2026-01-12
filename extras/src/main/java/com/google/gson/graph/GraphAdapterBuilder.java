@@ -29,6 +29,8 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
@@ -151,7 +153,7 @@ public final class GraphAdapterBuilder {
     }
 
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       if (!instanceCreators.containsKey(type.getType())) {
         return null;
       }
@@ -160,7 +162,7 @@ public final class GraphAdapterBuilder {
       TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
       return new TypeAdapter<T>() {
         @Override
-        public void write(JsonWriter out, T value) throws IOException {
+        public void write(JsonWriter out, @Nullable T value) throws IOException {
           if (value == null) {
             out.nullValue();
             return;
@@ -210,7 +212,7 @@ public final class GraphAdapterBuilder {
         }
 
         @Override
-        public T read(JsonReader in) throws IOException {
+        public @Nullable T read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;

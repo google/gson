@@ -21,4 +21,5 @@
  * @author Inderjeet Singh, Joel Leitch, Jesse Wilson
  */
 @com.google.errorprone.annotations.CheckReturnValue
+@org.jspecify.annotations.NullMarked
 package com.google.gson.internal;

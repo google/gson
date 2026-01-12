@@ -33,6 +33,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 /** Functional tests for the RuntimeTypeAdapterFactory feature in extras. */
@@ -161,7 +162,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
     }
 
     @Override
-    public <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
+    public @Nullable <R> TypeAdapter<R> create(Gson gson, TypeToken<R> type) {
       if (type.getRawType() != baseType) {
         return null;
       }
@@ -176,7 +177,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
 
       return new TypeAdapter<>() {
         @Override
-        public R read(JsonReader in) {
+        public @Nullable R read(JsonReader in) {
           JsonElement jsonElement = Streams.parse(in);
           JsonElement labelJsonElement = jsonElement.getAsJsonObject().get(typeFieldName);
           if (labelJsonElement == null) {
@@ -201,7 +202,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
         }
 
         @Override
-        public void write(JsonWriter out, R value) throws IOException {
+        public void write(JsonWriter out, @Nullable R value) throws IOException {
           Class<?> srcType = value.getClass();
           String label = subtypeToLabel.get(srcType);
           @SuppressWarnings("unchecked") // registration requires that subtype extends T

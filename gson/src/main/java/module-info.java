@@ -28,6 +28,9 @@ module com.google.gson {
   // Optional dependency on Error Prone Annotations
   requires static com.google.errorprone.annotations;
 
+  // Optional dependency on JSpecify annotations
+  requires static org.jspecify;
+
   // Optional dependency on java.sql
   requires static java.sql;
 

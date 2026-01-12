@@ -20,6 +20,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.internal.LinkedTreeMap;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A class representing an object type in JSON. An object consists of name-value pairs where names
@@ -66,7 +67,7 @@ public final class JsonObject extends JsonElement {
    * @param property name of the member.
    * @param value the member object.
    */
-  public void add(String property, JsonElement value) {
+  public void add(String property, @Nullable JsonElement value) {
     members.put(property, value == null ? JsonNull.INSTANCE : value);
   }
 
@@ -79,7 +80,7 @@ public final class JsonObject extends JsonElement {
    * @since 1.3
    */
   @CanIgnoreReturnValue
-  public JsonElement remove(String property) {
+  public @Nullable JsonElement remove(String property) {
     return members.remove(property);
   }
 
@@ -90,7 +91,7 @@ public final class JsonObject extends JsonElement {
    * @param property name of the member.
    * @param value the string value associated with the member.
    */
-  public void addProperty(String property, String value) {
+  public void addProperty(String property, @Nullable String value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
   }
 
@@ -101,7 +102,7 @@ public final class JsonObject extends JsonElement {
    * @param property name of the member.
    * @param value the number value associated with the member.
    */
-  public void addProperty(String property, Number value) {
+  public void addProperty(String property, @Nullable Number value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
   }
 
@@ -112,7 +113,7 @@ public final class JsonObject extends JsonElement {
    * @param property name of the member.
    * @param value the boolean value associated with the member.
    */
-  public void addProperty(String property, Boolean value) {
+  public void addProperty(String property, @Nullable Boolean value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
   }
 
@@ -123,7 +124,7 @@ public final class JsonObject extends JsonElement {
    * @param property name of the member.
    * @param value the char value associated with the member.
    */
-  public void addProperty(String property, Character value) {
+  public void addProperty(String property, @Nullable Character value) {
     add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
   }
 
@@ -183,7 +184,7 @@ public final class JsonObject extends JsonElement {
    * @param memberName name of the member that is being requested.
    * @return the member matching the name, or {@code null} if no such member exists.
    */
-  public JsonElement get(String memberName) {
+  public @Nullable JsonElement get(String memberName) {
     return members.get(memberName);
   }
 
@@ -195,7 +196,7 @@ public final class JsonObject extends JsonElement {
    *     member with this name exists.
    * @throws ClassCastException if the member is not of type {@code JsonPrimitive}.
    */
-  public JsonPrimitive getAsJsonPrimitive(String memberName) {
+  public @Nullable JsonPrimitive getAsJsonPrimitive(String memberName) {
     return (JsonPrimitive) members.get(memberName);
   }
 
@@ -207,7 +208,7 @@ public final class JsonObject extends JsonElement {
    *     member with this name exists.
    * @throws ClassCastException if the member is not of type {@code JsonArray}.
    */
-  public JsonArray getAsJsonArray(String memberName) {
+  public @Nullable JsonArray getAsJsonArray(String memberName) {
     return (JsonArray) members.get(memberName);
   }
 
@@ -219,7 +220,7 @@ public final class JsonObject extends JsonElement {
    *     member with this name exists.
    * @throws ClassCastException if the member is not of type {@code JsonObject}.
    */
-  public JsonObject getAsJsonObject(String memberName) {
+  public @Nullable JsonObject getAsJsonObject(String memberName) {
     return (JsonObject) members.get(memberName);
   }
 
@@ -244,7 +245,7 @@ public final class JsonObject extends JsonElement {
    * to be equal if it is an instance of {@code JsonObject} and has equal members, ignoring order.
    */
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     return (o == this) || (o instanceof JsonObject && ((JsonObject) o).members.equals(members));
   }
 

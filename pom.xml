@@ -92,6 +92,12 @@
         <artifactId>truth</artifactId>
         <version>1.4.5</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.jspecify</groupId>
+        <artifactId>jspecify</artifactId>
+        <version>1.0.0</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

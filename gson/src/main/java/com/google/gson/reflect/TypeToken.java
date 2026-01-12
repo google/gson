@@ -26,6 +26,7 @@ import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a generic type {@code T}. Java doesn't yet provide a way to represent generic types,
@@ -118,7 +119,7 @@ public class TypeToken<T> {
     throw new IllegalStateException("Must only create direct subclasses of TypeToken");
   }
 
-  private static void verifyNoTypeVariable(Type type) {
+  private static void verifyNoTypeVariable(@Nullable Type type) {
     if (type instanceof TypeVariable) {
       TypeVariable<?> typeVariable = (TypeVariable<?>) type;
       throw new IllegalArgumentException(
@@ -183,7 +184,7 @@ public class TypeToken<T> {
    * @deprecated this implementation may be inconsistent with javac for types with wildcards.
    */
   @Deprecated
-  public boolean isAssignableFrom(Type from) {
+  public boolean isAssignableFrom(@Nullable Type from) {
     if (from == null) {
       return false;
     }
@@ -242,7 +243,7 @@ public class TypeToken<T> {
 
   /** Private recursive helper function to actually do the type-safe checking of assignability. */
   private static boolean isAssignableFrom(
-      Type from, ParameterizedType to, Map<String, Type> typeVarMap) {
+      @Nullable Type from, ParameterizedType to, Map<String, Type> typeVarMap) {
 
     if (from == null) {
       return false;
@@ -342,7 +343,7 @@ public class TypeToken<T> {
   }
 
   @Override
-  public final boolean equals(Object o) {
+  public final boolean equals(@Nullable Object o) {
     return o instanceof TypeToken<?> && GsonTypes.equals(type, ((TypeToken<?>) o).type);
   }
 

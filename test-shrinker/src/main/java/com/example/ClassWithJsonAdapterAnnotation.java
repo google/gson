@@ -15,6 +15,8 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -70,31 +72,31 @@ public class ClassWithJsonAdapterAnnotation {
 
   static class Adapter extends TypeAdapter<DummyClass> {
     @Override
-    public DummyClass read(JsonReader in) throws IOException {
+    public @Nullable DummyClass read(JsonReader in) throws IOException {
       return new DummyClass("adapter-" + in.nextInt());
     }
 
     @Override
-    public void write(JsonWriter out, DummyClass value) throws IOException {
+    public void write(JsonWriter out, @Nullable DummyClass value) throws IOException {
       out.value("adapter-" + value);
     }
   }
 
   static class Factory implements TypeAdapterFactory {
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       // the code below is not type-safe, but does not matter for this test
       @SuppressWarnings("unchecked")
       TypeAdapter<T> r =
           (TypeAdapter<T>)
               new TypeAdapter<DummyClass>() {
                 @Override
-                public DummyClass read(JsonReader in) throws IOException {
+                public @Nullable DummyClass read(JsonReader in) throws IOException {
                   return new DummyClass("factory-" + in.nextInt());
                 }
 
                 @Override
-                public void write(JsonWriter out, DummyClass value) throws IOException {
+                public void write(JsonWriter out, @Nullable DummyClass value) throws IOException {
                   out.value("factory-" + value.s);
                 }
               };
@@ -105,14 +107,14 @@ public class ClassWithJsonAdapterAnnotation {
 
   static class Serializer implements JsonSerializer<DummyClass> {
     @Override
-    public JsonElement serialize(DummyClass src, Type typeOfSrc, JsonSerializationContext context) {
+    public @Nullable JsonElement serialize(@Nullable DummyClass src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive("serializer-" + src.s);
     }
   }
 
   static class Deserializer implements JsonDeserializer<DummyClass> {
     @Override
-    public DummyClass deserialize(
+    public @Nullable DummyClass deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       return new DummyClass("deserializer-" + json.getAsInt());

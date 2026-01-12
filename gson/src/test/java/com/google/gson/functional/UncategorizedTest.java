@@ -29,6 +29,8 @@ import com.google.gson.common.TestTypes.ClassOverridingEquals;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -133,7 +135,7 @@ public class UncategorizedTest {
 
   private static class BaseTypeAdapter implements JsonDeserializer<Base> {
     @Override
-    public Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public @Nullable Base deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       String opTypeStr = json.getAsJsonObject().get("opType").getAsString();
       OperationType opType = OperationType.valueOf(opTypeStr);

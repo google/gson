@@ -40,6 +40,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import org.jspecify.annotations.Nullable;
 
 /** Returns a function that can construct an instance of a requested type. */
 public final class ConstructorConstructor {
@@ -63,7 +64,7 @@ public final class ConstructorConstructor {
    * @param c instance of the class to be checked
    * @return if instantiable {@code null}, else a non-{@code null} exception message
    */
-  static String checkInstantiable(Class<?> c) {
+  static @Nullable String checkInstantiable(Class<?> c) {
     int modifiers = c.getModifiers();
     if (Modifier.isInterface(modifiers)) {
       return "Interfaces can't be instantiated! Register an InstanceCreator"
@@ -174,7 +175,7 @@ public final class ConstructorConstructor {
    * Creates constructors for special JDK collection types which do not have a public no-args
    * constructor.
    */
-  private static <T> ObjectConstructor<T> newSpecialCollectionConstructor(
+  private static <T> @Nullable ObjectConstructor<T> newSpecialCollectionConstructor(
       Type type, Class<? super T> rawType) {
     if (EnumSet.class.isAssignableFrom(rawType)) {
       return () -> {
@@ -214,7 +215,7 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private static <T> ObjectConstructor<T> newDefaultConstructor(
+  private static <T> @Nullable ObjectConstructor<T> newDefaultConstructor(
       Class<? super T> rawType, FilterResult filterResult) {
     // Cannot invoke constructor of abstract class
     if (Modifier.isAbstract(rawType.getModifiers())) {
@@ -285,7 +286,7 @@ public final class ConstructorConstructor {
   }
 
   /** Constructors for common interface types like Map and List and their subtypes. */
-  private static <T> ObjectConstructor<T> newDefaultImplementationConstructor(
+  private static <T> @Nullable ObjectConstructor<T> newDefaultImplementationConstructor(
       Type type, Class<? super T> rawType) {
 
     /*
@@ -312,7 +313,7 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private static ObjectConstructor<? extends Collection<?>> newCollectionConstructor(
+  private static @Nullable ObjectConstructor<? extends Collection<?>> newCollectionConstructor(
       Class<?> rawType) {
 
     // First try List implementation
@@ -349,7 +350,7 @@ public final class ConstructorConstructor {
     return GsonTypes.getRawType(typeArguments[0]) == String.class;
   }
 
-  private static ObjectConstructor<? extends Map<?, Object>> newMapConstructor(
+  private static @Nullable ObjectConstructor<? extends Map<?, Object>> newMapConstructor(
       Type type, Class<?> rawType) {
     // First try Map implementation
     /*

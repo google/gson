@@ -28,6 +28,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Date;
+import org.jspecify.annotations.Nullable;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -40,12 +41,12 @@ public class GsonBuilderTest {
   private static final TypeAdapter<Object> NULL_TYPE_ADAPTER =
       new TypeAdapter<>() {
         @Override
-        public void write(JsonWriter out, Object value) {
+        public void write(JsonWriter out, @Nullable Object value) {
           throw new AssertionError();
         }
 
         @Override
-        public Object read(JsonReader in) {
+        public @Nullable Object read(JsonReader in) {
           throw new AssertionError();
         }
       };
@@ -79,12 +80,12 @@ public class GsonBuilderTest {
         CustomClass1.class,
         new TypeAdapter<CustomClass1>() {
           @Override
-          public CustomClass1 read(JsonReader in) {
+          public @Nullable CustomClass1 read(JsonReader in) {
             throw new UnsupportedOperationException();
           }
 
           @Override
-          public void write(JsonWriter out, CustomClass1 value) throws IOException {
+          public void write(JsonWriter out, @Nullable CustomClass1 value) throws IOException {
             out.value("custom-adapter");
           }
         });

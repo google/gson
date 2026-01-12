@@ -28,6 +28,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.common.TestTypes.Base;
 import com.google.gson.common.TestTypes.ClassWithBaseField;
 import java.lang.reflect.Type;
+
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -107,7 +109,7 @@ public class CustomDeserializerTest {
 
   private static class DataHolderDeserializer implements JsonDeserializer<DataHolder> {
     @Override
-    public DataHolder deserialize(
+    public @Nullable DataHolder deserialize(
         JsonElement json, Type typeOfT, JsonDeserializationContext context)
         throws JsonParseException {
       JsonObject jsonObj = json.getAsJsonObject();

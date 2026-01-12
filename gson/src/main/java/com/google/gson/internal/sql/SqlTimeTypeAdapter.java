@@ -31,6 +31,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Adapter for java.sql.Time. Although this class appears stateless, it is not. DateFormat captures
@@ -43,7 +44,7 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
       new TypeAdapterFactory() {
         @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
         @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+        public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
           return typeToken.getRawType() == Time.class
               ? (TypeAdapter<T>) new SqlTimeTypeAdapter()
               : null;
@@ -55,7 +56,7 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
   private SqlTimeTypeAdapter() {}
 
   @Override
-  public Time read(JsonReader in) throws IOException {
+  public @Nullable Time read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
       in.nextNull();
       return null;
@@ -76,7 +77,7 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
   }
 
   @Override
-  public void write(JsonWriter out, Time value) throws IOException {
+  public void write(JsonWriter out, @Nullable Time value) throws IOException {
     if (value == null) {
       out.nullValue();
       return;

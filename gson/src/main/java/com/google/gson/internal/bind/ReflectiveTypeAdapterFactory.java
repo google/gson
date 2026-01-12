@@ -55,6 +55,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Type adapter that reflects over the fields and methods of a class. */
 public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
@@ -107,7 +109,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  public @Nullable <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     Class<? super T> raw = type.getRawType();
 
     if (!Object.class.isAssignableFrom(raw)) {
@@ -122,13 +124,13 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       // exceptions
       return new TypeAdapter<T>() {
         @Override
-        public T read(JsonReader in) throws IOException {
+        public @Nullable T read(JsonReader in) throws IOException {
           in.skipValue();
           return null;
         }
 
         @Override
-        public void write(JsonWriter out, T value) throws IOException {
+        public void write(JsonWriter out, @Nullable T value) throws IOException {
           out.nullValue();
         }
 
@@ -166,7 +168,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   }
 
   private static <M extends AccessibleObject & Member> void checkAccessible(
-      Object object, M member) {
+      @Nullable Object object, M member) {
     if (!ReflectionAccessFilterHelper.canAccess(
         member, Modifier.isStatic(member.getModifiers()) ? null : object)) {
       String memberDescription = ReflectionHelper.getAccessibleObjectDescription(member, true);
@@ -181,7 +183,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   private BoundField createBoundField(
       Gson context,
       Field field,
-      Method accessor,
+      @Nullable Method accessor,
       String serializedName,
       TypeToken<?> fieldType,
       boolean serialize,
@@ -206,7 +208,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @SuppressWarnings("unchecked")
-    TypeAdapter<Object> typeAdapter = (TypeAdapter<Object>) mapped;
+    TypeAdapter<Object> typeAdapter = (TypeAdapter<@NonNull Object>) mapped;
     TypeAdapter<Object> writeTypeAdapter;
     if (serialize) {
       writeTypeAdapter =
@@ -252,7 +254,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       @Override
-      void readIntoArray(JsonReader reader, int index, Object[] target)
+      void readIntoArray(JsonReader reader, int index, @Nullable Object[] target)
           throws IOException, JsonParseException {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue == null && isPrimitive) {
@@ -479,7 +481,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public void write(JsonWriter out, T value) throws IOException {
+    public void write(JsonWriter out, @Nullable T value) throws IOException {
       if (value == null) {
         out.nullValue();
         return;
@@ -497,7 +499,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public T read(JsonReader in) throws IOException {
+    public @Nullable T read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;

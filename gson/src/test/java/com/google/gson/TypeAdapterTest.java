@@ -23,6 +23,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 public class TypeAdapterTest {
@@ -57,12 +58,12 @@ public class TypeAdapterTest {
   private static final TypeAdapter<String> assertionErrorAdapter =
       new TypeAdapter<>() {
         @Override
-        public void write(JsonWriter out, String value) {
+        public void write(JsonWriter out, @Nullable String value) {
           throw new AssertionError("unexpected call");
         }
 
         @Override
-        public String read(JsonReader in) {
+        public @Nullable String read(JsonReader in) {
           throw new AssertionError("unexpected call");
         }
 
@@ -82,12 +83,12 @@ public class TypeAdapterTest {
     TypeAdapter<Integer> adapter =
         new TypeAdapter<>() {
           @Override
-          public void write(JsonWriter out, Integer value) throws IOException {
+          public void write(JsonWriter out, @Nullable Integer value) throws IOException {
             throw exception;
           }
 
           @Override
-          public Integer read(JsonReader in) {
+          public @Nullable Integer read(JsonReader in) {
             throw new AssertionError("not needed by this test");
           }
         };
@@ -102,12 +103,12 @@ public class TypeAdapterTest {
   private static final TypeAdapter<String> adapter =
       new TypeAdapter<>() {
         @Override
-        public void write(JsonWriter out, String value) throws IOException {
+        public void write(JsonWriter out, @Nullable String value) throws IOException {
           out.value(value);
         }
 
         @Override
-        public String read(JsonReader in) throws IOException {
+        public @Nullable String read(JsonReader in) throws IOException {
           return in.nextString();
         }
       };
