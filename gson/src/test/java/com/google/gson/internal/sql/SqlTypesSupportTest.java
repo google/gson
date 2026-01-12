@@ -31,5 +31,11 @@ public class SqlTypesSupportTest {
     assertThat(SqlTypesSupport.DATE_FACTORY).isNotNull();
     assertThat(SqlTypesSupport.TIME_FACTORY).isNotNull();
     assertThat(SqlTypesSupport.TIMESTAMP_FACTORY).isNotNull();
+    assertThat(SqlTypesSupport.SQL_TYPE_FACTORIES)
+        .containsExactly(
+            SqlTypesSupport.TIME_FACTORY,
+            SqlTypesSupport.DATE_FACTORY,
+            SqlTypesSupport.TIMESTAMP_FACTORY)
+        .inOrder();
   }
 }

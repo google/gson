@@ -19,7 +19,10 @@ package com.google.gson.internal.sql;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.bind.DefaultDateTypeAdapter.DateType;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Encapsulates access to {@code java.sql} types, to allow Gson to work without the {@code java.sql}
@@ -27,8 +30,10 @@ import java.util.Date;
  * java.sql} module is not present.
  *
  * <p>If {@link #SUPPORTS_SQL_TYPES} is {@code true}, all other constants of this class will be
- * non-{@code null}. However, if it is {@code false} all other constants will be {@code null} and
- * there will be no support for {@code java.sql} types.
+ * non-{@code null} and {@link #SQL_TYPE_FACTORIES} will contain the SQL type adapter factories.
+ * However, if it is {@code false} all other constants will be {@code null} and {@link
+ * #SQL_TYPE_FACTORIES} will be an empty list, and there will be no support for {@code java.sql}
+ * types.
  */
 @SuppressWarnings("JavaUtilDate")
 public final class SqlTypesSupport {
@@ -41,6 +46,8 @@ public final class SqlTypesSupport {
   public static final TypeAdapterFactory DATE_FACTORY;
   public static final TypeAdapterFactory TIME_FACTORY;
   public static final TypeAdapterFactory TIMESTAMP_FACTORY;
+
+  public static final List<TypeAdapterFactory> SQL_TYPE_FACTORIES;
 
   static {
     boolean sqlTypesSupport;
@@ -71,6 +78,10 @@ public final class SqlTypesSupport {
       DATE_FACTORY = SqlDateTypeAdapter.FACTORY;
       TIME_FACTORY = SqlTimeTypeAdapter.FACTORY;
       TIMESTAMP_FACTORY = SqlTimestampTypeAdapter.FACTORY;
+
+      SQL_TYPE_FACTORIES =
+          Collections.unmodifiableList(
+              Arrays.asList(TIME_FACTORY, DATE_FACTORY, TIMESTAMP_FACTORY));
     } else {
       DATE_DATE_TYPE = null;
       TIMESTAMP_DATE_TYPE = null;
@@ -78,6 +89,8 @@ public final class SqlTypesSupport {
       DATE_FACTORY = null;
       TIME_FACTORY = null;
       TIMESTAMP_FACTORY = null;
+
+      SQL_TYPE_FACTORIES = Collections.emptyList();
     }
   }
 
