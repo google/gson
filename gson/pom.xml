@@ -39,6 +39,7 @@
     <project.build.outputTimestamp>2025-09-10T20:39:14Z</project.build.outputTimestamp>
 
     <excludeTestCompilation>**/Java17*</excludeTestCompilation>
+    <skipJavaTimeTest>false</skipJavaTimeTest>
   </properties>
 
   <dependencies>
@@ -189,6 +190,7 @@
             </goals>
             <phase>test</phase>
             <configuration>
+              <skipTests>${skipJavaTimeTest}</skipTests>
               <argLine>--add-opens java.base/java.time=ALL-UNNAMED</argLine>
               <test>JavaTimeTest</test>
               <failIfNoTests>true</failIfNoTests>
@@ -408,6 +410,7 @@
     <profile>
       <id>gson-subset</id>
       <properties>
+        <skipJavaTimeTest>true</skipJavaTimeTest>
         <gsonSubsetSrcDir>${project.build.directory}/gson-subset-src</gsonSubsetSrcDir>
       </properties>
       <build>
