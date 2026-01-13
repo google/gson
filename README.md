@@ -70,6 +70,7 @@ see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gs
 
 #### Minimum Android API level
 
+- Gson 2.14.0 and newer: API level 23
 - Gson 2.11.0 and newer: API level 21
 - Gson 2.10.1 and older: API level 19
 
