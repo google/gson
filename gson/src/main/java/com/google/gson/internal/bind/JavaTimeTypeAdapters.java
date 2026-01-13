@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2026 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.gson.internal.bind;
 
 import static java.lang.Math.toIntExact;
@@ -9,7 +24,6 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.bind.TypeAdapters.IntegerFieldsTypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.time.Duration;
@@ -39,8 +53,11 @@ import java.time.ZonedDateTime;
  * is obviously fragile, and it also needs special {@code --add-opens} configuration with more
  * recent JDK versions. So here we freeze the representation that was current with JDK 21, in a way
  * that does not use reflection.
+ *
+ * <p>This class should not directly be used, instead the type adapter factory should be obtained
+ * from {@link TypeAdapters#javaTimeTypeAdapterFactory()}.
  */
-@IgnoreJRERequirement // Protected by a reflective check
+@IgnoreJRERequirement // Protected by a reflective check in `TypeAdapters`
 final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
 
   @Override
@@ -91,7 +108,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         }
       };
 
-  public static final TypeAdapter<LocalTime> LOCAL_TIME =
+  private static final TypeAdapter<LocalTime> LOCAL_TIME =
       new IntegerFieldsTypeAdapter<LocalTime>("hour", "minute", "second", "nano") {
         @Override
         LocalTime create(long[] values) {
@@ -119,7 +136,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         LocalDate localDate = null;
         LocalTime localTime = null;
         in.beginObject();
-        while (in.peek() != JsonToken.END_OBJECT) {
+        while (in.hasNext()) {
           String name = in.nextName();
           switch (name) {
             case "date":
@@ -172,7 +189,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         in.beginObject();
         LocalDateTime localDateTime = null;
         ZoneOffset zoneOffset = null;
-        while (in.peek() != JsonToken.END_OBJECT) {
+        while (in.hasNext()) {
           String name = in.nextName();
           switch (name) {
             case "dateTime":
@@ -213,7 +230,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         in.beginObject();
         LocalTime localTime = null;
         ZoneOffset zoneOffset = null;
-        while (in.peek() != JsonToken.END_OBJECT) {
+        while (in.hasNext()) {
           String name = in.nextName();
           switch (name) {
             case "time":
@@ -287,7 +304,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
   // A ZoneId is either a ZoneOffset or a ZoneRegion, where ZoneOffset is public and ZoneRegion is
   // not. For compatibility with reflection-based serialization, we need to write the "id" field of
   // ZoneRegion if we have a ZoneRegion, and we need to write the "totalSeconds" field of ZoneOffset
-  // if we have a ZoneOffset. When reading, we need to construct the the appropriate thing depending
+  // if we have a ZoneOffset. When reading, we need to construct the appropriate thing depending
   // on which of those two fields we see.
   private static final TypeAdapter<ZoneId> ZONE_ID =
       new TypeAdapter<ZoneId>() {
@@ -296,7 +313,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
           in.beginObject();
           String id = null;
           Integer totalSeconds = null;
-          while (in.peek() != JsonToken.END_OBJECT) {
+          while (in.hasNext()) {
             String name = in.nextName();
             switch (name) {
               case "id":
@@ -348,7 +365,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         LocalDateTime localDateTime = null;
         ZoneOffset zoneOffset = null;
         ZoneId zoneId = null;
-        while (in.peek() != JsonToken.END_OBJECT) {
+        while (in.hasNext()) {
           String name = in.nextName();
           switch (name) {
             case "dateTime":
@@ -390,7 +407,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
     }.nullSafe();
   }
 
-  static final TypeAdapterFactory JAVA_TIME_FACTORY =
+  private static final TypeAdapterFactory JAVA_TIME_FACTORY =
       new TypeAdapterFactory() {
         @Override
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {

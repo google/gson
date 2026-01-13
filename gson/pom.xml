@@ -179,6 +179,22 @@
             configuration locally). -->
           <argLine>--illegal-access=deny</argLine>
         </configuration>
+        <executions>
+          <!-- Additionally run `JavaTimeTest` with the `java.time` package open for reflection, to ensure backward
+            compatibility with previous reflection-based serialization -->
+          <execution>
+            <id>java-time-test</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <phase>test</phase>
+            <configuration>
+              <argLine>--add-opens java.base/java.time=ALL-UNNAMED</argLine>
+              <test>JavaTimeTest</test>
+              <failIfNoTests>true</failIfNoTests>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <!-- Failsafe plugin for running integration tests against final JAR, see `*IT.java` test classes -->
       <plugin>
