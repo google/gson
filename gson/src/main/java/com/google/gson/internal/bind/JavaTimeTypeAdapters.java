@@ -421,8 +421,8 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
   }
 
   /**
-   * Gets the package name (with trailing '.') of the {@code java.time.*} classes, or {@code null}
-   * if unavailable.
+   * Gets the package name (with trailing '.') of the {@code java.time} classes, or {@code null} if
+   * unavailable.
    *
    * <p>On Android this might actually be something other than {@code "java.time."}, for example
    * {@code "j$.time."}, due to <a
