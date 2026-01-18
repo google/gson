@@ -429,21 +429,17 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
    * href="https://developer.android.com/studio/write/java8-support#library-desugaring">API
    * desugaring</a>.
    */
-  private static String javaTimePackage() {
+  static String javaTimePackage() {
     try {
       // Use arbitrary java.time.* class here, one which is quite simple and does not refer to many
       // other classes
       String className = DateTimeException.class.getName();
       int packageEnd = className.lastIndexOf('.');
-      // To be safe, account for no '.' in package name (quite unlikely though) in case of Android
-      // API desugaring
-      if (packageEnd != -1) {
-        return className.substring(0, packageEnd + 1);
-      }
+      return className.substring(0, packageEnd + 1);
     } catch (LinkageError ignored) {
       // java.time.* classes are probably not available
+      return null;
     }
-    return null;
   }
 
   private static class AdapterFactory implements TypeAdapterFactory {
