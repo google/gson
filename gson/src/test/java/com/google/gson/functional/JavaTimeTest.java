@@ -49,7 +49,7 @@ import org.junit.Test;
  * Test for {@code java.time} classes.
  *
  * <p>If reflective access to JDK classes is possible, this test also verifies that the custom
- * adapters behave identical to the reflection-based approach (to ensure backward compatibility),
+ * adapters behave identically to the reflection-based approach (to ensure backward compatibility),
  * see {@link #JAVA_TIME_FIELDS_ARE_ACCESSIBLE}.
  */
 public class JavaTimeTest {

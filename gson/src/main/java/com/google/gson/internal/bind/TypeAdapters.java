@@ -903,7 +903,7 @@ public final class TypeAdapters {
   private static int toIntExact(long x) {
     int i = (int) x;
     if (i != x) {
-      throw new IllegalArgumentException("Too big for an int: " + x);
+      throw new ArithmeticException("Too big for an int: " + x);
     }
     return i;
   }
