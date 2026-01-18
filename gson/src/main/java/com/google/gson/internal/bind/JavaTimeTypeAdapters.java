@@ -433,12 +433,12 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
     try {
       // Use arbitrary java.time.* class here, one which is quite simple and does not refer to many
       // other classes
-      String c = DateTimeException.class.getName();
-      int i = c.lastIndexOf('.');
+      String className = DateTimeException.class.getName();
+      int packageEnd = className.lastIndexOf('.');
       // To be safe, account for no '.' in package name (quite unlikely though) in case of Android
       // API desugaring
-      if (i != -1) {
-        return c.substring(0, i + 1);
+      if (packageEnd != -1) {
+        return className.substring(0, packageEnd + 1);
       }
     } catch (LinkageError ignored) {
       // java.time.* classes are probably not available

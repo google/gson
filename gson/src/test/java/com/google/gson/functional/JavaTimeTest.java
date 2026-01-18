@@ -16,9 +16,11 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -27,11 +29,14 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InaccessibleObjectException;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.InstantSource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.time.MonthDay;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
@@ -62,11 +67,13 @@ public class JavaTimeTest {
 
   @Test
   public void testNullSafe() {
+    assertNullSafe(DayOfWeek.class); // uses standard enum adapter
     assertNullSafe(Duration.class);
     assertNullSafe(Instant.class);
     assertNullSafe(LocalDate.class);
     assertNullSafe(LocalTime.class);
     assertNullSafe(LocalDateTime.class);
+    assertNullSafe(Month.class); // uses standard enum adapter
     assertNullSafe(MonthDay.class);
     assertNullSafe(Period.class);
     assertNullSafe(Year.class);
@@ -77,6 +84,15 @@ public class JavaTimeTest {
 
   private void assertNullSafe(Class<?> c) {
     DefaultTypeAdaptersTest.testNullSerializationAndDeserialization(gson, c);
+  }
+
+  // uses standard enum adapter
+  @Test
+  public void testDayOfWeek() {
+    DayOfWeek day = DayOfWeek.TUESDAY;
+    String json = "\"TUESDAY\"";
+    assertThat(gson.toJson(day)).isEqualTo(json);
+    assertThat(gson.fromJson(json, DayOfWeek.class)).isEqualTo(day);
   }
 
   @Test
@@ -121,6 +137,15 @@ public class JavaTimeTest {
         "{\"date\":{\"year\":2021,\"month\":12,\"day\":2},"
             + "\"time\":{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345}}";
     roundTrip(localDateTime, json);
+  }
+
+  // uses standard enum adapter
+  @Test
+  public void testMonth() {
+    Month month = Month.FEBRUARY;
+    String json = "\"FEBRUARY\"";
+    assertThat(gson.toJson(month)).isEqualTo(json);
+    assertThat(gson.fromJson(json, Month.class)).isEqualTo(month);
   }
 
   @Test
@@ -183,6 +208,7 @@ public class JavaTimeTest {
   public void testZoneRegion() {
     ZoneId zoneId = ZoneId.of("Asia/Shanghai");
     String json = "{\"id\":\"Asia/Shanghai\"}";
+    // Object class is actually the JDK-internal ZoneRegion, but request the ZoneId adapter here
     roundTrip(zoneId, ZoneId.class, json);
   }
 
@@ -273,6 +299,18 @@ public class JavaTimeTest {
 
     assertThat(gson.toJson(Duration.ofSeconds(111))).isEqualTo("333");
     assertThat(gson.fromJson("333", Duration.class)).isEqualTo(Duration.ofSeconds(111));
+  }
+
+  /** Tests handling of {@code java.time} classes without a built-in adapter. */
+  @Test
+  public void testUnsupportedClass() {
+    var e = assertThrows(JsonIOException.class, () -> gson.fromJson("{}", InstantSource.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
+                + " this type. Interface name: "
+                + InstantSource.class.getName());
   }
 
   /** Whether fields of {@code java.time} classes are accessible through reflection. */
