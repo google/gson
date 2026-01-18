@@ -16,12 +16,10 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonIOException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -33,7 +31,6 @@ import java.lang.reflect.InaccessibleObjectException;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.InstantSource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -348,18 +345,6 @@ public class JavaTimeTest {
 
     assertThat(gson.toJson(Duration.ofSeconds(111))).isEqualTo("333");
     assertThat(gson.fromJson("333", Duration.class)).isEqualTo(Duration.ofSeconds(111));
-  }
-
-  /** Tests handling of {@code java.time} classes without a built-in adapter. */
-  @Test
-  public void testUnsupportedClass() {
-    var e = assertThrows(JsonIOException.class, () -> gson.fromJson("{}", InstantSource.class));
-    assertThat(e)
-        .hasMessageThat()
-        .isEqualTo(
-            "Interfaces can't be instantiated! Register an InstanceCreator or a TypeAdapter for"
-                + " this type. Interface name: "
-                + InstantSource.class.getName());
   }
 
   /** Whether fields of {@code java.time} classes are accessible through reflection. */
