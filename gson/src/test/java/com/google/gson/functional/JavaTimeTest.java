@@ -17,6 +17,7 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -210,6 +211,54 @@ public class JavaTimeTest {
     String json = "{\"id\":\"Asia/Shanghai\"}";
     // Object class is actually the JDK-internal ZoneRegion, but request the ZoneId adapter here
     roundTrip(zoneId, ZoneId.class, json);
+  }
+
+  /**
+   * Tests behavior when a custom adapter has been registered for the {@link ZoneId} class, and an
+   * instance of the JDK-internal subclass {@code ZoneRegion} is serialized as value of a field of
+   * type {@code ZoneId}. To preserve backward compatibility the custom adapter should be used in
+   * that case, even though the built-in adapter which handles {@code ZoneRegion} would be more
+   * specific and would normally be preferred by {@code TypeAdapterRuntimeTypeWrapper}.
+   */
+  @Test
+  public void testZoneRegionCustomAdapter() {
+    // Gson tries to obtain adapter for runtime type ZoneRegion (which fails if class is
+    // inaccessible) and compile-time type, but prefers custom adapter for compile-time type
+    // Therefore skip this test if java.time classes are inaccessible to reflection
+    assumeTrue(JAVA_TIME_FIELDS_ARE_ACCESSIBLE);
+
+    Gson customGson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                ZoneId.class,
+                new TypeAdapter<ZoneId>() {
+                  @Override
+                  public void write(JsonWriter out, ZoneId value) throws IOException {
+                    out.value("my-zone " + value.getId());
+                  }
+
+                  @Override
+                  public ZoneId read(JsonReader in) {
+                    throw new AssertionError("not needed for test");
+                  }
+                })
+            .create();
+
+    ZoneId zoneId = ZoneId.of("Asia/Shanghai");
+    // Verify that value is of JDK-internal subclass of ZoneId
+    assertThat(zoneId.getClass()).isNotEqualTo(ZoneId.class);
+    assertThat(zoneId).isNotInstanceOf(ZoneOffset.class);
+    ClassWithZoneId object = new ClassWithZoneId(zoneId);
+
+    assertThat(customGson.toJson(object)).isEqualTo("{\"zoneId\":\"my-zone Asia/Shanghai\"}");
+  }
+
+  static class ClassWithZoneId {
+    ZoneId zoneId;
+
+    ClassWithZoneId(ZoneId zoneId) {
+      this.zoneId = zoneId;
+    }
   }
 
   @Test
