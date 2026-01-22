@@ -54,7 +54,6 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   /**
    * Returns a collector that accumulates {@link JsonElement}s into a {@code JsonArray}.
    *
-   * @return a collector that accumulates {@link JsonElement}s into a {@code JsonArray}
    * @since $next-version$
    */
   public static Collector<@Nullable JsonElement, ?, JsonArray> collector() {
