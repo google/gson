@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 import com.google.common.testing.EqualsTester;
 import com.google.gson.common.MoreAsserts;
 import java.math.BigInteger;
+import java.util.stream.Stream;
 import org.junit.Test;
 
 /**
@@ -353,5 +354,32 @@ public final class JsonArrayTest {
     nestedObject.addProperty("n\0", 1);
     array.add(nestedObject);
     assertThat(array.toString()).isEqualTo("[null,NaN,\"a\\u0000\",[\"\\\"\"],{\"n\\u0000\":1}]");
+  }
+
+  @Test
+  public void testCollector() {
+    JsonArray array =
+        Stream.of(new JsonPrimitive(1), new JsonArray(), null, new JsonObject())
+            .collect(JsonArray.collector());
+    assertThat(array).hasSize(4);
+    assertThat(array.get(0).getAsInt()).isEqualTo(1);
+    assertThat(array.get(1).isJsonArray()).isTrue();
+    assertThat(array.get(2).isJsonNull()).isTrue();
+    assertThat(array.get(3).isJsonObject()).isTrue();
+  }
+
+  @Test
+  public void testCollectorParallel() {
+    JsonArray array =
+        Stream.iterate(0, i -> i + 1)
+            .limit(20)
+            .parallel()
+            .map(JsonPrimitive::new)
+            .collect(JsonArray.collector());
+
+    assertThat(array).hasSize(20);
+    for (int i = 0; i < 20; i++) {
+      assertThat(array.get(i).getAsInt()).isEqualTo(i);
+    }
   }
 }

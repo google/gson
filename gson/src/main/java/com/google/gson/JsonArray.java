@@ -23,6 +23,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collector;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A class representing an array type in JSON. An array is a list of {@link JsonElement}s each of
@@ -40,6 +42,25 @@ import java.util.List;
  * @author Joel Leitch
  */
 public final class JsonArray extends JsonElement implements Iterable<JsonElement> {
+  private static final Collector<@Nullable JsonElement, JsonArray, JsonArray> COLLECTOR =
+      Collector.of(
+          JsonArray::new,
+          JsonArray::add,
+          (left, right) -> {
+            left.addAll(right);
+            return left;
+          });
+
+  /**
+   * Returns a collector that accumulates {@link JsonElement}s into a {@code JsonArray}.
+   *
+   * @return a collector that accumulates {@link JsonElement}s into a {@code JsonArray}
+   * @since $next-version$
+   */
+  public static Collector<@Nullable JsonElement, ?, JsonArray> collector() {
+    return COLLECTOR;
+  }
+
   private final ArrayList<JsonElement> elements;
 
   /** Creates an empty JsonArray. */
