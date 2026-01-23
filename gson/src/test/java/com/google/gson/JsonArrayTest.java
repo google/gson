@@ -371,10 +371,9 @@ public final class JsonArrayTest {
   @Test
   public void testCollectorParallel() {
     JsonArray array =
-        Stream.iterate(0, i -> i + 1)
-            .limit(20)
+        IntStream.range(0, 20)
             .parallel()
-            .map(JsonPrimitive::new)
+            .mapToObj(JsonPrimitive::new)
             .collect(JsonArray.collector());
 
     assertThat(array).hasSize(20);
