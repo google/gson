@@ -378,7 +378,7 @@ public final class JsonArrayTest {
             .collect(JsonArray.collector());
 
     assertThat(array).hasSize(20);
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < array.size(); i++) {
       assertThat(array.get(i).getAsInt()).isEqualTo(i);
     }
   }
