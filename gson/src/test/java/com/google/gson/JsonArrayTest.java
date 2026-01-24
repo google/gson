@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 import com.google.common.testing.EqualsTester;
 import com.google.gson.common.MoreAsserts;
 import java.math.BigInteger;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
 
