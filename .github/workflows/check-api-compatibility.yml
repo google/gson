@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Check out old version
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: 'gson-old-japicmp'
@@ -46,7 +46,7 @@ jobs:
           mvn install -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
 
       - name: Check out new version
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Check API compatibility
         id: check-compatibility
