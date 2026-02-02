@@ -34,7 +34,7 @@ The following describes how to perform the steps of the release locally to verif
 
 > [!CAUTION]\
 > Be careful with this, these steps might be outdated or incomplete. Double-check that you are working on a copy of your local Gson Git repository and make sure you have followed all steps. To be safe you can also temporarily turn off your internet connection to avoid accidentally pushing changes to the real remote Git or Maven repository.\
-> As an alternative to the steps described below you can instead [perform a dry run](https://maven.apache.org/maven-release/maven-release-plugin/usage.html#do-a-dry-run), though this might not behave identical to a real release.
+> As an alternative to the steps described below you can instead [perform a dry run](https://maven.apache.org/maven-release/maven-release-plugin/usage.html#do-a-dry-run), though this might not behave identically to a real release.
 
 1. Make a copy of your local Gson Git repository and only work with that copy
 1. Make sure you are on the `main` branch
