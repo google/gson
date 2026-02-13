@@ -31,7 +31,7 @@
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2025-09-10T20:39:14Z</project.build.outputTimestamp>
 
-    <protobufVersion>4.33.1</protobufVersion>
+    <protobufVersion>4.33.5</protobufVersion>
   </properties>
 
   <licenses>
@@ -79,7 +79,7 @@
       <plugin>
         <groupId>io.github.ascopes</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <version>4.0.3</version>
+        <version>4.1.2</version>
         <configuration>
           <skip>${maven.test.skip}</skip>
           <protoc>${protobufVersion}</protoc>

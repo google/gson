@@ -145,7 +145,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>3.6.2</version>
+        <version>3.6.3</version>
         <executions>
           <execution>
             <id>r8</id>
@@ -189,7 +189,7 @@
               but it appears that can be ignored -->
             <groupId>com.android.tools</groupId>
             <artifactId>r8</artifactId>
-            <version>8.13.17</version>
+            <version>9.0.32</version>
           </dependency>
         </dependencies>
       </plugin>
