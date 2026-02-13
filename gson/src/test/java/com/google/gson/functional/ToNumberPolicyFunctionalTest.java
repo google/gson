@@ -36,9 +36,9 @@ public class ToNumberPolicyFunctionalTest {
   @Test
   public void testDefault() {
     Gson gson = new Gson();
-    assertThat(gson.fromJson("null", Object.class)).isEqualTo(null);
+    assertThat(gson.fromJson("null", Object.class)).isNull();
     assertThat(gson.fromJson("10", Object.class)).isEqualTo(10D);
-    assertThat(gson.fromJson("null", Number.class)).isEqualTo(null);
+    assertThat(gson.fromJson("null", Number.class)).isNull();
     assertThat(gson.fromJson("10", Number.class)).isEqualTo(new LazilyParsedNumber("10"));
   }
 
@@ -49,9 +49,9 @@ public class ToNumberPolicyFunctionalTest {
             .setObjectToNumberStrategy(ToNumberPolicy.DOUBLE)
             .setNumberToNumberStrategy(ToNumberPolicy.DOUBLE)
             .create();
-    assertThat(gson.fromJson("null", Object.class)).isEqualTo(null);
+    assertThat(gson.fromJson("null", Object.class)).isNull();
     assertThat(gson.fromJson("10", Object.class)).isEqualTo(10.0);
-    assertThat(gson.fromJson("null", Number.class)).isEqualTo(null);
+    assertThat(gson.fromJson("null", Number.class)).isNull();
     assertThat(gson.fromJson("10", Number.class)).isEqualTo(10.0);
   }
 
@@ -62,9 +62,9 @@ public class ToNumberPolicyFunctionalTest {
             .setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
             .setNumberToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER)
             .create();
-    assertThat(gson.fromJson("null", Object.class)).isEqualTo(null);
+    assertThat(gson.fromJson("null", Object.class)).isNull();
     assertThat(gson.fromJson("10", Object.class)).isEqualTo(new LazilyParsedNumber("10"));
-    assertThat(gson.fromJson("null", Number.class)).isEqualTo(null);
+    assertThat(gson.fromJson("null", Number.class)).isNull();
     assertThat(gson.fromJson("10", Number.class)).isEqualTo(new LazilyParsedNumber("10"));
   }
 
@@ -75,10 +75,10 @@ public class ToNumberPolicyFunctionalTest {
             .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
             .setNumberToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
             .create();
-    assertThat(gson.fromJson("null", Object.class)).isEqualTo(null);
+    assertThat(gson.fromJson("null", Object.class)).isNull();
     assertThat(gson.fromJson("10", Object.class)).isEqualTo(10L);
     assertThat(gson.fromJson("10.0", Object.class)).isEqualTo(10.0);
-    assertThat(gson.fromJson("null", Number.class)).isEqualTo(null);
+    assertThat(gson.fromJson("null", Number.class)).isNull();
     assertThat(gson.fromJson("10", Number.class)).isEqualTo(10L);
     assertThat(gson.fromJson("10.0", Number.class)).isEqualTo(10.0);
   }
@@ -90,10 +90,10 @@ public class ToNumberPolicyFunctionalTest {
             .setObjectToNumberStrategy(ToNumberPolicy.BIG_DECIMAL)
             .setNumberToNumberStrategy(ToNumberPolicy.BIG_DECIMAL)
             .create();
-    assertThat(gson.fromJson("null", Object.class)).isEqualTo(null);
+    assertThat(gson.fromJson("null", Object.class)).isNull();
     assertThat(gson.fromJson("10", Object.class)).isEqualTo(new BigDecimal("10"));
     assertThat(gson.fromJson("10.0", Object.class)).isEqualTo(new BigDecimal("10.0"));
-    assertThat(gson.fromJson("null", Number.class)).isEqualTo(null);
+    assertThat(gson.fromJson("null", Number.class)).isNull();
     assertThat(gson.fromJson("10", Number.class)).isEqualTo(new BigDecimal("10"));
     assertThat(gson.fromJson("10.0", Number.class)).isEqualTo(new BigDecimal("10.0"));
     assertThat(gson.fromJson("3.141592653589793238462643383279", BigDecimal.class))
