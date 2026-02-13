@@ -117,7 +117,6 @@ public class JsonArrayAsListTest {
     List<JsonElement> expectedList =
         Arrays.asList(new JsonPrimitive(1), new JsonPrimitive(2), new JsonPrimitive(3));
     assertThat(list).isEqualTo(expectedList);
-    assertThat(list).isEqualTo(expectedList);
 
     NullPointerException e =
         assertThrows(
