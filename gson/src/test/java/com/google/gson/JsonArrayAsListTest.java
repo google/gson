@@ -173,8 +173,11 @@ public class JsonArrayAsListTest {
     a.add(1);
 
     List<JsonElement> list = a.asList();
-    assertThat(list).contains(new JsonPrimitive(1));
-    assertThat(list).doesNotContain(new JsonPrimitive(2));
+    // Explicitly call `List#contains` to test its implementation, instead of
+    // `assertThat(...).contains(...)`
+    assertThat(list.contains(new JsonPrimitive(1))).isTrue();
+    assertThat(list.contains(new JsonPrimitive(2))).isFalse();
+    assertThat(list.contains(null)).isFalse();
 
     @SuppressWarnings({"unlikely-arg-type", "CollectionIncompatibleType"})
     boolean containsInt = list.contains(1); // should only contain JsonPrimitive(1)
