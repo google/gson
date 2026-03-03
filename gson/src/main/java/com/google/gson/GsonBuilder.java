@@ -638,7 +638,7 @@ public final class GsonBuilder {
   public GsonBuilder setDateFormat(String pattern) {
     if (pattern != null) {
       try {
-        new SimpleDateFormat(pattern);
+        SimpleDateFormat unused = new SimpleDateFormat(pattern);
       } catch (IllegalArgumentException e) {
         // Throw exception if it is an invalid date format
         throw new IllegalArgumentException("The date pattern '" + pattern + "' is not valid", e);
