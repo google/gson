@@ -126,7 +126,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
   private static final class Part {
     final String name;
 
-    public Part(String name) {
+    Part(String name) {
       this.name = name;
     }
   }
@@ -173,7 +173,7 @@ public final class JsonAdapterAnnotationOnFieldsTest {
 
   @JsonAdapter(UserClassAnnotationAdapter.class)
   private static class User {
-    public final String name;
+    final String name;
 
     private User(String name) {
       this.name = name;

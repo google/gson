@@ -202,7 +202,7 @@ public class GsonBuilderTest {
   }
 
   private static class ClassWithoutNoArgsConstructor {
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EffectivelyPrivate"})
     public ClassWithoutNoArgsConstructor(String s) {}
   }
 
@@ -249,6 +249,20 @@ public class GsonBuilderTest {
   }
 
   @Test
+  public void testRegisterTypeAdapterNotAdapterClass() {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    IllegalArgumentException e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gsonBuilder.registerTypeAdapter(Integer.class, "test"));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Class java.lang.String does not implement any supported type adapter class or"
+                + " interface");
+  }
+
+  @Test
   public void testRegisterTypeAdapterForObjectAndJsonElements() {
     String errorMessage = "Cannot override built-in adapter for ";
     Type[] types = {
@@ -278,6 +292,20 @@ public class GsonBuilderTest {
     // Does not use registered adapter
     assertThat(adapter).isNotSameInstanceAs(NULL_TYPE_ADAPTER);
     assertThat(adapter.toJson(new JsonArray())).isEqualTo("[]");
+  }
+
+  @Test
+  public void testRegisterTypeHierarchyAdapterNotAdapterClass() {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    IllegalArgumentException e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> gsonBuilder.registerTypeHierarchyAdapter(Integer.class, "test"));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Class java.lang.String does not implement any supported type adapter class or"
+                + " interface");
   }
 
   @Ignore(

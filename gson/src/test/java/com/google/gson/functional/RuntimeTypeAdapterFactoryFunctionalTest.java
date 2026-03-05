@@ -67,7 +67,7 @@ public final class RuntimeTypeAdapterFactoryFunctionalTest {
     }
 
     private static final class JsonAdapterFactory extends RuntimeTypeAdapterFactory<Shape> {
-      public JsonAdapterFactory() {
+      JsonAdapterFactory() {
         super(Shape.class, "type");
         registerSubtype(Circle.class, ShapeType.CIRCLE.toString());
         registerSubtype(Square.class, ShapeType.SQUARE.toString());

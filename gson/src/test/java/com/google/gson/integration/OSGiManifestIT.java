@@ -48,10 +48,10 @@ import org.junit.Test;
 @SuppressWarnings("MemberName") // class name must end with 'IT' for Maven Failsafe Plugin
 public class OSGiManifestIT {
   private static class ManifestData {
-    public final URL url;
-    public final Manifest manifest;
+    final URL url;
+    final Manifest manifest;
 
-    public ManifestData(URL url, Manifest manifest) {
+    ManifestData(URL url, Manifest manifest) {
       this.url = url;
       this.manifest = manifest;
     }
@@ -130,7 +130,12 @@ public class OSGiManifestIT {
   public void testExports() {
     String gsonVersion = GSON_VERSION.replace("-SNAPSHOT", "");
 
-    List<String> exports = splitPackages(getAttribute("Export-Package"));
+    // Sometimes the `uses` and `exports` clauses can end up in the opposite order, so we use a
+    // quick substitution to canonicalize them.
+    List<String> exports =
+        splitPackages(getAttribute("Export-Package")).stream()
+            .map(line -> line.replaceAll("(;version=\".*\")(;uses:=\".*\")", "$2$1"))
+            .collect(Collectors.toList());
     // When not running `mvn clean` the exports might differ slightly, see
     // https://github.com/bndtools/bnd/issues/6221
     assertWithMessage("Unexpected exports; make sure you are running `mvn clean ...`")

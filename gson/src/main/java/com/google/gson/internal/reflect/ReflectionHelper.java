@@ -227,7 +227,7 @@ public class ReflectionHelper {
 
     abstract <T> Constructor<T> getCanonicalRecordConstructor(Class<T> raw);
 
-    public abstract Method getAccessor(Class<?> raw, Field field);
+    abstract Method getAccessor(Class<?> raw, Field field);
   }
 
   private static class RecordSupportedHelper extends RecordHelper {

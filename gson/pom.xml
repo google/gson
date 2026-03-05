@@ -20,7 +20,7 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.13.2-SNAPSHOT</version>
+    <version>2.13.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>gson</artifactId>
@@ -36,7 +36,7 @@
   <properties>
     <!-- Make the build reproducible, see root `pom.xml` -->
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
-    <project.build.outputTimestamp>2025-04-24T01:03:45Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-09-10T20:39:14Z</project.build.outputTimestamp>
 
     <excludeTestCompilation>**/Java17*</excludeTestCompilation>
   </properties>
@@ -50,7 +50,7 @@
     <dependency>
       <groupId>com.google.errorprone</groupId>
       <artifactId>error_prone_annotations</artifactId>
-      <version>2.38.0</version>
+      <version>2.47.0</version>
     </dependency>
 
     <dependency>
@@ -66,13 +66,13 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava-testlib</artifactId>
-      <version>33.4.8-jre</version>
+      <version>33.5.0-jre</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.4.8-jre</version>
+      <version>33.5.0-jre</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -85,7 +85,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>templating-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <id>filtering-java-templates</id>
@@ -194,32 +194,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.coderplus.maven.plugins</groupId>
-        <artifactId>copy-rename-maven-plugin</artifactId>
-        <version>1.0.1</version>
-        <executions>
-          <execution>
-            <id>pre-obfuscate-class</id>
-            <phase>process-test-classes</phase>
-            <goals>
-              <goal>rename</goal>
-            </goals>
-            <configuration>
-              <fileSets>
-                <fileSet>
-                  <sourceFile>${project.build.directory}/test-classes/com/google/gson/functional/EnumWithObfuscatedTest.class</sourceFile>
-                  <destinationFile>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional/EnumWithObfuscatedTest.class</destinationFile>
-                </fileSet>
-                <fileSet>
-                  <sourceFile>${project.build.directory}/test-classes/com/google/gson/functional/EnumWithObfuscatedTest$Gender.class</sourceFile>
-                  <destinationFile>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional/EnumWithObfuscatedTest$Gender.class</destinationFile>
-                </fileSet>
-              </fileSets>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>com.github.wvengen</groupId>
         <artifactId>proguard-maven-plugin</artifactId>
         <version>2.7.0</version>
@@ -237,15 +211,16 @@
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-base</artifactId>
-            <version>7.7.0</version>
+            <version>7.8.2</version>
           </dependency>
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-core</artifactId>
-            <version>9.1.10</version>
+            <version>9.3.0</version>
           </dependency>
         </dependencies>
         <configuration>
+          <skip>${maven.test.skip}</skip>
           <obfuscate>true</obfuscate>
           <injar>test-classes-obfuscated-injar</injar>
           <outjar>test-classes-obfuscated-outjar</outjar>
@@ -260,8 +235,39 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>3.3.1</version>
+        <version>3.4.0</version>
         <executions>
+          <execution>
+            <id>pre-obfuscate-class</id>
+            <!--
+              Note: This has to run after test compilation is already done; ideally would use `process-test-classes`
+              phase here, but the problem is that within this phase maven-resources-plugin has to run twice:
+              1. maven-resources-plugin: copy original classes
+              2. proguard-maven-plugin: obfuscate classes
+              3. maven-resources-plugin: copy obfuscated classes back
+
+              But Maven does not permit declaring the same plugin at different positions in the POM. Therefore have
+              to use a phase before `process-test-classes` here, and rely on the compiler plugin already being done.
+            -->
+            <phase>test-compile</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <skip>${maven.test.skip}</skip>
+              <outputDirectory>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional</outputDirectory>
+              <overwrite>true</overwrite>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/test-classes/com/google/gson/functional</directory>
+                  <includes>
+                    <include>EnumWithObfuscatedTest.class</include>
+                    <include>EnumWithObfuscatedTest$Gender.class</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
           <execution>
             <id>post-obfuscate-class</id>
             <phase>process-test-classes</phase>
@@ -269,7 +275,9 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
+              <skip>${maven.test.skip}</skip>
               <outputDirectory>${project.build.directory}/test-classes/com/google/gson/functional</outputDirectory>
+              <overwrite>true</overwrite>
               <resources>
                 <resource>
                   <directory>${project.build.directory}/test-classes-obfuscated-outjar/com/google/gson/functional</directory>
@@ -305,7 +313,7 @@
       <plugin>
         <groupId>org.moditect</groupId>
         <artifactId>moditect-maven-plugin</artifactId>
-        <version>1.2.2.Final</version>
+        <version>1.3.0.Final</version>
         <executions>
           <execution>
             <id>add-module-info</id>
@@ -334,6 +342,15 @@
           <excludePackageNames>com.google.gson.internal:com.google.gson.internal.bind</excludePackageNames>
         </configuration>
       </plugin>
+
+      <!--
+        Plugin for deploying to Maven Central
+        (configured in parent POM)
+      -->
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
 
@@ -347,6 +364,155 @@
         <maven.compiler.testRelease>17</maven.compiler.testRelease>
         <excludeTestCompilation />
       </properties>
+    </profile>
+    <!-- For JDK 25+ skip tests which rely on ProGuard because it does not support JDK 25 yet -->
+    <!-- TODO: Remove this once ProGuard supports JDK 25, and there is a solution for https://github.com/Guardsquare/proguard/issues/473 -->
+    <profile>
+      <id>JDK25</id>
+      <activation>
+        <jdk>[25,)</jdk>
+      </activation>
+      <properties>
+        <excludeTestCompilation>com/google/gson/functional/EnumWithObfuscatedTest.java</excludeTestCompilation>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.wvengen</groupId>
+            <artifactId>proguard-maven-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Profile for building a subset of Gson; can be executed with `mvn clean test -pl gson -P gson-subset` -->
+    <profile>
+      <id>gson-subset</id>
+      <properties>
+        <gsonSubsetSrcDir>${project.build.directory}/gson-subset-src</gsonSubsetSrcDir>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>prepare-gson-subset-src</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${gsonSubsetSrcDir}</outputDirectory>
+                  <overwrite>true</overwrite>
+                  <resources>
+                    <resource>
+                      <directory>${project.build.sourceDirectory}</directory>
+                      <includes>
+                        <include>com/google/gson/FormattingStyle.java</include>
+                        <include>com/google/gson/JsonArray.java</include>
+                        <include>com/google/gson/JsonElement.java</include>
+                        <include>com/google/gson/JsonIOException.java</include>
+                        <include>com/google/gson/JsonNull.java</include>
+                        <include>com/google/gson/JsonObject.java</include>
+                        <include>com/google/gson/JsonParseException.java</include>
+                        <include>com/google/gson/JsonParser.java</include>
+                        <include>com/google/gson/JsonPrimitive.java</include>
+                        <include>com/google/gson/JsonStreamParser.java</include>
+                        <include>com/google/gson/JsonSyntaxException.java</include>
+                        <include>com/google/gson/Strictness.java</include>
+                        <include>com/google/gson/TypeAdapter.java</include>
+                        <include>com/google/gson/package-info.java</include>
+                        <include>com/google/gson/stream/JsonReader.java</include>
+                        <include>com/google/gson/stream/JsonScope.java</include>
+                        <include>com/google/gson/stream/JsonToken.java</include>
+                        <include>com/google/gson/stream/JsonWriter.java</include>
+                        <include>com/google/gson/stream/MalformedJsonException.java</include>
+                        <include>com/google/gson/stream/package-info.java</include>
+                        <!-- Internal classes used by the classes above -->
+                        <include>com/google/gson/internal/JsonReaderInternalAccess.java</include>
+                        <include>com/google/gson/internal/LazilyParsedNumber.java</include>
+                        <include>com/google/gson/internal/LinkedTreeMap.java</include>
+                        <include>com/google/gson/internal/NonNullElementWrapperList.java</include>
+                        <include>com/google/gson/internal/NumberLimits.java</include>
+                        <include>com/google/gson/internal/Streams.java</include>
+                        <include>com/google/gson/internal/TroubleshootingGuide.java</include>
+                        <include>com/google/gson/internal/bind/JsonElementTypeAdapter.java</include>
+                        <include>com/google/gson/internal/bind/JsonTreeReader.java</include>
+                        <include>com/google/gson/internal/bind/JsonTreeWriter.java</include>
+                      </includes>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <executions>
+              <execution>
+                <!-- Overwrite default compilation execution; otherwise the default would run as well and maven-compiler-plugin
+                  seems to include `target/classes` as classpath for compilation, so custom compilation setup here would
+                  succeed even if classes are missing (because in that case they are taken from the classpath) -->
+                <!-- Alternative would be to use a custom id here, e.g. 'gson-subset', and then run with
+                  `mvn ... compiler:compile@gson-subset` -->
+                <id>default-compile</id>
+                <configuration>
+                  <!-- Use custom source root dir; using the default `src/main/java` would otherwise implicitly
+                    compile needed classes, even if they are not explicitly listed in `<includes>` -->
+                  <compileSourceRoots>${gsonSubsetSrcDir}</compileSourceRoots>
+                </configuration>
+              </execution>
+              <execution>
+                <!-- Overwrite default test compilation execution, to only build a subset of the tests -->
+                <id>default-testCompile</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>testCompile</goal>
+                </goals>
+                <configuration>
+                  <testIncludes>
+                    <testInclude>com/google/gson/internal/bind/JsonTreeReaderTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/bind/JsonTreeWriterTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/LazilyParsedNumberTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/LinkedTreeMapSuiteTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/LinkedTreeMapTest.java</testInclude>
+                    <testInclude>com/google/gson/internal/StreamsTest.java</testInclude>
+                    <testInclude>com/google/gson/stream/JsonReaderPathTest.java</testInclude>
+                    <testInclude>com/google/gson/stream/JsonReaderTest.java</testInclude>
+                    <testInclude>com/google/gson/stream/JsonWriterTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonArrayAsListSuiteTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonArrayAsListTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonArrayTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonNullTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonObjectAsMapSuiteTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonObjectAsMapTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonObjectTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonParserParameterizedTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonPrimitiveTest.java</testInclude>
+                    <testInclude>com/google/gson/JsonStreamParserTest.java</testInclude>
+                    <testInclude>com/google/gson/SubsetTest.java</testInclude>
+                    <testInclude>com/google/gson/TypeAdapterTest.java</testInclude>
+                  </testIncludes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Skip ProGuard execution configured above for obfuscation tests; they cannot run for Gson subset -->
+          <plugin>
+            <groupId>com.github.wvengen</groupId>
+            <artifactId>proguard-maven-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>

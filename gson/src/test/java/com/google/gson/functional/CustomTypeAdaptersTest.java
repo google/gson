@@ -252,8 +252,8 @@ public class CustomTypeAdaptersTest {
                 boolean.class,
                 (JsonDeserializer<Boolean>) (json, type, context) -> json.getAsInt() != 0)
             .create();
-    assertThat(gson.fromJson("1", boolean.class)).isEqualTo(Boolean.TRUE);
-    assertThat(gson.fromJson("true", Boolean.class)).isEqualTo(Boolean.TRUE);
+    assertThat(gson.fromJson("1", boolean.class)).isEqualTo(true);
+    assertThat(gson.fromJson("true", Boolean.class)).isEqualTo(true);
   }
 
   @Test
@@ -304,13 +304,13 @@ public class CustomTypeAdaptersTest {
     String part1;
     String part2;
 
-    public StringHolder(String string) {
+    StringHolder(String string) {
       List<String> parts = Splitter.on(':').splitToList(string);
       part1 = parts.get(0);
       part2 = parts.get(1);
     }
 
-    public StringHolder(String part1, String part2) {
+    StringHolder(String part1, String part2) {
       this.part1 = part1;
       this.part2 = part2;
     }
@@ -466,7 +466,7 @@ public class CustomTypeAdaptersTest {
   private static class DataHolder {
     final String data;
 
-    public DataHolder(String data) {
+    DataHolder(String data) {
       this.data = data;
     }
   }
@@ -474,7 +474,7 @@ public class CustomTypeAdaptersTest {
   private static class DataHolderWrapper {
     final DataHolder wrappedData;
 
-    public DataHolderWrapper(DataHolder data) {
+    DataHolderWrapper(DataHolder data) {
       this.wrappedData = data;
     }
   }

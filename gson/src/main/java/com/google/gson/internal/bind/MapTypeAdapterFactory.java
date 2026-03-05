@@ -163,7 +163,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
     private final TypeAdapter<V> valueTypeAdapter;
     private final ObjectConstructor<? extends Map<K, V>> constructor;
 
-    public Adapter(
+    Adapter(
         TypeAdapter<K> keyTypeAdapter,
         TypeAdapter<V> valueTypeAdapter,
         ObjectConstructor<? extends Map<K, V>> constructor) {

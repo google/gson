@@ -30,11 +30,14 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -42,6 +45,20 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
 import java.text.DateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.MonthDay;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -200,6 +217,13 @@ public class DefaultTypeAdaptersTest {
     testNullSerializationAndDeserialization(GregorianCalendar.class);
     testNullSerializationAndDeserialization(Calendar.class);
     testNullSerializationAndDeserialization(Class.class);
+    testNullSerializationAndDeserialization(Duration.class);
+    testNullSerializationAndDeserialization(Instant.class);
+    testNullSerializationAndDeserialization(LocalDate.class);
+    testNullSerializationAndDeserialization(LocalTime.class);
+    testNullSerializationAndDeserialization(LocalDateTime.class);
+    testNullSerializationAndDeserialization(ZoneId.class);
+    testNullSerializationAndDeserialization(ZonedDateTime.class);
   }
 
   private void testNullSerializationAndDeserialization(Class<?> c) {
@@ -208,7 +232,7 @@ public class DefaultTypeAdaptersTest {
 
   public static void testNullSerializationAndDeserialization(Gson gson, Class<?> c) {
     assertThat(gson.toJson(null, c)).isEqualTo("null");
-    assertThat(gson.fromJson("null", c)).isEqualTo(null);
+    assertThat(gson.fromJson("null", c)).isNull();
   }
 
   @Test
@@ -514,11 +538,11 @@ public class DefaultTypeAdaptersTest {
 
         Gson gson = new GsonBuilder().setDateFormat(dateStyle, timeStyle).create();
         String json = gson.toJson(date);
-        assertWithMessage("dateStyle=" + dateStyle + ", timeStyle=" + timeStyle)
+        assertWithMessage("dateStyle=%s, timeStyle=%s", dateStyle, timeStyle)
             .that(json)
             .isEqualTo("\"" + expectedFormatted + "\"");
 
-        assertWithMessage("dateStyle=" + dateStyle + ", timeStyle=" + timeStyle)
+        assertWithMessage("dateStyle=%s, timeStyle=%s", dateStyle, timeStyle)
             .that(gson.fromJson(json, Date.class).getTime())
             .isEqualTo(date.getTime());
       }
@@ -544,11 +568,11 @@ public class DefaultTypeAdaptersTest {
 
       Gson gson = new GsonBuilder().setDateFormat(dateStyle).create();
       String json = gson.toJson(date);
-      assertWithMessage("dateStyle=" + dateStyle)
+      assertWithMessage("dateStyle=%s", dateStyle)
           .that(json)
           .isEqualTo("\"" + expectedFormatted + "\"");
 
-      assertWithMessage("dateStyle=" + dateStyle)
+      assertWithMessage("dateStyle=%s", dateStyle)
           .that(gson.fromJson(json, Date.class).getTime())
           .isEqualTo(date.getTime());
     }
@@ -810,6 +834,232 @@ public class DefaultTypeAdaptersTest {
   public void testStringBufferDeserialization() {
     StringBuffer sb = gson.fromJson("'abc'", StringBuffer.class);
     assertThat(sb.toString()).isEqualTo("abc");
+  }
+
+  @Test
+  public void testJavaTimeDuration() {
+    Duration duration = Duration.ofSeconds(123, 456_789_012);
+    String json = "{\"seconds\":123,\"nanos\":456789012}";
+    roundTrip(duration, json);
+  }
+
+  @Test
+  public void testJavaTimeDurationWithUnknownFields() {
+    Duration duration = Duration.ofSeconds(123, 456_789_012);
+    String json = "{\"seconds\":123,\"nanos\":456789012,\"tiddly\":\"pom\",\"wibble\":\"wobble\"}";
+    assertThat(gson.fromJson(json, Duration.class)).isEqualTo(duration);
+  }
+
+  @Test
+  public void testJavaTimeInstant() {
+    Instant instant = Instant.ofEpochSecond(123, 456_789_012);
+    String json = "{\"seconds\":123,\"nanos\":456789012}";
+    roundTrip(instant, json);
+  }
+
+  @Test
+  public void testJavaTimeLocalDate() {
+    LocalDate localDate = LocalDate.of(2021, 12, 2);
+    String json = "{\"year\":2021,\"month\":12,\"day\":2}";
+    roundTrip(localDate, json);
+  }
+
+  @Test
+  public void testJavaTimeLocalTime() {
+    LocalTime localTime = LocalTime.of(12, 34, 56, 789_012_345);
+    String json = "{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345}";
+    roundTrip(localTime, json);
+  }
+
+  @Test
+  public void testJavaTimeLocalDateTime() {
+    LocalDateTime localDateTime = LocalDateTime.of(2021, 12, 2, 12, 34, 56, 789_012_345);
+    String json =
+        "{\"date\":{\"year\":2021,\"month\":12,\"day\":2},"
+            + "\"time\":{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345}}";
+    roundTrip(localDateTime, json);
+  }
+
+  @Test
+  public void testJavaTimeMonthDay() {
+    MonthDay monthDay = MonthDay.of(2, 17);
+    String json = "{\"month\":2,\"day\":17}";
+    roundTrip(monthDay, json);
+  }
+
+  @Test
+  public void testJavaTimeOffsetDateTime() {
+    OffsetDateTime offsetDateTime =
+        OffsetDateTime.of(
+            LocalDate.of(2021, 12, 2), LocalTime.of(12, 34, 56, 789_012_345), ZoneOffset.UTC);
+    String json =
+        "{\"dateTime\":{\"date\":{\"year\":2021,\"month\":12,\"day\":2},"
+            + "\"time\":{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345}},"
+            + "\"offset\":{\"totalSeconds\":0}}";
+    roundTrip(offsetDateTime, json);
+  }
+
+  @Test
+  public void testJavaTimeOffsetTime() {
+    OffsetTime offsetTime = OffsetTime.of(LocalTime.of(12, 34, 56, 789_012_345), ZoneOffset.UTC);
+    String json =
+        "{\"time\":{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345},"
+            + "\"offset\":{\"totalSeconds\":0}}";
+    roundTrip(offsetTime, json);
+  }
+
+  @Test
+  public void testJavaTimePeriod() {
+    Period period = Period.of(2025, 2, 3);
+    String json = "{\"years\":2025,\"months\":2,\"days\":3}";
+    roundTrip(period, json);
+  }
+
+  @Test
+  public void testJavaTimeYear() {
+    Year year = Year.of(2025);
+    String json = "{\"year\":2025}";
+    roundTrip(year, json);
+  }
+
+  @Test
+  public void testJavaTimeYearMonth() {
+    YearMonth yearMonth = YearMonth.of(2025, 2);
+    String json = "{\"year\":2025,\"month\":2}";
+    roundTrip(yearMonth, json);
+  }
+
+  @Test
+  public void testJavaTimeZoneOffset() {
+    ZoneOffset zoneOffset = ZoneOffset.ofTotalSeconds(-8 * 60 * 60);
+    String json = "{\"totalSeconds\":-28800}";
+    roundTrip(zoneOffset, json);
+  }
+
+  @Test
+  public void testJavaTimeZoneRegion() {
+    ZoneId zoneId = ZoneId.of("Asia/Shanghai");
+    String json = "{\"id\":\"Asia/Shanghai\"}";
+    roundTrip(zoneId, ZoneId.class, json);
+  }
+
+  @Test
+  public void testJavaTimeZonedDateTimeWithZoneOffset() {
+    ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(
+            LocalDate.of(2021, 12, 2), LocalTime.of(12, 34, 56, 789_012_345), ZoneOffset.UTC);
+    String json =
+        "{\"dateTime\":{\"date\":{\"year\":2021,\"month\":12,\"day\":2},"
+            + "\"time\":{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345}},"
+            + "\"offset\":{\"totalSeconds\":0},"
+            + "\"zone\":{\"totalSeconds\":0}}";
+    roundTrip(zonedDateTime, json);
+  }
+
+  @Test
+  public void testJavaTimeZonedDateTimeWithZoneId() {
+    ZoneId zoneId = ZoneId.of("UTC+01:00");
+    int totalSeconds = ((ZoneOffset) zoneId.normalized()).getTotalSeconds();
+    ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(LocalDate.of(2021, 12, 2), LocalTime.of(12, 34, 56, 789_012_345), zoneId);
+    String json =
+        "{\"dateTime\":{\"date\":{\"year\":2021,\"month\":12,\"day\":2},"
+            + "\"time\":{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345}},"
+            + "\"offset\":{\"totalSeconds\":"
+            + totalSeconds
+            + "},"
+            + "\"zone\":{\"id\":\""
+            + zoneId.getId()
+            + "\"}}";
+    roundTrip(zonedDateTime, json);
+  }
+
+  @Test
+  public void testJavaTimeZonedDateTimeWithZoneIdThatHasAdapter() {
+    TypeAdapter<ZoneId> zoneIdAdapter =
+        new TypeAdapter<ZoneId>() {
+          @Override
+          public void write(JsonWriter out, ZoneId value) throws IOException {
+            out.value(value.getId());
+          }
+
+          @Override
+          public ZoneId read(JsonReader in) throws IOException {
+            return ZoneId.of(in.nextString());
+          }
+        };
+    Gson customGson = new GsonBuilder().registerTypeAdapter(ZoneId.class, zoneIdAdapter).create();
+    ZoneId zoneId = ZoneId.of("UTC+01:00");
+    int totalSeconds = ((ZoneOffset) zoneId.normalized()).getTotalSeconds();
+    ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(LocalDate.of(2021, 12, 2), LocalTime.of(12, 34, 56, 789_012_345), zoneId);
+    String json =
+        "{\"dateTime\":{\"date\":{\"year\":2021,\"month\":12,\"day\":2},"
+            + "\"time\":{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345}},"
+            + "\"offset\":{\"totalSeconds\":"
+            + totalSeconds
+            + "},"
+            + "\"zone\":\""
+            + zoneId.getId()
+            + "\"}";
+    roundTrip(customGson, zonedDateTime, ZonedDateTime.class, json);
+  }
+
+  private static final boolean JAVA_TIME_FIELDS_ARE_ACCESSIBLE;
+
+  static {
+    boolean accessible = false;
+    try {
+      Instant.class.getDeclaredField("seconds").setAccessible(true);
+      accessible = true;
+    } catch (InaccessibleObjectException e) {
+      // OK: we can't reflect on java.time fields
+    } catch (NoSuchFieldException e) {
+      // JDK implementation has changed and we no longer have an Instant.seconds field.
+      throw new AssertionError(e);
+    }
+    JAVA_TIME_FIELDS_ARE_ACCESSIBLE = accessible;
+  }
+
+  private void roundTrip(Object value, String expectedJson) {
+    roundTrip(value, value.getClass(), expectedJson);
+  }
+
+  private void roundTrip(Object value, Class<?> valueClass, String expectedJson) {
+    roundTrip(gson, value, valueClass, expectedJson);
+    if (JAVA_TIME_FIELDS_ARE_ACCESSIBLE) {
+      checkReflectiveTypeAdapterFactory(value, expectedJson);
+    }
+  }
+
+  private void roundTrip(Gson customGson, Object value, Class<?> valueClass, String expectedJson) {
+    assertThat(customGson.getAdapter(valueClass).getClass().getName()).doesNotContain("Reflective");
+    assertThat(customGson.toJson(value, valueClass)).isEqualTo(expectedJson);
+    assertThat(customGson.fromJson(expectedJson, valueClass)).isEqualTo(value);
+  }
+
+  // Assuming we have reflective access to the fields of java.time classes, check that
+  // ReflectiveTypeAdapterFactory would produce the same JSON. This ensures that we are preserving
+  // a compatible JSON format for those classes even though we no longer use reflection.
+  private void checkReflectiveTypeAdapterFactory(Object value, String expectedJson) {
+    List<?> factories;
+    try {
+      Field factoriesField = gson.getClass().getDeclaredField("factories");
+      factoriesField.setAccessible(true);
+      factories = (List<?>) factoriesField.get(gson);
+    } catch (ReflectiveOperationException e) {
+      throw new LinkageError(e.getMessage(), e);
+    }
+    ReflectiveTypeAdapterFactory adapterFactory =
+        factories.stream()
+            .filter(f -> f instanceof ReflectiveTypeAdapterFactory)
+            .map(f -> (ReflectiveTypeAdapterFactory) f)
+            .findFirst()
+            .get();
+    TypeToken<?> typeToken = TypeToken.get(value.getClass());
+    @SuppressWarnings("unchecked")
+    TypeAdapter<Object> adapter = (TypeAdapter<Object>) adapterFactory.create(gson, typeToken);
+    assertThat(adapter.toJson(value)).isEqualTo(expectedJson);
   }
 
   private static class MyClassTypeAdapter extends TypeAdapter<Class<?>> {

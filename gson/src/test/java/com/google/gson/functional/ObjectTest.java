@@ -497,7 +497,7 @@ public class ObjectTest {
   private static class ArrayOfArrays {
     private final BagOfPrimitives[][] elements;
 
-    public ArrayOfArrays() {
+    ArrayOfArrays() {
       elements = new BagOfPrimitives[3][2];
       for (int i = 0; i < elements.length; ++i) {
         BagOfPrimitives[] row = elements[i];
@@ -507,7 +507,7 @@ public class ObjectTest {
       }
     }
 
-    public String getExpectedJson() {
+    String getExpectedJson() {
       StringBuilder sb = new StringBuilder("{\"elements\":[");
       boolean first = true;
       for (BagOfPrimitives[] row : elements) {
@@ -534,7 +534,7 @@ public class ObjectTest {
   }
 
   private static class ClassWithPrivateNoArgsConstructor {
-    public int a;
+    int a;
 
     private ClassWithPrivateNoArgsConstructor() {
       a = 10;

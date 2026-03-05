@@ -62,9 +62,9 @@ public class OverrideCoreTypeAdaptersTest {
     Gson gson = new GsonBuilder().registerTypeAdapter(Boolean.class, booleanAsIntAdapter).create();
     assertThat(gson.toJson(true, boolean.class)).isEqualTo("true");
     assertThat(gson.toJson(true, Boolean.class)).isEqualTo("1");
-    assertThat(gson.fromJson("true", boolean.class)).isEqualTo(Boolean.TRUE);
-    assertThat(gson.fromJson("1", Boolean.class)).isEqualTo(Boolean.TRUE);
-    assertThat(gson.fromJson("0", Boolean.class)).isEqualTo(Boolean.FALSE);
+    assertThat(gson.fromJson("true", boolean.class)).isEqualTo(true);
+    assertThat(gson.fromJson("1", Boolean.class)).isEqualTo(true);
+    assertThat(gson.fromJson("0", Boolean.class)).isEqualTo(false);
   }
 
   @Test
@@ -72,8 +72,8 @@ public class OverrideCoreTypeAdaptersTest {
     Gson gson = new GsonBuilder().registerTypeAdapter(boolean.class, booleanAsIntAdapter).create();
     assertThat(gson.toJson(true, boolean.class)).isEqualTo("1");
     assertThat(gson.toJson(true, Boolean.class)).isEqualTo("true");
-    assertThat(gson.fromJson("1", boolean.class)).isEqualTo(Boolean.TRUE);
-    assertThat(gson.fromJson("true", Boolean.class)).isEqualTo(Boolean.TRUE);
+    assertThat(gson.fromJson("1", boolean.class)).isEqualTo(true);
+    assertThat(gson.fromJson("true", Boolean.class)).isEqualTo(true);
     assertThat(gson.toJson(false, boolean.class)).isEqualTo("0");
   }
 

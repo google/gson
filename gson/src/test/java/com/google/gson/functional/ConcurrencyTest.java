@@ -144,7 +144,7 @@ public class ConcurrencyTest {
       this("hello", "world", 42);
     }
 
-    public MyObject(String a, String b, int i) {
+    MyObject(String a, String b, int i) {
       this.a = a;
       this.b = b;
       this.i = i;

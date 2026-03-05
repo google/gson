@@ -83,22 +83,22 @@ public class ExposeAnnotationExclusionStrategyTest {
   }
 
   private static Field createFieldAttributes(String fieldName) throws Exception {
-    return MockObject.class.getField(fieldName);
+    return MockObject.class.getDeclaredField(fieldName);
   }
 
   @SuppressWarnings("unused")
   private static class MockObject {
-    @Expose public final int exposedField = 0;
+    @Expose final int exposedField = 0;
 
     @Expose(serialize = true, deserialize = true)
-    public final int explicitlyExposedField = 0;
+    final int explicitlyExposedField = 0;
 
     @Expose(serialize = false, deserialize = false)
-    public final int explicitlyHiddenField = 0;
+    final int explicitlyHiddenField = 0;
 
     @Expose(serialize = true, deserialize = false)
-    public final int explicitlyDifferentModeField = 0;
+    final int explicitlyDifferentModeField = 0;
 
-    public final int hiddenField = 0;
+    final int hiddenField = 0;
   }
 }

@@ -91,7 +91,7 @@ public class TreeTypeAdaptersTest {
       this.typeOfId = typeOfId;
     }
 
-    public String getValue() {
+    String getValue() {
       return value;
     }
   }
@@ -127,7 +127,7 @@ public class TreeTypeAdaptersTest {
       this(null, null);
     }
 
-    public Student(Id<Student> id, String name) {
+    Student(Id<Student> id, String name) {
       this.id = id;
       this.name = name;
     }
@@ -144,7 +144,7 @@ public class TreeTypeAdaptersTest {
       this(null, 0, null, new ArrayList<>());
     }
 
-    public Course(
+    Course(
         Id<Course<T>> courseId,
         int numAssignments,
         Assignment<T> assignment,
@@ -155,7 +155,7 @@ public class TreeTypeAdaptersTest {
       this.students = players;
     }
 
-    public Id<Course<T>> getId() {
+    Id<Course<T>> getId() {
       return courseId;
     }
 
@@ -173,7 +173,7 @@ public class TreeTypeAdaptersTest {
       this(null, null);
     }
 
-    public Assignment(Id<Assignment<T>> id, T data) {
+    Assignment(Id<Assignment<T>> id, T data) {
       this.id = id;
       this.data = data;
     }

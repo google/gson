@@ -25,7 +25,7 @@ public class LinkedTreeMapSuiteTest {
   private static class MapGenerator extends TestStringMapGenerator {
     private final boolean allowNullValues;
 
-    public MapGenerator(boolean allowNullValues) {
+    MapGenerator(boolean allowNullValues) {
       this.allowNullValues = allowNullValues;
     }
 

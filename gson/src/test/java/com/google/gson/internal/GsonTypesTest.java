@@ -29,6 +29,16 @@ import org.junit.Test;
 
 @SuppressWarnings("ClassNamedLikeTypeParameter") // for dummy classes A, B, ...
 public final class GsonTypesTest {
+  @Test
+  public void testWildcardBoundsInvalid() {
+    String expectedMessage = "Primitive type is not allowed";
+    IllegalArgumentException e =
+        assertThrows(IllegalArgumentException.class, () -> GsonTypes.subtypeOf(int.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+
+    e = assertThrows(IllegalArgumentException.class, () -> GsonTypes.supertypeOf(int.class));
+    assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
+  }
 
   @Test
   public void testNewParameterizedTypeWithoutOwner() throws Exception {
@@ -103,8 +113,8 @@ public final class GsonTypesTest {
 
   @Test
   public void testEqualsOnMethodTypeVariables() throws Exception {
-    Method m1 = TypeVariableTest.class.getMethod("method");
-    Method m2 = TypeVariableTest.class.getMethod("method");
+    Method m1 = TypeVariableTest.class.getDeclaredMethod("method");
+    Method m2 = TypeVariableTest.class.getDeclaredMethod("method");
 
     Type rt1 = m1.getGenericReturnType();
     Type rt2 = m2.getGenericReturnType();
@@ -114,8 +124,8 @@ public final class GsonTypesTest {
 
   @Test
   public void testEqualsOnConstructorParameterTypeVariables() throws Exception {
-    Constructor<TypeVariableTest> c1 = TypeVariableTest.class.getConstructor(Object.class);
-    Constructor<TypeVariableTest> c2 = TypeVariableTest.class.getConstructor(Object.class);
+    Constructor<TypeVariableTest> c1 = TypeVariableTest.class.getDeclaredConstructor(Object.class);
+    Constructor<TypeVariableTest> c2 = TypeVariableTest.class.getDeclaredConstructor(Object.class);
 
     Type rt1 = c1.getGenericParameterTypes()[0];
     Type rt2 = c2.getGenericParameterTypes()[0];
@@ -126,10 +136,10 @@ public final class GsonTypesTest {
   private static final class TypeVariableTest {
 
     @SuppressWarnings("unused")
-    public <T> TypeVariableTest(T parameter) {}
+    <T> TypeVariableTest(T parameter) {}
 
     @SuppressWarnings({"unused", "TypeParameterUnusedInFormals"})
-    public <T> T method() {
+    <T> T method() {
       return null;
     }
   }

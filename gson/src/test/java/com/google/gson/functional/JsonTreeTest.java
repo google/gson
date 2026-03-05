@@ -104,7 +104,7 @@ public class JsonTreeTest {
     @SuppressWarnings("unused")
     float f = 1.2F;
 
-    public SubTypeOfBagOfPrimitives(long l, int i, boolean b, String string, float f) {
+    SubTypeOfBagOfPrimitives(long l, int i, boolean b, String string, float f) {
       super(l, i, b, string);
       this.f = f;
     }

@@ -190,12 +190,12 @@ public class ReflectionAccessFilterTest {
 
   private static class SubTestClass extends SuperTestClass {
     @SuppressWarnings("unused")
-    public int i = 1;
+    int i = 1;
   }
 
   private static class OtherClass {
     @SuppressWarnings("unused")
-    public int i = 2;
+    int i = 2;
   }
 
   @Test
@@ -329,9 +329,9 @@ public class ReflectionAccessFilterTest {
   }
 
   private static class ClassWithoutNoArgsConstructor {
-    public String s;
+    String s;
 
-    public ClassWithoutNoArgsConstructor(String s) {
+    ClassWithoutNoArgsConstructor(String s) {
       this.s = s;
     }
   }

@@ -19,15 +19,59 @@ package com.google.gson.internal;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
 import org.junit.Test;
 
 public class StreamsTest {
+  private static class TestAppendable implements Appendable, Flushable, Closeable {
+    boolean closed = false;
+    int flushCount = 0;
+    Appendable append;
+
+    TestAppendable(Appendable append) {
+      this.append = append;
+    }
+
+    @Override
+    public void close() {
+      closed = true;
+    }
+
+    @Override
+    public void flush() {
+      flushCount++;
+    }
+
+    @Override
+    public TestAppendable append(CharSequence csq) throws IOException {
+      append.append(csq);
+      return this;
+    }
+
+    @Override
+    public TestAppendable append(CharSequence csq, int start, int end) throws IOException {
+      append.append(csq, start, end);
+      return this;
+    }
+
+    @Override
+    public TestAppendable append(char c) throws IOException {
+      append.append(c);
+      return this;
+    }
+  }
+
   @Test
   public void testWriterForAppendable() throws IOException {
     StringBuilder stringBuilder = new StringBuilder();
-    Writer writer = Streams.writerForAppendable(stringBuilder);
+    TestAppendable appendable = new TestAppendable(stringBuilder);
+    Writer writer = Streams.writerForAppendable(appendable);
+
+    assertThat(appendable.closed).isFalse();
+    assertThat(appendable.flushCount).isEqualTo(0);
 
     writer.append('a');
     writer.append('\u1234');
@@ -62,7 +106,9 @@ public class StreamsTest {
     writer.flush();
     writer.close();
 
-    // flush() and close() calls should have had no effect
+    assertThat(appendable.closed).isTrue();
+    assertThat(appendable.flushCount).isEqualTo(1);
+
     assertThat(stringBuilder.toString()).isEqualTo(actualOutput);
   }
 }

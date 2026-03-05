@@ -157,7 +157,9 @@ public final class Java17RecordTest {
     }
 
     // TODO: Adjust this once Gson throws more specific exception type
-    var e = assertThrows(RuntimeException.class, () -> gson.fromJson("{\"s\":\"value\"}", LocalRecord.class));
+    var e =
+        assertThrows(
+            RuntimeException.class, () -> gson.fromJson("{\"s\":\"value\"}", LocalRecord.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(

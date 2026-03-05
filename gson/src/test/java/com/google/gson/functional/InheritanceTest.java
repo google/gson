@@ -156,7 +156,7 @@ public class InheritanceTest {
   private static class SubTypeOfNested extends Nested {
     private final long value = 5;
 
-    public SubTypeOfNested(BagOfPrimitives primitive1, BagOfPrimitives primitive2) {
+    SubTypeOfNested(BagOfPrimitives primitive1, BagOfPrimitives primitive2) {
       super(primitive1, primitive2);
     }
 
@@ -215,7 +215,7 @@ public class InheritanceTest {
     private Set<Float> set;
     private SortedSet<Character> sortedSet;
 
-    public ClassWithSubInterfacesOfCollection(
+    ClassWithSubInterfacesOfCollection(
         List<Integer> list, Queue<Long> queue, Set<Float> set, SortedSet<Character> sortedSet) {
       this.list = list;
       this.queue = queue;
@@ -259,7 +259,7 @@ public class InheritanceTest {
       return true;
     }
 
-    public String getExpectedJson() {
+    String getExpectedJson() {
       StringBuilder sb = new StringBuilder();
       sb.append("{");
       sb.append("\"list\":");

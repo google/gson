@@ -36,12 +36,12 @@ public class RecursiveTypesResolveTest {
 
   @SuppressWarnings("unused")
   private static class Foo1<A> {
-    public Foo2<? extends A> foo2;
+    Foo2<? extends A> foo2;
   }
 
   @SuppressWarnings("unused")
   private static class Foo2<B> {
-    public Foo1<? super B> foo1;
+    Foo1<? super B> foo1;
   }
 
   /** Test simplest case of recursion. */

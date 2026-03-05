@@ -37,17 +37,21 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
  * Type adapters for basic types. More complex adapters exist as separate classes in the enclosing
@@ -299,6 +303,22 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory ATOMIC_INTEGER_FACTORY =
       newFactory(AtomicInteger.class, TypeAdapters.ATOMIC_INTEGER);
 
+  public static TypeAdapter<AtomicLong> atomicLongAdapter(TypeAdapter<Number> longAdapter) {
+    Objects.requireNonNull(longAdapter);
+    return new TypeAdapter<AtomicLong>() {
+      @Override
+      public AtomicLong read(JsonReader in) throws IOException {
+        Number value = longAdapter.read(in);
+        return new AtomicLong(value.longValue());
+      }
+
+      @Override
+      public void write(JsonWriter out, AtomicLong value) throws IOException {
+        longAdapter.write(out, value.get());
+      }
+    }.nullSafe();
+  }
+
   public static final TypeAdapter<AtomicBoolean> ATOMIC_BOOLEAN =
       new TypeAdapter<AtomicBoolean>() {
         @Override
@@ -349,6 +369,38 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory ATOMIC_INTEGER_ARRAY_FACTORY =
       newFactory(AtomicIntegerArray.class, TypeAdapters.ATOMIC_INTEGER_ARRAY);
 
+  public static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(
+      TypeAdapter<Number> longAdapter) {
+    Objects.requireNonNull(longAdapter);
+    return new TypeAdapter<AtomicLongArray>() {
+      @Override
+      public AtomicLongArray read(JsonReader in) throws IOException {
+        List<Long> list = new ArrayList<>();
+        in.beginArray();
+        while (in.hasNext()) {
+          long value = longAdapter.read(in).longValue();
+          list.add(value);
+        }
+        in.endArray();
+        int length = list.size();
+        AtomicLongArray array = new AtomicLongArray(length);
+        for (int i = 0; i < length; ++i) {
+          array.set(i, list.get(i));
+        }
+        return array;
+      }
+
+      @Override
+      public void write(JsonWriter out, AtomicLongArray value) throws IOException {
+        out.beginArray();
+        for (int i = 0, length = value.length(); i < length; i++) {
+          longAdapter.write(out, value.get(i));
+        }
+        out.endArray();
+      }
+    }.nullSafe();
+  }
+
   public static final TypeAdapter<Number> LONG =
       new TypeAdapter<Number>() {
         @Override
@@ -374,7 +426,7 @@ public final class TypeAdapters {
         }
       };
 
-  public static final TypeAdapter<Number> FLOAT =
+  public static final TypeAdapter<Number> LONG_AS_STRING =
       new TypeAdapter<Number>() {
         @Override
         public Number read(JsonReader in) throws IOException {
@@ -382,43 +434,96 @@ public final class TypeAdapters {
             in.nextNull();
             return null;
           }
-          return (float) in.nextDouble();
+          return in.nextLong();
         }
 
         @Override
         public void write(JsonWriter out, Number value) throws IOException {
           if (value == null) {
             out.nullValue();
-          } else {
-            // For backward compatibility don't call `JsonWriter.value(float)` because that method
-            // has been newly added and not all custom JsonWriter implementations might override
-            // it yet
-            Number floatNumber = value instanceof Float ? value : value.floatValue();
-            out.value(floatNumber);
+            return;
           }
+          out.value(value.toString());
         }
       };
 
-  public static final TypeAdapter<Number> DOUBLE =
-      new TypeAdapter<Number>() {
-        @Override
-        public Number read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          return in.nextDouble();
-        }
+  private static class FloatAdapter extends TypeAdapter<Number> {
+    private final boolean strict;
 
-        @Override
-        public void write(JsonWriter out, Number value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-          } else {
-            out.value(value.doubleValue());
-          }
-        }
-      };
+    FloatAdapter(boolean strict) {
+      this.strict = strict;
+    }
+
+    @Override
+    public Float read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      return (float) in.nextDouble();
+    }
+
+    @Override
+    public void write(JsonWriter out, Number value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      float floatValue = value.floatValue();
+      if (strict) {
+        checkValidFloatingPoint(floatValue);
+      }
+      // For backward compatibility don't call `JsonWriter.value(float)` because that method has
+      // been newly added and not all custom JsonWriter implementations might override it yet
+      Number floatNumber = value instanceof Float ? value : floatValue;
+      out.value(floatNumber);
+    }
+  }
+
+  private static class DoubleAdapter extends TypeAdapter<Number> {
+    private final boolean strict;
+
+    DoubleAdapter(boolean strict) {
+      this.strict = strict;
+    }
+
+    @Override
+    public Double read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      return in.nextDouble();
+    }
+
+    @Override
+    public void write(JsonWriter out, Number value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      double doubleValue = value.doubleValue();
+      if (strict) {
+        checkValidFloatingPoint(doubleValue);
+      }
+      out.value(doubleValue);
+    }
+  }
+
+  private static void checkValidFloatingPoint(double value) {
+    if (Double.isNaN(value) || Double.isInfinite(value)) {
+      throw new IllegalArgumentException(
+          value
+              + " is not a valid double value as per JSON specification. To override this"
+              + " behavior, use GsonBuilder.serializeSpecialFloatingPointValues() method.");
+    }
+  }
+
+  public static final TypeAdapter<Number> FLOAT = new FloatAdapter(false);
+  public static final TypeAdapter<Number> FLOAT_STRICT = new FloatAdapter(true);
+
+  public static final TypeAdapter<Number> DOUBLE = new DoubleAdapter(false);
+  public static final TypeAdapter<Number> DOUBLE_STRICT = new DoubleAdapter(true);
 
   public static final TypeAdapter<Character> CHARACTER =
       new TypeAdapter<Character>() {
@@ -490,6 +595,9 @@ public final class TypeAdapters {
         }
       };
 
+  public static final TypeAdapterFactory BIG_DECIMAL_FACTORY =
+      newFactory(BigDecimal.class, BIG_DECIMAL);
+
   public static final TypeAdapter<BigInteger> BIG_INTEGER =
       new TypeAdapter<BigInteger>() {
         @Override
@@ -513,6 +621,9 @@ public final class TypeAdapters {
         }
       };
 
+  public static final TypeAdapterFactory BIG_INTEGER_FACTORY =
+      newFactory(BigInteger.class, BIG_INTEGER);
+
   public static final TypeAdapter<LazilyParsedNumber> LAZILY_PARSED_NUMBER =
       new TypeAdapter<LazilyParsedNumber>() {
         // Normally users should not be able to access and deserialize LazilyParsedNumber because
@@ -532,6 +643,9 @@ public final class TypeAdapters {
           out.value(value);
         }
       };
+
+  public static final TypeAdapterFactory LAZILY_PARSED_NUMBER_FACTORY =
+      newFactory(LazilyParsedNumber.class, LAZILY_PARSED_NUMBER);
 
   public static final TypeAdapterFactory STRING_FACTORY = newFactory(String.class, STRING);
 
@@ -689,80 +803,95 @@ public final class TypeAdapters {
       }.nullSafe();
   public static final TypeAdapterFactory CURRENCY_FACTORY = newFactory(Currency.class, CURRENCY);
 
+  /**
+   * An abstract {@link TypeAdapter} for classes whose JSON serialization consists of a fixed set of
+   * integer fields. That is the case for {@link Calendar} and the legacy serialization of various
+   * {@code java.time} types.
+   */
+  abstract static class IntegerFieldsTypeAdapter<T> extends TypeAdapter<T> {
+    private final List<String> fields;
+
+    IntegerFieldsTypeAdapter(String... fields) {
+      this.fields = Arrays.asList(fields);
+    }
+
+    abstract T create(long[] values);
+
+    abstract long[] integerValues(T t);
+
+    @Override
+    public T read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      in.beginObject();
+      long[] values = new long[fields.size()];
+      while (in.peek() != JsonToken.END_OBJECT) {
+        String name = in.nextName();
+        int index = fields.indexOf(name);
+        if (index >= 0) {
+          values[index] = in.nextLong();
+        } else {
+          in.skipValue();
+        }
+      }
+      in.endObject();
+      return create(values);
+    }
+
+    @Override
+    public void write(JsonWriter out, T value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+        return;
+      }
+      out.beginObject();
+      long[] values = integerValues(value);
+      for (int i = 0; i < fields.size(); i++) {
+        out.name(fields.get(i));
+        out.value(values[i]);
+      }
+      out.endObject();
+    }
+  }
+
   public static final TypeAdapter<Calendar> CALENDAR =
-      new TypeAdapter<Calendar>() {
-        private static final String YEAR = "year";
-        private static final String MONTH = "month";
-        private static final String DAY_OF_MONTH = "dayOfMonth";
-        private static final String HOUR_OF_DAY = "hourOfDay";
-        private static final String MINUTE = "minute";
-        private static final String SECOND = "second";
+      new IntegerFieldsTypeAdapter<Calendar>(
+          "year", "month", "dayOfMonth", "hourOfDay", "minute", "second") {
 
         @Override
-        public Calendar read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
-            in.nextNull();
-            return null;
-          }
-          in.beginObject();
-          int year = 0;
-          int month = 0;
-          int dayOfMonth = 0;
-          int hourOfDay = 0;
-          int minute = 0;
-          int second = 0;
-          while (in.peek() != JsonToken.END_OBJECT) {
-            String name = in.nextName();
-            int value = in.nextInt();
-            switch (name) {
-              case YEAR:
-                year = value;
-                break;
-              case MONTH:
-                month = value;
-                break;
-              case DAY_OF_MONTH:
-                dayOfMonth = value;
-                break;
-              case HOUR_OF_DAY:
-                hourOfDay = value;
-                break;
-              case MINUTE:
-                minute = value;
-                break;
-              case SECOND:
-                second = value;
-                break;
-              default:
-                // Ignore unknown JSON property
-            }
-          }
-          in.endObject();
-          return new GregorianCalendar(year, month, dayOfMonth, hourOfDay, minute, second);
+        Calendar create(long[] values) {
+          return new GregorianCalendar(
+              toIntExact(values[0]),
+              toIntExact(values[1]),
+              toIntExact(values[2]),
+              toIntExact(values[3]),
+              toIntExact(values[4]),
+              toIntExact(values[5]));
         }
 
         @Override
-        public void write(JsonWriter out, Calendar value) throws IOException {
-          if (value == null) {
-            out.nullValue();
-            return;
-          }
-          out.beginObject();
-          out.name(YEAR);
-          out.value(value.get(Calendar.YEAR));
-          out.name(MONTH);
-          out.value(value.get(Calendar.MONTH));
-          out.name(DAY_OF_MONTH);
-          out.value(value.get(Calendar.DAY_OF_MONTH));
-          out.name(HOUR_OF_DAY);
-          out.value(value.get(Calendar.HOUR_OF_DAY));
-          out.name(MINUTE);
-          out.value(value.get(Calendar.MINUTE));
-          out.name(SECOND);
-          out.value(value.get(Calendar.SECOND));
-          out.endObject();
+        long[] integerValues(Calendar calendar) {
+          return new long[] {
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH),
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            calendar.get(Calendar.SECOND)
+          };
         }
       };
+
+  // TODO: update this when we are on at least Android API Level 24.
+  private static int toIntExact(long x) {
+    int i = (int) x;
+    if (i != x) {
+      throw new IllegalArgumentException("Too big for an int: " + x);
+    }
+    return i;
+  }
 
   public static final TypeAdapterFactory CALENDAR_FACTORY =
       newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
@@ -812,6 +941,22 @@ public final class TypeAdapters {
       newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
+
+  interface FactorySupplier {
+    TypeAdapterFactory get();
+  }
+
+  public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
+    try {
+      Class<?> javaTimeTypeAdapterFactoryClass =
+          Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");
+      FactorySupplier supplier =
+          (FactorySupplier) javaTimeTypeAdapterFactoryClass.getDeclaredConstructor().newInstance();
+      return supplier.get();
+    } catch (ReflectiveOperationException | LinkageError e) {
+      return null;
+    }
+  }
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(

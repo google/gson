@@ -78,11 +78,11 @@ public class CustomDeserializerTest {
       throw new IllegalStateException();
     }
 
-    public DataHolder(String data) {
+    DataHolder(String data) {
       this.data = data;
     }
 
-    public String getData() {
+    String getData() {
       return data;
     }
   }
@@ -96,11 +96,11 @@ public class CustomDeserializerTest {
       this(new DataHolder(DEFAULT_VALUE));
     }
 
-    public DataHolderWrapper(DataHolder data) {
+    DataHolderWrapper(DataHolder data) {
       this.wrappedData = data;
     }
 
-    public DataHolder getWrappedData() {
+    DataHolder getWrappedData() {
       return wrappedData;
     }
   }
@@ -148,7 +148,7 @@ public class CustomDeserializerTest {
       this.subClass = subClass;
     }
 
-    public Type getSubclass() {
+    Type getSubclass() {
       return subClass;
     }
   }

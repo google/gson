@@ -1729,10 +1729,9 @@ public final class JsonReaderTest {
   @Test
   public void testDeeplyNestedObjects() throws IOException {
     // Build a JSON document structured like {"a":{"a":{"a":{"a":true}}}}, but 40 levels deep
-    String array = "{\"a\":%s}";
     String json = "true";
     for (int i = 0; i < 40; i++) {
-      json = String.format(array, json);
+      json = String.format("{\"a\":%s}", json);
     }
 
     JsonReader reader = new JsonReader(reader(json));

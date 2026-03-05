@@ -26,8 +26,6 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.FormattingStyle;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import java.io.Closeable;
 import java.io.Flushable;
@@ -74,8 +72,9 @@ import java.util.regex.Pattern;
  *   <li>{@link #setSerializeNulls(boolean)}, by default {@code null} is serialized
  * </ul>
  *
- * The default configuration of {@code JsonWriter} instances used internally by the {@link Gson}
- * class differs, and can be adjusted with the various {@link GsonBuilder} methods.
+ * The default configuration of {@code JsonWriter} instances used internally by the {@link
+ * com.google.gson.Gson} class differs, and can be adjusted with the various {@link
+ * com.google.gson.GsonBuilder} methods.
  *
  * <h2>Example</h2>
  *
