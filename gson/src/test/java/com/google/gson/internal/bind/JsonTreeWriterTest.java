@@ -100,7 +100,7 @@ public final class JsonTreeWriterTest {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setStrictness(Strictness.LENIENT);
     writer.beginArray();
-    var e = assertThrows(IOException.class, () -> writer.close());
+    IOException e = assertThrows(IOException.class, () -> writer.close());
     assertThat(e).hasMessageThat().isEqualTo("Incomplete document");
   }
 
@@ -280,5 +280,26 @@ public final class JsonTreeWriterTest {
             "setSerializeNulls(boolean)",
             "getSerializeNulls()");
     MoreAsserts.assertOverridesMethods(JsonWriter.class, JsonTreeWriter.class, ignoredMethods);
+  }
+
+  @Test
+  public void testEndArrayOnEmptyStackThrows() {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    assertThrows(IllegalStateException.class, () -> writer.endArray());
+  }
+
+  @Test
+  public void testEndArrayWithPendingNameThrows() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    writer.name("test");
+    assertThrows(IllegalStateException.class, () -> writer.endArray());
+  }
+
+  @Test
+  public void testEndArrayWhenStackTopIsNotArrayThrows() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    assertThrows(IllegalStateException.class, () -> writer.endArray());
   }
 }
