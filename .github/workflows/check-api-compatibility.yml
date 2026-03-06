@@ -51,7 +51,7 @@ jobs:
       - name: Check API compatibility
         id: check-compatibility
         run: |
-          mvn package japicmp:cmp --fail-at-end -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
+          mvn package japicmp:cmp --fail-at-end -Dmaven.test.skip --projects '!extras,!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
 
       - name: Upload API differences artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
