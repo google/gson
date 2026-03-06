@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -218,5 +219,212 @@ public final class LinkedTreeMapTest {
     @SuppressWarnings("unchecked")
     Map<String, Integer> deserialized = (Map<String, Integer>) objIn.readObject();
     assertThat(deserialized).isEqualTo(Collections.singletonMap("a", 1));
+  }
+
+
+  @Test
+  public void testClearMapWithSingleEntry() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("key1", "value1");
+    assertThat(map).hasSize(1);
+    assertThat(map).containsKey("key1");
+    assertThat(map.get("key1")).isEqualTo("value1");
+
+    map.clear();
+
+    assertThat(map).hasSize(0);
+    assertThat(map).doesNotContainKey("key1");
+    assertThat(map.get("key1")).isNull();
+    assertThat(map.entrySet()).hasSize(0);
+    assertThat(map.keySet()).hasSize(0);
+    assertThat(map.containsValue("value1")).isFalse();
+  }
+
+  @Test
+  public void testClearMapWithMultipleEntries() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("key1", "value1");
+    map.put("key2", "value2");
+    map.put("key3", "value3");
+    map.put("key4", "value4");
+    assertThat(map).hasSize(4);
+    assertThat(map).containsKey("key1");
+    assertThat(map).containsKey("key2");
+    assertThat(map).containsKey("key3");
+    assertThat(map).containsKey("key4");
+
+    map.clear();
+
+    assertThat(map).hasSize(0);
+    assertThat(map).doesNotContainKey("key1");
+    assertThat(map).doesNotContainKey("key2");
+    assertThat(map).doesNotContainKey("key3");
+    assertThat(map).doesNotContainKey("key4");
+    assertThat(map.get("key1")).isNull();
+    assertThat(map.get("key2")).isNull();
+    assertThat(map.get("key3")).isNull();
+    assertThat(map.get("key4")).isNull();
+    assertThat(map.entrySet()).hasSize(0);
+    assertThat(map.keySet()).hasSize(0);
+    assertThat(map.containsValue("value1")).isFalse();
+    assertThat(map.containsValue("value2")).isFalse();
+    assertThat(map.containsValue("value3")).isFalse();
+    assertThat(map.containsValue("value4")).isFalse();
+  }
+
+  @Test
+  public void testClearWithNullValuesAllowed() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>(true);
+    map.put("key1", "value1");
+    map.put("key2", null);
+    map.put("key3", "value3");
+    assertThat(map).hasSize(3);
+    assertThat(map).containsKey("key2");
+    assertThat(map.get("key2")).isNull();
+
+    map.clear();
+
+    assertThat(map).hasSize(0);
+    assertThat(map).doesNotContainKey("key1");
+    assertThat(map).doesNotContainKey("key2");
+    assertThat(map).doesNotContainKey("key3");
+    assertThat(map.get("key1")).isNull();
+    assertThat(map.get("key2")).isNull();
+    assertThat(map.get("key3")).isNull();
+    assertThat(map.entrySet()).hasSize(0);
+    assertThat(map.keySet()).hasSize(0);
+  }
+
+  @Test
+  public void testClearInvalidatesExistingIterator() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("key1", "value1");
+    map.put("key2", "value2");
+    map.put("key3", "value3");
+
+    Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
+    assertThat(iterator.hasNext()).isTrue();
+
+    map.clear();
+
+    assertThrows(ConcurrentModificationException.class, iterator::next);
+  }
+
+  @Test
+  public void testClearInvalidatesExistingKeySetIterator() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("key1", "value1");
+    map.put("key2", "value2");
+    map.put("key3", "value3");
+
+    Iterator<String> iterator = map.keySet().iterator();
+    assertThat(iterator.hasNext()).isTrue();
+
+    map.clear();
+
+    assertThrows(ConcurrentModificationException.class, iterator::next);
+  }
+
+  @Test
+  public void testClearTwice() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("key1", "value1");
+    map.put("key2", "value2");
+
+    map.clear();
+    assertThat(map).hasSize(0);
+
+    map.clear();
+    assertThat(map).hasSize(0);
+    assertThat(map).doesNotContainKey("key1");
+    assertThat(map).doesNotContainKey("key2");
+    assertThat(map.entrySet()).hasSize(0);
+    assertThat(map.keySet()).hasSize(0);
+  }
+
+  @Test
+  public void testClearThenAddEntries() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("key1", "value1");
+    map.put("key2", "value2");
+
+    map.clear();
+    assertThat(map).hasSize(0);
+
+    map.put("key3", "value3");
+    map.put("key4", "value4");
+    assertThat(map).hasSize(2);
+    assertThat(map).containsKey("key3");
+    assertThat(map).containsKey("key4");
+    assertThat(map).doesNotContainKey("key1");
+    assertThat(map).doesNotContainKey("key2");
+    assertThat(map.get("key3")).isEqualTo("value3");
+    assertThat(map.get("key4")).isEqualTo("value4");
+    assertThat(map.entrySet()).hasSize(2);
+    assertThat(map.keySet()).hasSize(2);
+  }
+
+  @Test
+  public void testClearWithIntegerKeys() {
+    LinkedTreeMap<Integer, Integer> map = new LinkedTreeMap<>();
+    map.put(1, 100);
+    map.put(2, 200);
+    map.put(3, 300);
+    assertThat(map).hasSize(3);
+
+    map.clear();
+    assertThat(map).hasSize(0);
+    assertThat(map).doesNotContainKey(1);
+    assertThat(map).doesNotContainKey(2);
+    assertThat(map).doesNotContainKey(3);
+    assertThat(map.get(1)).isNull();
+    assertThat(map.get(2)).isNull();
+    assertThat(map.get(3)).isNull();
+    assertThat(map.entrySet()).hasSize(0);
+    assertThat(map.keySet()).hasSize(0);
+  }
+
+  @Test
+  public void testClearAfterRemove() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("key1", "value1");
+    map.put("key2", "value2");
+    map.put("key3", "value3");
+
+    String removedValue = map.remove("key2");
+    map.remove("key2");
+    assertThat(map).hasSize(2);
+    assertThat(map).containsKey("key1");
+    assertThat(map).containsKey("key3");
+
+    map.clear();
+    assertThat(map).hasSize(0);
+    assertThat(map).doesNotContainKey("key1");
+    assertThat(map).doesNotContainKey("key3");
+    assertThat(map.entrySet()).hasSize(0);
+    assertThat(map.keySet()).hasSize(0);
+  }
+
+  @Test
+  public void testClearBeforeAndAfterIteration() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("key1", "value1");
+    map.put("key2", "value2");
+
+    int countBefore = 0;
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      countBefore++;
+      assertThat(entry.getKey()).isNotNull();
+    }
+    assertThat(countBefore).isEqualTo(2);
+
+    map.clear();
+
+    int countAfter = 0;
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      countAfter++;
+    }
+    assertThat(countAfter).isEqualTo(0);
+    assertThat(map).hasSize(0);
   }
 }
