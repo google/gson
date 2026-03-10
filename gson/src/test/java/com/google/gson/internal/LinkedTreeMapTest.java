@@ -221,7 +221,6 @@ public final class LinkedTreeMapTest {
     assertThat(deserialized).isEqualTo(Collections.singletonMap("a", 1));
   }
 
-
   @Test
   public void testClearInvalidatesExistingIterator() {
     LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
