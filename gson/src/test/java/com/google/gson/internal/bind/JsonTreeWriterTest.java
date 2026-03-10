@@ -100,7 +100,7 @@ public final class JsonTreeWriterTest {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setStrictness(Strictness.LENIENT);
     writer.beginArray();
-    IOException e = assertThrows(IOException.class, () -> writer.close());
+    var e = assertThrows(IOException.class, () -> writer.close());
     assertThat(e).hasMessageThat().isEqualTo("Incomplete document");
   }
 
