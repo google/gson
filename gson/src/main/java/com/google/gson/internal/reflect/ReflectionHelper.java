@@ -227,7 +227,7 @@ public class ReflectionHelper {
   public static JsonIOException createExceptionForFinalFieldMutation(
       Field field, IllegalAccessException exception) {
     String fieldDescription = getAccessibleObjectDescription(field, false);
-    return new com.google.gson.JsonIOException(
+    return new JsonIOException(
         "Cannot set value of final "
             + fieldDescription
             + ".\n"
