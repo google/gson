@@ -279,7 +279,15 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
             String fieldDescription = ReflectionHelper.getAccessibleObjectDescription(field, false);
             throw new JsonIOException("Cannot set value of 'static final' " + fieldDescription);
           }
-          field.set(target, fieldValue);
+          try {
+            field.set(target, fieldValue);
+          } catch (IllegalAccessException e) {
+            // If the field is final, provide a dedicated, clearer error message.
+            if (Modifier.isFinal(field.getModifiers())) {
+              throw ReflectionHelper.createExceptionForFinalFieldMutation(field, e);
+            }
+            throw ReflectionHelper.createExceptionForUnexpectedIllegalAccess(e);
+          }
         }
       }
     };
