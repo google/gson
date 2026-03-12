@@ -210,14 +210,14 @@ public class ReflectionHelper {
    * Creates a {@link JsonIOException} indicating that Gson was unable to set a {@code final}
    * instance field via reflection during deserialization.
    *
-   * <p>This helper is used when {@link Field#set(Object, Object)} throws an
-   * {@link IllegalAccessException} for a {@code final} field. The returned exception message aims
-   * to be actionable by explaining that Gson cannot mutate final instance fields and suggesting
+   * <p>This helper is used when {@link Field#set(Object, Object)} throws an {@link
+   * IllegalAccessException} for a {@code final} field. The returned exception message aims to be
+   * actionable by explaining that Gson cannot mutate final instance fields and suggesting
    * alternatives such as registering a custom {@code TypeAdapter} or {@code InstanceCreator}, or
    * making the field non-final.
    *
    * <p>On newer Java runtimes, reflective mutation of {@code final} fields may be restricted (see
-   * JEP 500). Depending on JVM configuration, attempts to mutate final fields reflectively can 
+   * JEP 500). Depending on JVM configuration, attempts to mutate final fields reflectively can
    * cause {@link IllegalAccessException}s.
    *
    * @param field The final field which Gson attempted to assign
@@ -228,7 +228,9 @@ public class ReflectionHelper {
       Field field, IllegalAccessException exception) {
     String fieldDescription = getAccessibleObjectDescription(field, false);
     return new com.google.gson.JsonIOException(
-        "Cannot set value of final " + fieldDescription + ".\n"
+        "Cannot set value of final "
+            + fieldDescription
+            + ".\n"
             + "Gson cannot modify final instance fields during deserialization. Register a"
             + " TypeAdapter or InstanceCreator for the declaring type, or change the field to be"
             + " non-final.\n"
