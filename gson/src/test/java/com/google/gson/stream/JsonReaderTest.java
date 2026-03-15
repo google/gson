@@ -737,6 +737,30 @@ public final class JsonReaderTest {
   }
 
   @Test
+  public void testNonAsciiDigits() throws IOException {
+    String asciiDigits = "123";
+    String nonAsciiDigits = "１２３"; // full-width digits
+
+    // These should work
+    assertThat(new JsonReader(reader(asciiDigits)).nextInt()).isEqualTo(123);
+    assertThat(new JsonReader(reader(asciiDigits)).nextLong()).isEqualTo(123L);
+    assertThat(new JsonReader(reader('"' + asciiDigits + '"')).nextInt()).isEqualTo(123);
+    assertThat(new JsonReader(reader('"' + asciiDigits + '"')).nextLong()).isEqualTo(123L);
+
+    // These should not work
+    assertThrows(
+        MalformedJsonException.class, () -> new JsonReader(reader(nonAsciiDigits)).nextInt());
+    assertThrows(
+        MalformedJsonException.class, () -> new JsonReader(reader(nonAsciiDigits)).nextLong());
+    assertThrows(
+        MalformedJsonException.class,
+        () -> new JsonReader(reader('"' + nonAsciiDigits + '"')).nextInt());
+    assertThrows(
+        MalformedJsonException.class,
+        () -> new JsonReader(reader('"' + nonAsciiDigits + '"')).nextLong());
+  }
+
+  @Test
   public void testNumberWithOctalPrefix() throws IOException {
     String number = "01";
     String expectedLocation = "line 1 column 1 path $";
@@ -828,6 +852,9 @@ public final class JsonReaderTest {
     assertNotANumber("-.0");
     assertNotANumber(".0e1");
     assertNotANumber("-.0e1");
+
+    // non-ASCII digits (these are full-width digits)
+    assertNotANumber("１２.３");
   }
 
   private static void assertNotANumber(String s) throws IOException {

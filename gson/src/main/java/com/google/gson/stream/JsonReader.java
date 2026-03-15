@@ -1091,6 +1091,7 @@ public class JsonReader implements Closeable {
         peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
       }
       try {
+        validateAscii(peekedString);
         long result = Long.parseLong(peekedString);
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
@@ -1333,6 +1334,7 @@ public class JsonReader implements Closeable {
         peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
       }
       try {
+        validateAscii(peekedString);
         result = Integer.parseInt(peekedString);
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
@@ -1851,6 +1853,14 @@ public class JsonReader implements Closeable {
 
     // we consumed a security token!
     pos += 5;
+  }
+
+  private void validateAscii(String s) throws MalformedJsonException {
+    for (int i = 0; i < s.length(); i++) {
+      if (s.charAt(i) > 127) {
+        throw syntaxError("String contains non-ASCII characters: " + s);
+      }
+    }
   }
 
   static {
