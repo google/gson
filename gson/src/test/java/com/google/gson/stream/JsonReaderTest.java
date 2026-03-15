@@ -747,7 +747,10 @@ public final class JsonReaderTest {
     assertThat(new JsonReader(reader('"' + asciiDigits + '"')).nextInt()).isEqualTo(123);
     assertThat(new JsonReader(reader('"' + asciiDigits + '"')).nextLong()).isEqualTo(123L);
 
-    // These should not work
+    // Integer.parseInt happily accepts non-ASCII digits...
+    assertThat(Integer.parseInt(nonAsciiDigits)).isEqualTo(123);
+
+    // ...but nevertheless these should not work
     assertThrows(
         MalformedJsonException.class, () -> new JsonReader(reader(nonAsciiDigits)).nextInt());
     assertThrows(
