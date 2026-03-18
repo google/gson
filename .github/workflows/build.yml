@@ -48,6 +48,13 @@ jobs:
       - name: Build with Maven
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
         run: mvn verify javadoc:jar ${{ matrix.extra-mvn-args || '' }}
+      - name: Upload coverage to Qlty
+        if: matrix.java == 17
+        uses: qltysh/qlty-action/coverage@v2
+        with:
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+          files: gson/target/site/jacoco/jacoco.xml
+          add-prefix: gson/
 
   # Build a subset of the Gson API, see also https://github.com/google/gson/pull/2946
   build-gson-subset:
