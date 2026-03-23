@@ -26,6 +26,7 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Type adapters for {@code java.time} types.
@@ -393,7 +394,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
   static final TypeAdapterFactory JAVA_TIME_FACTORY =
       new TypeAdapterFactory() {
         @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+        public <T> @Nullable TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
           Class<? super T> rawType = typeToken.getRawType();
           if (!rawType.getName().startsWith("java.time.")) {
             // Immediately return null so we don't load all these classes when nobody's doing

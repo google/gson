@@ -27,6 +27,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Given a type T, looks for the annotation {@link JsonAdapter} and uses an instance of the
@@ -37,7 +38,7 @@ import java.util.concurrent.ConcurrentMap;
 public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapterFactory {
   private static class DummyTypeAdapterFactory implements TypeAdapterFactory {
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public <T> @Nullable TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       throw new AssertionError("Factory should not be used");
     }
   }

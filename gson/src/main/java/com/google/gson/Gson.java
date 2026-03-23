@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This is the main class for using Gson. Gson is typically used by first constructing a Gson
@@ -148,7 +149,7 @@ public final class Gson {
    * TypeAdapter} as value.
    */
   @SuppressWarnings("ThreadLocalUsage")
-  private final ThreadLocal<Map<TypeToken<?>, TypeAdapter<?>>> threadLocalAdapterResults =
+  private final ThreadLocal<@Nullable Map<TypeToken<?>, TypeAdapter<?>>> threadLocalAdapterResults =
       new ThreadLocal<>();
 
   private final ConcurrentMap<TypeToken<?>, TypeAdapter<?>> typeTokenCache =
@@ -167,7 +168,7 @@ public final class Gson {
   final boolean generateNonExecutableJson;
   final boolean htmlSafe;
   final FormattingStyle formattingStyle;
-  final Strictness strictness;
+  final @Nullable Strictness strictness;
   final boolean serializeSpecialFloatingPointValues;
   final boolean useJdkUnsafe;
   final String datePattern;
@@ -493,7 +494,7 @@ public final class Gson {
    * @since 1.4
    * @see #toJsonTree(Object, Type)
    */
-  public JsonElement toJsonTree(Object src) {
+  public JsonElement toJsonTree(@Nullable Object src) {
     if (src == null) {
       return JsonNull.INSTANCE;
     }
@@ -518,7 +519,7 @@ public final class Gson {
    * @since 1.4
    * @see #toJsonTree(Object)
    */
-  public JsonElement toJsonTree(Object src, Type typeOfSrc) {
+  public JsonElement toJsonTree(@Nullable Object src, Type typeOfSrc) {
     JsonTreeWriter writer = new JsonTreeWriter();
     toJson(src, typeOfSrc, writer);
     return writer.get();
@@ -539,7 +540,7 @@ public final class Gson {
    * @see #toJson(Object, Appendable)
    * @see #toJson(Object, Type)
    */
-  public String toJson(Object src) {
+  public String toJson(@Nullable Object src) {
     if (src == null) {
       return toJson(JsonNull.INSTANCE);
     }
@@ -564,7 +565,7 @@ public final class Gson {
    * @see #toJson(Object, Type, Appendable)
    * @see #toJson(Object)
    */
-  public String toJson(Object src, Type typeOfSrc) {
+  public String toJson(@Nullable Object src, Type typeOfSrc) {
     StringBuilder writer = new StringBuilder();
     toJson(src, typeOfSrc, writer);
     return writer.toString();
@@ -586,7 +587,7 @@ public final class Gson {
    * @see #toJson(Object)
    * @see #toJson(Object, Type, Appendable)
    */
-  public void toJson(Object src, Appendable writer) throws JsonIOException {
+  public void toJson(@Nullable Object src, Appendable writer) throws JsonIOException {
     if (src != null) {
       toJson(src, src.getClass(), writer);
     } else {
@@ -614,7 +615,8 @@ public final class Gson {
    * @see #toJson(Object, Type)
    * @see #toJson(Object, Appendable)
    */
-  public void toJson(Object src, Type typeOfSrc, Appendable writer) throws JsonIOException {
+  public void toJson(@Nullable Object src, Type typeOfSrc, Appendable writer)
+      throws JsonIOException {
     try {
       JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
       toJson(src, typeOfSrc, jsonWriter);
@@ -644,7 +646,8 @@ public final class Gson {
    * @param writer Writer to which the JSON representation of src needs to be written
    * @throws JsonIOException if there was a problem writing to the writer
    */
-  public void toJson(Object src, Type typeOfSrc, JsonWriter writer) throws JsonIOException {
+  public void toJson(@Nullable Object src, Type typeOfSrc, JsonWriter writer)
+      throws JsonIOException {
     @SuppressWarnings("unchecked")
     TypeAdapter<Object> adapter = (TypeAdapter<Object>) getAdapter(TypeToken.get(typeOfSrc));
 
@@ -682,7 +685,7 @@ public final class Gson {
    * @return JSON String representation of the tree.
    * @since 1.4
    */
-  public String toJson(JsonElement jsonElement) {
+  public String toJson(@Nullable JsonElement jsonElement) {
     StringBuilder writer = new StringBuilder();
     toJson(jsonElement, writer);
     return writer.toString();
@@ -696,7 +699,7 @@ public final class Gson {
    * @throws JsonIOException if there was a problem writing to the writer
    * @since 1.4
    */
-  public void toJson(JsonElement jsonElement, Appendable writer) throws JsonIOException {
+  public void toJson(@Nullable JsonElement jsonElement, Appendable writer) throws JsonIOException {
     try {
       JsonWriter jsonWriter = newJsonWriter(Streams.writerForAppendable(writer));
       toJson(jsonElement, jsonWriter);
@@ -725,7 +728,7 @@ public final class Gson {
    * @param writer the JSON writer to which the provided element will be written
    * @throws JsonIOException if there was a problem writing to the writer
    */
-  public void toJson(JsonElement jsonElement, JsonWriter writer) throws JsonIOException {
+  public void toJson(@Nullable JsonElement jsonElement, JsonWriter writer) throws JsonIOException {
     Strictness oldStrictness = writer.getStrictness();
     boolean oldHtmlSafe = writer.isHtmlSafe();
     boolean oldSerializeNulls = writer.getSerializeNulls();
@@ -824,7 +827,8 @@ public final class Gson {
    * @see #fromJson(Reader, Class)
    * @see #fromJson(String, TypeToken)
    */
-  public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
+  public <T> @Nullable T fromJson(@Nullable String json, Class<T> classOfT)
+      throws JsonSyntaxException {
     return fromJson(json, TypeToken.get(classOfT));
   }
 
@@ -853,7 +857,7 @@ public final class Gson {
    * @see #fromJson(String, TypeToken)
    */
   @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-  public <T> T fromJson(String json, Type typeOfT) throws JsonSyntaxException {
+  public <T> @Nullable T fromJson(@Nullable String json, Type typeOfT) throws JsonSyntaxException {
     return (T) fromJson(json, TypeToken.get(typeOfT));
   }
 
@@ -883,7 +887,8 @@ public final class Gson {
    * @see #fromJson(String, Class)
    * @since 2.10
    */
-  public <T> T fromJson(String json, TypeToken<T> typeOfT) throws JsonSyntaxException {
+  public <T> @Nullable T fromJson(@Nullable String json, TypeToken<T> typeOfT)
+      throws JsonSyntaxException {
     if (json == null) {
       return null;
     }
@@ -914,7 +919,7 @@ public final class Gson {
    * @see #fromJson(String, Class)
    * @see #fromJson(Reader, TypeToken)
    */
-  public <T> T fromJson(Reader json, Class<T> classOfT)
+  public <T> @Nullable T fromJson(Reader json, Class<T> classOfT)
       throws JsonSyntaxException, JsonIOException {
     return fromJson(json, TypeToken.get(classOfT));
   }
@@ -945,7 +950,8 @@ public final class Gson {
    * @see #fromJson(Reader, TypeToken)
    */
   @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-  public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {
+  public <T> @Nullable T fromJson(Reader json, Type typeOfT)
+      throws JsonIOException, JsonSyntaxException {
     return (T) fromJson(json, TypeToken.get(typeOfT));
   }
 
@@ -975,7 +981,7 @@ public final class Gson {
    * @see #fromJson(Reader, Class)
    * @since 2.10
    */
-  public <T> T fromJson(Reader json, TypeToken<T> typeOfT)
+  public <T> @Nullable T fromJson(Reader json, TypeToken<T> typeOfT)
       throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = newJsonReader(json);
     T object = fromJson(jsonReader, typeOfT);
@@ -1020,7 +1026,7 @@ public final class Gson {
    * @see #fromJson(JsonReader, TypeToken)
    */
   @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-  public <T> T fromJson(JsonReader reader, Type typeOfT)
+  public <T> @Nullable T fromJson(JsonReader reader, Type typeOfT)
       throws JsonIOException, JsonSyntaxException {
     return (T) fromJson(reader, TypeToken.get(typeOfT));
   }
@@ -1061,7 +1067,7 @@ public final class Gson {
    * @see #fromJson(JsonReader, Type)
    * @since 2.10
    */
-  public <T> T fromJson(JsonReader reader, TypeToken<T> typeOfT)
+  public <T> @Nullable T fromJson(JsonReader reader, TypeToken<T> typeOfT)
       throws JsonIOException, JsonSyntaxException {
     boolean isEmpty = true;
     Strictness oldStrictness = reader.getStrictness();
@@ -1133,7 +1139,8 @@ public final class Gson {
    * @see #fromJson(Reader, Class)
    * @see #fromJson(JsonElement, TypeToken)
    */
-  public <T> T fromJson(JsonElement json, Class<T> classOfT) throws JsonSyntaxException {
+  public <T> @Nullable T fromJson(@Nullable JsonElement json, Class<T> classOfT)
+      throws JsonSyntaxException {
     return fromJson(json, TypeToken.get(classOfT));
   }
 
@@ -1160,7 +1167,8 @@ public final class Gson {
    * @see #fromJson(JsonElement, TypeToken)
    */
   @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-  public <T> T fromJson(JsonElement json, Type typeOfT) throws JsonSyntaxException {
+  public <T> @Nullable T fromJson(@Nullable JsonElement json, Type typeOfT)
+      throws JsonSyntaxException {
     return (T) fromJson(json, TypeToken.get(typeOfT));
   }
 
@@ -1186,14 +1194,15 @@ public final class Gson {
    * @see #fromJson(JsonElement, Class)
    * @since 2.10
    */
-  public <T> T fromJson(JsonElement json, TypeToken<T> typeOfT) throws JsonSyntaxException {
+  public <T> @Nullable T fromJson(@Nullable JsonElement json, TypeToken<T> typeOfT)
+      throws JsonSyntaxException {
     if (json == null) {
       return null;
     }
     return fromJson(new JsonTreeReader(json), typeOfT);
   }
 
-  private static void assertFullConsumption(Object obj, JsonReader reader) {
+  private static void assertFullConsumption(@Nullable Object obj, JsonReader reader) {
     try {
       if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
         throw new JsonSyntaxException("JSON document was not fully consumed.");
@@ -1214,7 +1223,7 @@ public final class Gson {
    * @see Gson#threadLocalAdapterResults
    */
   static class FutureTypeAdapter<T> extends SerializationDelegatingTypeAdapter<T> {
-    private TypeAdapter<T> delegate = null;
+    private @Nullable TypeAdapter<T> delegate = null;
 
     public void setDelegate(TypeAdapter<T> typeAdapter) {
       if (delegate != null) {
