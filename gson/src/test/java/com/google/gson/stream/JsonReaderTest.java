@@ -701,6 +701,38 @@ public final class JsonReaderTest {
     reader.endArray();
   }
 
+  /** Regression test for https://github.com/google/gson/issues/1564 */
+  @Test
+  public void testNextDoubleNumberFormatExceptionContainsLocation() throws IOException {
+    JsonReader reader = new JsonReader(reader("[\"\" ]"));
+    reader.setStrictness(Strictness.LENIENT);
+    reader.beginArray();
+    NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextDouble());
+    assertThat(e).hasMessageThat().contains("path $[0]");
+  }
+
+  /** Regression test for https://github.com/google/gson/issues/1564 */
+  @Test
+  public void testNextIntNumberFormatExceptionContainsLocation() throws IOException {
+    JsonReader reader = new JsonReader(reader("{\"x\": \"\"}"));
+    reader.setStrictness(Strictness.LENIENT);
+    reader.beginObject();
+    reader.nextName();
+    NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextInt());
+    assertThat(e).hasMessageThat().contains("path $.x");
+  }
+
+  /** Regression test for https://github.com/google/gson/issues/1564 */
+  @Test
+  public void testNextLongNumberFormatExceptionContainsLocation() throws IOException {
+    JsonReader reader = new JsonReader(reader("{\"y\": \"\"}"));
+    reader.setStrictness(Strictness.LENIENT);
+    reader.beginObject();
+    reader.nextName();
+    NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextLong());
+    assertThat(e).hasMessageThat().contains("path $.y");
+  }
+
   @Test
   public void testStrictNonFiniteDoublesWithSkipValue() throws IOException {
     String json = "[NaN]";
