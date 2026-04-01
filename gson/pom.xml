@@ -50,7 +50,7 @@
     <dependency>
       <groupId>com.google.errorprone</groupId>
       <artifactId>error_prone_annotations</artifactId>
-      <version>2.47.0</version>
+      <version>2.48.0</version>
     </dependency>
 
     <dependency>
@@ -216,7 +216,7 @@
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-core</artifactId>
-            <version>9.3.0</version>
+            <version>9.3.2</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -235,7 +235,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <id>pre-obfuscate-class</id>

@@ -84,7 +84,7 @@
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-core</artifactId>
-            <version>9.3.0</version>
+            <version>9.3.2</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -115,7 +115,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.6.1</version>
+        <version>3.6.2</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -189,7 +189,7 @@
               but it appears that can be ignored -->
             <groupId>com.android.tools</groupId>
             <artifactId>r8</artifactId>
-            <version>9.0.32</version>
+            <version>9.1.31</version>
           </dependency>
         </dependencies>
       </plugin>
