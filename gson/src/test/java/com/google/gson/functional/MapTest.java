@@ -699,8 +699,7 @@ public class MapTest {
     // Duplicate key where the first value is null; map.put() returns null (the previous value)
     // so the old `if (replaced != null)` check failed to detect the duplicate
     var e =
-        assertThrows(
-            JsonSyntaxException.class, () -> gson.fromJson("{\"a\":null,\"a\":1}", type));
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{\"a\":null,\"a\":1}", type));
     assertThat(e).hasMessageThat().isEqualTo("duplicate key: a");
   }
 
