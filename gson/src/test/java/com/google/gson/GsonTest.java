@@ -637,4 +637,28 @@ public final class GsonTest {
       this(NO_ARG_CONSTRUCTOR_VALUE);
     }
   }
+
+  /**
+   * Gson.fromJson should reject trailing data after a top-level JSON null, just as it does for
+   * non-null values. Previously, assertFullConsumption skipped the reader.peek() check when the
+   * deserialized object was null, silently ignoring any trailing content.
+   */
+  @Test
+  public void testFromJsonRejectsTrailingDataAfterNull_String() {
+    Gson gson = new Gson();
+    // Non-null with trailing data already throws — verify that baseline
+    assertThrows(
+        JsonSyntaxException.class, () -> gson.fromJson("\"hello\" trailing", String.class));
+    // Null with trailing data should also throw, but currently doesn't
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("null trailing", String.class));
+  }
+
+  @Test
+  public void testFromJsonRejectsTrailingDataAfterNull_Reader() {
+    Gson gson = new Gson();
+    // Null with trailing data through the Reader overload
+    assertThrows(
+        JsonSyntaxException.class,
+        () -> gson.fromJson(new StringReader("null trailing"), String.class));
+  }
 }
