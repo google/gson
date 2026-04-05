@@ -649,7 +649,7 @@ public final class GsonTest {
     // Non-null with trailing data already throws — verify that baseline
     assertThrows(
         JsonSyntaxException.class, () -> gson.fromJson("\"hello\" trailing", String.class));
-    // Null with trailing data should also throw, but currently doesn't
+    // Null with trailing data should also throw, but previously didn't
     assertThrows(JsonSyntaxException.class, () -> gson.fromJson("null trailing", String.class));
   }
 
