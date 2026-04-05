@@ -207,7 +207,7 @@ public class JsonParserTest {
     assertThrows(
         JsonSyntaxException.class,
         () -> JsonParser.parseReader(new StringReader("\"hello\" trailing")));
-    // Null with trailing data should also throw, but currently doesn't
+    // Null with trailing data should also throw, but previously didn't
     assertThrows(
         JsonSyntaxException.class, () -> JsonParser.parseReader(new StringReader("null trailing")));
   }
