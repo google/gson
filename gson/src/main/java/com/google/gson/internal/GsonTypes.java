@@ -576,12 +576,9 @@ public final class GsonTypes {
       }
       return stringBuilder.append(">").toString();
     }
-
-    private static final long serialVersionUID = 0;
   }
 
   private static final class GenericArrayTypeImpl implements GenericArrayType {
-    @SuppressWarnings("serial")
     private final Type componentType;
 
     GenericArrayTypeImpl(Type componentType) {
@@ -608,8 +605,6 @@ public final class GsonTypes {
     public String toString() {
       return typeToString(componentType) + "[]";
     }
-
-    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -619,10 +614,8 @@ public final class GsonTypes {
    * be Object.class.
    */
   private static final class WildcardTypeImpl implements WildcardType {
-    @SuppressWarnings("serial")
     private final Type upperBound;
 
-    @SuppressWarnings("serial")
     private final Type lowerBound;
 
     WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
@@ -682,7 +675,5 @@ public final class GsonTypes {
         return "? extends " + typeToString(upperBound);
       }
     }
-
-    private static final long serialVersionUID = 0;
   }
 }
