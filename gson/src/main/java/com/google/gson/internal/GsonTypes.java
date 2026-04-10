@@ -120,7 +120,7 @@ public final class GsonTypes {
       return new WildcardTypeImpl(w.getUpperBounds(), w.getLowerBounds());
 
     } else {
-      // type is either serializable as-is or unsupported
+      // unsupported type, return as is
       return type;
     }
   }
