@@ -18,7 +18,6 @@ package com.google.gson.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.GenericDeclaration;
@@ -52,7 +51,7 @@ public final class GsonTypes {
    * Returns a new parameterized type, applying {@code typeArguments} to {@code rawType} and
    * enclosed by {@code ownerType}.
    *
-   * @return a {@link java.io.Serializable serializable} parameterized type.
+   * @return a parameterized type.
    */
   public static ParameterizedType newParameterizedTypeWithOwner(
       Type ownerType, Class<?> rawType, Type... typeArguments) {
@@ -62,7 +61,7 @@ public final class GsonTypes {
   /**
    * Returns an array type whose elements are all instances of {@code componentType}.
    *
-   * @return a {@link java.io.Serializable serializable} generic array type.
+   * @return a generic array type.
    */
   public static GenericArrayType arrayOf(Type componentType) {
     return new GenericArrayTypeImpl(componentType);
@@ -100,7 +99,7 @@ public final class GsonTypes {
 
   /**
    * Returns a type that is functionally equal but not necessarily equal according to {@link
-   * Object#equals(Object) Object.equals()}. The returned type is {@link java.io.Serializable}.
+   * Object#equals(Object) Object.equals()}.
    */
   public static Type canonicalize(Type type) {
     if (type instanceof Class) {
@@ -506,18 +505,11 @@ public final class GsonTypes {
     return false;
   }
 
-  // Here and below we put @SuppressWarnings("serial") on fields of type `Type`. Recent Java
-  // compilers complain that the declared type is not Serializable. But in this context we go out of
-  // our way to ensure that the Type in question is either Class (which is serializable) or one of
-  // the nested Type implementations here (which are also serializable).
-  private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
-    @SuppressWarnings("serial")
+  private static final class ParameterizedTypeImpl implements ParameterizedType {
     private final Type ownerType;
 
-    @SuppressWarnings("serial")
     private final Type rawType;
 
-    @SuppressWarnings("serial")
     private final Type[] typeArguments;
 
     ParameterizedTypeImpl(Type ownerType, Class<?> rawType, Type... typeArguments) {
@@ -588,7 +580,7 @@ public final class GsonTypes {
     private static final long serialVersionUID = 0;
   }
 
-  private static final class GenericArrayTypeImpl implements GenericArrayType, Serializable {
+  private static final class GenericArrayTypeImpl implements GenericArrayType {
     @SuppressWarnings("serial")
     private final Type componentType;
 
@@ -626,7 +618,7 @@ public final class GsonTypes {
    * https://bugs.openjdk.java.net/browse/JDK-8250660. If a lower bound is set, the upper bound must
    * be Object.class.
    */
-  private static final class WildcardTypeImpl implements WildcardType, Serializable {
+  private static final class WildcardTypeImpl implements WildcardType {
     @SuppressWarnings("serial")
     private final Type upperBound;
 
