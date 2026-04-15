@@ -195,4 +195,19 @@ public class JsonParserTest {
     // Original strictness was kept
     assertThat(reader.getStrictness()).isEqualTo(strictness);
   }
+
+  // Tests for https://github.com/google/gson/issues/3008 - trailing data after top-level null
+  @Test
+  public void testParseTrailingDataAfterNull() {
+    assertThrows(JsonSyntaxException.class, () -> JsonParser.parseString("null trailing"));
+    assertThrows(JsonSyntaxException.class, () -> JsonParser.parseString("nulltrailing"));
+    assertThrows(JsonSyntaxException.class, () -> JsonParser.parseString(" null  extra"));
+  }
+
+  @Test
+  public void testFromJsonTrailingDataAfterNull() {
+    Gson gson = new Gson();
+    StringReader reader = new StringReader("null trailing");
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson(reader, String.class));
+  }
 }
