@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -218,5 +219,35 @@ public final class LinkedTreeMapTest {
     @SuppressWarnings("unchecked")
     Map<String, Integer> deserialized = (Map<String, Integer>) objIn.readObject();
     assertThat(deserialized).isEqualTo(Collections.singletonMap("a", 1));
+  }
+
+  @Test
+  public void testClearInvalidatesExistingIterator() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("key1", "value1");
+    map.put("key2", "value2");
+    map.put("key3", "value3");
+
+    Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
+    assertThat(iterator.hasNext()).isTrue();
+
+    map.clear();
+
+    assertThrows(ConcurrentModificationException.class, iterator::next);
+  }
+
+  @Test
+  public void testClearInvalidatesExistingKeySetIterator() {
+    LinkedTreeMap<String, String> map = new LinkedTreeMap<>();
+    map.put("key1", "value1");
+    map.put("key2", "value2");
+    map.put("key3", "value3");
+
+    Iterator<String> iterator = map.keySet().iterator();
+    assertThat(iterator.hasNext()).isTrue();
+
+    map.clear();
+
+    assertThrows(ConcurrentModificationException.class, iterator::next);
   }
 }
