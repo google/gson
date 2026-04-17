@@ -351,9 +351,8 @@ public enum LegacyProtoTypeAdapterFactory implements TypeAdapterFactory {
           throw new AssertionError("Should not happen");
         case GROUP:
           throw new JsonSyntaxException("Groups are not supported");
-        default:
-          throw new AssertionError("Unexpected type: " + fieldDescriptor.getType());
       }
+      throw new AssertionError("Unexpected type: " + fieldDescriptor.getType());
     }
 
     private List<?> readRepeatedField(JsonReader in, FieldDescriptor fieldDescriptor)
