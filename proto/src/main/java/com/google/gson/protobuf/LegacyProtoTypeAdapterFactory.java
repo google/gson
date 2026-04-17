@@ -203,7 +203,7 @@ public enum LegacyProtoTypeAdapterFactory implements TypeAdapterFactory {
     // The field `private int bitField0_` tracks presence for the first 32 fields that have
     // presence, with bit 0 corresponding to the first field, and so on. The field `private int
     // bitField1_` tracks presence for the next 32 fields with presence, and so on.
-    private static final Pattern BIT_FIELD_PATTERN = Pattern.compile("bitField(\\d+)_");
+    private static final Pattern BIT_FIELD_PATTERN = Pattern.compile("bitField(\\d{1,9})_");
 
     @Override
     public T read(JsonReader in) throws IOException {
