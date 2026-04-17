@@ -43,6 +43,7 @@ import com.google.gson.protobuf2.TestAllTypesProto2;
 import com.google.gson.protobuf2.TestManyOptionals;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.google.protobuf.Duration;
 import com.google.protobuf.Message;
 import com.google.protobuf.NullValue;
 import com.google.testing.junit.testparameterinjector.TestParameter;
@@ -69,16 +70,12 @@ public final class LegacyProtoTypeAdapterFactoryTest {
           .put("TestDuration with no Duration", TestDuration.newBuilder().build())
           .put(
               "TestDuration with empty Duration",
-              TestDuration.newBuilder()
-                  .setDurationValue(com.google.protobuf.Duration.getDefaultInstance())
-                  .build())
+              TestDuration.newBuilder().setDurationValue(Duration.getDefaultInstance()).build())
           .put(
               "TestDuration with large Duration",
               TestDuration.newBuilder()
                   .setDurationValue(
-                      com.google.protobuf.Duration.newBuilder()
-                          .setSeconds(300_000_000_000L)
-                          .setNanos(67890))
+                      Duration.newBuilder().setSeconds(300_000_000_000L).setNanos(67890))
                   .build())
           .put("ManyOptionals with nothing set", TestManyOptionals.getDefaultInstance())
           .put(
