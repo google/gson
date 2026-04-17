@@ -48,10 +48,10 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link TypeAdapterFactory} that supports the broken JSON mapping that Gson users get for
- * protobuf messages if they forget to register a proper handler such as {@link
- * ProtoTypeAdapter}. <b>This class is a migration aid.</b> If your project currently
- * uses it, you should consider migrating to {@link ProtoTypeAdapter} or similar. That does
- * <i>change</i> the JSON encoding, though, so there can be compatibility concerns.
+ * protobuf messages if they forget to register a proper handler such as {@link ProtoTypeAdapter}.
+ * <b>This class is a migration aid.</b> If your project currently uses it, you should consider
+ * migrating to {@link ProtoTypeAdapter} or similar. That does <i>change</i> the JSON encoding,
+ * though, so there can be compatibility concerns.
  *
  * <p>The default JSON mapping for protobuf messages is derived by examining the private fields of
  * the generated protobuf classes. That's obviously very fragile, and leads to ugly JSON that is not

@@ -86,6 +86,5 @@ final class TestMessages {
     return builder.build();
   }
 
-  private TestMessages() {
-  }
+  private TestMessages() {}
 }
