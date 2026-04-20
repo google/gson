@@ -44,7 +44,7 @@ Maven:
 </dependency>
 ```
 
-[Gson jar downloads](https://maven-badges.herokuapp.com/maven-central/com.google.code.gson/gson) are available from Maven Central.
+[Gson jar downloads](https://central.sonatype.com/artifact/com.google.code.gson/gson) are available from Maven Central.
 
 ![Build Status](https://github.com/google/gson/actions/workflows/build.yml/badge.svg)
 
