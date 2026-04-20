@@ -47,6 +47,7 @@ import java.math.BigInteger;
  *   <li>{@link Gson#fromJson(java.io.Reader, Class) Gson.fromJson(..., JsonElement.class)}<br>
  *       It is possible to directly specify a {@code JsonElement} subclass, for example:
  *       <pre>
+ * Gson gson = new Gson();
  * JsonObject jsonObject = gson.fromJson("{}", JsonObject.class);
  * </pre>
  * </ul>
@@ -58,6 +59,7 @@ import java.math.BigInteger;
  * Gson} instance and then use it for conversion from and to JSON:
  *
  * <pre>{@code
+ * Gson gson = new Gson();
  * TypeAdapter<JsonElement> adapter = gson.getAdapter(JsonElement.class);
  *
  * JsonElement value = adapter.fromJson("{}");
@@ -73,11 +75,13 @@ import java.math.BigInteger;
  * <ul>
  *   <li>{@link Gson#fromJson(JsonElement, Class) Gson.fromJson(JsonElement, ...)}, for example:
  *       <pre>
+ * Gson gson = new Gson();
  * JsonObject jsonObject = ...;
  * MyClass myObj = gson.fromJson(jsonObject, MyClass.class);
  * </pre>
  *   <li>{@link Gson#toJsonTree(Object)}, for example:
  *       <pre>
+ * Gson gson = new Gson();
  * MyClass myObj = ...;
  * JsonElement json = gson.toJsonTree(myObj);
  * </pre>

@@ -66,6 +66,7 @@ import java.lang.annotation.Target;
  * example:
  *
  * <pre>
+ *   Gson gson = new Gson();
  *   MyClass target = gson.fromJson("{'name1':'v1'}", MyClass.class);
  *   assertEquals("v1", target.b);
  *   target = gson.fromJson("{'name2':'v2'}", MyClass.class);
