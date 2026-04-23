@@ -19,7 +19,7 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.13.3-SNAPSHOT</version>
+    <version>2.14.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>proto</artifactId>
@@ -29,9 +29,9 @@
   <properties>
     <!-- Make the build reproducible, see root `pom.xml` -->
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
-    <project.build.outputTimestamp>2025-09-10T20:39:14Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-04-23T19:00:38Z</project.build.outputTimestamp>
 
-    <protobufVersion>4.33.5</protobufVersion>
+    <protobufVersion>4.34.0</protobufVersion>
   </properties>
 
   <licenses>
@@ -70,6 +70,18 @@
       <artifactId>truth</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.truth.extensions</groupId>
+      <artifactId>truth-proto-extension</artifactId>
+      <version>1.4.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.testparameterinjector</groupId>
+      <artifactId>test-parameter-injector</artifactId>
+      <version>1.22</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -79,7 +91,7 @@
       <plugin>
         <groupId>io.github.ascopes</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <version>4.1.3</version>
+        <version>5.0.2</version>
         <configuration>
           <skip>${maven.test.skip}</skip>
           <protoc>${protobufVersion}</protoc>

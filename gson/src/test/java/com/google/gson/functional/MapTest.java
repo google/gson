@@ -694,6 +694,25 @@ public class MapTest {
   }
 
   @Test
+  public void testMapDeserializationWithDuplicateKeysNullFirstValue() {
+    Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+    // Duplicate key where the first value is null; map.put() returns null (the previous value)
+    // so the old `if (replaced != null)` check failed to detect the duplicate
+    var e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{\"a\":null,\"a\":1}", type));
+    assertThat(e).hasMessageThat().isEqualTo("duplicate key: a");
+  }
+
+  @Test
+  public void testMapDeserializationWithDuplicateKeysBothNull() {
+    Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+    var e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("{\"a\":null,\"a\":null}", type));
+    assertThat(e).hasMessageThat().isEqualTo("duplicate key: a");
+  }
+
+  @Test
   public void testSerializeMapOfMaps() {
     Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
     Map<String, Map<String, String>> map =
