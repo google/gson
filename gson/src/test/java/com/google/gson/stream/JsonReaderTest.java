@@ -717,7 +717,7 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("{\"x\": \"\"}"));
     reader.setStrictness(Strictness.LENIENT);
     reader.beginObject();
-    reader.nextName();
+    var unused = reader.nextName();
     NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextInt());
     assertThat(e).hasMessageThat().contains("path $.x");
   }
@@ -728,7 +728,7 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader("{\"y\": \"\"}"));
     reader.setStrictness(Strictness.LENIENT);
     reader.beginObject();
-    reader.nextName();
+    var unused = reader.nextName();
     NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextLong());
     assertThat(e).hasMessageThat().contains("path $.y");
   }
