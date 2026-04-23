@@ -54,7 +54,7 @@ jobs:
           mvn package japicmp:cmp --fail-at-end -Dmaven.test.skip --projects '!extras,!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
 
       - name: Upload API differences artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
         # Run on workflow success (in that case differences report might include added methods and classes)
         # or when API compatibility check failed
         if: success() || ( failure() && steps.check-compatibility.outcome == 'failure' )
