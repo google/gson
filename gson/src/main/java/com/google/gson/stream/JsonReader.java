@@ -1054,8 +1054,11 @@ public class JsonReader implements Closeable {
     try {
       result = Double.parseDouble(peekedString);
     } catch (NumberFormatException e) {
-      throw new NumberFormatException(
-          "Expected a double but was " + peekedString + locationString());
+      NumberFormatException rethrown =
+          new NumberFormatException(
+              "Expected a double but was " + peekedString + locationString());
+      rethrown.initCause(e);
+      throw rethrown;
     }
     if (strictness != Strictness.LENIENT && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw syntaxError("JSON forbids NaN and infinities: " + result);
@@ -1114,7 +1117,11 @@ public class JsonReader implements Closeable {
     try {
       asDouble = Double.parseDouble(peekedString);
     } catch (NumberFormatException e) {
-      throw new NumberFormatException("Expected a long but was " + peekedString + locationString());
+      NumberFormatException rethrown =
+          new NumberFormatException(
+              "Expected a long but was " + peekedString + locationString());
+      rethrown.initCause(e);
+      throw rethrown;
     }
     long result = (long) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'long'.
@@ -1362,7 +1369,11 @@ public class JsonReader implements Closeable {
     try {
       asDouble = Double.parseDouble(peekedString);
     } catch (NumberFormatException e) {
-      throw new NumberFormatException("Expected an int but was " + peekedString + locationString());
+      NumberFormatException rethrown =
+          new NumberFormatException(
+              "Expected an int but was " + peekedString + locationString());
+      rethrown.initCause(e);
+      throw rethrown;
     }
     result = (int) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'int'.
