@@ -1055,8 +1055,7 @@ public class JsonReader implements Closeable {
       result = Double.parseDouble(peekedString);
     } catch (NumberFormatException e) {
       NumberFormatException rethrown =
-          new NumberFormatException(
-              "Expected a double but was " + peekedString + locationString());
+          new NumberFormatException("Expected a double but was " + peekedString + locationString());
       rethrown.initCause(e);
       throw rethrown;
     }
@@ -1118,8 +1117,7 @@ public class JsonReader implements Closeable {
       asDouble = Double.parseDouble(peekedString);
     } catch (NumberFormatException e) {
       NumberFormatException rethrown =
-          new NumberFormatException(
-              "Expected a long but was " + peekedString + locationString());
+          new NumberFormatException("Expected a long but was " + peekedString + locationString());
       rethrown.initCause(e);
       throw rethrown;
     }
@@ -1370,8 +1368,7 @@ public class JsonReader implements Closeable {
       asDouble = Double.parseDouble(peekedString);
     } catch (NumberFormatException e) {
       NumberFormatException rethrown =
-          new NumberFormatException(
-              "Expected an int but was " + peekedString + locationString());
+          new NumberFormatException("Expected an int but was " + peekedString + locationString());
       rethrown.initCause(e);
       throw rethrown;
     }
