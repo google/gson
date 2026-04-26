@@ -153,9 +153,10 @@ public class TypeAdapterRuntimeTypeWrapperTest {
   }
 
   /**
-   * When a {@link JsonDeserializer} is registered for Subclass (which only affects deserialization),
-   * and a custom {@link JsonSerializer} is registered for Base, then Gson should prefer the custom
-   * serializer for Base because the Subclass deserializer has no effect on serialization.
+   * When a {@link JsonDeserializer} is registered for Subclass (which only affects
+   * deserialization), and a custom {@link JsonSerializer} is registered for Base, then Gson should
+   * prefer the custom serializer for Base because the Subclass deserializer has no effect on
+   * serialization.
    */
   @Test
   public void testJsonDeserializer_SubclassWithBaseSerializer() {
