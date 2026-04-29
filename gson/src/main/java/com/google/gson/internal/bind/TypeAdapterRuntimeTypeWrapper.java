@@ -55,10 +55,7 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
       @SuppressWarnings("unchecked")
       TypeAdapter<T> runtimeTypeAdapter =
           (TypeAdapter<T>) context.getAdapter(TypeToken.get(runtimeType));
-      // For backward compatibility only check ReflectiveTypeAdapterFactory.Adapter here but not any
-      // other wrapping adapters, see
-      // https://github.com/google/gson/pull/1787#issuecomment-1222175189
-      if (!(runtimeTypeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter)) {
+      if (!isReflective(runtimeTypeAdapter)) {
         // The user registered a type adapter for the runtime type, so we will use that
         chosen = runtimeTypeAdapter;
       } else if (!isReflective(delegate)) {
