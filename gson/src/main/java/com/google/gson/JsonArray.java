@@ -364,7 +364,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * method calls {@link JsonElement#getAsCharacter()} on the element, therefore any of the
    * exceptions declared by that method can occur.
    *
-   * @return this element as a primitive short if it is single element array.
+   * @return this element as a character if it is single element array.
    * @throws IllegalStateException if the array is empty or has more than one element.
    * @deprecated This method is misleading, as it does not get this element as a char but rather as
    *     a string's first character.
