@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Use this builder to construct a {@link Gson} instance when you need to set configuration options
@@ -92,14 +93,14 @@ import java.util.concurrent.atomic.AtomicLongArray;
 public final class GsonBuilder {
   private static final boolean DEFAULT_JSON_NON_EXECUTABLE = false;
   // Strictness of `null` is the legacy mode where some Gson APIs are always lenient
-  private static final Strictness DEFAULT_STRICTNESS = null;
+  private static final @Nullable Strictness DEFAULT_STRICTNESS = null;
   private static final FormattingStyle DEFAULT_FORMATTING_STYLE = FormattingStyle.COMPACT;
   private static final boolean DEFAULT_ESCAPE_HTML = true;
   private static final boolean DEFAULT_SERIALIZE_NULLS = false;
   private static final boolean DEFAULT_COMPLEX_MAP_KEYS = false;
   private static final boolean DEFAULT_SPECIALIZE_FLOAT_VALUES = false;
   private static final boolean DEFAULT_USE_JDK_UNSAFE = true;
-  private static final String DEFAULT_DATE_PATTERN = null;
+  private static final @Nullable String DEFAULT_DATE_PATTERN = null;
   private static final FieldNamingStrategy DEFAULT_FIELD_NAMING_STRATEGY =
       FieldNamingPolicy.IDENTITY;
   private static final ToNumberStrategy DEFAULT_OBJECT_TO_NUMBER_STRATEGY = ToNumberPolicy.DOUBLE;
@@ -135,7 +136,7 @@ public final class GsonBuilder {
   final List<TypeAdapterFactory> hierarchyFactories = new ArrayList<>();
 
   boolean serializeNulls = DEFAULT_SERIALIZE_NULLS;
-  String datePattern = DEFAULT_DATE_PATTERN;
+  @Nullable String datePattern = DEFAULT_DATE_PATTERN;
   int dateStyle = DateFormat.DEFAULT;
   int timeStyle = DateFormat.DEFAULT;
   boolean complexMapKeySerialization = DEFAULT_COMPLEX_MAP_KEYS;
@@ -143,7 +144,7 @@ public final class GsonBuilder {
   boolean escapeHtmlChars = DEFAULT_ESCAPE_HTML;
   FormattingStyle formattingStyle = DEFAULT_FORMATTING_STYLE;
   boolean generateNonExecutableJson = DEFAULT_JSON_NON_EXECUTABLE;
-  Strictness strictness = DEFAULT_STRICTNESS;
+  @Nullable Strictness strictness = DEFAULT_STRICTNESS;
   boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
@@ -635,7 +636,7 @@ public final class GsonBuilder {
    * @since 1.2
    */
   @CanIgnoreReturnValue
-  public GsonBuilder setDateFormat(String pattern) {
+  public GsonBuilder setDateFormat(@Nullable String pattern) {
     if (pattern != null) {
       try {
         SimpleDateFormat unused = new SimpleDateFormat(pattern);
