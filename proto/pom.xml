@@ -31,7 +31,7 @@
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2026-04-23T19:00:38Z</project.build.outputTimestamp>
 
-    <protobufVersion>4.34.0</protobufVersion>
+    <protobufVersion>4.34.1</protobufVersion>
   </properties>
 
   <licenses>
@@ -57,7 +57,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.5.0-jre</version>
+      <version>33.6.0-jre</version>
     </dependency>
 
     <dependency>
@@ -91,7 +91,7 @@
       <plugin>
         <groupId>io.github.ascopes</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <version>5.0.2</version>
+        <version>5.1.3</version>
         <configuration>
           <skip>${maven.test.skip}</skip>
           <protoc>${protobufVersion}</protoc>
