@@ -214,7 +214,7 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.byteValue());
+            out.value((Number) value.byteValue());
           }
         }
       };
@@ -249,7 +249,7 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.shortValue());
+            out.value((Number) value.shortValue());
           }
         }
       };
@@ -277,7 +277,7 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.intValue());
+            out.value((Number) value.intValue());
           }
         }
       };
