@@ -423,6 +423,51 @@ public final class JsonWriterTest {
     assertThat(stringWriter.toString()).isEqualTo("[NaN,-Infinity,Infinity,Infinity]");
   }
 
+  /**
+   * Regression test for https://github.com/google/gson/issues/1736
+   *
+   * <p>When a non-finite value is rejected, the deferred name should not have been written yet, so
+   * the writer state remains consistent.
+   */
+  @Test
+  public void testNonFiniteValueDoesNotWriteDeferredName() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    jsonWriter.setSerializeNulls(false);
+    jsonWriter.beginObject();
+
+    // value(float) with NaN should not write the name
+    jsonWriter.name("a");
+    assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Float.NaN));
+    jsonWriter.nullValue(); // should be suppressed since serializeNulls=false
+
+    // value(double) with NaN should not write the name
+    jsonWriter.name("b");
+    assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.NaN));
+    jsonWriter.nullValue();
+
+    // value(double) with Infinity should not write the name
+    jsonWriter.name("c");
+    assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(Double.POSITIVE_INFINITY));
+    jsonWriter.nullValue();
+
+    // value(Number) with NaN should not write the name
+    jsonWriter.name("d");
+    assertThrows(
+        IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NaN)));
+    jsonWriter.nullValue();
+
+    // value(Number) with invalid number string should not write the name
+    jsonWriter.name("e");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> jsonWriter.value(new LazilyParsedNumber("not-a-num")));
+    jsonWriter.nullValue();
+
+    jsonWriter.endObject();
+    assertThat(stringWriter.toString()).isEqualTo("{}");
+  }
+
   @Test
   public void testFloats() throws IOException {
     StringWriter stringWriter = new StringWriter();
