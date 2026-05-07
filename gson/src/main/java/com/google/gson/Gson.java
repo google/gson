@@ -47,14 +47,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * This is the main class for using Gson. Gson is typically used by first constructing a Gson
- * instance and then invoking {@link #toJson(Object)} or {@link #fromJson(String, Class)} methods on
- * it. Gson instances are Thread-safe so you can reuse them freely across multiple threads.
+ * This is the main class for using Gson. Gson is typically used by first constructing a {@code
+ * Gson} instance and then invoking {@link #toJson(Object)} or {@link #fromJson(String, Class)}
+ * methods on it. {@code Gson} instances are Thread-safe so you can reuse them freely across
+ * multiple threads.
  *
- * <p>You can create a Gson instance by invoking {@code new Gson()} if the default configuration is
- * all you need. You can also use {@link GsonBuilder} to build a Gson instance with various
- * configuration options such as versioning support, pretty printing, custom newline, custom indent,
- * custom {@link JsonSerializer}s, {@link JsonDeserializer}s, and {@link InstanceCreator}s.
+ * <p>You can create a {@code Gson} instance by invoking {@link #Gson() new Gson()} if the default
+ * configuration is all you need. You can also use {@link GsonBuilder} to build a {@code Gson}
+ * instance with various configuration options such as versioning support, pretty printing, custom
+ * newline, custom indent, custom {@link JsonSerializer}s, {@link JsonDeserializer}s, and {@link
+ * InstanceCreator}s.
  *
  * <p>Here is an example of how Gson is used for a simple Class:
  *
@@ -88,6 +90,11 @@ import java.util.concurrent.ConcurrentMap;
  *
  * <p>See the <a href="https://github.com/google/gson/blob/main/UserGuide.md">Gson User Guide</a>
  * for a more complete set of examples.
+ *
+ * <p>When serializing or deserializing a type, {@code Gson} instances cache the type adapters they
+ * created for that type. It can therefore improve performance to reuse a single {@code Gson}
+ * instance (for example by storing it in a {@code static final} field), especially when relying on
+ * the built-in reflection-based adapter or when using custom type adapter factories.
  *
  * <h2 id="default-lenient">JSON Strictness handling</h2>
  *
