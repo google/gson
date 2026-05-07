@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2026 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.gson.internal.bind;
 
 import static java.lang.Math.toIntExact;
@@ -9,9 +24,9 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.bind.TypeAdapters.IntegerFieldsTypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -39,13 +54,20 @@ import java.time.ZonedDateTime;
  * is obviously fragile, and it also needs special {@code --add-opens} configuration with more
  * recent JDK versions. So here we freeze the representation that was current with JDK 21, in a way
  * that does not use reflection.
+ *
+ * <p>This class should not directly be used, instead the type adapter factory should be obtained
+ * from {@link TypeAdapters#javaTimeTypeAdapterFactory()}.
  */
-@IgnoreJRERequirement // Protected by a reflective check
+@IgnoreJRERequirement // Protected by a reflective check in `TypeAdapters`
 final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
 
   @Override
   public TypeAdapterFactory get() {
-    return JAVA_TIME_FACTORY;
+    String packageName = javaTimePackage();
+    if (packageName == null) {
+      return null;
+    }
+    return new AdapterFactory(packageName);
   }
 
   private static final TypeAdapter<Duration> DURATION =
@@ -91,7 +113,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         }
       };
 
-  public static final TypeAdapter<LocalTime> LOCAL_TIME =
+  private static final TypeAdapter<LocalTime> LOCAL_TIME =
       new IntegerFieldsTypeAdapter<LocalTime>("hour", "minute", "second", "nano") {
         @Override
         LocalTime create(long[] values) {
@@ -119,7 +141,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         LocalDate localDate = null;
         LocalTime localTime = null;
         in.beginObject();
-        while (in.peek() != JsonToken.END_OBJECT) {
+        while (in.hasNext()) {
           String name = in.nextName();
           switch (name) {
             case "date":
@@ -172,7 +194,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         in.beginObject();
         LocalDateTime localDateTime = null;
         ZoneOffset zoneOffset = null;
-        while (in.peek() != JsonToken.END_OBJECT) {
+        while (in.hasNext()) {
           String name = in.nextName();
           switch (name) {
             case "dateTime":
@@ -213,7 +235,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         in.beginObject();
         LocalTime localTime = null;
         ZoneOffset zoneOffset = null;
-        while (in.peek() != JsonToken.END_OBJECT) {
+        while (in.hasNext()) {
           String name = in.nextName();
           switch (name) {
             case "time":
@@ -287,7 +309,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
   // A ZoneId is either a ZoneOffset or a ZoneRegion, where ZoneOffset is public and ZoneRegion is
   // not. For compatibility with reflection-based serialization, we need to write the "id" field of
   // ZoneRegion if we have a ZoneRegion, and we need to write the "totalSeconds" field of ZoneOffset
-  // if we have a ZoneOffset. When reading, we need to construct the the appropriate thing depending
+  // if we have a ZoneOffset. When reading, we need to construct the appropriate thing depending
   // on which of those two fields we see.
   private static final TypeAdapter<ZoneId> ZONE_ID =
       new TypeAdapter<ZoneId>() {
@@ -296,7 +318,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
           in.beginObject();
           String id = null;
           Integer totalSeconds = null;
-          while (in.peek() != JsonToken.END_OBJECT) {
+          while (in.hasNext()) {
             String name = in.nextName();
             switch (name) {
               case "id":
@@ -348,7 +370,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
         LocalDateTime localDateTime = null;
         ZoneOffset zoneOffset = null;
         ZoneId zoneId = null;
-        while (in.peek() != JsonToken.END_OBJECT) {
+        while (in.hasNext()) {
           String name = in.nextName();
           switch (name) {
             case "dateTime":
@@ -390,60 +412,87 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
     }.nullSafe();
   }
 
-  static final TypeAdapterFactory JAVA_TIME_FACTORY =
-      new TypeAdapterFactory() {
-        @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-          Class<? super T> rawType = typeToken.getRawType();
-          if (!rawType.getName().startsWith("java.time.")) {
-            // Immediately return null so we don't load all these classes when nobody's doing
-            // anything with java.time.
-            return null;
-          }
-          TypeAdapter<?> adapter = null;
-          if (rawType == Duration.class) {
-            adapter = DURATION;
-          } else if (rawType == Instant.class) {
-            adapter = INSTANT;
-          } else if (rawType == LocalDate.class) {
-            adapter = LOCAL_DATE;
-          } else if (rawType == LocalTime.class) {
-            adapter = LOCAL_TIME;
-          } else if (rawType == LocalDateTime.class) {
-            adapter = localDateTime(gson);
-          } else if (rawType == MonthDay.class) {
-            adapter = MONTH_DAY;
-          } else if (rawType == OffsetDateTime.class) {
-            adapter = offsetDateTime(gson);
-          } else if (rawType == OffsetTime.class) {
-            adapter = offsetTime(gson);
-          } else if (rawType == Period.class) {
-            adapter = PERIOD;
-          } else if (rawType == Year.class) {
-            adapter = YEAR;
-          } else if (rawType == YearMonth.class) {
-            adapter = YEAR_MONTH;
-          } else if (rawType == ZoneId.class || rawType == ZoneOffset.class) {
-            // We don't check ZoneId.class.isAssignableFrom(rawType) because we don't want to match
-            // the non-public class ZoneRegion in the runtime type check in
-            // TypeAdapterRuntimeTypeWrapper.write. If we did, then our ZONE_ID would take
-            // precedence over a ZoneId adapter that the user might have registered. (This exact
-            // situation showed up in a Google-internal test.)
-            adapter = ZONE_ID;
-          } else if (rawType == ZonedDateTime.class) {
-            adapter = zonedDateTime(gson);
-          }
-          @SuppressWarnings("unchecked")
-          TypeAdapter<T> result = (TypeAdapter<T>) adapter;
-          return result;
-        }
-      };
-
   private static <T> T requireNonNullField(T field, String fieldName, JsonReader reader) {
     if (field == null) {
       throw new JsonSyntaxException(
           "Missing " + fieldName + " field; at path " + reader.getPreviousPath());
     }
     return field;
+  }
+
+  /**
+   * Gets the package name (with trailing '.') of the {@code java.time} classes, or {@code null} if
+   * unavailable.
+   *
+   * <p>On Android this might actually be something other than {@code "java.time."}, for example
+   * {@code "j$.time."}, due to <a
+   * href="https://developer.android.com/studio/write/java8-support#library-desugaring">API
+   * desugaring</a>.
+   */
+  static String javaTimePackage() {
+    try {
+      // Use arbitrary java.time.* class here, one which is quite simple and does not refer to many
+      // other classes
+      String className = DateTimeException.class.getName();
+      int packageEnd = className.lastIndexOf('.');
+      return className.substring(0, packageEnd + 1);
+    } catch (LinkageError ignored) {
+      // java.time.* classes are probably not available
+      return null;
+    }
+  }
+
+  private static class AdapterFactory implements TypeAdapterFactory {
+    private final String javaTimePackage;
+
+    AdapterFactory(String javaTimePackage) {
+      this.javaTimePackage = javaTimePackage;
+    }
+
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+      Class<? super T> rawType = typeToken.getRawType();
+      if (!rawType.getName().startsWith(javaTimePackage)) {
+        // Immediately return null so we don't load all these classes when nobody's doing
+        // anything with java.time.
+        return null;
+      }
+      TypeAdapter<?> adapter = null;
+      if (rawType == Duration.class) {
+        adapter = DURATION;
+      } else if (rawType == Instant.class) {
+        adapter = INSTANT;
+      } else if (rawType == LocalDate.class) {
+        adapter = LOCAL_DATE;
+      } else if (rawType == LocalTime.class) {
+        adapter = LOCAL_TIME;
+      } else if (rawType == LocalDateTime.class) {
+        adapter = localDateTime(gson);
+      } else if (rawType == MonthDay.class) {
+        adapter = MONTH_DAY;
+      } else if (rawType == OffsetDateTime.class) {
+        adapter = offsetDateTime(gson);
+      } else if (rawType == OffsetTime.class) {
+        adapter = offsetTime(gson);
+      } else if (rawType == Period.class) {
+        adapter = PERIOD;
+      } else if (rawType == Year.class) {
+        adapter = YEAR;
+      } else if (rawType == YearMonth.class) {
+        adapter = YEAR_MONTH;
+      } else if (rawType == ZoneId.class || rawType == ZoneOffset.class) {
+        // We don't check ZoneId.class.isAssignableFrom(rawType) because we don't want to match
+        // the non-public class ZoneRegion in the runtime type check in
+        // TypeAdapterRuntimeTypeWrapper.write. If we did, then our ZONE_ID would take
+        // precedence over a ZoneId adapter that the user might have registered. (This exact
+        // situation showed up in a Google-internal test.)
+        adapter = ZONE_ID;
+      } else if (rawType == ZonedDateTime.class) {
+        adapter = zonedDateTime(gson);
+      }
+      @SuppressWarnings("unchecked")
+      TypeAdapter<T> result = (TypeAdapter<T>) adapter;
+      return result;
+    }
   }
 }

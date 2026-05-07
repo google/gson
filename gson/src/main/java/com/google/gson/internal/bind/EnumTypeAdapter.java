@@ -51,7 +51,10 @@ class EnumTypeAdapter<T extends Enum<T>> extends TypeAdapter<T> {
       };
 
   /**
-   * Taken from Java 19 method {@link HashMap.newHashMap}, using default load factor {@code 0.75F}.
+   * Calculates the 'capacity' needed to hold {@code numMappings} entries without resizing, using
+   * default load factor {@code 0.75F}.
+   *
+   * <p>Taken from Java 19 method {@link HashMap#newHashMap}.
    */
   private static int calculateHashMapCapacity(int numMappings) {
     return (int) Math.ceil(numMappings / 0.75F);

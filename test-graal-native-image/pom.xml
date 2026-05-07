@@ -150,6 +150,7 @@
                   <buildArgs>
                     <!-- Show stack traces to make troubleshooting build issues easier -->
                     <buildArg>-H:+ReportExceptionStackTraces</buildArg>
+                    <!-- TODO: workaround until https://github.com/graalvm/native-build-tools/pull/794 is released -->
                     <buildArg>--initialize-at-build-time=org.junit.jupiter.engine.discovery.MethodSegmentResolver</buildArg>
                   </buildArgs>
                 </configuration>
