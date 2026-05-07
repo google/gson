@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A data object that stores attributes of a field.
@@ -113,7 +114,7 @@ public final class FieldAttributes {
    * @param annotation the class of the annotation that will be retrieved
    * @return the annotation instance if it is bound to the field; otherwise {@code null}
    */
-  public <T extends Annotation> T getAnnotation(Class<T> annotation) {
+  public <T extends Annotation> @Nullable T getAnnotation(Class<T> annotation) {
     return field.getAnnotation(annotation);
   }
 

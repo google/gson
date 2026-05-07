@@ -20,6 +20,8 @@
  * @since 2.8.6
  */
 module com.google.gson {
+  requires static org.jspecify;
+
   exports com.google.gson;
   exports com.google.gson.annotations;
   exports com.google.gson.reflect;

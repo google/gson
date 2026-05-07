@@ -32,6 +32,7 @@ import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /** Reads and writes GSON parse trees over streams. */
 public final class Streams {
@@ -66,7 +67,7 @@ public final class Streams {
   }
 
   /** Writes the JSON element to the writer, recursively. */
-  public static void write(JsonElement element, JsonWriter writer) throws IOException {
+  public static void write(@Nullable JsonElement element, JsonWriter writer) throws IOException {
     JsonElementTypeAdapter.ADAPTER.write(writer, element);
   }
 
@@ -133,8 +134,8 @@ public final class Streams {
 
     /** A mutable char sequence pointing at a single char[]. */
     private static class CurrentWrite implements CharSequence {
-      private char[] chars;
-      private String cachedString;
+      private char @Nullable [] chars;
+      private @Nullable String cachedString;
 
       void setChars(char[] chars) {
         this.chars = chars;

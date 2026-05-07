@@ -52,6 +52,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Type adapters for basic types. More complex adapters exist as separate classes in the enclosing
@@ -946,7 +947,7 @@ public final class TypeAdapters {
     TypeAdapterFactory get();
   }
 
-  public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
+  public static @Nullable TypeAdapterFactory javaTimeTypeAdapterFactory() {
     try {
       Class<?> javaTimeTypeAdapterFactoryClass =
           Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");
@@ -964,7 +965,7 @@ public final class TypeAdapters {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+      public <T> @Nullable TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         return typeToken.equals(type) ? (TypeAdapter<T>) typeAdapter : null;
       }
     };
@@ -975,7 +976,7 @@ public final class TypeAdapters {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+      public <T> @Nullable TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         return typeToken.getRawType() == type ? (TypeAdapter<T>) typeAdapter : null;
       }
 
@@ -992,7 +993,7 @@ public final class TypeAdapters {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+      public <T> @Nullable TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return (rawType == unboxed || rawType == boxed) ? (TypeAdapter<T>) typeAdapter : null;
       }
@@ -1016,7 +1017,7 @@ public final class TypeAdapters {
     return new TypeAdapterFactory() {
       @SuppressWarnings("unchecked") // we use a runtime check to make sure the 'T's equal
       @Override
-      public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+      public <T> @Nullable TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         Class<? super T> rawType = typeToken.getRawType();
         return (rawType == base || rawType == sub) ? (TypeAdapter<T>) typeAdapter : null;
       }

@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A class representing an array type in JSON. An array is a list of {@link JsonElement}s each of
@@ -83,7 +84,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param bool the boolean that needs to be added to the array.
    * @since 2.4
    */
-  public void add(Boolean bool) {
+  public void add(@Nullable Boolean bool) {
     elements.add(bool == null ? JsonNull.INSTANCE : new JsonPrimitive(bool));
   }
 
@@ -93,7 +94,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param character the character that needs to be added to the array.
    * @since 2.4
    */
-  public void add(Character character) {
+  public void add(@Nullable Character character) {
     elements.add(character == null ? JsonNull.INSTANCE : new JsonPrimitive(character));
   }
 
@@ -103,7 +104,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param number the number that needs to be added to the array.
    * @since 2.4
    */
-  public void add(Number number) {
+  public void add(@Nullable Number number) {
     elements.add(number == null ? JsonNull.INSTANCE : new JsonPrimitive(number));
   }
 
@@ -113,7 +114,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @param string the string that needs to be added to the array.
    * @since 2.4
    */
-  public void add(String string) {
+  public void add(@Nullable String string) {
     elements.add(string == null ? JsonNull.INSTANCE : new JsonPrimitive(string));
   }
 
@@ -122,7 +123,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    *
    * @param element the element that needs to be added to the array.
    */
-  public void add(JsonElement element) {
+  public void add(@Nullable JsonElement element) {
     if (element == null) {
       element = JsonNull.INSTANCE;
     }
@@ -147,7 +148,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @throws IndexOutOfBoundsException if the specified index is outside the array bounds
    */
   @CanIgnoreReturnValue
-  public JsonElement set(int index, JsonElement element) {
+  public JsonElement set(int index, @Nullable JsonElement element) {
     return elements.set(index, element == null ? JsonNull.INSTANCE : element);
   }
 

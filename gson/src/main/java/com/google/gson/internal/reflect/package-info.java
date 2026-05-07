@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Google Inc.
+ * Copyright (C) 2018 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * Do NOT use any class in this package as they are meant for internal use in Gson. These classes
- * will very likely change incompatibly in future versions. You have been warned.
- *
- * @author Inderjeet Singh, Joel Leitch, Jesse Wilson
- */
+/** Reflection helpers used internally by Gson. */
 @org.jspecify.annotations.NullMarked
-@com.google.errorprone.annotations.CheckReturnValue
-package com.google.gson.internal;
+package com.google.gson.internal.reflect;
