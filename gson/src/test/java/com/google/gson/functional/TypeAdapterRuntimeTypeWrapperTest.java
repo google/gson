@@ -18,6 +18,8 @@ package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -151,14 +153,13 @@ public class TypeAdapterRuntimeTypeWrapperTest {
   }
 
   /**
-   * When a {@link JsonDeserializer} is registered for Subclass, and a custom {@link JsonSerializer}
-   * is registered for Base, then Gson should prefer the reflective adapter for Subclass for
-   * backward compatibility (see https://github.com/google/gson/pull/1787#issuecomment-1222175189)
-   * even though normally TypeAdapterRuntimeTypeWrapper should prefer the custom serializer for
-   * Base.
+   * When a {@link JsonDeserializer} is registered for Subclass (which only affects
+   * deserialization), and a custom {@link JsonSerializer} is registered for Base, then Gson should
+   * prefer the custom serializer for Base because the Subclass deserializer has no effect on
+   * serialization.
    */
   @Test
-  public void testJsonDeserializer_SubclassBackwardCompatibility() {
+  public void testJsonDeserializer_SubclassWithBaseSerializer() {
     Gson gson =
         new GsonBuilder()
             .registerTypeAdapter(
@@ -173,7 +174,47 @@ public class TypeAdapterRuntimeTypeWrapperTest {
             .create();
 
     String json = gson.toJson(new Container());
-    assertThat(json).isEqualTo("{\"b\":{\"f\":\"test\"}}");
+    assertThat(json).isEqualTo("{\"b\":\"base\"}");
+  }
+
+  /**
+   * Regression test for https://github.com/google/gson/issues/2190: a deserialization-only
+   * ExclusionStrategy that excludes the runtime type must not interfere with serialization. The
+   * custom TypeAdapter registered for the declared type should still be used.
+   */
+  @Test
+  public void testDeserializationExclusionStrategy_CustomBaseAdapter() {
+    Gson gson =
+        new GsonBuilder()
+            .addDeserializationExclusionStrategy(
+                new ExclusionStrategy() {
+                  @Override
+                  public boolean shouldSkipField(FieldAttributes f) {
+                    return false;
+                  }
+
+                  @Override
+                  public boolean shouldSkipClass(Class<?> clazz) {
+                    return clazz == Subclass.class;
+                  }
+                })
+            .registerTypeAdapter(
+                Base.class,
+                new TypeAdapter<Base>() {
+                  @Override
+                  public Base read(JsonReader in) throws IOException {
+                    throw new UnsupportedOperationException();
+                  }
+
+                  @Override
+                  public void write(JsonWriter out, Base value) throws IOException {
+                    out.value("custom-adapter");
+                  }
+                })
+            .create();
+
+    String json = gson.toJson(new Container());
+    assertThat(json).isEqualTo("{\"b\":\"custom-adapter\"}");
   }
 
   private static class CyclicBase {
