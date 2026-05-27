@@ -217,9 +217,18 @@ public enum LegacyProtoTypeAdapterFactory implements TypeAdapterFactory {
         String fieldName = readFieldName(in);
         Matcher matcher = BIT_FIELD_PATTERN.matcher(fieldName);
         if (matcher.matches()) {
-          int shift = Integer.parseInt(matcher.group(1)) * 32;
-          int mask = in.nextInt();
-          presenceBitmask = presenceBitmask.or(BigInteger.valueOf(mask).shiftLeft(shift));
+          int fieldGroupIndex = Integer.parseInt(matcher.group(1));
+          // Guard against OOM: the only bitField groups that matter are those whose bits are
+          // actually tested in fieldWithPresenceToBitIndex. Groups beyond that bound carry no
+          // semantics and, if allowed, could cause extremely large BigInteger allocations.
+          int maxGroupIndex = (fieldWithPresenceToBitIndex.size() + 31) / 32;
+          if (fieldGroupIndex > maxGroupIndex) {
+            in.skipValue();
+          } else {
+            int shift = fieldGroupIndex * 32;
+            int mask = in.nextInt();
+            presenceBitmask = presenceBitmask.or(BigInteger.valueOf(mask).shiftLeft(shift));
+          }
         } else {
           if (fieldName.endsWith("_")) {
             fieldName = fieldName.substring(0, fieldName.length() - 1);
