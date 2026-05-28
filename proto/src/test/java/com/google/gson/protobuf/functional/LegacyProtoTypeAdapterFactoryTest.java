@@ -430,6 +430,16 @@ public final class LegacyProtoTypeAdapterFactoryTest {
     assertThat(GSON_WITH_LEGACY_ADAPTER.fromJson("null", TestAllTypes.class)).isNull();
   }
 
+  @Test
+  public void deserialize_oversizedBitFieldIndex_doesNotCauseOom() {
+    // A crafted JSON with a large bitFieldXXX_ index (>4 digits) previously caused
+    // BigInteger.shiftLeft() to allocate hundreds of MB. The fix tightens BIT_FIELD_PATTERN
+    // to \d{1,4}, so indices beyond 9999 no longer match and are treated as unknown fields.
+    String json = "{\"bitField67108863_\": 1, \"optionalInt32_\": 42}";
+    TestAllTypes result = GSON_WITH_LEGACY_ADAPTER.fromJson(json, TestAllTypes.class);
+    assertThat(result.getOptionalInt32()).isEqualTo(42);
+  }
+
   private static Gson applyFieldNamingPolicy(Gson gson, FieldNamingPolicy fieldNamingPolicy) {
     return gson.newBuilder().setFieldNamingPolicy(fieldNamingPolicy).create();
   }
