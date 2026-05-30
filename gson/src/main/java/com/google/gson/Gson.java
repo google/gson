@@ -979,7 +979,7 @@ public final class Gson {
       throws JsonIOException, JsonSyntaxException {
     JsonReader jsonReader = newJsonReader(json);
     T object = fromJson(jsonReader, typeOfT);
-    assertFullConsumption(object, jsonReader);
+    assertFullConsumption(jsonReader);
     return object;
   }
 
@@ -1193,11 +1193,14 @@ public final class Gson {
     return fromJson(new JsonTreeReader(json), typeOfT);
   }
 
-  private static void assertFullConsumption(Object obj, JsonReader reader) {
+  private static void assertFullConsumption(JsonReader reader) {
     try {
-      if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
+      if (reader.peek() != JsonToken.END_DOCUMENT) {
         throw new JsonSyntaxException("JSON document was not fully consumed.");
       }
+    } catch (EOFException e) {
+      // Stream is exhausted — no trailing data. This happens when the input was empty
+      // or contained only whitespace, which Gson accepts for backward compatibility.
     } catch (MalformedJsonException e) {
       throw new JsonSyntaxException(e);
     } catch (IOException e) {
