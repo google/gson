@@ -199,4 +199,27 @@ public class JsonTreeReaderTest {
             "getNestingLimit()");
     MoreAsserts.assertOverridesMethods(JsonReader.class, JsonTreeReader.class, ignoredMethods);
   }
+
+  // Tests for issue #2817: Inconsistency JsonReader vs JsonTreeReader about double precision loss
+  @Test
+  public void testNextIntThrowsForDouble() throws IOException {
+    JsonObject json = new JsonObject();
+    json.addProperty("value", 42.123);
+    JsonTreeReader reader = new JsonTreeReader(json);
+    reader.beginObject();
+    reader.nextName();
+    NumberFormatException e = assertThrows(NumberFormatException.class, reader::nextInt);
+    assertThat(e).hasMessageThat().startsWith("Expected an int but was");
+  }
+
+  @Test
+  public void testNextLongThrowsForDouble() throws IOException {
+    JsonObject json = new JsonObject();
+    json.addProperty("value", 42.123);
+    JsonTreeReader reader = new JsonTreeReader(json);
+    reader.beginObject();
+    reader.nextName();
+    NumberFormatException e = assertThrows(NumberFormatException.class, reader::nextLong);
+    assertThat(e).hasMessageThat().startsWith("Expected a long but was");
+  }
 }
