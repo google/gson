@@ -73,6 +73,7 @@ public class ReflectionAccessFilterHelper {
   }
 
   /** See {@link AccessibleObject#canAccess(Object)} (Java >= 9) */
+  @SuppressWarnings("InvalidLink") // suppress Error Prone warning about link to Java 9 method
   public static boolean canAccess(AccessibleObject accessibleObject, Object object) {
     return AccessChecker.INSTANCE.canAccess(accessibleObject, object);
   }

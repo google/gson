@@ -51,7 +51,8 @@ public class GsonTypeAdapterTest {
 
   @Test
   public void testTypeAdapterThrowsException() {
-    Exception e = assertThrows(IllegalStateException.class, () -> gson.toJson(new AtomicLong(0)));
+    AtomicLong value = new AtomicLong(0);
+    Exception e = assertThrows(IllegalStateException.class, () -> gson.toJson(value));
     assertThat(e).isSameInstanceAs(ExceptionTypeAdapter.thrownException);
 
     // Verify that serializer is made null-safe, i.e. it is not called for null
@@ -66,13 +67,13 @@ public class GsonTypeAdapterTest {
 
   @Test
   public void testTypeAdapterProperlyConvertsTypes() {
-    int intialValue = 1;
-    AtomicInteger atomicInt = new AtomicInteger(intialValue);
+    int initialValue = 1;
+    AtomicInteger atomicInt = new AtomicInteger(initialValue);
     String json = gson.toJson(atomicInt);
-    assertThat(Integer.parseInt(json)).isEqualTo(intialValue + 1);
+    assertThat(Integer.parseInt(json)).isEqualTo(initialValue + 1);
 
     atomicInt = gson.fromJson(json, AtomicInteger.class);
-    assertThat(atomicInt.get()).isEqualTo(intialValue);
+    assertThat(atomicInt.get()).isEqualTo(initialValue);
   }
 
   @Test
