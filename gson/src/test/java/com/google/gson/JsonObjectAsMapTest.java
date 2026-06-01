@@ -103,7 +103,8 @@ public class JsonObjectAsMapTest {
     assertThat(map.put("b", JsonNull.INSTANCE)).isNull();
     assertThat(map.get("b")).isEqualTo(JsonNull.INSTANCE);
 
-    var e = assertThrows(NullPointerException.class, () -> map.put(null, new JsonPrimitive(1)));
+    JsonPrimitive value = new JsonPrimitive(1);
+    var e = assertThrows(NullPointerException.class, () -> map.put(null, value));
     assertThat(e).hasMessageThat().isEqualTo("key == null");
 
     e = assertThrows(NullPointerException.class, () -> map.put("a", null));
@@ -145,15 +146,12 @@ public class JsonObjectAsMapTest {
     assertThat(map.get("a")).isEqualTo(new JsonPrimitive(2));
     assertThat(map.get("b")).isEqualTo(new JsonPrimitive(3));
 
-    var e =
-        assertThrows(
-            NullPointerException.class,
-            () -> map.putAll(Collections.singletonMap(null, new JsonPrimitive(1))));
+    Map<String, JsonElement> nullKeyMap = Collections.singletonMap(null, new JsonPrimitive(1));
+    var e = assertThrows(NullPointerException.class, () -> map.putAll(nullKeyMap));
     assertThat(e).hasMessageThat().isEqualTo("key == null");
 
-    e =
-        assertThrows(
-            NullPointerException.class, () -> map.putAll(Collections.singletonMap("a", null)));
+    Map<String, JsonElement> nullValueMap = Collections.singletonMap("a", null);
+    e = assertThrows(NullPointerException.class, () -> map.putAll(nullValueMap));
     assertThat(e).hasMessageThat().isEqualTo("value == null");
   }
 
@@ -198,8 +196,9 @@ public class JsonObjectAsMapTest {
     // Should contain values in same order
     assertThat(values).containsExactly(new JsonPrimitive(2), new JsonPrimitive(1)).inOrder();
 
+    JsonPrimitive value = new JsonPrimitive(3);
     // Values collection doesn't support insertions
-    assertThrows(UnsupportedOperationException.class, () -> values.add(new JsonPrimitive(3)));
+    assertThrows(UnsupportedOperationException.class, () -> values.add(value));
 
     assertThat(values.remove(new JsonPrimitive(2))).isTrue();
     assertThat(new ArrayList<>(map.values()))
@@ -224,10 +223,9 @@ public class JsonObjectAsMapTest {
     // Should contain entries in same order
     assertThat(new ArrayList<>(entrySet)).isEqualTo(expectedEntrySet);
 
+    Map.Entry<String, JsonElement> dummyEntry = new SimpleEntry<>("c", new JsonPrimitive(3));
     // Entry set doesn't support insertions
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> entrySet.add(new SimpleEntry<>("c", new JsonPrimitive(3))));
+    assertThrows(UnsupportedOperationException.class, () -> entrySet.add(dummyEntry));
 
     assertThat(entrySet.remove(new SimpleEntry<>("a", new JsonPrimitive(1)))).isTrue();
     assertThat(map.entrySet())

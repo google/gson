@@ -133,16 +133,16 @@ public class ToNumberPolicyFunctionalTest {
         gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Byte>>() {}.getType());
     assertThat(numbers).containsExactly(null, (byte) 10, (byte) 20, (byte) 30).inOrder();
 
+    Type type1 = new TypeToken<List<Object>>() {}.getType();
     var e =
         assertThrows(
-            UnsupportedOperationException.class,
-            () -> gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Object>>() {}.getType()));
+            UnsupportedOperationException.class, () -> gson.fromJson("[null, 10, 20, 30]", type1));
     assertThat(e).isSameInstanceAs(customException);
 
+    Type type2 = new TypeToken<List<Number>>() {}.getType();
     e =
         assertThrows(
-            UnsupportedOperationException.class,
-            () -> gson.fromJson("[null, 10, 20, 30]", new TypeToken<List<Number>>() {}.getType()));
+            UnsupportedOperationException.class, () -> gson.fromJson("[null, 10, 20, 30]", type2));
     assertThat(e).isSameInstanceAs(customException);
   }
 }

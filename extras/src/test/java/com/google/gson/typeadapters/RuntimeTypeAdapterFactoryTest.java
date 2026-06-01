@@ -164,10 +164,9 @@ public final class RuntimeTypeAdapterFactoryTest {
     TypeAdapterFactory billingAdapter =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(BankTransfer.class);
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
+    CreditCard value = new CreditCard("Jesse", 456);
     var e =
-        assertThrows(
-            JsonParseException.class,
-            () -> gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class));
+        assertThrows(JsonParseException.class, () -> gson.toJson(value, BillingInstrument.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -182,10 +181,9 @@ public final class RuntimeTypeAdapterFactoryTest {
         RuntimeTypeAdapterFactory.of(BillingInstrument.class, "cvv")
             .registerSubtype(CreditCard.class);
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
+    CreditCard value = new CreditCard("Jesse", 456);
     var e =
-        assertThrows(
-            JsonParseException.class,
-            () -> gson.toJson(new CreditCard("Jesse", 456), BillingInstrument.class));
+        assertThrows(JsonParseException.class, () -> gson.toJson(value, BillingInstrument.class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
