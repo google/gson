@@ -306,7 +306,7 @@ public class ShrinkingIT {
   }
 
   @Test
-  public void testUnusedClassRemoved() throws Exception {
+  public void testUnusedClassRemoved() {
     // For some reason this test only works for R8 but not for ProGuard; ProGuard keeps the unused
     // class
     assumeFalse(isTestingProGuard());
@@ -315,13 +315,9 @@ public class ShrinkingIT {
     ClassNotFoundException e =
         assertThrows(
             ClassNotFoundException.class,
-            () -> {
-              runTest(
-                  className,
-                  c -> {
-                    fail("Class should have been removed during shrinking: " + c);
-                  });
-            });
+            () ->
+                runTest(
+                    className, c -> fail("Class should have been removed during shrinking: " + c)));
     assertThat(e).hasMessageThat().contains(className);
   }
 }

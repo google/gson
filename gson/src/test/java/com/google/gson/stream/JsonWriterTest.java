@@ -335,18 +335,19 @@ public final class JsonWriterTest {
     assertNonFiniteDoublesExceptions(jsonWriter);
   }
 
+  // Suppress Error Prone warning; extracting `(Number) ...` into separate var is redundant
+  @SuppressWarnings("AssertThrowsMinimizer")
   private static void assertNonFiniteNumbersExceptions(JsonWriter jsonWriter) throws IOException {
     jsonWriter.beginArray();
 
     IllegalArgumentException expected =
-        assertThrows(
-            IllegalArgumentException.class, () -> jsonWriter.value(Double.valueOf(Double.NaN)));
+        assertThrows(IllegalArgumentException.class, () -> jsonWriter.value((Number) Double.NaN));
     assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
 
     expected =
         assertThrows(
             IllegalArgumentException.class,
-            () -> jsonWriter.value(Double.valueOf(Double.NEGATIVE_INFINITY)));
+            () -> jsonWriter.value((Number) Double.NEGATIVE_INFINITY));
     assertThat(expected)
         .hasMessageThat()
         .isEqualTo("Numeric values must be finite, but was -Infinity");
@@ -354,15 +355,18 @@ public final class JsonWriterTest {
     expected =
         assertThrows(
             IllegalArgumentException.class,
-            () -> jsonWriter.value(Double.valueOf(Double.POSITIVE_INFINITY)));
+            () -> jsonWriter.value((Number) Double.POSITIVE_INFINITY));
     assertThat(expected)
         .hasMessageThat()
         .isEqualTo("Numeric values must be finite, but was Infinity");
 
+    Number lazyNumberNaN = new LazilyParsedNumber(Double.toString(Double.NaN));
+    expected = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(lazyNumberNaN));
+    assertThat(expected).hasMessageThat().isEqualTo("Numeric values must be finite, but was NaN");
+
+    Number lazyNumberInfinity = new LazilyParsedNumber(Double.toString(Double.POSITIVE_INFINITY));
     expected =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> jsonWriter.value(new LazilyParsedNumber("Infinity")));
+        assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(lazyNumberInfinity));
     assertThat(expected)
         .hasMessageThat()
         .isEqualTo("Numeric values must be finite, but was Infinity");
@@ -554,7 +558,7 @@ public final class JsonWriterTest {
   }
 
   @Test
-  public void testMalformedNumbers() throws IOException {
+  public void testMalformedNumbers() {
     String[] malformedNumbers = {
       "some text",
       "",
@@ -584,10 +588,8 @@ public final class JsonWriterTest {
 
     for (String malformedNumber : malformedNumbers) {
       JsonWriter jsonWriter = new JsonWriter(new StringWriter());
-      var e =
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> jsonWriter.value(new LazilyParsedNumber(malformedNumber)));
+      Number number = new LazilyParsedNumber(malformedNumber);
+      var e = assertThrows(IllegalArgumentException.class, () -> jsonWriter.value(number));
       assertThat(e)
           .hasMessageThat()
           .isEqualTo(

@@ -132,10 +132,8 @@ public final class MixedStreamTest {
     Gson gson = new Gson();
     JsonReader jsonReader = new JsonReader(new StringReader(CARS_JSON));
     jsonReader.close();
-    var e =
-        assertThrows(
-            JsonParseException.class,
-            () -> gson.fromJson(jsonReader, new TypeToken<List<Car>>() {}.getType()));
+    Type type = new TypeToken<List<Car>>() {}.getType();
+    var e = assertThrows(JsonParseException.class, () -> gson.fromJson(jsonReader, type));
     assertThat(e).hasCauseThat().hasMessageThat().isEqualTo("JsonReader is closed");
   }
 
@@ -166,9 +164,8 @@ public final class MixedStreamTest {
   @Test
   public void testWriteNulls() {
     Gson gson = new Gson();
-    assertThrows(
-        NullPointerException.class,
-        () -> gson.toJson(new JsonPrimitive("hello"), (JsonWriter) null));
+    JsonPrimitive value = new JsonPrimitive("hello");
+    assertThrows(NullPointerException.class, () -> gson.toJson(value, (JsonWriter) null));
 
     StringWriter stringWriter = new StringWriter();
     gson.toJson(null, new JsonWriter(stringWriter));
@@ -179,9 +176,9 @@ public final class MixedStreamTest {
   public void testReadNulls() {
     Gson gson = new Gson();
     assertThrows(NullPointerException.class, () -> gson.fromJson((JsonReader) null, Integer.class));
-    assertThrows(
-        NullPointerException.class,
-        () -> gson.fromJson(new JsonReader(new StringReader("true")), (Type) null));
+
+    JsonReader jsonReader = new JsonReader(new StringReader("true"));
+    assertThrows(NullPointerException.class, () -> gson.fromJson(jsonReader, (Type) null));
   }
 
   @Test
@@ -220,10 +217,10 @@ public final class MixedStreamTest {
         .toJson(doubles, type, jsonWriter);
     assertThat(writer.toString()).isEqualTo("[NaN,-Infinity,Infinity,-0.0,0.5,0.0]");
 
+    Gson gson = new Gson();
+    JsonWriter jsonWriter2 = new JsonWriter(new StringWriter());
     var e =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> new Gson().toJson(doubles, type, new JsonWriter(new StringWriter())));
+        assertThrows(IllegalArgumentException.class, () -> gson.toJson(doubles, type, jsonWriter2));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
