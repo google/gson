@@ -829,6 +829,7 @@ public final class JsonReaderTest {
   public void testNumberLongAccumulatorOverflowsToZero() throws IOException {
     String number = "184467440737095516160";
     JsonReader reader = new JsonReader(reader(number));
+    reader.setStrictness(Strictness.STRICT);
     assertThat(reader.peek()).isEqualTo(NUMBER);
     assertThat(reader.nextString()).isEqualTo(number);
   }
