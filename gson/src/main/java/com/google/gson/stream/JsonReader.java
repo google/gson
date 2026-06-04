@@ -853,7 +853,7 @@ public class JsonReader implements Closeable {
             value = -(c - '0');
             last = NUMBER_CHAR_DIGIT;
           } else if (last == NUMBER_CHAR_DIGIT) {
-            if (value == 0) {
+            if (fitsInLong && value == 0) {
               return PEEKED_NONE; // Leading '0' prefix is not allowed (since it could be octal).
             }
             long newValue = value * 10 - (c - '0');
