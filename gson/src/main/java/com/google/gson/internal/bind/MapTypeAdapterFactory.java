@@ -34,8 +34,10 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Adapts maps to either JSON objects or JSON arrays.
@@ -220,8 +222,15 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
 
       if (!complexMapKeySerialization) {
         out.beginObject();
+        Set<String> emittedNames = new HashSet<>();
         for (Map.Entry<K, V> entry : map.entrySet()) {
-          out.name(String.valueOf(entry.getKey()));
+          String name = String.valueOf(entry.getKey());
+          // Mirror the read path's duplicate-key rejection: distinct keys whose string form
+          // collides would otherwise silently emit a duplicate JSON object member name.
+          if (!emittedNames.add(name)) {
+            throw new JsonSyntaxException("duplicate key: " + name);
+          }
+          out.name(name);
           valueTypeAdapter.write(out, entry.getValue());
         }
         out.endObject();
@@ -250,9 +259,14 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         out.endArray();
       } else {
         out.beginObject();
+        Set<String> emittedNames = new HashSet<>();
         for (int i = 0, size = keys.size(); i < size; i++) {
           JsonElement keyElement = keys.get(i);
-          out.name(keyToString(keyElement));
+          String name = keyToString(keyElement);
+          if (!emittedNames.add(name)) {
+            throw new JsonSyntaxException("duplicate key: " + name);
+          }
+          out.name(name);
           valueTypeAdapter.write(out, values.get(i));
         }
         out.endObject();
