@@ -378,8 +378,11 @@ public final class TypeAdapters {
         List<Long> list = new ArrayList<>();
         in.beginArray();
         while (in.hasNext()) {
-          long value = longAdapter.read(in).longValue();
-          list.add(value);
+          Number value = longAdapter.read(in);
+          if (value == null) {
+            throw new JsonSyntaxException("null is not a valid AtomicLongArray element");
+          }
+          list.add(value.longValue());
         }
         in.endArray();
         int length = list.size();
