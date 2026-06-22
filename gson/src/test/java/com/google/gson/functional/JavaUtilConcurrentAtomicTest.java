@@ -17,9 +17,11 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.LongSerializationPolicy;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -112,5 +114,13 @@ public class JavaUtilConcurrentAtomicTest {
 
   private static class AtomicLongHolder {
     AtomicLong value;
+  }
+
+  @Test
+  public void testAtomicLongArrayWithNullElement() {
+    JsonSyntaxException e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("[1,null,3]", AtomicLongArray.class));
+    assertThat(e).hasMessageThat().isEqualTo("null is not a valid AtomicLongArray element");
   }
 }
