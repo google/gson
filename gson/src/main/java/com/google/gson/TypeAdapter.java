@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
-import java.lang.reflect.Type;
 
 /**
  * Converts Java objects to and from JSON.
@@ -97,7 +96,7 @@ import java.lang.reflect.Type;
  * Gson gson = builder.create();
  * }</pre>
  *
- * @see GsonBuilder#registerTypeAdapter(Type, Object)
+ * @see GsonBuilder#registerTypeAdapter(java.lang.reflect.Type, Object)
  * @since 2.1
  */
 // non-Javadoc:
