@@ -47,14 +47,35 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * This is the main class for using Gson. Gson is typically used by first constructing a Gson
- * instance and then invoking {@link #toJson(Object)} or {@link #fromJson(String, Class)} methods on
- * it. Gson instances are Thread-safe so you can reuse them freely across multiple threads.
+ * This is the main class for using Gson. Gson is typically used by first constructing a {@code
+ * Gson} instance and then invoking {@link #toJson(Object)} or {@link #fromJson(String, Class)}
+ * methods on it. {@code Gson} instances are thread-safe so you can reuse them freely across
+ * multiple threads.
  *
- * <p>You can create a Gson instance by invoking {@code new Gson()} if the default configuration is
- * all you need. You can also use {@link GsonBuilder} to build a Gson instance with various
- * configuration options such as versioning support, pretty printing, custom newline, custom indent,
- * custom {@link JsonSerializer}s, {@link JsonDeserializer}s, and {@link InstanceCreator}s.
+ * <p>You can create a {@code Gson} instance by invoking {@link #Gson() new Gson()} if the default
+ * configuration is all you need. You can also use {@link GsonBuilder} to build a {@code Gson}
+ * instance with various configuration options such as versioning support, pretty printing, and
+ * custom serialization and deserialization logic.
+ *
+ * <p>Gson is based on the concept of {@link TypeAdapter}s which contain the actual logic for
+ * serializing and deserializing a Java type. For more advanced use cases {@link TypeAdapterFactory}
+ * can be used which allows inspecting the Java type at runtime and providing a {@code TypeAdapter}
+ * for it. {@code TypeAdapterFactory} also supports delegating to adapters for other types, which is
+ * useful when handling types which are themselves composed of multiple types or when extending an
+ * existing adapter.<br>
+ * The interfaces {@link JsonSerializer} and {@link JsonDeserializer} allow processing JSON data as
+ * tree structures; this can make their usage easier than {@code TypeAdapter}, but they are not as
+ * efficient.
+ *
+ * <p>Gson provides built-in type adapters for many standard Java types such as {@code List}, {@code
+ * Integer} or {@code String}. For unknown classes it uses reflection to inspect the fields of the
+ * class and uses them for the JSON structure.
+ *
+ * <p>When serializing or deserializing a type, {@code Gson} instances cache the {@code TypeAdapter}
+ * they obtained from a {@code TypeAdapterFactory} for that type. It can therefore improve
+ * performance to reuse a single {@code Gson} instance (for example by storing it in a {@code static
+ * final} field), especially when relying on the built-in reflection-based adapter or when using
+ * custom type adapter factories.
  *
  * <p>Here is an example of how Gson is used for a simple Class:
  *
@@ -127,7 +148,7 @@ import java.util.concurrent.ConcurrentMap;
  * the JSON specification but allows small deviations. See {@link
  * JsonReader#setStrictness(Strictness)} for details.
  *
- * @see TypeToken
+ * @see GsonBuilder
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @author Jesse Wilson

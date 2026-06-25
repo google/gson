@@ -21,10 +21,10 @@ import java.util.Locale;
 
 /**
  * An enumeration that defines a few standard naming conventions for JSON field names. This
- * enumeration should be used in conjunction with {@link com.google.gson.GsonBuilder} to configure a
- * {@link com.google.gson.Gson} instance to properly translate Java field names into the desired
- * JSON field names.
+ * enumeration should be used in conjunction with {@link GsonBuilder} to configure a {@link Gson}
+ * instance to properly translate Java field names into the desired JSON field names.
  *
+ * @see GsonBuilder#setFieldNamingStrategy(FieldNamingStrategy)
  * @author Inderjeet Singh
  * @author Joel Leitch
  */

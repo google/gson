@@ -72,6 +72,7 @@ import java.lang.reflect.Type;
  * @author Joel Leitch
  * @param <T> type for which the deserializer is being registered. It is possible that a
  *     deserializer may be asked to deserialize a specific generic type of the T.
+ * @see GsonBuilder#registerTypeAdapter(Type, Object)
  */
 public interface JsonDeserializer<T> {
 
