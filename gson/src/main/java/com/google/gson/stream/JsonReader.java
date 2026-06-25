@@ -853,7 +853,7 @@ public class JsonReader implements Closeable {
             value = -(c - '0');
             last = NUMBER_CHAR_DIGIT;
           } else if (last == NUMBER_CHAR_DIGIT) {
-            if (value == 0) {
+            if (fitsInLong && value == 0) {
               return PEEKED_NONE; // Leading '0' prefix is not allowed (since it could be octal).
             }
             long newValue = value * 10 - (c - '0');
@@ -1050,7 +1050,15 @@ public class JsonReader implements Closeable {
     }
 
     peeked = PEEKED_BUFFERED;
-    double result = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    double result;
+    try {
+      result = Double.parseDouble(peekedString);
+    } catch (NumberFormatException e) {
+      NumberFormatException rethrown =
+          new NumberFormatException("Expected a double but was " + peekedString + locationString());
+      rethrown.initCause(e);
+      throw rethrown;
+    }
     if (strictness != Strictness.LENIENT && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw syntaxError("JSON forbids NaN and infinities: " + result);
     }
@@ -1090,6 +1098,7 @@ public class JsonReader implements Closeable {
       } else {
         peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
       }
+      validateAscii(peekedString);
       try {
         long result = Long.parseLong(peekedString);
         peeked = PEEKED_NONE;
@@ -1103,7 +1112,15 @@ public class JsonReader implements Closeable {
     }
 
     peeked = PEEKED_BUFFERED;
-    double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    double asDouble;
+    try {
+      asDouble = Double.parseDouble(peekedString);
+    } catch (NumberFormatException e) {
+      NumberFormatException rethrown =
+          new NumberFormatException("Expected a long but was " + peekedString + locationString());
+      rethrown.initCause(e);
+      throw rethrown;
+    }
     long result = (long) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'long'.
       throw new NumberFormatException("Expected a long but was " + peekedString + locationString());
@@ -1332,6 +1349,7 @@ public class JsonReader implements Closeable {
       } else {
         peekedString = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
       }
+      validateAscii(peekedString);
       try {
         result = Integer.parseInt(peekedString);
         peeked = PEEKED_NONE;
@@ -1345,7 +1363,15 @@ public class JsonReader implements Closeable {
     }
 
     peeked = PEEKED_BUFFERED;
-    double asDouble = Double.parseDouble(peekedString); // don't catch this NumberFormatException.
+    double asDouble;
+    try {
+      asDouble = Double.parseDouble(peekedString);
+    } catch (NumberFormatException e) {
+      NumberFormatException rethrown =
+          new NumberFormatException("Expected an int but was " + peekedString + locationString());
+      rethrown.initCause(e);
+      throw rethrown;
+    }
     result = (int) asDouble;
     if (result != asDouble) { // Make sure no precision was lost casting to 'int'.
       throw new NumberFormatException("Expected an int but was " + peekedString + locationString());
@@ -1851,6 +1877,14 @@ public class JsonReader implements Closeable {
 
     // we consumed a security token!
     pos += 5;
+  }
+
+  private void validateAscii(String s) throws MalformedJsonException {
+    for (int i = 0; i < s.length(); i++) {
+      if (s.charAt(i) > 127) {
+        throw syntaxError("String contains non-ASCII characters: " + s);
+      }
+    }
   }
 
   static {

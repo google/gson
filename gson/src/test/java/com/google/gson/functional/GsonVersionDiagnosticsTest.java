@@ -67,7 +67,8 @@ public class GsonVersionDiagnosticsTest {
 
   @Test
   public void testAssertionErrorInSerializationPrintsVersion() {
-    AssertionError e = assertThrows(AssertionError.class, () -> gson.toJson(new TestType()));
+    TestType value = new TestType();
+    AssertionError e = assertThrows(AssertionError.class, () -> gson.toJson(value));
     ensureAssertionErrorPrintsGsonVersion(e);
   }
 

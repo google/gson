@@ -84,31 +84,26 @@ public class NumberLimitsTest {
     assertThat(new JsonPrimitive("1e9999").getAsBigDecimal()).isEqualTo(new BigDecimal("1e9999"));
     assertThat(new JsonPrimitive("1e-9999").getAsBigDecimal()).isEqualTo(new BigDecimal("1e-9999"));
 
+    JsonPrimitive number1 = new JsonPrimitive("1".repeat(MAX_LENGTH + 1));
     NumberFormatException e =
-        assertThrows(
-            NumberFormatException.class,
-            () -> new JsonPrimitive("1".repeat(MAX_LENGTH + 1)).getAsBigDecimal());
+        assertThrows(NumberFormatException.class, () -> number1.getAsBigDecimal());
     assertThat(e)
         .hasMessageThat()
         .isEqualTo("Number string too large: 111111111111111111111111111111...");
 
-    e =
-        assertThrows(
-            NumberFormatException.class, () -> new JsonPrimitive("1e10000").getAsBigDecimal());
+    JsonPrimitive number2 = new JsonPrimitive("1e10000");
+    e = assertThrows(NumberFormatException.class, () -> number2.getAsBigDecimal());
     assertThat(e).hasMessageThat().isEqualTo("Number has unsupported scale: 1e10000");
 
-    e =
-        assertThrows(
-            NumberFormatException.class, () -> new JsonPrimitive("1e-10000").getAsBigDecimal());
+    JsonPrimitive number3 = new JsonPrimitive("1e-10000");
+    e = assertThrows(NumberFormatException.class, () -> number3.getAsBigDecimal());
     assertThat(e).hasMessageThat().isEqualTo("Number has unsupported scale: 1e-10000");
 
     assertThat(new JsonPrimitive("1".repeat(MAX_LENGTH)).getAsBigInteger())
         .isEqualTo(new BigInteger("1".repeat(MAX_LENGTH)));
 
-    e =
-        assertThrows(
-            NumberFormatException.class,
-            () -> new JsonPrimitive("1".repeat(MAX_LENGTH + 1)).getAsBigInteger());
+    JsonPrimitive number4 = new JsonPrimitive("1".repeat(MAX_LENGTH + 1));
+    e = assertThrows(NumberFormatException.class, () -> number4.getAsBigInteger());
     assertThat(e)
         .hasMessageThat()
         .isEqualTo("Number string too large: 111111111111111111111111111111...");
@@ -122,10 +117,9 @@ public class NumberLimitsTest {
         .isEqualTo(new BigDecimal("1".repeat(MAX_LENGTH)));
     assertThat(strategy.readNumber(jsonReader("1e9999"))).isEqualTo(new BigDecimal("1e9999"));
 
+    JsonReader jsonReader1 = jsonReader("\"" + "1".repeat(MAX_LENGTH + 1) + "\"");
     JsonParseException e =
-        assertThrows(
-            JsonParseException.class,
-            () -> strategy.readNumber(jsonReader("\"" + "1".repeat(MAX_LENGTH + 1) + "\"")));
+        assertThrows(JsonParseException.class, () -> strategy.readNumber(jsonReader1));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo("Cannot parse " + "1".repeat(MAX_LENGTH + 1) + "; at path $");
@@ -134,9 +128,8 @@ public class NumberLimitsTest {
         .hasMessageThat()
         .isEqualTo("Number string too large: 111111111111111111111111111111...");
 
-    e =
-        assertThrows(
-            JsonParseException.class, () -> strategy.readNumber(jsonReader("\"1e10000\"")));
+    JsonReader jsonReader2 = jsonReader("\"1e10000\"");
+    e = assertThrows(JsonParseException.class, () -> strategy.readNumber(jsonReader2));
     assertThat(e).hasMessageThat().isEqualTo("Cannot parse 1e10000; at path $");
     assertThat(e)
         .hasCauseThat()
@@ -151,22 +144,18 @@ public class NumberLimitsTest {
     assertThat(new LazilyParsedNumber("1e9999").intValue())
         .isEqualTo(new BigDecimal("1e9999").intValue());
 
-    NumberFormatException e =
-        assertThrows(
-            NumberFormatException.class,
-            () -> new LazilyParsedNumber("1".repeat(MAX_LENGTH + 1)).intValue());
+    LazilyParsedNumber number1 = new LazilyParsedNumber("1".repeat(MAX_LENGTH + 1));
+    NumberFormatException e = assertThrows(NumberFormatException.class, () -> number1.intValue());
     assertThat(e)
         .hasMessageThat()
         .isEqualTo("Number string too large: 111111111111111111111111111111...");
 
-    e =
-        assertThrows(
-            NumberFormatException.class, () -> new LazilyParsedNumber("1e10000").intValue());
+    LazilyParsedNumber number2 = new LazilyParsedNumber("1e10000");
+    e = assertThrows(NumberFormatException.class, () -> number2.intValue());
     assertThat(e).hasMessageThat().isEqualTo("Number has unsupported scale: 1e10000");
 
-    e =
-        assertThrows(
-            NumberFormatException.class, () -> new LazilyParsedNumber("1e10000").longValue());
+    LazilyParsedNumber number3 = new LazilyParsedNumber("1e10000");
+    e = assertThrows(NumberFormatException.class, () -> number3.longValue());
     assertThat(e).hasMessageThat().isEqualTo("Number has unsupported scale: 1e10000");
 
     ObjectOutputStream objOut = new ObjectOutputStream(OutputStream.nullOutputStream());
@@ -186,10 +175,8 @@ public class NumberLimitsTest {
         .isEqualTo(new BigDecimal("1".repeat(MAX_LENGTH)));
     assertThat(adapter.fromJson("\"1e9999\"")).isEqualTo(new BigDecimal("1e9999"));
 
-    JsonSyntaxException e =
-        assertThrows(
-            JsonSyntaxException.class,
-            () -> adapter.fromJson("\"" + "1".repeat(MAX_LENGTH + 1) + "\""));
+    String json = "\"" + "1".repeat(MAX_LENGTH + 1) + "\"";
+    JsonSyntaxException e = assertThrows(JsonSyntaxException.class, () -> adapter.fromJson(json));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo("Failed parsing '" + "1".repeat(MAX_LENGTH + 1) + "' as BigDecimal; at path $");
@@ -213,10 +200,8 @@ public class NumberLimitsTest {
     assertThat(adapter.fromJson("\"" + "1".repeat(MAX_LENGTH) + "\""))
         .isEqualTo(new BigInteger("1".repeat(MAX_LENGTH)));
 
-    JsonSyntaxException e =
-        assertThrows(
-            JsonSyntaxException.class,
-            () -> adapter.fromJson("\"" + "1".repeat(MAX_LENGTH + 1) + "\""));
+    String json = "\"" + "1".repeat(MAX_LENGTH + 1) + "\"";
+    JsonSyntaxException e = assertThrows(JsonSyntaxException.class, () -> adapter.fromJson(json));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo("Failed parsing '" + "1".repeat(MAX_LENGTH + 1) + "' as BigInteger; at path $");

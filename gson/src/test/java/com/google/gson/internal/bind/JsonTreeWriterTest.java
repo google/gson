@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.Strictness;
 import com.google.gson.common.MoreAsserts;
+import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -233,23 +234,36 @@ public final class JsonTreeWriterTest {
     assertThrows(IllegalArgumentException.class, () -> writer.value(Double.POSITIVE_INFINITY));
   }
 
+  // Suppress Error Prone warning; extracting `(Number) ...` into separate var is redundant
+  @SuppressWarnings("AssertThrowsMinimizer")
   @Test
   public void testStrictBoxedNansAndInfinities() throws IOException {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.setStrictness(Strictness.LEGACY_STRICT);
     writer.beginArray();
-    assertThrows(IllegalArgumentException.class, () -> writer.value(Float.valueOf(Float.NaN)));
+    assertThrows(IllegalArgumentException.class, () -> writer.value((Number) Float.NaN));
     assertThrows(
-        IllegalArgumentException.class, () -> writer.value(Float.valueOf(Float.NEGATIVE_INFINITY)));
+        IllegalArgumentException.class, () -> writer.value((Number) Float.NEGATIVE_INFINITY));
     assertThrows(
-        IllegalArgumentException.class, () -> writer.value(Float.valueOf(Float.POSITIVE_INFINITY)));
-    assertThrows(IllegalArgumentException.class, () -> writer.value(Double.valueOf(Double.NaN)));
+        IllegalArgumentException.class, () -> writer.value((Number) Float.POSITIVE_INFINITY));
+    assertThrows(IllegalArgumentException.class, () -> writer.value((Number) Double.NaN));
     assertThrows(
-        IllegalArgumentException.class,
-        () -> writer.value(Double.valueOf(Double.NEGATIVE_INFINITY)));
+        IllegalArgumentException.class, () -> writer.value((Number) Double.NEGATIVE_INFINITY));
     assertThrows(
-        IllegalArgumentException.class,
-        () -> writer.value(Double.valueOf(Double.POSITIVE_INFINITY)));
+        IllegalArgumentException.class, () -> writer.value((Number) Double.POSITIVE_INFINITY));
+  }
+
+  @Test
+  public void testStrictLazyNansAndInfinities() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setStrictness(Strictness.LEGACY_STRICT);
+    writer.beginArray();
+
+    Number lazyNumberNaN = new LazilyParsedNumber(Double.toString(Double.NaN));
+    assertThrows(IllegalArgumentException.class, () -> writer.value(lazyNumberNaN));
+
+    Number lazyNumberInfinity = new LazilyParsedNumber(Double.toString(Double.POSITIVE_INFINITY));
+    assertThrows(IllegalArgumentException.class, () -> writer.value(lazyNumberInfinity));
   }
 
   @Test
@@ -280,5 +294,26 @@ public final class JsonTreeWriterTest {
             "setSerializeNulls(boolean)",
             "getSerializeNulls()");
     MoreAsserts.assertOverridesMethods(JsonWriter.class, JsonTreeWriter.class, ignoredMethods);
+  }
+
+  @Test
+  public void testEndArrayOnEmptyStackThrows() {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    assertThrows(IllegalStateException.class, () -> writer.endArray());
+  }
+
+  @Test
+  public void testEndArrayWithPendingNameThrows() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    writer.name("test");
+    assertThrows(IllegalStateException.class, () -> writer.endArray());
+  }
+
+  @Test
+  public void testEndArrayWhenStackTopIsNotArrayThrows() throws IOException {
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.beginObject();
+    assertThrows(IllegalStateException.class, () -> writer.endArray());
   }
 }

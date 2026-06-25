@@ -701,6 +701,38 @@ public final class JsonReaderTest {
     reader.endArray();
   }
 
+  /** Regression test for https://github.com/google/gson/issues/1564 */
+  @Test
+  public void testNextDoubleNumberFormatExceptionContainsLocation() throws IOException {
+    JsonReader reader = new JsonReader(reader("[\"\" ]"));
+    reader.setStrictness(Strictness.LENIENT);
+    reader.beginArray();
+    NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextDouble());
+    assertThat(e).hasMessageThat().contains("path $[0]");
+  }
+
+  /** Regression test for https://github.com/google/gson/issues/1564 */
+  @Test
+  public void testNextIntNumberFormatExceptionContainsLocation() throws IOException {
+    JsonReader reader = new JsonReader(reader("{\"x\": \"\"}"));
+    reader.setStrictness(Strictness.LENIENT);
+    reader.beginObject();
+    var unused = reader.nextName();
+    NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextInt());
+    assertThat(e).hasMessageThat().contains("path $.x");
+  }
+
+  /** Regression test for https://github.com/google/gson/issues/1564 */
+  @Test
+  public void testNextLongNumberFormatExceptionContainsLocation() throws IOException {
+    JsonReader reader = new JsonReader(reader("{\"y\": \"\"}"));
+    reader.setStrictness(Strictness.LENIENT);
+    reader.beginObject();
+    var unused = reader.nextName();
+    NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextLong());
+    assertThat(e).hasMessageThat().contains("path $.y");
+  }
+
   @Test
   public void testStrictNonFiniteDoublesWithSkipValue() throws IOException {
     String json = "[NaN]";
@@ -737,6 +769,33 @@ public final class JsonReaderTest {
   }
 
   @Test
+  public void testNonAsciiDigits() throws IOException {
+    String asciiDigits = "123";
+    String nonAsciiDigits = "１２３"; // full-width digits
+
+    // These should work
+    assertThat(new JsonReader(reader(asciiDigits)).nextInt()).isEqualTo(123);
+    assertThat(new JsonReader(reader(asciiDigits)).nextLong()).isEqualTo(123L);
+    assertThat(new JsonReader(reader('"' + asciiDigits + '"')).nextInt()).isEqualTo(123);
+    assertThat(new JsonReader(reader('"' + asciiDigits + '"')).nextLong()).isEqualTo(123L);
+
+    // Integer.parseInt happily accepts non-ASCII digits...
+    assertThat(Integer.parseInt(nonAsciiDigits)).isEqualTo(123);
+
+    // ...but nevertheless these should not work
+    assertThrows(
+        MalformedJsonException.class, () -> new JsonReader(reader(nonAsciiDigits)).nextInt());
+    assertThrows(
+        MalformedJsonException.class, () -> new JsonReader(reader(nonAsciiDigits)).nextLong());
+    assertThrows(
+        MalformedJsonException.class,
+        () -> new JsonReader(reader('"' + nonAsciiDigits + '"')).nextInt());
+    assertThrows(
+        MalformedJsonException.class,
+        () -> new JsonReader(reader('"' + nonAsciiDigits + '"')).nextLong());
+  }
+
+  @Test
   public void testNumberWithOctalPrefix() throws IOException {
     String number = "01";
     String expectedLocation = "line 1 column 1 path $";
@@ -759,6 +818,20 @@ public final class JsonReaderTest {
         assertThrows(
             MalformedJsonException.class, () -> new JsonReader(reader(number)).nextString());
     assertStrictError(e, expectedLocation);
+  }
+
+  /**
+   * Regression test for a bug where {@code peekNumber} rejected a valid numeric literal whose
+   * prefix happened to be a multiple of 2<sup>64</sup>. The {@code long} accumulator wraps to
+   * exactly zero in that case, which the old "leading zero" guard misread as an octal prefix.
+   */
+  @Test
+  public void testNumberLongAccumulatorOverflowsToZero() throws IOException {
+    String number = "184467440737095516160";
+    JsonReader reader = new JsonReader(reader(number));
+    reader.setStrictness(Strictness.STRICT);
+    assertThat(reader.peek()).isEqualTo(NUMBER);
+    assertThat(reader.nextString()).isEqualTo(number);
   }
 
   @Test
@@ -828,6 +901,9 @@ public final class JsonReaderTest {
     assertNotANumber("-.0");
     assertNotANumber(".0e1");
     assertNotANumber("-.0e1");
+
+    // non-ASCII digits (these are full-width digits)
+    assertNotANumber("１２.３");
   }
 
   private static void assertNotANumber(String s) throws IOException {

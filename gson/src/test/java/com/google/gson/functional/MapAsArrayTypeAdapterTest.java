@@ -81,6 +81,16 @@ public class MapAsArrayTypeAdapterTest {
   }
 
   @Test
+  public void testDuplicateKeyWithNullFirstValueArrayForm() {
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+
+    String s = "[[\"a\",null],[\"a\",\"x\"]]";
+    Type type = new TypeToken<Map<String, String>>() {}.getType();
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson(s, type));
+    assertThat(e).hasMessageThat().isEqualTo("duplicate key: a");
+  }
+
+  @Test
   public void testMultipleEnableComplexKeyRegistrationHasNoEffect() {
     Type type = new TypeToken<Map<Point, String>>() {}.getType();
     Gson gson =
