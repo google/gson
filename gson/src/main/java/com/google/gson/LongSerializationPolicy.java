@@ -21,6 +21,7 @@ import com.google.gson.internal.bind.TypeAdapters;
 /**
  * Defines the expected format for a {@code long} or {@code Long} type when it is serialized.
  *
+ * @see GsonBuilder#setLongSerializationPolicy(LongSerializationPolicy)
  * @since 1.3
  * @author Inderjeet Singh
  * @author Joel Leitch

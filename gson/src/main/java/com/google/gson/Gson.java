@@ -148,7 +148,7 @@ import java.util.concurrent.ConcurrentMap;
  * the JSON specification but allows small deviations. See {@link
  * JsonReader#setStrictness(Strictness)} for details.
  *
- * @see TypeToken
+ * @see GsonBuilder
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @author Jesse Wilson
