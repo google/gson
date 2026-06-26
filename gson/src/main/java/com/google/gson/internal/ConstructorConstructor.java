@@ -368,6 +368,10 @@ public final class ConstructorConstructor {
     else if (rawType.isAssignableFrom(TreeMap.class)) {
       return TreeMap::new;
     }
+    // Preserve string-key collision hardening for ConcurrentMap interfaces.
+    else if (rawType.isAssignableFrom(ConcurrentSkipListMap.class) && hasStringKeyType(type)) {
+      return ConcurrentSkipListMap::new;
+    }
     // Then try ConcurrentMap implementation
     else if (rawType.isAssignableFrom(ConcurrentHashMap.class)) {
       return ConcurrentHashMap::new;

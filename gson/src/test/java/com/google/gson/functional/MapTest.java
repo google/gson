@@ -279,11 +279,23 @@ public class MapTest {
   public void testConcurrentMap() {
     Type typeOfMap = new TypeToken<ConcurrentMap<Integer, String>>() {}.getType();
     ConcurrentMap<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
+    assertThat(map).isInstanceOf(ConcurrentHashMap.class);
     assertThat(map).hasSize(1);
     assertThat(map).containsKey(123);
     assertThat(map.get(123)).isEqualTo("456");
     String json = gson.toJson(map);
     assertThat(json).isEqualTo("{\"123\":\"456\"}");
+  }
+
+  @Test
+  public void testConcurrentMapStringKeyDeserializationUsesSkipListMap() {
+    Type typeOfMap = new TypeToken<ConcurrentMap<String, Integer>>() {}.getType();
+    ConcurrentMap<String, Integer> map = gson.fromJson("{\"a\":1}", typeOfMap);
+
+    assertWithMessage("ConcurrentMap<String, ...> should avoid hash-table collision behavior")
+        .that(map)
+        .isInstanceOf(ConcurrentSkipListMap.class);
+    assertThat(map).isEqualTo(Collections.singletonMap("a", 1));
   }
 
   @Test
