@@ -1216,7 +1216,7 @@ public final class Gson {
 
   private static void assertFullConsumption(Object obj, JsonReader reader) {
     try {
-      if (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {
+      if (reader.peek() != JsonToken.END_DOCUMENT) {
         throw new JsonSyntaxException("JSON document was not fully consumed.");
       }
     } catch (MalformedJsonException e) {
