@@ -909,7 +909,7 @@ public final class TypeAdapters {
           }
           String locale = in.nextString();
           StringTokenizer tokenizer = new StringTokenizer(locale, "_");
-          String language = null;
+          String language = "";
           String country = null;
           String variant = null;
           if (tokenizer.hasMoreElements()) {

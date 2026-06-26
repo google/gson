@@ -264,6 +264,14 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  public void testLocaleDeserializationRoot() {
+    // Gson serializes Locale.ROOT to "", so it must read "" back to Locale.ROOT.
+    String json = "\"\"";
+    Locale locale = gson.fromJson(json, Locale.class);
+    assertThat(locale).isEqualTo(Locale.ROOT);
+  }
+
+  @Test
   public void testLocaleSerializationWithLanguageCountry() {
     Locale target = Locale.CANADA_FRENCH;
     assertThat(gson.toJson(target)).isEqualTo("\"fr_CA\"");
