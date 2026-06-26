@@ -262,14 +262,11 @@ public final class JsonPrimitive extends JsonElement {
     if (value == null) {
       return 31;
     }
-    // Using recommended hashing algorithm from Effective Java for longs and doubles
     if (isIntegral(this)) {
-      long value = getAsNumber().longValue();
-      return (int) (value ^ (value >>> 32));
+      return Long.hashCode(getAsNumber().longValue());
     }
     if (value instanceof Number) {
-      long value = Double.doubleToLongBits(getAsNumber().doubleValue());
-      return (int) (value ^ (value >>> 32));
+      return Double.hashCode(getAsNumber().doubleValue());
     }
     return value.hashCode();
   }
