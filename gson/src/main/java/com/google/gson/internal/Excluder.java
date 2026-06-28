@@ -171,10 +171,7 @@ public boolean excludeField(Field field, boolean serialize) {
   if (excludeClass(field.getType(), serialize)) {
     return true;
   }
-  if (isExcludedByStrategy(field, serialize)) {
-    return true;
-  }
-  return false;
+  return isExcludedByStrategy(field, serialize);
 }
 
   private boolean isExcludedByModifier(Field field) {

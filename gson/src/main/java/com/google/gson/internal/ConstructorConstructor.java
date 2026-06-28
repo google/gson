@@ -343,7 +343,7 @@ public final class ConstructorConstructor {
     }
 
     Type[] typeArguments = ((ParameterizedType) mapType).getActualTypeArguments();
-    
+
     return typeArguments.length != 0 && GsonTypes.getRawType(typeArguments[0]) == String.class;
   }
 
