@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.Deque;
 
 /**
  * Use this builder to construct a {@link Gson} instance when you need to set configuration options
@@ -147,7 +148,7 @@ public final class GsonBuilder {
   boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
-  final ArrayDeque<ReflectionAccessFilter> reflectionFilters = new ArrayDeque<>();
+  final Deque<ReflectionAccessFilter> reflectionFilters = new ArrayDeque<>();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
