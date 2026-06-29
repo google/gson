@@ -155,24 +155,24 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
     };
   }
 
-public boolean excludeField(Field field, boolean serialize) {
-  if (isExcludedByModifier(field)) {
-    return true;
+  public boolean excludeField(Field field, boolean serialize) {
+    if (isExcludedByModifier(field)) {
+      return true;
+    }
+    if (isExcludedByVersion(field)) {
+      return true;
+    }
+    if (field.isSynthetic()) {
+      return true;
+    }
+    if (isExcludedByExposeAnnotation(field, serialize)) {
+      return true;
+    }
+    if (excludeClass(field.getType(), serialize)) {
+      return true;
+    }
+    return isExcludedByStrategy(field, serialize);
   }
-  if (isExcludedByVersion(field)) {
-    return true;
-  }
-  if (field.isSynthetic()) {
-    return true;
-  }
-  if (isExcludedByExposeAnnotation(field, serialize)) {
-    return true;
-  }
-  if (excludeClass(field.getType(), serialize)) {
-    return true;
-  }
-  return isExcludedByStrategy(field, serialize);
-}
 
   private boolean isExcludedByModifier(Field field) {
     return (modifiers & field.getModifiers()) != 0;
@@ -180,7 +180,7 @@ public boolean excludeField(Field field, boolean serialize) {
 
   private boolean isExcludedByVersion(Field field) {
     return version != Excluder.IGNORE_VERSIONS
-            && !isValidVersion(field.getAnnotation(Since.class), field.getAnnotation(Until.class));
+        && !isValidVersion(field.getAnnotation(Since.class), field.getAnnotation(Until.class));
   }
 
   private boolean isExcludedByExposeAnnotation(Field field, boolean serialize) {
@@ -204,6 +204,7 @@ public boolean excludeField(Field field, boolean serialize) {
     }
     return false;
   }
+
   // public for unit tests; can otherwise be private
   public boolean excludeClass(Class<?> clazz, boolean serialize) {
     if (version != Excluder.IGNORE_VERSIONS

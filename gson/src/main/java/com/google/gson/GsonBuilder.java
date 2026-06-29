@@ -45,13 +45,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
-import java.util.Deque;
 
 /**
  * Use this builder to construct a {@link Gson} instance when you need to set configuration options
@@ -926,7 +926,7 @@ public final class GsonBuilder {
   List<TypeAdapterFactory> createFactories(
       ConstructorConstructor constructorConstructor,
       JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
-      List<TypeAdapterFactory> factories = new ArrayList<>();
+    List<TypeAdapterFactory> factories = new ArrayList<>();
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
@@ -997,7 +997,7 @@ public final class GsonBuilder {
             excluder,
             jsonAdapterFactory,
             newImmutableList(reflectionFilters)));
-    
+
     return Collections.unmodifiableList(factories);
   }
 
