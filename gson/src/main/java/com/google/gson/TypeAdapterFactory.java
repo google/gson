@@ -80,8 +80,8 @@ import com.google.gson.reflect.TypeToken;
  * type adapter's {@code read()} and {@code write()} methods can be very fast. In this example the
  * mapping from lowercase name to enum value is computed eagerly.
  *
- * <p>As with type adapters, factories must be <i>registered</i> with a {@link
- * com.google.gson.GsonBuilder} for them to take effect:
+ * <p>As with type adapters, factories must be <i>registered</i> with a {@link GsonBuilder} for them
+ * to take effect:
  *
  * <pre>{@code
  * GsonBuilder builder = new GsonBuilder();
@@ -159,6 +159,7 @@ import com.google.gson.reflect.TypeToken;
  * delegate type adapter in the {@code create()} method; this ensures potentially-expensive type
  * adapter creation happens only once.
  *
+ * @see GsonBuilder#registerTypeAdapterFactory(TypeAdapterFactory)
  * @since 2.1
  */
 public interface TypeAdapterFactory {

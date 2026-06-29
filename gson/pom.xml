@@ -256,7 +256,6 @@
             <configuration>
               <skip>${maven.test.skip}</skip>
               <outputDirectory>${project.build.directory}/test-classes-obfuscated-injar/com/google/gson/functional</outputDirectory>
-              <overwrite>true</overwrite>
               <resources>
                 <resource>
                   <directory>${project.build.directory}/test-classes/com/google/gson/functional</directory>
@@ -277,7 +276,6 @@
             <configuration>
               <skip>${maven.test.skip}</skip>
               <outputDirectory>${project.build.directory}/test-classes/com/google/gson/functional</outputDirectory>
-              <overwrite>true</overwrite>
               <resources>
                 <resource>
                   <directory>${project.build.directory}/test-classes-obfuscated-outjar/com/google/gson/functional</directory>
@@ -408,7 +406,6 @@
                 </goals>
                 <configuration>
                   <outputDirectory>${gsonSubsetSrcDir}</outputDirectory>
-                  <overwrite>true</overwrite>
                   <resources>
                     <resource>
                       <directory>${project.build.sourceDirectory}</directory>

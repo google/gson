@@ -26,6 +26,7 @@ import java.util.List;
  * field names into a particular convention that is not supported as a normal Java field declaration
  * rules. For example, Java does not support "-" characters in a field name.
  *
+ * @see GsonBuilder#setFieldNamingStrategy(FieldNamingStrategy)
  * @author Inderjeet Singh
  * @author Joel Leitch
  * @since 1.3

@@ -96,6 +96,7 @@ import java.io.Writer;
  * Gson gson = builder.create();
  * }</pre>
  *
+ * @see GsonBuilder#registerTypeAdapter(java.lang.reflect.Type, Object)
  * @since 2.1
  */
 // non-Javadoc:
