@@ -926,7 +926,7 @@ public final class GsonBuilder {
   List<TypeAdapterFactory> createFactories(
       ConstructorConstructor constructorConstructor,
       JsonAdapterAnnotationTypeAdapterFactory jsonAdapterFactory) {
-    List<TypeAdapterFactory> factories = new ArrayList<>();
+    ArrayList<TypeAdapterFactory> factories = new ArrayList<>();
 
     // built-in type adapters that cannot be overridden
     factories.add(TypeAdapters.JSON_ELEMENT_FACTORY);
@@ -998,6 +998,7 @@ public final class GsonBuilder {
             jsonAdapterFactory,
             newImmutableList(reflectionFilters)));
 
+    factories.trimToSize();
     return Collections.unmodifiableList(factories);
   }
 
