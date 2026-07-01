@@ -480,7 +480,9 @@ public final class Gson {
     boolean skipPastFound = false;
     for (TypeAdapterFactory factory : factories) {
       if (!skipPastFound) {
-        if (factory == skipPast) {
+        @SuppressWarnings("ReferenceEquality")
+        boolean isSkipPast = factory == skipPast;
+        if (isSkipPast) {
           skipPastFound = true;
         }
         continue;
