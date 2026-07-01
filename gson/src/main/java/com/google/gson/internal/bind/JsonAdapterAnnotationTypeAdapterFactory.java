@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentMap;
  * @since 2.3
  */
 public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapterFactory {
-  private static class DummyTypeAdapterFactory implements TypeAdapterFactory {
+  private static final class DummyTypeAdapterFactory implements TypeAdapterFactory {
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
       throw new AssertionError("Factory should not be used");
@@ -43,11 +43,11 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
   }
 
   /** Factory used for {@link TreeTypeAdapter}s created for {@code @JsonAdapter} on a class. */
-  private static final TypeAdapterFactory TREE_TYPE_CLASS_DUMMY_FACTORY =
+  private static final DummyTypeAdapterFactory TREE_TYPE_CLASS_DUMMY_FACTORY =
       new DummyTypeAdapterFactory();
 
   /** Factory used for {@link TreeTypeAdapter}s created for {@code @JsonAdapter} on a field. */
-  private static final TypeAdapterFactory TREE_TYPE_FIELD_DUMMY_FACTORY =
+  private static final DummyTypeAdapterFactory TREE_TYPE_FIELD_DUMMY_FACTORY =
       new DummyTypeAdapterFactory();
 
   private final ConstructorConstructor constructorConstructor;
@@ -161,6 +161,12 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
     return typeAdapter;
   }
 
+  @SuppressWarnings("ReferenceEquality")
+  private static boolean areSameFactories(TypeAdapterFactory a, TypeAdapterFactory b) {
+    // Checks for reference equality, like it is done by `Gson.getDelegateAdapter`
+    return a == b;
+  }
+
   /**
    * Returns whether {@code factory} is a type adapter factory created for {@code @JsonAdapter}
    * placed on {@code type}.
@@ -178,8 +184,7 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
 
     TypeAdapterFactory existingFactory = adapterFactoryMap.get(rawType);
     if (existingFactory != null) {
-      // Checks for reference equality, like it is done by `Gson.getDelegateAdapter`
-      return existingFactory == factory;
+      return areSameFactories(existingFactory, factory);
     }
 
     // If no factory has been created for the type yet check manually for a @JsonAdapter annotation
@@ -198,7 +203,8 @@ public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapte
 
     Object adapter = createAdapter(constructorConstructor, adapterClass);
     TypeAdapterFactory newFactory = (TypeAdapterFactory) adapter;
+    newFactory = putFactoryAndGetCurrent(rawType, newFactory);
 
-    return putFactoryAndGetCurrent(rawType, newFactory) == factory;
+    return areSameFactories(newFactory, factory);
   }
 }

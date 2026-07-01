@@ -55,6 +55,7 @@ import java.util.zip.ZipFile;
  * <p>This benchmark requires that ParseBenchmarkData.zip is on the classpath. That file contains
  * Twitter feed data, which is representative of what applications will be parsing.
  */
+@SuppressWarnings("ExposedPrivateType")
 public final class ParseBenchmark {
   @Param Document document;
   @Param Api api;
