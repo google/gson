@@ -183,11 +183,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
   /**
    * Caches the result of {@link ReflectionAccessFilterHelper#canAccess} for a single (non-static)
-   * member, so the reflective check only has to run once per {@code BoundField} instead of on
-   * every {@link BoundField#write} or {@link BoundField#readIntoField} call. The result only
-   * depends on the member itself and the {@code ReflectionAccessFilter}s configured for the
-   * enclosing {@code Gson} instance, not on the specific object instance being serialized or
-   * deserialized, so it is safe to compute it lazily on the first check and reuse it afterwards.
+   * member, so the reflective check only has to run once per {@code BoundField} instead of on every
+   * {@link BoundField#write} or {@link BoundField#readIntoField} call. The result only depends on
+   * the member itself and the {@code ReflectionAccessFilter}s configured for the enclosing {@code
+   * Gson} instance, not on the specific object instance being serialized or deserialized, so it is
+   * safe to compute it lazily on the first check and reuse it afterwards.
    */
   private static final class AccessibleCache<M extends AccessibleObject & Member> {
     private static final String ACCESSIBLE = "";
