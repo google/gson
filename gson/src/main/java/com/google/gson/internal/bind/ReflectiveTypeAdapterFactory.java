@@ -169,12 +169,49 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       Object object, M member) {
     if (!ReflectionAccessFilterHelper.canAccess(
         member, Modifier.isStatic(member.getModifiers()) ? null : object)) {
-      String memberDescription = ReflectionHelper.getAccessibleObjectDescription(member, true);
-      throw new JsonIOException(
-          memberDescription
-              + " is not accessible and ReflectionAccessFilter does not permit making it"
-              + " accessible. Register a TypeAdapter for the declaring type, adjust the access"
-              + " filter or increase the visibility of the element and its declaring type.");
+      throw new JsonIOException(getInaccessibleMessage(member));
+    }
+  }
+
+  private static <M extends AccessibleObject & Member> String getInaccessibleMessage(M member) {
+    String memberDescription = ReflectionHelper.getAccessibleObjectDescription(member, true);
+    return memberDescription
+        + " is not accessible and ReflectionAccessFilter does not permit making it"
+        + " accessible. Register a TypeAdapter for the declaring type, adjust the access"
+        + " filter or increase the visibility of the element and its declaring type.";
+  }
+
+  /**
+   * Caches the result of {@link ReflectionAccessFilterHelper#canAccess} for a single (non-static)
+   * member, so the reflective check only has to run once per {@code BoundField} instead of on
+   * every {@link BoundField#write} or {@link BoundField#readIntoField} call. The result only
+   * depends on the member itself and the {@code ReflectionAccessFilter}s configured for the
+   * enclosing {@code Gson} instance, not on the specific object instance being serialized or
+   * deserialized, so it is safe to compute it lazily on the first check and reuse it afterwards.
+   */
+  private static final class AccessibleCache<M extends AccessibleObject & Member> {
+    private static final String ACCESSIBLE = "";
+
+    private final M member;
+    // null until first check; ACCESSIBLE represents 'member is accessible'
+    private volatile String inaccessibleMessage;
+
+    AccessibleCache(M member) {
+      this.member = member;
+    }
+
+    void check(Object object) {
+      String message = inaccessibleMessage;
+      if (message == null) {
+        boolean accessible =
+            ReflectionAccessFilterHelper.canAccess(
+                member, Modifier.isStatic(member.getModifiers()) ? null : object);
+        message = accessible ? ACCESSIBLE : getInaccessibleMessage(member);
+        inaccessibleMessage = message;
+      }
+      if (!message.isEmpty()) {
+        throw new JsonIOException(message);
+      }
     }
   }
 
@@ -217,16 +254,23 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       // Will never actually be used, but we set it to avoid confusing nullness-analysis tools
       writeTypeAdapter = typeAdapter;
     }
+    // Only used when blockInaccessible is true; created once per field/accessor here instead of
+    // performing the (identical) reflective accessibility check on every write()/readIntoField()
+    // call.
+    AccessibleCache<Field> fieldAccessCache =
+        blockInaccessible ? new AccessibleCache<>(field) : null;
+    AccessibleCache<Method> accessorAccessCache =
+        blockInaccessible && accessor != null ? new AccessibleCache<>(accessor) : null;
     return new BoundField(serializedName, field) {
       @Override
       void write(JsonWriter writer, Object source) throws IOException, IllegalAccessException {
         if (blockInaccessible) {
           if (accessor == null) {
-            checkAccessible(source, field);
+            fieldAccessCache.check(source);
           } else {
             // Note: This check might actually be redundant because access check for canonical
             // constructor should have failed already
-            checkAccessible(source, accessor);
+            accessorAccessCache.check(source);
           }
         }
 
@@ -271,7 +315,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue != null || !isPrimitive) {
           if (blockInaccessible) {
-            checkAccessible(target, field);
+            fieldAccessCache.check(target);
           } else if (isStaticFinalField) {
             // Reflection does not permit setting value of `static final` field, even after calling
             // `setAccessible`
