@@ -304,7 +304,7 @@ public final class ConstructorConstructor {
 
     if (Map.class.isAssignableFrom(rawType)) {
       @SuppressWarnings("unchecked")
-      ObjectConstructor<T> constructor = (ObjectConstructor<T>) newMapConstructor(type, rawType);
+      ObjectConstructor<T> constructor = (ObjectConstructor<T>) newMapConstructor(rawType);
       return constructor;
     }
 
@@ -336,21 +336,7 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private static boolean hasStringKeyType(Type mapType) {
-    // If mapType is not parameterized, assume it might have String as key type
-    if (!(mapType instanceof ParameterizedType)) {
-      return true;
-    }
-
-    Type[] typeArguments = ((ParameterizedType) mapType).getActualTypeArguments();
-    if (typeArguments.length == 0) {
-      return false;
-    }
-    return GsonTypes.getRawType(typeArguments[0]) == String.class;
-  }
-
-  private static ObjectConstructor<? extends Map<?, Object>> newMapConstructor(
-      Type type, Class<?> rawType) {
+  private static ObjectConstructor<? extends Map<?, Object>> newMapConstructor(Class<?> rawType) {
     // First try Map implementation
     if (rawType.isAssignableFrom(LinkedHashMap.class)) {
       return LinkedHashMap::new;
