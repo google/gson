@@ -134,7 +134,7 @@ public final class ConstructorConstructor {
       return defaultConstructor;
     }
 
-    ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(type, rawType);
+    ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(rawType);
     if (defaultImplementation != null) {
       return defaultImplementation;
     }
@@ -286,7 +286,7 @@ public final class ConstructorConstructor {
 
   /** Constructors for common interface types like Map and List and their subtypes. */
   private static <T> ObjectConstructor<T> newDefaultImplementationConstructor(
-      Type type, Class<? super T> rawType) {
+      Class<? super T> rawType) {
 
     /*
      * IMPORTANT: Must only create instances for classes with public no-args constructor.
