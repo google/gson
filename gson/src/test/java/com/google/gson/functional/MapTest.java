@@ -166,6 +166,14 @@ public class MapTest {
   }
 
   @Test
+  public void testMapDeserializationWithNullKeyAndListOfEntries() {
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    Map<String, Integer> map = gson.fromJson("[[null,123]]", typeOfMap);
+    assertThat(map).hasSize(1);
+    assertThat(map.get(null)).isEqualTo(123);
+  }
+
+  @Test
   public void testMapSerializationWithIntegerKeys() {
     Map<Integer, String> map = new LinkedHashMap<>();
     map.put(123, "456");
