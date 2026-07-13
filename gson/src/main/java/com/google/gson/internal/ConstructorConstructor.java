@@ -352,16 +352,7 @@ public final class ConstructorConstructor {
   private static ObjectConstructor<? extends Map<?, Object>> newMapConstructor(
       Type type, Class<?> rawType) {
     // First try Map implementation
-    /*
-     * Legacy special casing for Map<String, ...> to avoid DoS from colliding String hashCode
-     * values for older JDKs; use own LinkedTreeMap<String, Object> instead
-     */
-    if (rawType.isAssignableFrom(LinkedTreeMap.class) && hasStringKeyType(type)) {
-      // Must use lambda instead of method reference (`LinkedTreeMap::new`) here, otherwise this
-      // causes an exception when Gson is used by a custom system class loader, see
-      // https://github.com/google/gson/pull/2864#issuecomment-3528623716
-      return () -> new LinkedTreeMap<>();
-    } else if (rawType.isAssignableFrom(LinkedHashMap.class)) {
+    if (rawType.isAssignableFrom(LinkedHashMap.class)) {
       return LinkedHashMap::new;
     }
     // Then try SortedMap / NavigableMap implementation

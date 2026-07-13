@@ -220,12 +220,6 @@ public class MapTest {
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<?, ?> map = gson.fromJson("{\"a\":1}", typeOfMap);
 
-    assertWithMessage(
-            "Map<String, ...> should use LinkedTreeMap to protect against DoS in older JDK"
-                + " versions")
-        .that(map)
-        .isInstanceOf(LinkedTreeMap.class);
-
     Map<?, ?> expectedMap = Collections.singletonMap("a", 1);
     assertThat(map).isEqualTo(expectedMap);
   }
