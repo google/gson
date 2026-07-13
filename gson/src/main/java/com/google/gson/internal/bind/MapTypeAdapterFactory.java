@@ -187,6 +187,9 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         while (in.hasNext()) {
           in.beginArray(); // entry array
           K key = keyTypeAdapter.read(in);
+          if (key == null) {
+            throw new JsonSyntaxException("Map key is null");
+          }
           V value = valueTypeAdapter.read(in);
           if (map.containsKey(key)) {
             throw new JsonSyntaxException("duplicate key: " + key);
@@ -200,6 +203,9 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         while (in.hasNext()) {
           JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
           K key = keyTypeAdapter.read(in);
+          if (key == null) {
+            throw new JsonSyntaxException("Map key is null");
+          }
           V value = valueTypeAdapter.read(in);
           if (map.containsKey(key)) {
             throw new JsonSyntaxException("duplicate key: " + key);

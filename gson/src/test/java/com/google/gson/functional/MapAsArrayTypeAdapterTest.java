@@ -91,6 +91,15 @@ public class MapAsArrayTypeAdapterTest {
   }
 
   @Test
+  public void testNullKeyArrayForm() {
+    Gson gson = new Gson();
+    Type type = new TypeToken<Map<String, Object>>() {}.getType();
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[null,1]]", type));
+    assertThat(e).hasMessageThat().isEqualTo("Map key is null");
+  }
+
+  @Test
   public void testMultipleEnableComplexKeyRegistrationHasNoEffect() {
     Type type = new TypeToken<Map<Point, String>>() {}.getType();
     Gson gson =
