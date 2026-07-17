@@ -262,14 +262,24 @@ public final class JsonPrimitive extends JsonElement {
     if (value == null) {
       return 31;
     }
-    // Using recommended hashing algorithm from Effective Java for longs and doubles
-    if (isIntegral(this)) {
-      long value = getAsNumber().longValue();
-      return (int) (value ^ (value >>> 32));
-    }
     if (value instanceof Number) {
-      long value = Double.doubleToLongBits(getAsNumber().doubleValue());
-      return (int) (value ^ (value >>> 32));
+      // equals(Object) can consider primitives backed by different Number classes equal (for
+      // example Integer 42, a lazily parsed number 42 and Double 42.0), and every case in which
+      // equals(Object) considers two numbers equal implies that they have the same `double` value.
+      // Therefore the hash code must be derived only from the `double` value, otherwise equal
+      // primitives could have different hash codes, see https://github.com/google/gson/issues/992
+      double doubleValue = getAsNumber().doubleValue();
+      long longValue = (long) doubleValue;
+      if (doubleValue == longValue) {
+        // Mathematically integral values within `long` range use the hashing algorithm recommended
+        // by Effective Java for longs; this keeps the hash code unchanged for the common integral
+        // types and also normalizes -0.0 to 0.0 (which equals(Object) considers equal)
+        return (int) (longValue ^ (longValue >>> 32));
+      }
+      // doubleToLongBits (unlike doubleToRawLongBits) collapses all NaN bit patterns to a single
+      // canonical value, matching equals(Object) which considers all NaN values equal
+      long bits = Double.doubleToLongBits(doubleValue);
+      return (int) (bits ^ (bits >>> 32));
     }
     return value.hashCode();
   }
