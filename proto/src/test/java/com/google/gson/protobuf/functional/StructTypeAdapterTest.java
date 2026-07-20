@@ -34,6 +34,11 @@ public class StructTypeAdapterTest {
   private final Gson gson = new Gson();
 
   @Test
+  public void nullStructThrowsNullPointerException() {
+    assertThrows(NullPointerException.class, () -> StructTypeAdapter.fromStruct(null));
+  }
+
+  @Test
   public void emptyStructConvertsToEmptyJsonObject() {
     Struct struct = Struct.newBuilder().build();
 

@@ -15,6 +15,8 @@
  */
 package com.google.gson.protobuf;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -37,12 +39,20 @@ import java.util.Map;
  * <p>The output of {@link #fromStruct} matches what {@code
  * com.google.protobuf.util.JsonFormat.printer().print(struct)} would produce, reparsed into a
  * {@code JsonObject}.
+ *
+ * @since $next-version$
  */
 public final class StructTypeAdapter {
   private StructTypeAdapter() {}
 
-  /** Converts a {@link Struct} directly into a Gson {@link JsonObject}. */
+  /**
+   * Converts a {@link Struct} directly into a Gson {@link JsonObject}.
+   *
+   * @throws NullPointerException if {@code struct} is {@code null}
+   * @since $next-version$
+   */
   public static JsonObject fromStruct(Struct struct) {
+    requireNonNull(struct);
     JsonObject result = new JsonObject();
     for (Map.Entry<String, Value> entry : struct.getFieldsMap().entrySet()) {
       result.add(entry.getKey(), fromValue(entry.getValue()));
