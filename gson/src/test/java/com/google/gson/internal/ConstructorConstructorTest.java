@@ -157,7 +157,7 @@ public class ConstructorConstructorTest {
   }
 
   @Test
-  public void testStringMapCreation() {
+  public void testMapCreation() {
     Object actual = constructorConstructor.get(TypeToken.get(Map.class)).construct();
     assertThat(actual).isInstanceOf(LinkedHashMap.class);
 
@@ -169,8 +169,6 @@ public class ConstructorConstructorTest {
     assertThat(actual).isInstanceOf(LinkedHashMap.class);
 
     // For all Map types with non-String key, should use JDK LinkedHashMap by default
-    // This is also done to avoid ClassCastException later, because Gson's LinkedTreeMap requires
-    // that keys are Comparable
     Class<?>[] nonStringTypes = {Integer.class, CharSequence.class, Object.class};
     for (Class<?> keyType : nonStringTypes) {
       actual =
