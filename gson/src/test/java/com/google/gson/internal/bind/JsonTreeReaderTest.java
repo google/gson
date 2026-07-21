@@ -115,12 +115,12 @@ public class JsonTreeReaderTest {
 
   /**
    * Regression test for the {@link JsonTreeReader} counterpart of the non-ASCII digit validation
-   * added for the streaming {@link JsonReader} in
-   * <a href="https://github.com/google/gson/issues/2994">#2994</a> /
-   * <a href="https://github.com/google/gson/pull/2995">#2995</a>. A string token parsed as an
-   * {@code int} or {@code long} must reject non-ASCII digit variants (e.g. full-width digits
-   * U+FF10-FF19), which {@link Integer#parseInt} and {@link Long#parseLong} would otherwise
-   * silently coerce. Without this the tree-based path diverges from the streaming path.
+   * added for the streaming {@link JsonReader} in <a
+   * href="https://github.com/google/gson/issues/2994">#2994</a> / <a
+   * href="https://github.com/google/gson/pull/2995">#2995</a>. A string token parsed as an {@code
+   * int} or {@code long} must reject non-ASCII digit variants (e.g. full-width digits U+FF10-FF19),
+   * which {@link Integer#parseInt} and {@link Long#parseLong} would otherwise silently coerce.
+   * Without this the tree-based path diverges from the streaming path.
    */
   @Test
   public void testNextIntRejectsNonAsciiDigits() throws IOException {
@@ -129,8 +129,7 @@ public class JsonTreeReaderTest {
     JsonTreeReader reader = new JsonTreeReader(jsonObject);
     reader.beginObject();
     var unused = reader.nextName();
-    MalformedJsonException e =
-        assertThrows(MalformedJsonException.class, () -> reader.nextInt());
+    MalformedJsonException e = assertThrows(MalformedJsonException.class, () -> reader.nextInt());
     assertThat(e).hasMessageThat().contains("non-ASCII");
     assertThat(e).hasMessageThat().contains("path $.x");
   }
@@ -143,8 +142,7 @@ public class JsonTreeReaderTest {
     JsonTreeReader reader = new JsonTreeReader(jsonObject);
     reader.beginObject();
     var unused = reader.nextName();
-    MalformedJsonException e =
-        assertThrows(MalformedJsonException.class, () -> reader.nextLong());
+    MalformedJsonException e = assertThrows(MalformedJsonException.class, () -> reader.nextLong());
     assertThat(e).hasMessageThat().contains("non-ASCII");
     assertThat(e).hasMessageThat().contains("path $.y");
   }
