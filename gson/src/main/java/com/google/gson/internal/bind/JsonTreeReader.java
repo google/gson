@@ -240,7 +240,17 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    double result = ((JsonPrimitive) peekStack()).getAsDouble();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    double result;
+    try {
+      result = primitive.getAsDouble();
+    } catch (NumberFormatException e) {
+      NumberFormatException rethrown =
+          new NumberFormatException(
+              "Expected a double but was " + primitive.getAsString() + locationString());
+      rethrown.initCause(e);
+      throw rethrown;
+    }
     if (!isLenient() && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new MalformedJsonException("JSON forbids NaN and infinities: " + result);
     }
@@ -258,7 +268,17 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    long result = ((JsonPrimitive) peekStack()).getAsLong();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    long result;
+    try {
+      result = primitive.getAsLong();
+    } catch (NumberFormatException e) {
+      NumberFormatException rethrown =
+          new NumberFormatException(
+              "Expected a long but was " + primitive.getAsString() + locationString());
+      rethrown.initCause(e);
+      throw rethrown;
+    }
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -273,7 +293,17 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    int result = ((JsonPrimitive) peekStack()).getAsInt();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    int result;
+    try {
+      result = primitive.getAsInt();
+    } catch (NumberFormatException e) {
+      NumberFormatException rethrown =
+          new NumberFormatException(
+              "Expected an int but was " + primitive.getAsString() + locationString());
+      rethrown.initCause(e);
+      throw rethrown;
+    }
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;

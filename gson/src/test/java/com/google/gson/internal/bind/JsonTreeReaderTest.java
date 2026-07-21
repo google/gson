@@ -113,6 +113,47 @@ public class JsonTreeReaderTest {
     assertThat(reader.hasNext()).isFalse();
   }
 
+  /**
+   * Regression test for the {@link JsonTreeReader} counterpart of the location reporting added for
+   * {@link JsonReader} in <a href="https://github.com/google/gson/issues/1564">#1564</a>. When a
+   * numeric value cannot be parsed, the thrown {@link NumberFormatException} must include the JSON
+   * path, consistent with the streaming {@code JsonReader} implementation.
+   */
+  @Test
+  public void testNextDoubleNumberFormatExceptionContainsLocation() throws IOException {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("x", "");
+    JsonTreeReader reader = new JsonTreeReader(jsonObject);
+    reader.beginObject();
+    var unused = reader.nextName();
+    NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextDouble());
+    assertThat(e).hasMessageThat().contains("path $.x");
+  }
+
+  /** See {@link #testNextDoubleNumberFormatExceptionContainsLocation}. */
+  @Test
+  public void testNextIntNumberFormatExceptionContainsLocation() throws IOException {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("x", "");
+    JsonTreeReader reader = new JsonTreeReader(jsonObject);
+    reader.beginObject();
+    var unused = reader.nextName();
+    NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextInt());
+    assertThat(e).hasMessageThat().contains("path $.x");
+  }
+
+  /** See {@link #testNextDoubleNumberFormatExceptionContainsLocation}. */
+  @Test
+  public void testNextLongNumberFormatExceptionContainsLocation() throws IOException {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("y", "");
+    JsonTreeReader reader = new JsonTreeReader(jsonObject);
+    reader.beginObject();
+    var unused = reader.nextName();
+    NumberFormatException e = assertThrows(NumberFormatException.class, () -> reader.nextLong());
+    assertThat(e).hasMessageThat().contains("path $.y");
+  }
+
   @Test
   public void testCustomJsonElementSubclass() throws IOException {
     @SuppressWarnings("deprecation") // superclass constructor
