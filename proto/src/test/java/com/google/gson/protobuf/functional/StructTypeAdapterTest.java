@@ -18,6 +18,7 @@ package com.google.gson.protobuf.functional;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import com.google.common.truth.Expect;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.protobuf.StructTypeAdapter;
@@ -28,9 +29,12 @@ import com.google.protobuf.Value;
 import com.google.protobuf.util.JsonFormat;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class StructTypeAdapterTest {
+  @Rule public final Expect expect = Expect.create();
+
   private final Gson gson = new Gson();
 
   @Test
@@ -59,10 +63,10 @@ public class StructTypeAdapterTest {
 
     JsonObject json = StructTypeAdapter.fromStruct(struct);
 
-    assertThat(json.get("nullField").isJsonNull()).isTrue();
-    assertThat(json.get("numberField").getAsDouble()).isEqualTo(42.5);
-    assertThat(json.get("stringField").getAsString()).isEqualTo("hello");
-    assertThat(json.get("boolField").getAsBoolean()).isTrue();
+    expect.that(json.get("nullField").isJsonNull()).isTrue();
+    expect.that(json.get("numberField").getAsDouble()).isEqualTo(42.5);
+    expect.that(json.get("stringField").getAsString()).isEqualTo("hello");
+    expect.that(json.get("boolField").getAsBoolean()).isTrue();
   }
 
   @Test
@@ -94,11 +98,13 @@ public class StructTypeAdapterTest {
 
     JsonObject json = StructTypeAdapter.fromStruct(struct);
 
-    assertThat(json.getAsJsonObject("nested").get("leaf").getAsString()).isEqualTo("deep");
-    assertThat(json.getAsJsonArray("list").get(0).getAsString()).isEqualTo("first");
-    assertThat(json.getAsJsonArray("list").get(1).getAsJsonObject().get("leaf").getAsString())
+    expect.that(json.getAsJsonObject("nested").get("leaf").getAsString()).isEqualTo("deep");
+    expect.that(json.getAsJsonArray("list").get(0).getAsString()).isEqualTo("first");
+    expect
+        .that(json.getAsJsonArray("list").get(1).getAsJsonObject().get("leaf").getAsString())
         .isEqualTo("deep");
-    assertThat(json.getAsJsonArray("list").get(2).getAsJsonArray().get(0).getAsDouble())
+    expect
+        .that(json.getAsJsonArray("list").get(2).getAsJsonArray().get(0).getAsDouble())
         .isEqualTo(1.0);
   }
 
@@ -150,7 +156,7 @@ public class StructTypeAdapterTest {
 
       JsonObject actual = StructTypeAdapter.fromStruct(struct);
 
-      assertThat(actual).isEqualTo(expected);
+      expect.that(actual).isEqualTo(expected);
     }
   }
 
