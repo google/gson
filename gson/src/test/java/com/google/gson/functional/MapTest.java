@@ -17,7 +17,6 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
@@ -33,7 +32,6 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.GsonTypes;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.AbstractMap;
