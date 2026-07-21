@@ -113,6 +113,59 @@ public class JsonTreeReaderTest {
     assertThat(reader.hasNext()).isFalse();
   }
 
+  /**
+   * Regression test for the {@link JsonTreeReader} counterpart of the non-ASCII digit validation
+   * added for the streaming {@link JsonReader} in
+   * <a href="https://github.com/google/gson/issues/2994">#2994</a> /
+   * <a href="https://github.com/google/gson/pull/2995">#2995</a>. A string token parsed as an
+   * {@code int} or {@code long} must reject non-ASCII digit variants (e.g. full-width digits
+   * U+FF10-FF19), which {@link Integer#parseInt} and {@link Long#parseLong} would otherwise
+   * silently coerce. Without this the tree-based path diverges from the streaming path.
+   */
+  @Test
+  public void testNextIntRejectsNonAsciiDigits() throws IOException {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("x", "１２３"); // full-width digits
+    JsonTreeReader reader = new JsonTreeReader(jsonObject);
+    reader.beginObject();
+    var unused = reader.nextName();
+    MalformedJsonException e =
+        assertThrows(MalformedJsonException.class, () -> reader.nextInt());
+    assertThat(e).hasMessageThat().contains("non-ASCII");
+    assertThat(e).hasMessageThat().contains("path $.x");
+  }
+
+  /** See {@link #testNextIntRejectsNonAsciiDigits}. */
+  @Test
+  public void testNextLongRejectsNonAsciiDigits() throws IOException {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("y", "１２３");
+    JsonTreeReader reader = new JsonTreeReader(jsonObject);
+    reader.beginObject();
+    var unused = reader.nextName();
+    MalformedJsonException e =
+        assertThrows(MalformedJsonException.class, () -> reader.nextLong());
+    assertThat(e).hasMessageThat().contains("non-ASCII");
+    assertThat(e).hasMessageThat().contains("path $.y");
+  }
+
+  /**
+   * Confirms ASCII digits in a string token still parse normally after the non-ASCII validation was
+   * added, for both {@code int} and {@code long}.
+   */
+  @Test
+  public void testNextIntAndLongAcceptAsciiDigitsInString() throws IOException {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("i", "123");
+    jsonObject.addProperty("l", "456");
+    JsonTreeReader reader = new JsonTreeReader(jsonObject);
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("i");
+    assertThat(reader.nextInt()).isEqualTo(123);
+    assertThat(reader.nextName()).isEqualTo("l");
+    assertThat(reader.nextLong()).isEqualTo(456L);
+  }
+
   @Test
   public void testCustomJsonElementSubclass() throws IOException {
     @SuppressWarnings("deprecation") // superclass constructor

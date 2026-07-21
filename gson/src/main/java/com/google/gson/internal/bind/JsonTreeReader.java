@@ -258,7 +258,11 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    long result = ((JsonPrimitive) peekStack()).getAsLong();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    if (token == JsonToken.STRING) {
+      validateAscii(primitive.getAsString());
+    }
+    long result = primitive.getAsLong();
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -273,7 +277,11 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    int result = ((JsonPrimitive) peekStack()).getAsInt();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    if (token == JsonToken.STRING) {
+      validateAscii(primitive.getAsString());
+    }
+    int result = primitive.getAsInt();
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -387,5 +395,19 @@ public final class JsonTreeReader extends JsonReader {
 
   private String locationString() {
     return " at path " + getPath();
+  }
+
+  // Mirror the ASCII validation added to the streaming JsonReader in #2995:
+  // a string token being parsed as an integer or long must not silently accept
+  // non-ASCII digit variants (e.g. full-width U+FF10-FF19), which Integer.parseInt
+  // and Long.parseLong would otherwise coerce. Without this the tree-based path
+  // diverges from the streaming path for the same input.
+  private void validateAscii(String s) throws MalformedJsonException {
+    for (int i = 0; i < s.length(); i++) {
+      if (s.charAt(i) > 127) {
+        throw new MalformedJsonException(
+            "String contains non-ASCII characters: " + s + locationString());
+      }
+    }
   }
 }
