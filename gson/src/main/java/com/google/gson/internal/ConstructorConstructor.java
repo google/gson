@@ -134,7 +134,7 @@ public final class ConstructorConstructor {
       return defaultConstructor;
     }
 
-    ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(type, rawType);
+    ObjectConstructor<T> defaultImplementation = newDefaultImplementationConstructor(rawType);
     if (defaultImplementation != null) {
       return defaultImplementation;
     }
@@ -286,7 +286,7 @@ public final class ConstructorConstructor {
 
   /** Constructors for common interface types like Map and List and their subtypes. */
   private static <T> ObjectConstructor<T> newDefaultImplementationConstructor(
-      Type type, Class<? super T> rawType) {
+      Class<? super T> rawType) {
 
     /*
      * IMPORTANT: Must only create instances for classes with public no-args constructor.
@@ -304,7 +304,7 @@ public final class ConstructorConstructor {
 
     if (Map.class.isAssignableFrom(rawType)) {
       @SuppressWarnings("unchecked")
-      ObjectConstructor<T> constructor = (ObjectConstructor<T>) newMapConstructor(type, rawType);
+      ObjectConstructor<T> constructor = (ObjectConstructor<T>) newMapConstructor(rawType);
       return constructor;
     }
 
@@ -336,32 +336,9 @@ public final class ConstructorConstructor {
     return null;
   }
 
-  private static boolean hasStringKeyType(Type mapType) {
-    // If mapType is not parameterized, assume it might have String as key type
-    if (!(mapType instanceof ParameterizedType)) {
-      return true;
-    }
-
-    Type[] typeArguments = ((ParameterizedType) mapType).getActualTypeArguments();
-    if (typeArguments.length == 0) {
-      return false;
-    }
-    return GsonTypes.getRawType(typeArguments[0]) == String.class;
-  }
-
-  private static ObjectConstructor<? extends Map<?, Object>> newMapConstructor(
-      Type type, Class<?> rawType) {
+  private static ObjectConstructor<? extends Map<?, Object>> newMapConstructor(Class<?> rawType) {
     // First try Map implementation
-    /*
-     * Legacy special casing for Map<String, ...> to avoid DoS from colliding String hashCode
-     * values for older JDKs; use own LinkedTreeMap<String, Object> instead
-     */
-    if (rawType.isAssignableFrom(LinkedTreeMap.class) && hasStringKeyType(type)) {
-      // Must use lambda instead of method reference (`LinkedTreeMap::new`) here, otherwise this
-      // causes an exception when Gson is used by a custom system class loader, see
-      // https://github.com/google/gson/pull/2864#issuecomment-3528623716
-      return () -> new LinkedTreeMap<>();
-    } else if (rawType.isAssignableFrom(LinkedHashMap.class)) {
+    if (rawType.isAssignableFrom(LinkedHashMap.class)) {
       return LinkedHashMap::new;
     }
     // Then try SortedMap / NavigableMap implementation

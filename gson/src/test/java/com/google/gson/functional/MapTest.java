@@ -17,7 +17,6 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
@@ -33,7 +32,6 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.GsonTypes;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.AbstractMap;
@@ -166,6 +164,14 @@ public class MapTest {
   }
 
   @Test
+  public void testMapDeserializationWithNullKeyAndListOfEntries() {
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    Map<String, Integer> map = gson.fromJson("[[null,123]]", typeOfMap);
+    assertThat(map).hasSize(1);
+    assertThat(map.get(null)).isEqualTo(123);
+  }
+
+  @Test
   public void testMapSerializationWithIntegerKeys() {
     Map<Integer, String> map = new LinkedHashMap<>();
     map.put(123, "456");
@@ -220,40 +226,7 @@ public class MapTest {
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<?, ?> map = gson.fromJson("{\"a\":1}", typeOfMap);
 
-    assertWithMessage(
-            "Map<String, ...> should use LinkedTreeMap to protect against DoS in older JDK"
-                + " versions")
-        .that(map)
-        .isInstanceOf(LinkedTreeMap.class);
-
     Map<?, ?> expectedMap = Collections.singletonMap("a", 1);
-    assertThat(map).isEqualTo(expectedMap);
-  }
-
-  @Test
-  public void testMapStringSupertypeKeyDeserialization() {
-    // Should only use Gson's LinkedTreeMap for String as key, but not for supertypes (e.g. Object)
-    Type typeOfMap = new TypeToken<Map<Object, Integer>>() {}.getType();
-    Map<?, ?> map = gson.fromJson("{\"a\":1}", typeOfMap);
-
-    assertWithMessage("Map<Object, ...> should not use Gson Map implementation")
-        .that(map)
-        .isNotInstanceOf(LinkedTreeMap.class);
-
-    Map<?, ?> expectedMap = Collections.singletonMap("a", 1);
-    assertThat(map).isEqualTo(expectedMap);
-  }
-
-  @Test
-  public void testMapNonStringKeyDeserialization() {
-    Type typeOfMap = new TypeToken<Map<Integer, Integer>>() {}.getType();
-    Map<?, ?> map = gson.fromJson("{\"1\":1}", typeOfMap);
-
-    assertWithMessage("Map<Integer, ...> should not use Gson Map implementation")
-        .that(map)
-        .isNotInstanceOf(LinkedTreeMap.class);
-
-    Map<?, ?> expectedMap = Collections.singletonMap(1, 1);
     assertThat(map).isEqualTo(expectedMap);
   }
 
