@@ -184,7 +184,7 @@ public class DefaultTypeAdaptersTest {
     String uriValue = "http://google.com/";
     String json = '"' + uriValue + '"';
     URI target = gson.fromJson(json, URI.class);
-    assertThat(target.toASCIIString()).isEqualTo(uriValue);
+    assertThat(target.toString()).isEqualTo(uriValue);
   }
 
   @Test
