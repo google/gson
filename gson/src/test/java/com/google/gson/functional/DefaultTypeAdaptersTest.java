@@ -188,6 +188,15 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  public void testUriRoundTripWithNonAscii() throws Exception {
+    URI uri = new URI("s3://bucket/path/Kankyō.png");
+    String json = gson.toJson(uri);
+    URI roundTripUri = gson.fromJson(json, URI.class);
+    assertThat(roundTripUri).isEqualTo(uri);
+    assertThat(roundTripUri.toString()).isEqualTo(uri.toString());
+  }
+
+  @Test
   public void testNullSerialization() {
     testNullSerializationAndDeserialization(Boolean.class);
     testNullSerializationAndDeserialization(Byte.class);
