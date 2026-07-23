@@ -88,6 +88,7 @@ public final class JsonPrimitive extends JsonElement {
   /**
    * Returns the same value as primitives are immutable.
    *
+   * @return the same value as primitives are immutable
    * @since 2.8.2
    */
   @Override

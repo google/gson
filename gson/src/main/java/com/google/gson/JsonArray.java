@@ -63,6 +63,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
   /**
    * Creates a deep copy of this element and all its children.
    *
+   * @return a deep copy of this array
    * @since 2.8.2
    */
   @Override

@@ -44,6 +44,7 @@ public final class JsonNull extends JsonElement {
   /**
    * Returns the same instance since it is an immutable value.
    *
+   * @return the same instance since it is an immutable value
    * @since 2.8.2
    */
   @Override

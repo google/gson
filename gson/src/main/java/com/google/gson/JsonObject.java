@@ -47,6 +47,7 @@ public final class JsonObject extends JsonElement {
   /**
    * Creates a deep copy of this element and all its children.
    *
+   * @return a deep copy of this object
    * @since 2.8.2
    */
   @Override
