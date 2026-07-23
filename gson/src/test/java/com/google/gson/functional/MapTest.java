@@ -30,9 +30,13 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.GsonTypes;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -163,12 +167,42 @@ public class MapTest {
     assertThat(map.get(null)).isNull();
   }
 
+  /**
+   * Tests deserializing as {@code Map<String, ...>} with a key being deserialized as {@code null}.
+   * This can only occur if a custom type adapter for {@code String} is used. (Unless "map as array"
+   * form is used, see {@link MapAsArrayTypeAdapterTest}.)
+   */
   @Test
-  public void testMapDeserializationWithNullKeyAndListOfEntries() {
-    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
-    Map<String, Integer> map = gson.fromJson("[[null,123]]", typeOfMap);
-    assertThat(map).hasSize(1);
-    assertThat(map.get(null)).isEqualTo(123);
+  public void testStringMapDeserializationWithCustomAdapterNullKey() {
+    Gson gson =
+        new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .registerTypeAdapter(
+                String.class,
+                new TypeAdapter<String>() {
+                  @Override
+                  public String read(JsonReader in) throws IOException {
+                    String value = in.nextString();
+                    return value.isEmpty() ? null : value;
+                  }
+
+                  @Override
+                  public void write(JsonWriter out, String value) {
+                    throw new AssertionError("not needed for this test");
+                  }
+                })
+            .create();
+
+    String json = "{\"a\":1,\"\":2,\"b\":3}";
+
+    Map<String, Integer> expectedMap = new LinkedHashMap<>();
+    expectedMap.put("a", 1);
+    expectedMap.put(null, 2);
+    expectedMap.put("b", 3);
+
+    Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+    Map<String, Integer> map = gson.fromJson(json, type);
+    assertThat(map).containsExactlyEntriesIn(expectedMap).inOrder();
   }
 
   @Test
