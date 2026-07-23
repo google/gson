@@ -24,7 +24,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.Ignore;
@@ -129,6 +131,74 @@ public class MapAsArrayTypeAdapterTest {
     assertThat(value).isEqualTo(new Point(4, 5));
   }
 
+  @Test
+  public void testDeserializationWithNullKey() {
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+    Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
+    Map<String, Integer> map = gson.fromJson("[[null,123]]", typeOfMap);
+    assertThat(map).hasSize(1);
+    assertThat(map.get(null)).isEqualTo(123);
+  }
+
+  /** Tests deserializing as raw {@code Map.class} with {@code null} key. */
+  @Test
+  public void testDeserializeRawMapNullKey() {
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+    String json = "[[\"a\", 1.0], [null, 2.0], [\"b\", 3.0]]";
+
+    Map<Object, Double> expectedMap = new LinkedHashMap<>();
+    expectedMap.put("a", 1.0);
+    expectedMap.put(null, 2.0);
+    expectedMap.put("b", 3.0);
+
+    assertThat(gson.fromJson(json, Map.class)).isEqualTo(expectedMap);
+  }
+
+  /** Tests deserializing as raw {@code Map.class} with non-{@code Comparable} key. */
+  @Test
+  public void testDeserializeRawMapNonComparableKey() {
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+    String json = "[[\"a\", 1.0], [{}, 2.0], [\"b\", 3.0]]";
+
+    Map<Object, Double> expectedMap = new LinkedHashMap<>();
+    expectedMap.put("a", 1.0);
+    expectedMap.put(Collections.emptyMap(), 2.0);
+    expectedMap.put("b", 3.0);
+
+    @SuppressWarnings("unchecked")
+    Map<Object, Double> map = gson.fromJson(json, Map.class);
+    assertThat(map).isEqualTo(expectedMap);
+
+    Iterator<Map.Entry<Object, Double>> mapIterator = map.entrySet().iterator();
+    mapIterator.next(); // skip first entry
+    Map.Entry<Object, Double> entry = mapIterator.next();
+    Object key = entry.getKey();
+    assertThat(key).isEqualTo(Collections.emptyMap());
+    assertThat(key).isNotInstanceOf(Comparable.class);
+    assertThat(entry.getValue()).isEqualTo(2.0);
+  }
+
+  /**
+   * Deserialization of array should work, even if {@link
+   * GsonBuilder#enableComplexMapKeySerialization()} is not used.
+   */
+  @Test
+  public void testDeserializationWithoutExplicitlyEnabled() {
+    Gson gson = new GsonBuilder().create();
+    Type type = new TypeToken<Map<Integer, Integer>>() {}.getType();
+    String json = "[[1, 11], [2, 22]]";
+    Map<Integer, Integer> map = gson.fromJson(json, type);
+    assertThat(map).containsExactly(1, 11, 2, 22).inOrder();
+
+    // But for "map as array" all entries have to be encoded as `[key, value]` pairs
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[1, 11], 2, 22]", type));
+    assertThat(e).hasCauseThat().isInstanceOf(IllegalStateException.class);
+    assertThat(e)
+        .hasCauseThat()
+        .hasMessageThat()
+        .startsWith("Expected BEGIN_ARRAY but was NUMBER at line 1 column 12 path $[1]");
+  }
+
   static class Point {
     int x;
     int y;
@@ -138,6 +208,7 @@ public class MapAsArrayTypeAdapterTest {
       this.y = y;
     }
 
+    @SuppressWarnings("unused")
     Point() {}
 
     @Override

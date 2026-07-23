@@ -184,7 +184,16 @@ public class DefaultTypeAdaptersTest {
     String uriValue = "http://google.com/";
     String json = '"' + uriValue + '"';
     URI target = gson.fromJson(json, URI.class);
-    assertThat(target.toASCIIString()).isEqualTo(uriValue);
+    assertThat(target.toString()).isEqualTo(uriValue);
+  }
+
+  @Test
+  public void testUriRoundTripWithNonAscii() throws Exception {
+    URI uri = new URI("s3://bucket/path/Kankyō.png");
+    String json = gson.toJson(uri);
+    URI roundTripUri = gson.fromJson(json, URI.class);
+    assertThat(roundTripUri).isEqualTo(uri);
+    assertThat(roundTripUri.toString()).isEqualTo(uri.toString());
   }
 
   @Test
