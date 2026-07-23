@@ -730,7 +730,7 @@ public final class TypeAdapters {
 
         @Override
         public void write(JsonWriter out, URI value) throws IOException {
-          out.value(value == null ? null : value.toASCIIString());
+          out.value(value == null ? null : value.toString());
         }
       };
 
