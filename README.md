@@ -87,11 +87,6 @@ Please use the ['gson' tag on StackOverflow](https://stackoverflow.com/questions
 
 See the details in the related section in the [Troubleshooting guide](Troubleshooting.md#proguard-r8).
 
-### Related Content Created by Third Parties
-  * [Gson Tutorial](https://www.studytrails.com/java/json/java-google-json-introduction/) by `StudyTrails`
-  * [Gson Tutorial Series](https://futurestud.io/tutorials/gson-getting-started-with-java-json-serialization-deserialization) by `Future Studio`
-  * [Gson API Report](https://abi-laboratory.pro/java/tracker/timeline/gson/)
-
 ### Building
 
 Gson uses Maven to build the project:
