@@ -17,7 +17,6 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
@@ -31,10 +30,13 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.GsonTypes;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -165,6 +167,44 @@ public class MapTest {
     assertThat(map.get(null)).isNull();
   }
 
+  /**
+   * Tests deserializing as {@code Map<String, ...>} with a key being deserialized as {@code null}.
+   * This can only occur if a custom type adapter for {@code String} is used. (Unless "map as array"
+   * form is used, see {@link MapAsArrayTypeAdapterTest}.)
+   */
+  @Test
+  public void testStringMapDeserializationWithCustomAdapterNullKey() {
+    Gson gson =
+        new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .registerTypeAdapter(
+                String.class,
+                new TypeAdapter<String>() {
+                  @Override
+                  public String read(JsonReader in) throws IOException {
+                    String value = in.nextString();
+                    return value.isEmpty() ? null : value;
+                  }
+
+                  @Override
+                  public void write(JsonWriter out, String value) {
+                    throw new AssertionError("not needed for this test");
+                  }
+                })
+            .create();
+
+    String json = "{\"a\":1,\"\":2,\"b\":3}";
+
+    Map<String, Integer> expectedMap = new LinkedHashMap<>();
+    expectedMap.put("a", 1);
+    expectedMap.put(null, 2);
+    expectedMap.put("b", 3);
+
+    Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+    Map<String, Integer> map = gson.fromJson(json, type);
+    assertThat(map).containsExactlyEntriesIn(expectedMap).inOrder();
+  }
+
   @Test
   public void testMapSerializationWithIntegerKeys() {
     Map<Integer, String> map = new LinkedHashMap<>();
@@ -220,40 +260,7 @@ public class MapTest {
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<?, ?> map = gson.fromJson("{\"a\":1}", typeOfMap);
 
-    assertWithMessage(
-            "Map<String, ...> should use LinkedTreeMap to protect against DoS in older JDK"
-                + " versions")
-        .that(map)
-        .isInstanceOf(LinkedTreeMap.class);
-
     Map<?, ?> expectedMap = Collections.singletonMap("a", 1);
-    assertThat(map).isEqualTo(expectedMap);
-  }
-
-  @Test
-  public void testMapStringSupertypeKeyDeserialization() {
-    // Should only use Gson's LinkedTreeMap for String as key, but not for supertypes (e.g. Object)
-    Type typeOfMap = new TypeToken<Map<Object, Integer>>() {}.getType();
-    Map<?, ?> map = gson.fromJson("{\"a\":1}", typeOfMap);
-
-    assertWithMessage("Map<Object, ...> should not use Gson Map implementation")
-        .that(map)
-        .isNotInstanceOf(LinkedTreeMap.class);
-
-    Map<?, ?> expectedMap = Collections.singletonMap("a", 1);
-    assertThat(map).isEqualTo(expectedMap);
-  }
-
-  @Test
-  public void testMapNonStringKeyDeserialization() {
-    Type typeOfMap = new TypeToken<Map<Integer, Integer>>() {}.getType();
-    Map<?, ?> map = gson.fromJson("{\"1\":1}", typeOfMap);
-
-    assertWithMessage("Map<Integer, ...> should not use Gson Map implementation")
-        .that(map)
-        .isNotInstanceOf(LinkedTreeMap.class);
-
-    Map<?, ?> expectedMap = Collections.singletonMap(1, 1);
     assertThat(map).isEqualTo(expectedMap);
   }
 

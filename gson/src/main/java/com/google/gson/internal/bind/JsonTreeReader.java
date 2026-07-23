@@ -122,6 +122,9 @@ public final class JsonTreeReader extends JsonReader {
         && token != JsonToken.END_DOCUMENT;
   }
 
+  // TODO: Suppression is likely redundant once https://github.com/google/error-prone/pull/5895
+  //   is released
+  @SuppressWarnings("ReferenceEquality")
   @Override
   public JsonToken peek() throws IOException {
     if (stackSize == 0) {
