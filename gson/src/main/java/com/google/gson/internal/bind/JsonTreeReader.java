@@ -400,17 +400,20 @@ public final class JsonTreeReader extends JsonReader {
     return " at path " + getPath();
   }
 
-  // Mirror the ASCII validation added to the streaming JsonReader in #2995:
-  // a string token being parsed as an integer or long must not silently accept
-  // non-ASCII digit variants (e.g. full-width U+FF10-FF19), which Integer.parseInt
-  // and Long.parseLong would otherwise coerce. Without this the tree-based path
-  // diverges from the streaming path for the same input.
-  private void validateAscii(String s) throws MalformedJsonException {
+  /** Returns whether every character of {@code s} is ASCII (code point at most 127). */
+  public static boolean isAllAscii(String s) {
     for (int i = 0; i < s.length(); i++) {
       if (s.charAt(i) > 127) {
-        throw new MalformedJsonException(
-            "String contains non-ASCII characters: " + s + locationString());
+        return false;
       }
+    }
+    return true;
+  }
+
+  private void validateAscii(String s) throws MalformedJsonException {
+    if (!isAllAscii(s)) {
+      throw new MalformedJsonException(
+          "String contains non-ASCII characters: " + s + locationString());
     }
   }
 }
