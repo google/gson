@@ -243,7 +243,13 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    double result = ((JsonPrimitive) peekStack()).getAsDouble();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    double result;
+    try {
+      result = primitive.getAsDouble();
+    } catch (NumberFormatException e) {
+      throw numberFormatException("Expected a double but was " + primitive.getAsString(), e);
+    }
     if (!isLenient() && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new MalformedJsonException("JSON forbids NaN and infinities: " + result);
     }
@@ -261,7 +267,13 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    long result = ((JsonPrimitive) peekStack()).getAsLong();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    long result;
+    try {
+      result = primitive.getAsLong();
+    } catch (NumberFormatException e) {
+      throw numberFormatException("Expected a long but was " + primitive.getAsString(), e);
+    }
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -276,7 +288,13 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    int result = ((JsonPrimitive) peekStack()).getAsInt();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    int result;
+    try {
+      result = primitive.getAsInt();
+    } catch (NumberFormatException e) {
+      throw numberFormatException("Expected an int but was " + primitive.getAsString(), e);
+    }
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -390,5 +408,12 @@ public final class JsonTreeReader extends JsonReader {
 
   private String locationString() {
     return " at path " + getPath();
+  }
+
+  /** Creates a {@link NumberFormatException} whose message includes the current path. */
+  private NumberFormatException numberFormatException(String message, NumberFormatException cause) {
+    NumberFormatException exception = new NumberFormatException(message + locationString());
+    exception.initCause(cause);
+    return exception;
   }
 }
