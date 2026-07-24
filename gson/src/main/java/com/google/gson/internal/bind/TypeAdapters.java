@@ -921,7 +921,10 @@ public final class TypeAdapters {
           if (tokenizer.hasMoreElements()) {
             variant = tokenizer.nextToken();
           }
-          if (country == null && variant == null) {
+          if (language == null) {
+            return Locale.ROOT;
+          }
+          if (country == null) {
             return new Locale(language);
           } else if (variant == null) {
             return new Locale(language, country);
