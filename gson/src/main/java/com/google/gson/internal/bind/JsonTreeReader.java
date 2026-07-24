@@ -261,7 +261,11 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    long result = ((JsonPrimitive) peekStack()).getAsLong();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    if (token == JsonToken.STRING) {
+      validateAscii(primitive.getAsString());
+    }
+    long result = primitive.getAsLong();
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -276,7 +280,11 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    int result = ((JsonPrimitive) peekStack()).getAsInt();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    if (token == JsonToken.STRING) {
+      validateAscii(primitive.getAsString());
+    }
+    int result = primitive.getAsInt();
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -390,5 +398,22 @@ public final class JsonTreeReader extends JsonReader {
 
   private String locationString() {
     return " at path " + getPath();
+  }
+
+  /** Returns whether every character of {@code s} is ASCII (code point at most 127). */
+  public static boolean isAllAscii(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      if (s.charAt(i) > 127) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private void validateAscii(String s) throws MalformedJsonException {
+    if (!isAllAscii(s)) {
+      throw new MalformedJsonException(
+          "String contains non-ASCII characters: " + s + locationString());
+    }
   }
 }
