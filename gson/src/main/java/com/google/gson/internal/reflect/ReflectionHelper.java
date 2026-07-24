@@ -206,6 +206,43 @@ public class ReflectionHelper {
         exception);
   }
 
+  /**
+   * Creates a {@link JsonIOException} indicating that Gson was unable to set a {@code final}
+   * instance field via reflection during deserialization.
+   *
+   * <p>This helper is used when {@link Field#set(Object, Object)} throws an {@link
+   * IllegalAccessException} for a {@code final} field. The returned exception message aims to be
+   * actionable by explaining that Gson cannot mutate final instance fields and suggesting
+   * alternatives such as registering a custom {@code TypeAdapter} or {@code InstanceCreator}, or
+   * making the field non-final.
+   *
+   * <p>On newer Java runtimes, reflective mutation of {@code final} fields may be restricted (see
+   * JEP 500). Depending on JVM configuration, attempts to mutate final fields reflectively can
+   * cause {@link IllegalAccessException}s.
+   *
+   * @param field The final field which Gson attempted to assign
+   * @param exception The {@link IllegalAccessException} thrown by {@link Field#set(Object, Object)}
+   * @return A {@link JsonIOException} wrapping the original {@code exception}
+   */
+  public static JsonIOException createExceptionForFinalFieldMutation(
+      Field field, IllegalAccessException exception) {
+    String fieldDescription = getAccessibleObjectDescription(field, false);
+    return new JsonIOException(
+        "Cannot set value of final "
+            + fieldDescription
+            + ".\n"
+            + "Gson cannot modify final instance fields during deserialization. Register a"
+            + " TypeAdapter or InstanceCreator for the declaring type, or change the field to be"
+            + " non-final.\n"
+            + "Recent Java runtimes increasingly restrict reflective final-field mutation (JEP 500,"
+            + " \"Prepare to Make Final Mean Final\"). If you are running on JDK 26+ and need to"
+            + " allow it, configure the JVM accordingly (for example"
+            + " --enable-final-field-mutation=ALL-UNNAMED or your module, and"
+            + " --illegal-final-field-mutation=allow/warn/debug/deny). See"
+            + " https://openjdk.org/jeps/500",
+        exception);
+  }
+
   private static RuntimeException createExceptionForRecordReflectionException(
       ReflectiveOperationException exception) {
     throw new RuntimeException(
