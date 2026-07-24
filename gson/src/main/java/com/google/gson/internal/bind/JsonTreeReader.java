@@ -261,7 +261,29 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    long result = ((JsonPrimitive) peekStack()).getAsLong();
+    Object o = peekStack();
+    long result;
+    if (o instanceof JsonPrimitive) {
+      JsonPrimitive primitive = (JsonPrimitive) o;
+      if (primitive.isNumber()) {
+        Number number = primitive.getAsNumber();
+        if (number instanceof Long || number instanceof Integer) {
+          result = number.longValue();
+        } else {
+          // For other number types (e.g., Double, BigDecimal), check for loss of precision
+          double doubleValue = number.doubleValue();
+          result = (long) doubleValue;
+          if (result != doubleValue) {
+            throw new NumberFormatException(
+                "Expected a long but was " + number + locationString());
+          }
+        }
+      } else {
+        result = Long.parseLong(primitive.getAsString());
+      }
+    } else {
+      throw new IllegalStateException("Unexpected token: " + o);
+    }
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -276,7 +298,29 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    int result = ((JsonPrimitive) peekStack()).getAsInt();
+    Object o = peekStack();
+    int result;
+    if (o instanceof JsonPrimitive) {
+      JsonPrimitive primitive = (JsonPrimitive) o;
+      if (primitive.isNumber()) {
+        Number number = primitive.getAsNumber();
+        if (number instanceof Integer) {
+          result = number.intValue();
+        } else {
+          // For other number types (e.g., Long, Double, BigDecimal), check for loss of precision
+          double doubleValue = number.doubleValue();
+          result = (int) doubleValue;
+          if (result != doubleValue) {
+            throw new NumberFormatException(
+                "Expected an int but was " + number + locationString());
+          }
+        }
+      } else {
+        result = Integer.parseInt(primitive.getAsString());
+      }
+    } else {
+      throw new IllegalStateException("Unexpected token: " + o);
+    }
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
