@@ -245,11 +245,7 @@ public final class JsonTreeReader extends JsonReader {
     try {
       result = primitive.getAsDouble();
     } catch (NumberFormatException e) {
-      NumberFormatException rethrown =
-          new NumberFormatException(
-              "Expected a double but was " + primitive.getAsString() + locationString());
-      rethrown.initCause(e);
-      throw rethrown;
+      throw numberFormatException("Expected a double but was " + primitive.getAsString(), e);
     }
     if (!isLenient() && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new MalformedJsonException("JSON forbids NaN and infinities: " + result);
@@ -273,11 +269,7 @@ public final class JsonTreeReader extends JsonReader {
     try {
       result = primitive.getAsLong();
     } catch (NumberFormatException e) {
-      NumberFormatException rethrown =
-          new NumberFormatException(
-              "Expected a long but was " + primitive.getAsString() + locationString());
-      rethrown.initCause(e);
-      throw rethrown;
+      throw numberFormatException("Expected a long but was " + primitive.getAsString(), e);
     }
     popStack();
     if (stackSize > 0) {
@@ -298,11 +290,7 @@ public final class JsonTreeReader extends JsonReader {
     try {
       result = primitive.getAsInt();
     } catch (NumberFormatException e) {
-      NumberFormatException rethrown =
-          new NumberFormatException(
-              "Expected an int but was " + primitive.getAsString() + locationString());
-      rethrown.initCause(e);
-      throw rethrown;
+      throw numberFormatException("Expected an int but was " + primitive.getAsString(), e);
     }
     popStack();
     if (stackSize > 0) {
@@ -417,5 +405,12 @@ public final class JsonTreeReader extends JsonReader {
 
   private String locationString() {
     return " at path " + getPath();
+  }
+
+  /** Creates a {@link NumberFormatException} whose message includes the current path. */
+  private NumberFormatException numberFormatException(String message, NumberFormatException cause) {
+    NumberFormatException exception = new NumberFormatException(message + locationString());
+    exception.initCause(cause);
+    return exception;
   }
 }
