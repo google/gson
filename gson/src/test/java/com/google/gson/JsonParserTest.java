@@ -195,4 +195,20 @@ public class JsonParserTest {
     // Original strictness was kept
     assertThat(reader.getStrictness()).isEqualTo(strictness);
   }
+
+  /**
+   * JsonParser.parseReader(Reader) should reject trailing data after a top-level JSON null, just as
+   * it does for non-null values. Previously, the trailing-data check was gated by
+   * !element.isJsonNull(), silently ignoring any content after "null".
+   */
+  @Test
+  public void testParseReaderRejectsTrailingDataAfterNull() {
+    // Non-null with trailing data already throws — verify that baseline
+    assertThrows(
+        JsonSyntaxException.class,
+        () -> JsonParser.parseReader(new StringReader("\"hello\" trailing")));
+    // Null with trailing data should also throw, but previously didn't
+    assertThrows(
+        JsonSyntaxException.class, () -> JsonParser.parseReader(new StringReader("null trailing")));
+  }
 }
