@@ -243,7 +243,13 @@ public final class JsonTreeReader extends JsonReader {
       throw new IllegalStateException(
           "Expected " + JsonToken.NUMBER + " but was " + token + locationString());
     }
-    double result = ((JsonPrimitive) peekStack()).getAsDouble();
+    JsonPrimitive primitive = (JsonPrimitive) peekStack();
+    double result;
+    try {
+      result = primitive.getAsDouble();
+    } catch (NumberFormatException e) {
+      throw numberFormatException("Expected a double but was " + primitive.getAsString(), e);
+    }
     if (!isLenient() && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw new MalformedJsonException("JSON forbids NaN and infinities: " + result);
     }
@@ -265,7 +271,12 @@ public final class JsonTreeReader extends JsonReader {
     if (token == JsonToken.STRING) {
       validateAscii(primitive.getAsString());
     }
-    long result = primitive.getAsLong();
+    long result;
+    try {
+      result = primitive.getAsLong();
+    } catch (NumberFormatException e) {
+      throw numberFormatException("Expected a long but was " + primitive.getAsString(), e);
+    }
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -284,7 +295,12 @@ public final class JsonTreeReader extends JsonReader {
     if (token == JsonToken.STRING) {
       validateAscii(primitive.getAsString());
     }
-    int result = primitive.getAsInt();
+    int result;
+    try {
+      result = primitive.getAsInt();
+    } catch (NumberFormatException e) {
+      throw numberFormatException("Expected an int but was " + primitive.getAsString(), e);
+    }
     popStack();
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
@@ -415,5 +431,13 @@ public final class JsonTreeReader extends JsonReader {
       throw new MalformedJsonException(
           "String contains non-ASCII characters: " + s + locationString());
     }
+  }
+
+  /** Creates a {@link NumberFormatException} whose message includes the current path. */
+  private NumberFormatException numberFormatException(
+      String message, NumberFormatException cause) {
+    NumberFormatException exception = new NumberFormatException(message + locationString());
+    exception.initCause(cause);
+    return exception;
   }
 }
