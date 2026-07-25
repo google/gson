@@ -434,8 +434,7 @@ public final class JsonTreeReader extends JsonReader {
   }
 
   /** Creates a {@link NumberFormatException} whose message includes the current path. */
-  private NumberFormatException numberFormatException(
-      String message, NumberFormatException cause) {
+  private NumberFormatException numberFormatException(String message, NumberFormatException cause) {
     NumberFormatException exception = new NumberFormatException(message + locationString());
     exception.initCause(cause);
     return exception;
