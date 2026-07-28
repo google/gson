@@ -744,8 +744,7 @@ public final class TypeAdapters {
         // that aren't either of those, which is fine. An IPv4 address is n.n.n.n where each n is a
         // non-negative integer. An IPv6 address contains at least one colon. (There are further
         // constraints in both cases, but they don't matter here.)
-        private static final Pattern IP_ADDRESS_PATTERN =
-            Pattern.compile(".*:.*|[0-9]+(\\.[0-9]+){3}");
+        private final Pattern ip_address_pattern = Pattern.compile(".*:.*|[0-9]+(\\.[0-9]+){3}");
 
         @Override
         public InetAddress read(JsonReader in) throws IOException {
@@ -754,7 +753,7 @@ public final class TypeAdapters {
             return null;
           }
           String s = in.nextString();
-          if (!IP_ADDRESS_PATTERN.matcher(s).matches()
+          if (!ip_address_pattern.matcher(s).matches()
               && !Boolean.getBoolean("gson.allowDnsInetAddress")) {
             throw new JsonSyntaxException(
                 "Failed parsing '"
