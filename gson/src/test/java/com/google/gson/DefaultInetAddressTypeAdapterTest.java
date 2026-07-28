@@ -59,7 +59,12 @@ public class DefaultInetAddressTypeAdapterTest {
   @Test
   public void testInetAddressDeserializeNonIpAddress() {
     String jsonAddress = "\"localhost\"";
-    assertThrows(JsonSyntaxException.class, () -> gson.fromJson(jsonAddress, InetAddress.class));
+    JsonSyntaxException e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson(jsonAddress, InetAddress.class));
+    assertThat(e)
+        .hasMessageThat()
+        .startsWith("Failed parsing 'localhost' as InetAddress; at path $");
   }
 
   @Test

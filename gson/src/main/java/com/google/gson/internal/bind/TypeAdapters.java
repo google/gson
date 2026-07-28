@@ -737,16 +737,16 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory URI_FACTORY = newFactory(URI.class, URI);
 
-  /**
-   * A pattern that matches every IP address and no DNS address. It matches plenty of things that
-   * aren't either of those, which is fine. An IPv4 address is n.n.n.n where each n is a
-   * non-negative integer. An IPv6 address contains at least one colon. (There are further
-   * constraints in both cases, but they don't matter here.)
-   */
-  private static final Pattern IP_ADDRESS_PATTERN = Pattern.compile(".*:.*|[0-9]+(\\.[0-9]+){3}");
-
   public static final TypeAdapter<InetAddress> INET_ADDRESS =
       new TypeAdapter<InetAddress>() {
+
+        // A pattern that matches every IP address and no DNS address. It matches plenty of things
+        // that aren't either of those, which is fine. An IPv4 address is n.n.n.n where each n is a
+        // non-negative integer. An IPv6 address contains at least one colon. (There are further
+        // constraints in both cases, but they don't matter here.)
+        private static final Pattern IP_ADDRESS_PATTERN =
+            Pattern.compile(".*:.*|[0-9]+(\\.[0-9]+){3}");
+
         @Override
         public InetAddress read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
@@ -758,7 +758,7 @@ public final class TypeAdapters {
               && !Boolean.getBoolean("gson.allowDnsInetAddress")) {
             throw new JsonSyntaxException(
                 "Failed parsing '"
-                    + in.peek().toString()
+                    + s
                     + "' as InetAddress; at path "
                     + in.getPreviousPath()
                     + "; to allow DNS addresses, set system property gson.allowDnsInetAddress to"
