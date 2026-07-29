@@ -27,7 +27,7 @@ import java.math.BigDecimal;
  * @author Inderjeet Singh
  */
 @SuppressWarnings("serial") // ignore warning about missing serialVersionUID
-public final class LazilyParsedNumber extends Number {
+public final class LazilyParsedNumber extends Number implements Comparable<LazilyParsedNumber> {
   private final String value;
 
   /**
@@ -82,7 +82,7 @@ public final class LazilyParsedNumber extends Number {
    * If somebody is unlucky enough to have to serialize one of these, serialize it as a BigDecimal
    * so that they won't need Gson on the other side to deserialize it.
    */
-  private Object writeReplace() throws ObjectStreamException {
+  private Object writeReplace() {
     return asBigDecimal();
   }
 
@@ -90,6 +90,17 @@ public final class LazilyParsedNumber extends Number {
     // Don't permit directly deserializing this class; writeReplace() should have written a
     // replacement
     throw new InvalidObjectException("Deserialization is unsupported");
+  }
+
+  /**
+   * Compares this LazilyParsedNumber with the specified LazilyParsedNumber. The comparison is
+   * lexicographical, based on the string values of the two numbers, so it does not in general
+   * correspond to numeric comparison. For numeric comparison, call {@link #asBigDecimal()} on both
+   * numbers and compare the results.
+   */
+  @Override
+  public int compareTo(LazilyParsedNumber other) {
+    return value.compareTo(other.value);
   }
 
   @Override
