@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 
 public class LazilyParsedNumberTest {
@@ -38,6 +41,14 @@ public class LazilyParsedNumberTest {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
     assertThat(n1.equals(n1Another)).isTrue();
+  }
+
+  @Test
+  public void testCompareTo() {
+    List<String> inputs = Arrays.asList(new String[] {"1", "1.0", "2", "1e6"});
+    Collections.sort(inputs);
+    List<String> expected = Arrays.asList(new String[] {"1", "1.0", "1e6", "2"});
+    assertThat(inputs).isEqualTo(expected);
   }
 
   @Test
