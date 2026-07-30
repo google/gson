@@ -16,6 +16,7 @@
 package com.google.gson.internal;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.stream.Collectors.toList;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,9 +24,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.Test;
 
 public class LazilyParsedNumberTest {
@@ -45,9 +45,10 @@ public class LazilyParsedNumberTest {
 
   @Test
   public void testCompareTo() {
-    List<String> inputs = Arrays.asList(new String[] {"1", "1.0", "2", "1e6"});
-    Collections.sort(inputs);
-    List<String> expected = Arrays.asList(new String[] {"1", "1.0", "1e6", "2"});
+    List<LazilyParsedNumber> inputs =
+        Stream.of("1", "1.0", "2", "1e6").map(LazilyParsedNumber::new).sorted().collect(toList());
+    List<LazilyParsedNumber> expected =
+        Stream.of("1", "1.0", "1e6", "2").map(LazilyParsedNumber::new).collect(toList());
     assertThat(inputs).isEqualTo(expected);
   }
 
