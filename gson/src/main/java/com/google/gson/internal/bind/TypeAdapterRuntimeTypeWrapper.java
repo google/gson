@@ -51,7 +51,10 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
 
     TypeAdapter<T> chosen = delegate;
     Type runtimeType = getRuntimeTypeIfMoreSpecific(type, value);
-    if (runtimeType != type) {
+
+    @SuppressWarnings("ReferenceEquality")
+    boolean isDifferentType = runtimeType != type;
+    if (isDifferentType) {
       @SuppressWarnings("unchecked")
       TypeAdapter<T> runtimeTypeAdapter =
           (TypeAdapter<T>) context.getAdapter(TypeToken.get(runtimeType));
@@ -83,8 +86,10 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
     while (typeAdapter instanceof SerializationDelegatingTypeAdapter) {
       TypeAdapter<?> delegate =
           ((SerializationDelegatingTypeAdapter<?>) typeAdapter).getSerializationDelegate();
-      // Break if adapter does not delegate serialization
-      if (delegate == typeAdapter) {
+
+      @SuppressWarnings("ReferenceEquality")
+      boolean hasNoDelegate = delegate == typeAdapter;
+      if (hasNoDelegate) {
         break;
       }
       typeAdapter = delegate;
