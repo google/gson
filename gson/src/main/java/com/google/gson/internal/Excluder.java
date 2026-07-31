@@ -156,24 +156,14 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   }
 
   public boolean excludeField(Field field, boolean serialize) {
-    if (isExcludedByModifier(field)) {
-      return true;
-    }
-    if (isExcludedByVersion(field)) {
-      return true;
-    }
-    if (field.isSynthetic()) {
-      return true;
-    }
-    if (isExcludedByExposeAnnotation(field, serialize)) {
-      return true;
-    }
-    if (excludeClass(field.getType(), serialize)) {
-      return true;
-    }
-    return isExcludedByStrategy(field, serialize);
+    return isExcludedByModifier(field)
+            || isExcludedByVersion(field)
+            || field.isSynthetic()
+            || isExcludedByExposeAnnotation(field, serialize)
+            || excludeClass(field.getType(), serialize)
+            || isExcludedByStrategy(field, serialize);
   }
-
+  
   private boolean isExcludedByModifier(Field field) {
     return (modifiers & field.getModifiers()) != 0;
   }
