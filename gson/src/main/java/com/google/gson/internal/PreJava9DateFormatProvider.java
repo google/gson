@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /** Provides DateFormats for US locale with patterns which were the default ones before Java 9. */
-public class PreJava9DateFormatProvider {
+public final class PreJava9DateFormatProvider {
   private PreJava9DateFormatProvider() {}
 
   /**
