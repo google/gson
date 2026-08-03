@@ -29,6 +29,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: 'gson-old-japicmp'
+          persist-credentials: false
 
       - name: Set up JDK
         uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
@@ -47,6 +48,8 @@ jobs:
 
       - name: Check out new version
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Check API compatibility
         id: check-compatibility
