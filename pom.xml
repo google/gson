@@ -525,8 +525,8 @@
                 <signature>
                   <!-- Google's internal use currently requires API Level 23 without desugaring. -->
                   <groupId>net.sf.androidscents.signature</groupId>
-                  <artifactId>android-api-level-23</artifactId>
-                  <version>6.0_r3</version>
+                  <artifactId>android-api-level-24</artifactId>
+                  <version>7.0_r2</version>
                 </signature>
                 <annotations>
                   <annotation>com.google.gson.internal.bind.IgnoreJRERequirement</annotation>
