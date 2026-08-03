@@ -481,7 +481,7 @@ public class ParameterizedTypesTest {
 
   private interface Immutable {}
 
-  public static final class Amount<Q extends Quantity>
+  private static final class Amount<Q extends Quantity>
       implements Measurable<Q>, Field<Amount<?>>, Serializable, Immutable {
     private static final long serialVersionUID = -7560491093120970437L;
 

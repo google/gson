@@ -243,7 +243,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         } else {
           fieldValue = field.get(source);
         }
-        if (fieldValue == source) {
+
+        @SuppressWarnings("ReferenceEquality")
+        boolean isSameObject = fieldValue == source;
+        if (isSameObject) {
           // avoid direct recursion
           return;
         }
@@ -474,7 +477,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
   public abstract static class Adapter<T, A> extends TypeAdapter<T> {
     private final FieldsData fieldsData;
 
-    Adapter(FieldsData fieldsData) {
+    private Adapter(FieldsData fieldsData) {
       this.fieldsData = fieldsData;
     }
 

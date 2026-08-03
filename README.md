@@ -14,9 +14,8 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
 
 > [!IMPORTANT]\
 > Gson is not a recommended library for interacting with JSON on Android. The open-ended reflection in the Gson runtime doesn't play nicely with shrinking/optimization/obfuscation passes that Android release apps should perform.\
-> If your app or library may be running on Android, consider using [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md#basics) or [Moshi's Codegen](https://github.com/square/moshi?tab=readme-ov-file#codegen),
-> which use code generation instead of reflection. This avoids Gson's runtime crashes when optimizations are applied (usually due to the fields missing or being obfuscated), and results in faster performance on Android devices.
-> The Moshi APIs may be more familiar to users who already know Gson.
+> If your app or library may be running on Android, consider using [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md#basics),
+> which uses code generation instead of reflection. This avoids Gson's runtime crashes when optimizations are applied (usually due to the fields missing or being obfuscated), and results in faster performance on Android devices.
 > If you still want to use Gson and attempt to avoid these crashes, you can see how to do so [here](Troubleshooting.md#proguard-r8).
 
 ### Goals
@@ -87,11 +86,6 @@ Please use the ['gson' tag on StackOverflow](https://stackoverflow.com/questions
 ### ProGuard / R8
 
 See the details in the related section in the [Troubleshooting guide](Troubleshooting.md#proguard-r8).
-
-### Related Content Created by Third Parties
-  * [Gson Tutorial](https://www.studytrails.com/java/json/java-google-json-introduction/) by `StudyTrails`
-  * [Gson Tutorial Series](https://futurestud.io/tutorials/gson-getting-started-with-java-json-serialization-deserialization) by `Future Studio`
-  * [Gson API Report](https://abi-laboratory.pro/java/tracker/timeline/gson/)
 
 ### Building
 

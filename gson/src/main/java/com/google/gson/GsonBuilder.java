@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +148,7 @@ public final class GsonBuilder {
   boolean useJdkUnsafe = DEFAULT_USE_JDK_UNSAFE;
   ToNumberStrategy objectToNumberStrategy = DEFAULT_OBJECT_TO_NUMBER_STRATEGY;
   ToNumberStrategy numberToNumberStrategy = DEFAULT_NUMBER_TO_NUMBER_STRATEGY;
-  final ArrayDeque<ReflectionAccessFilter> reflectionFilters = new ArrayDeque<>();
+  final Deque<ReflectionAccessFilter> reflectionFilters = new ArrayDeque<>();
 
   /**
    * Creates a GsonBuilder instance that can be used to build Gson with various configuration
