@@ -1880,10 +1880,8 @@ public class JsonReader implements Closeable {
   }
 
   private void validateAscii(String s) throws MalformedJsonException {
-    for (int i = 0; i < s.length(); i++) {
-      if (s.charAt(i) > 127) {
-        throw syntaxError("String contains non-ASCII characters: " + s);
-      }
+    if (!JsonTreeReader.isAllAscii(s)) {
+      throw syntaxError("String contains non-ASCII characters: " + s);
     }
   }
 
