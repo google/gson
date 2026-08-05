@@ -523,7 +523,7 @@
               <configuration>
                 <skip>${gson.isTestModule}</skip>
                 <signature>
-                  <!-- Google's internal use currently requires API Level 23 without desugaring. -->
+                  <!-- Don't use https://github.com/open-toast/gummy-bears; Google's internal use currently does not support desugaring. -->
                   <groupId>net.sf.androidscents.signature</groupId>
                   <artifactId>android-api-level-24</artifactId>
                   <version>7.0_r2</version>
