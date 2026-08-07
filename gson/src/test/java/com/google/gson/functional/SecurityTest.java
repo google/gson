@@ -59,18 +59,18 @@ public class SecurityTest {
   }
 
   @Test
-  public void testJsonWithNonExectuableTokenSerialization() {
+  public void testJsonWithNonExecutableTokenSerialization() {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     String json = gson.toJson(JSON_NON_EXECUTABLE_PREFIX);
     assertThat(json).isEqualTo(JSON_NON_EXECUTABLE_PREFIX + "\")]}\\u0027\\n\"");
   }
 
   /**
-   * Gson should be able to deserialize a stream with non-exectuable token even if it is created
+   * Gson should be able to deserialize a stream with non-executable token even if it is created
    * without {@link GsonBuilder#generateNonExecutableJson()}.
    */
   @Test
-  public void testJsonWithNonExectuableTokenWithRegularGsonDeserialization() {
+  public void testJsonWithNonExecutableTokenWithRegularGsonDeserialization() {
     Gson gson = gsonBuilder.create();
     // Note: Embedding non-executable prefix literally is only possible because Gson is lenient by
     // default
@@ -81,12 +81,11 @@ public class SecurityTest {
   }
 
   /**
-   * Gson should be able to deserialize a stream with non-exectuable token if it is created with
+   * Gson should be able to deserialize a stream with non-executable token if it is created with
    * {@link GsonBuilder#generateNonExecutableJson()}.
    */
   @Test
-  public void testJsonWithNonExectuableTokenWithConfiguredGsonDeserialization() {
-    // Gson should be able to deserialize a stream with non-exectuable token even if it is created
+  public void testJsonWithNonExecutableTokenWithConfiguredGsonDeserialization() {
     Gson gson = gsonBuilder.generateNonExecutableJson().create();
     // Note: Embedding non-executable prefix literally is only possible because Gson is lenient by
     // default

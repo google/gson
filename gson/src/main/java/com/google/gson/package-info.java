@@ -15,7 +15,7 @@
  */
 
 /**
- * This package provides the {@link com.google.gson.Gson} class to convert Json to Java and
+ * This package provides the {@link com.google.gson.Gson} class to convert JSON to Java and
  * vice-versa.
  *
  * <p>The primary class to use is {@link com.google.gson.Gson} which can be constructed with {@code

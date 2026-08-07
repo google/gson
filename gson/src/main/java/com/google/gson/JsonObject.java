@@ -23,7 +23,7 @@ import java.util.Set;
 
 /**
  * A class representing an object type in JSON. An object consists of name-value pairs where names
- * are strings, and values are any type of {@link JsonElement}. This allows for a creating a tree of
+ * are strings, and values are any type of {@link JsonElement}. This allows for creating a tree of
  * JsonElements. The member elements of this object are maintained in the order they were added.
  * Member names must be non-{@code null}. Member values cannot be {@code null} either; if {@code
  * null} is provided as value argument to any of the methods, it is converted to a {@link JsonNull}.

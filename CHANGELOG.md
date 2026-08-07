@@ -76,7 +76,7 @@ Also many small improvements to javadoc.
 ## Version 2.8.8
 
 * Fixed issue with recursive types (https://github.com/google/gson/issues/1390).
-* Better behaviour with Java 9+ and `Unsafe` if there is a security manager (https://github.com/google/gson/pull/1712).
+* Better behavior with Java 9+ and `Unsafe` if there is a security manager (https://github.com/google/gson/pull/1712).
 * `EnumTypeAdapter` now works better when ProGuard has obfuscated enum fields (https://github.com/google/gson/pull/1495).
 
 ## Version 2.8.7
@@ -102,7 +102,7 @@ _2018-05-21_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2
 
 ## Version 2.8.4
 _2018-05-01_  [GitHub Diff](https://github.com/google/gson/compare/gson-parent-2.8.3...gson-parent-2.8.4)
- * Added a new FieldNamingPolicy, `LOWER_CASE_WITH_DOTS` that mapps JSON name `someFieldName` to `some.field.name`
+ * Added a new FieldNamingPolicy, `LOWER_CASE_WITH_DOTS` that maps JSON name `someFieldName` to `some.field.name`
  * Fixed issue https://github.com/google/gson/issues/1305 by removing compile/runtime dependency on `sun.misc.Unsafe`
 
 ## Version 2.8.3
