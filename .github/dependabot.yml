@@ -12,6 +12,24 @@ updates:
         patterns:
         # Create a single pull request for all dependencies and plugins
         - "*"
+    ignore:
+      # Ignore JUnit 6, see dedicated configuration below
+      - dependency-name: "org.junit:junit-bom"
+
+  # Dedicated config for JUnit 6
+  # Currently JUnit 6 is only used for `/test-graal-native-image`, but it frequently causes incompatibilities
+  # there with `org.graalvm.buildtools:native-maven-plugin` because that maintains a hardcoded list of some JUnit
+  # classes (at least for JDK 21, see https://github.com/junit-team/junit-framework/issues/5134#issuecomment-3481992112)
+  # When JUnit introduces a new class but the native-maven-plugin has not included it yet, the Dependabot PR fails
+  # Therefore increase cooldown specifically for JUnit to reduce the risk of this happening
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 50
+    allow:
+      - dependency-name: "org.junit:junit-bom"
 
   - package-ecosystem: "github-actions"
     directory: "/"
