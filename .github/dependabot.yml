@@ -30,6 +30,9 @@ updates:
       default-days: 50
     allow:
       - dependency-name: "org.junit:junit-bom"
+    # Hack: Work around Dependabot restriction "update configs must have a unique combination of 'package-ecosystem', 'directory', and 'target-branch'"
+    # see https://github.com/dependabot/dependabot-core/issues/1778#issuecomment-1988140219
+    target-branch: "main"
 
   - package-ecosystem: "github-actions"
     directory: "/"
