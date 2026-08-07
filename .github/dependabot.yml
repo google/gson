@@ -27,7 +27,7 @@ updates:
     schedule:
       interval: "monthly"
     cooldown:
-      default-days: 50
+      default-days: 70
     allow:
       - dependency-name: "org.junit:junit-bom"
     # Hack: Work around Dependabot restriction "update configs must have a unique combination of 'package-ecosystem', 'directory', and 'target-branch'"
