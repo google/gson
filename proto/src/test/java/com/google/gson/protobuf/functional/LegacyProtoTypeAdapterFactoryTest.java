@@ -199,6 +199,7 @@ public final class LegacyProtoTypeAdapterFactoryTest {
     Pattern pattern =
         Pattern.compile(
             "^(memoized.?(Hash.?Code|Is.?Initialized|Size))|unknown.?Fields"
+                + "|bit.?[fF]ield.*"
                 + "|.*Memoized.?Serialized.?Size$",
             Pattern.CASE_INSENSITIVE);
     var keysToRemove =
