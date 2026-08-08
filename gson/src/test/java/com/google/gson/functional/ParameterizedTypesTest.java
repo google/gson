@@ -287,7 +287,7 @@ public class ParameterizedTypesTest {
   }
 
   /**
-   * An test object that has fields that are type variables.
+   * A test object that has fields that are type variables.
    *
    * @param <T> Enforce T to be a string to make writing the "toExpectedJson" method easier.
    */

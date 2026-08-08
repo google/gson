@@ -731,7 +731,7 @@ public class PrimitiveTest {
     String result = gson.toJson(15L);
     assertThat(result).isEqualTo("\"15\"");
 
-    // Test with an integer and ensure its still a number
+    // Test with an integer and ensure it's still a number
     result = gson.toJson(2);
     assertThat(result).isEqualTo("2");
   }
