@@ -161,6 +161,33 @@ public class PrimitiveTest {
     assertThat(gson.toJson(1.5, Integer.class)).isEqualTo("1");
   }
 
+  /** Regression test for https://github.com/google/gson/issues/2680 */
+  @Test
+  public void testToJsonTreePreservesIntegralType() {
+    // toJsonTree should preserve the Number type, not widen byte/short/int to Long
+    assertThat(gson.toJsonTree((byte) 1, byte.class).getAsNumber().getClass())
+        .isEqualTo(Byte.class);
+    assertThat(gson.toJsonTree((byte) 1, Byte.class).getAsNumber().getClass())
+        .isEqualTo(Byte.class);
+
+    assertThat(gson.toJsonTree((short) 1, short.class).getAsNumber().getClass())
+        .isEqualTo(Short.class);
+    assertThat(gson.toJsonTree((short) 1, Short.class).getAsNumber().getClass())
+        .isEqualTo(Short.class);
+
+    assertThat(gson.toJsonTree(1, int.class).getAsNumber().getClass()).isEqualTo(Integer.class);
+    assertThat(gson.toJsonTree(1, Integer.class).getAsNumber().getClass()).isEqualTo(Integer.class);
+
+    // Long should remain Long
+    assertThat(gson.toJsonTree(1L, long.class).getAsNumber().getClass()).isEqualTo(Long.class);
+    assertThat(gson.toJsonTree(1L, Long.class).getAsNumber().getClass()).isEqualTo(Long.class);
+
+    // Narrowing conversion should produce the target type
+    assertThat(gson.toJsonTree(1.5, Integer.class).getAsNumber().getClass())
+        .isEqualTo(Integer.class);
+    assertThat(gson.toJsonTree(1L, Byte.class).getAsNumber().getClass()).isEqualTo(Byte.class);
+  }
+
   @Test
   public void testLongSerialization() {
     assertThat(gson.toJson(1L, long.class)).isEqualTo("1");
