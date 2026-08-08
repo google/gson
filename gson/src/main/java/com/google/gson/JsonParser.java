@@ -20,6 +20,7 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -108,8 +109,13 @@ public final class JsonParser {
     try {
       JsonReader jsonReader = new JsonReader(reader);
       JsonElement element = parseReader(jsonReader);
-      if (!element.isJsonNull() && jsonReader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonSyntaxException("Did not consume the entire document.");
+      try {
+        if (jsonReader.peek() != JsonToken.END_DOCUMENT) {
+          throw new JsonSyntaxException("Did not consume the entire document.");
+        }
+      } catch (EOFException e) {
+        // Stream is exhausted — no trailing data. This happens when the input was empty
+        // or contained only whitespace, which Gson accepts for backward compatibility.
       }
       return element;
     } catch (MalformedJsonException | NumberFormatException e) {
