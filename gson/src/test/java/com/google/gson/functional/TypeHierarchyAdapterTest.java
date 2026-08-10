@@ -135,7 +135,7 @@ public final class TypeHierarchyAdapterTest {
     assertThat(copied.userid).isEqualTo(manager.userid);
   }
 
-  /** This behaviour changed in Gson 2.1; it used to throw. */
+  /** This behavior changed in Gson 2.1; it used to throw. */
   @Test
   public void testRegisterSubTypeFirstAllowed() {
     Gson unused =
@@ -189,12 +189,12 @@ public final class TypeHierarchyAdapterTest {
       }
 
       // only managers have minions
-      JsonElement minons = object.get("minions");
-      if (minons != null) {
+      JsonElement minions = object.get("minions");
+      if (minions != null) {
         if (result == null) {
           result = new Manager();
         }
-        ((Manager) result).minions = context.deserialize(minons, Employee[].class);
+        ((Manager) result).minions = context.deserialize(minions, Employee[].class);
       }
 
       if (result == null) {

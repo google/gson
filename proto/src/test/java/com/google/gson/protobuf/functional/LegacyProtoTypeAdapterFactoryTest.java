@@ -189,7 +189,7 @@ public final class LegacyProtoTypeAdapterFactoryTest {
   }
 
   private static void rewriteJsonObject(JsonObject json) {
-    // The RTAF JSON includes a field `fooMemoizedSerializedSize` for every `foo` that is a a
+    // The RTAF JSON includes a field `fooMemoizedSerializedSize` for every `foo` that is a
     // repeated non-message field. Not including it means that it gets its default value of -1,
     // which implies that it will be computed on demand. We verify `getSerializedSize()` in
     // `legacyCompatToRtaf`, which would fail if the absence of `fooMemoizedSerializedSize` were a

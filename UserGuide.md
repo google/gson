@@ -528,7 +528,7 @@ String jsonOutput = gson.toJson(someObject);
 
 ### Null Object Support
 
-The default behaviour that is implemented in Gson is that `null` object fields are ignored. This allows for a more compact output format; however, the client must define a default value for these fields as the JSON format is converted back into its Java form.
+The default behavior that is implemented in Gson is that `null` object fields are ignored. This allows for a more compact output format; however, the client must define a default value for these fields as the JSON format is converted back into its Java form.
 
 Here's how you would configure a `Gson` instance to output null:
 
