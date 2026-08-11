@@ -633,7 +633,7 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
-  public void testDateSerializationWithPatternNotOverridenByTypeAdapter() {
+  public void testDateSerializationWithPatternNotOverriddenByTypeAdapter() {
     String pattern = "yyyy-MM-dd";
     Gson gson =
         new GsonBuilder()

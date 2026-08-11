@@ -376,7 +376,7 @@ public class JsonReader implements Closeable {
    *       to the following departures from RFC 8259:
    *       <ul>
    *         <li>Streams that start with the <a href="#nonexecuteprefix">non-execute prefix</a>,
-   *             {@code ")]}'\n"}
+   *             <code>")]}'\n"</code>
    *         <li>Streams that include multiple top-level values. With legacy strict or strict
    *             parsing, each stream must contain exactly one top-level value.
    *         <li>Numbers may be {@link Double#isNaN() NaNs} or {@link Double#isInfinite()
@@ -1613,7 +1613,7 @@ public class JsonReader implements Closeable {
         pos = p;
         /*
          * Skip a # hash end-of-line comment. The JSON RFC doesn't
-         * specify this behaviour, but it's required to parse
+         * specify this behavior, but it's required to parse
          * existing documents. See http://b/2571423.
          */
         checkLenient();
