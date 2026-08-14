@@ -79,7 +79,7 @@ public class MapAsArrayTypeAdapterTest {
     String s = "[[\"1.00\",\"a\"],[\"1.0\",\"b\"]]";
     Type type = new TypeToken<Map<Double, String>>() {}.getType();
     var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson(s, type));
-    assertThat(e).hasMessageThat().isEqualTo("duplicate key: 1.0");
+    assertThat(e).hasMessageThat().isEqualTo("Duplicate key '1.0'; at path $[1][0]");
   }
 
   @Test
@@ -89,7 +89,7 @@ public class MapAsArrayTypeAdapterTest {
     String s = "[[\"a\",null],[\"a\",\"x\"]]";
     Type type = new TypeToken<Map<String, String>>() {}.getType();
     var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson(s, type));
-    assertThat(e).hasMessageThat().isEqualTo("duplicate key: a");
+    assertThat(e).hasMessageThat().isEqualTo("Duplicate key 'a'; at path $[1][0]");
   }
 
   @Test

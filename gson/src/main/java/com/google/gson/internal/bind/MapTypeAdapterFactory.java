@@ -187,10 +187,11 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         while (in.hasNext()) {
           in.beginArray(); // entry array
           K key = keyTypeAdapter.read(in);
-          V value = valueTypeAdapter.read(in);
           if (map.containsKey(key)) {
-            throw new JsonSyntaxException("duplicate key: " + key);
+            throw new JsonSyntaxException(
+                "Duplicate key '" + key + "'; at path " + in.getPreviousPath());
           }
+          V value = valueTypeAdapter.read(in);
           map.put(key, value);
           in.endArray();
         }
@@ -200,10 +201,11 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         while (in.hasNext()) {
           JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
           K key = keyTypeAdapter.read(in);
-          V value = valueTypeAdapter.read(in);
           if (map.containsKey(key)) {
-            throw new JsonSyntaxException("duplicate key: " + key);
+            throw new JsonSyntaxException(
+                "Duplicate key '" + key + "'; at path " + in.getPreviousPath());
           }
+          V value = valueTypeAdapter.read(in);
           map.put(key, value);
         }
         in.endObject();

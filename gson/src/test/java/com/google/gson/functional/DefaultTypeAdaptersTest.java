@@ -43,6 +43,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.time.Duration;
@@ -185,6 +186,14 @@ public class DefaultTypeAdaptersTest {
     String json = '"' + uriValue + '"';
     URI target = gson.fromJson(json, URI.class);
     assertThat(target.toString()).isEqualTo(uriValue);
+  }
+
+  @Test
+  public void testUriDeserializationError() {
+    var e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"://invalid\"", URI.class));
+    assertThat(e.getMessage()).isEqualTo("Failed parsing '://invalid' as URI; at path $");
+    assertThat(e).hasCauseThat().isInstanceOf(URISyntaxException.class);
   }
 
   @Test
