@@ -42,6 +42,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -154,6 +155,14 @@ public class DefaultTypeAdaptersTest {
 
     URL target2 = gson.fromJson('"' + urlValue + '"', URL.class);
     assertThat(target2.toExternalForm()).isEqualTo(urlValue);
+  }
+
+  @Test
+  public void testUrlDeserializationError() {
+    var e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"://invalid\"", URL.class));
+    assertThat(e.getMessage()).isEqualTo("Failed parsing '://invalid' as URL; at path $");
+    assertThat(e).hasCauseThat().isInstanceOf(MalformedURLException.class);
   }
 
   @Test

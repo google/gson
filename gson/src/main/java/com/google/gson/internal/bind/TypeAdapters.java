@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -710,7 +711,15 @@ public final class TypeAdapters {
             return null;
           }
           String nextString = in.nextString();
-          return nextString.equals("null") ? null : new URL(nextString);
+          if (nextString.equals("null")) {
+            return null;
+          }
+          try {
+            return new URL(nextString);
+          } catch (MalformedURLException e) {
+            throw new JsonSyntaxException(
+                "Failed parsing '" + nextString + "' as URL; at path " + in.getPreviousPath(), e);
+          }
         }
 
         @Override
