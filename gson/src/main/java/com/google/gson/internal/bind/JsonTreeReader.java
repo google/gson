@@ -274,6 +274,10 @@ public final class JsonTreeReader extends JsonReader {
     long result;
     try {
       result = primitive.getAsLong();
+      if (token == JsonToken.NUMBER && result != primitive.getAsDouble()) {
+        // Mirror JsonReader: reject numbers that cannot be exactly represented as a long
+        throw new NumberFormatException("Expected a long but was " + primitive.getAsString());
+      }
     } catch (NumberFormatException e) {
       throw numberFormatException("Expected a long but was " + primitive.getAsString(), e);
     }
@@ -298,6 +302,10 @@ public final class JsonTreeReader extends JsonReader {
     int result;
     try {
       result = primitive.getAsInt();
+      if (token == JsonToken.NUMBER && result != primitive.getAsDouble()) {
+        // Mirror JsonReader: reject numbers that cannot be exactly represented as an int
+        throw new NumberFormatException("Expected an int but was " + primitive.getAsString());
+      }
     } catch (NumberFormatException e) {
       throw numberFormatException("Expected an int but was " + primitive.getAsString(), e);
     }
