@@ -312,6 +312,12 @@ public class JsonReader implements Closeable {
   private String[] pathNames = new String[32];
   private int[] pathIndices = new int[32];
 
+  /**
+   * Whether {@link JsonReaderInternalAccess#promoteNameToValue} converted the current property name
+   * to a value without recording it in {@link #pathNames} yet.
+   */
+  private boolean promotedName;
+
   /** Creates a new instance that reads a JSON-encoded stream from {@code in}. */
   public JsonReader(Reader in) {
     this.in = Objects.requireNonNull(in, "in == null");
@@ -972,6 +978,14 @@ public class JsonReader implements Closeable {
     return result;
   }
 
+  /** Records a promoted property name in the JSON path after it has been consumed as a value. */
+  private void recordPromotedName(String name) {
+    if (promotedName) {
+      pathNames[stackSize - 1] = name;
+      promotedName = false;
+    }
+  }
+
   /**
    * Returns the {@link JsonToken#STRING string} value of the next token, consuming it. If the next
    * token is a number, this method will return its string form.
@@ -1010,6 +1024,7 @@ public class JsonReader implements Closeable {
     }
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;
+    recordPromotedName(result);
     return result;
   }
 
@@ -1075,6 +1090,7 @@ public class JsonReader implements Closeable {
       case PEEKED_LONG:
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
+        recordPromotedName(Long.toString(peekedLong));
         return (double) peekedLong;
       case PEEKED_NUMBER:
         peekedString = new String(buffer, pos, peekedNumberLength);
@@ -1106,9 +1122,11 @@ public class JsonReader implements Closeable {
     if (strictness != Strictness.LENIENT && (Double.isNaN(result) || Double.isInfinite(result))) {
       throw syntaxError("JSON forbids NaN and infinities: " + result);
     }
+    String literal = peekedString;
     peekedString = null;
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;
+    recordPromotedName(literal);
     return result;
   }
 
@@ -1131,6 +1149,7 @@ public class JsonReader implements Closeable {
       case PEEKED_LONG:
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
+        recordPromotedName(Long.toString(peekedLong));
         return peekedLong;
       case PEEKED_NUMBER:
         peekedString = new String(buffer, pos, peekedNumberLength);
@@ -1149,6 +1168,7 @@ public class JsonReader implements Closeable {
           long result = Long.parseLong(peekedString);
           peeked = PEEKED_NONE;
           pathIndices[stackSize - 1]++;
+          recordPromotedName(peekedString);
           return result;
         } catch (NumberFormatException ignored) {
           // Fall back to parse as a double below.
@@ -1172,9 +1192,11 @@ public class JsonReader implements Closeable {
     if (result != asDouble) { // Make sure no precision was lost casting to 'long'.
       throw new NumberFormatException("Expected a long but was " + peekedString + locationString());
     }
+    String literal = peekedString;
     peekedString = null;
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;
+    recordPromotedName(literal);
     return result;
   }
 
@@ -1384,6 +1406,7 @@ public class JsonReader implements Closeable {
       }
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
+      recordPromotedName(Long.toString(peekedLong));
       return result;
     }
 
@@ -1401,6 +1424,7 @@ public class JsonReader implements Closeable {
         result = Integer.parseInt(peekedString);
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
+        recordPromotedName(peekedString);
         return result;
       } catch (NumberFormatException ignored) {
         // Fall back to parse as a double below.
@@ -1423,9 +1447,11 @@ public class JsonReader implements Closeable {
     if (result != asDouble) { // Make sure no precision was lost casting to 'int'.
       throw new NumberFormatException("Expected an int but was " + peekedString + locationString());
     }
+    String literal = peekedString;
     peekedString = null;
     peeked = PEEKED_NONE;
     pathIndices[stackSize - 1]++;
+    recordPromotedName(literal);
     return result;
   }
 
@@ -1534,6 +1560,7 @@ public class JsonReader implements Closeable {
     } while (count > 0);
 
     pathIndices[stackSize - 1]++;
+    recordPromotedName("<skipped>");
   }
 
   private void push(int newTop) throws MalformedJsonException {
@@ -1970,6 +1997,8 @@ public class JsonReader implements Closeable {
               default:
                 throw reader.unexpectedTokenError("a name");
             }
+            // Remember to update the JSON path once this name is consumed as a value (#1768).
+            reader.promotedName = true;
           }
         };
   }

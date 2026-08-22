@@ -362,8 +362,11 @@ public final class JsonTreeReader extends JsonReader {
     expect(JsonToken.NAME);
     Iterator<?> i = (Iterator<?>) peekStack();
     Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
+    String name = (String) entry.getKey();
+    // Record the name so the JSON path includes it after promotion (issue 1768).
+    pathNames[stackSize - 1] = name;
     push(entry.getValue());
-    push(new JsonPrimitive((String) entry.getKey()));
+    push(new JsonPrimitive(name));
   }
 
   private void push(Object newTop) {
