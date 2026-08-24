@@ -412,10 +412,12 @@ public class JsonReaderPathTest {
     JsonReader reader = factory.create("{\"name\":\"value\"}");
     reader.beginObject();
     JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);
-    assertThat(reader.nextString()).isEqualTo("name");
+    String s1 = reader.nextString();
+    assertThat(s1).isEqualTo("name");
     assertThat(reader.getPreviousPath()).isEqualTo("$.name");
     assertThat(reader.getPath()).isEqualTo("$.name");
-    assertThat(reader.nextString()).isEqualTo("value");
+    String s2 = reader.nextString();
+    assertThat(s2).isEqualTo("value");
     assertThat(reader.getPreviousPath()).isEqualTo("$.name");
     assertThat(reader.getPath()).isEqualTo("$.name");
     reader.endObject();
