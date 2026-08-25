@@ -589,15 +589,15 @@ public class JsonReader implements Closeable {
         {
           // Look for a comma before the next element.
           int c = nextNonWhitespace(true);
-        switch (c) {
+          switch (c) {
             case ']':
               peeked = PEEKED_END_ARRAY;
-            return peeked;
-          case ';':
-            checkLenient(); // fall-through
-          case ',':
-            break;
-          default:
+              return peeked;
+            case ';':
+              checkLenient(); // fall-through
+            case ',':
+              break;
+            default:
               throw syntaxError("Unterminated array");
           }
           break;
