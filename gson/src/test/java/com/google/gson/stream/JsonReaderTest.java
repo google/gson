@@ -2217,24 +2217,38 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader(document));
     reader.setStrictness(Strictness.LENIENT);
     for (Object expectation : expectations) {
-      if (expectation == BEGIN_OBJECT) {
-        reader.beginObject();
-      } else if (expectation == BEGIN_ARRAY) {
-        reader.beginArray();
-      } else if (expectation == END_OBJECT) {
-        reader.endObject();
-      } else if (expectation == END_ARRAY) {
-        reader.endArray();
-      } else if (expectation == NAME) {
-        assertThat(reader.nextName()).isEqualTo("name");
-      } else if (expectation == BOOLEAN) {
-        assertThat(reader.nextBoolean()).isFalse();
-      } else if (expectation == STRING) {
-        assertThat(reader.nextString()).isEqualTo("string");
-      } else if (expectation == NUMBER) {
-        assertThat(reader.nextInt()).isEqualTo(123);
-      } else if (expectation == NULL) {
-        reader.nextNull();
+      if (expectation instanceof JsonToken) {
+        switch ((JsonToken) expectation) {
+          case BEGIN_OBJECT:
+            reader.beginObject();
+            break;
+          case BEGIN_ARRAY:
+            reader.beginArray();
+            break;
+          case END_OBJECT:
+            reader.endObject();
+            break;
+          case END_ARRAY:
+            reader.endArray();
+            break;
+          case NAME:
+            assertThat(reader.nextName()).isEqualTo("name");
+            break;
+          case BOOLEAN:
+            assertThat(reader.nextBoolean()).isFalse();
+            break;
+          case STRING:
+            assertThat(reader.nextString()).isEqualTo("string");
+            break;
+          case NUMBER:
+            assertThat(reader.nextInt()).isEqualTo(123);
+            break;
+          case NULL:
+            reader.nextNull();
+            break;
+          default:
+            throw new AssertionError("Unsupported expectation value: " + expectation);
+        }
       } else if (expectation instanceof Class
           && Exception.class.isAssignableFrom((Class<?>) expectation)) {
         var expected = assertThrows(Exception.class, () -> reader.peek());
