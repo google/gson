@@ -274,6 +274,12 @@ public class JsonTreeReaderTest {
     reader.close();
   }
 
+  @Test
+  public void testCharacterOffset() {
+    JsonTreeReader reader = new JsonTreeReader(new JsonObject());
+    assertThat(reader.getCharacterOffset()).isEqualTo(-1L);
+  }
+
   /**
    * {@link JsonTreeReader} effectively replaces the complete reading logic of {@link JsonReader} to
    * read from a {@link JsonElement} instead of a {@link Reader}. Therefore all relevant methods of

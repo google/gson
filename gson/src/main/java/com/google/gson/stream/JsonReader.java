@@ -267,6 +267,8 @@ public class JsonReader implements Closeable {
   private int pos = 0;
   private int limit = 0;
 
+  private long bufferStart = 0;
+
   private int lineNumber = 0;
   private int lineStart = 0;
 
@@ -1512,6 +1514,7 @@ public class JsonReader implements Closeable {
   private boolean fillBuffer(int minimum) throws IOException {
     char[] buffer = this.buffer;
     lineStart -= pos;
+    bufferStart += pos;
     if (limit != pos) {
       limit -= pos;
       System.arraycopy(buffer, pos, buffer, 0, limit);
@@ -1756,6 +1759,17 @@ public class JsonReader implements Closeable {
    */
   public String getPreviousPath() {
     return getPath(true);
+  }
+
+  /**
+   * Returns the 0-based character offset of the current position in the JSON stream, or {@code -1}
+   * if not reading from a character stream.
+   *
+   * @return the character offset from the beginning of the stream, or {@code -1}
+   * @since $next-version$
+   */
+  public long getCharacterOffset() {
+    return bufferStart + pos;
   }
 
   /**
