@@ -239,12 +239,12 @@ public final class ISO8601Utils {
         offset += 1;
       } else if (timezoneIndicator == '+' || timezoneIndicator == '-') {
         String timezoneOffset = date.substring(offset);
+        offset += timezoneOffset.length();
 
         // When timezone has no minutes, we should append it, valid timezones are, for example:
         // +00:00, +0000 and +00
         timezoneOffset = timezoneOffset.length() >= 5 ? timezoneOffset : timezoneOffset + "00";
 
-        offset += timezoneOffset.length();
         // 18-Jun-2015, tatu: Minor simplification, skip offset of "+0000"/"+00:00"
         if (timezoneOffset.equals("+0000") || timezoneOffset.equals("+00:00")) {
           timezone = TIMEZONE_UTC;
