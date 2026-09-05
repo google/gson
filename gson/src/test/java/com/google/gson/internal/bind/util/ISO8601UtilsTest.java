@@ -108,6 +108,7 @@ public class ISO8601UtilsTest {
   }
 
   @Test
+  @SuppressWarnings("JavaUtilDate")
   public void testDateParseShortTimezonePosition() throws ParseException {
     for (String timezone : new String[] {"+00", "+01", "-02", "+01:30", "+0130"}) {
       String dateStr = "2018-06-25T00:00:00" + timezone;
