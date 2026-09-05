@@ -108,6 +108,29 @@ public class ISO8601UtilsTest {
   }
 
   @Test
+  public void testDateParseShortTimezonePosition() throws ParseException {
+    for (String timezone : new String[] {"+00", "+01", "-02", "+01:30", "+0130"}) {
+      String dateStr = "2018-06-25T00:00:00" + timezone;
+      ParsePosition position = new ParsePosition(0);
+      Date date = ISO8601Utils.parse(dateStr, position);
+      assertThat(position.getIndex()).isEqualTo(dateStr.length());
+
+      String fullTimezone = timezone.length() == 3 ? timezone + ":00" : timezone;
+      Date expected =
+          ISO8601Utils.parse("2018-06-25T00:00:00" + fullTimezone, new ParsePosition(0));
+      assertThat(date.getTime()).isEqualTo(expected.getTime());
+    }
+  }
+
+  @Test
+  public void testDateParseShortTimezoneFromNonzeroPosition() throws ParseException {
+    String dateStr = "prefix 2018-06-25T00:00:00+01";
+    ParsePosition position = new ParsePosition("prefix ".length());
+    ISO8601Utils.parse(dateStr, position);
+    assertThat(position.getIndex()).isEqualTo(dateStr.length());
+  }
+
+  @Test
   @SuppressWarnings("UndefinedEquals")
   public void testDateParseSpecialTimezone() throws ParseException {
     String dateStr = "2018-06-25T00:02:00-02:58";
