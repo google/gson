@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.reflect.TypeToken;
@@ -99,6 +100,58 @@ public class ArrayTest {
     String[] expected = {"foo", null, "bar"};
     String[] target = gson.fromJson(json, expected.getClass());
     assertThat(target).asList().containsAnyIn(expected);
+  }
+
+  @Test
+  public void testNullsInPrimitiveArrayDeserialization() {
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1,null,3]", int[].class));
+    assertThat(e).hasMessageThat().isEqualTo("null is not a valid int[] element; at path $[1]");
+
+    e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("[true,null,false]", boolean[].class));
+    assertThat(e).hasMessageThat().isEqualTo("null is not a valid boolean[] element; at path $[1]");
+
+    e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("[1.0,null,2.0]", double[].class));
+    assertThat(e).hasMessageThat().isEqualTo("null is not a valid double[] element; at path $[1]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1,null,2]", long[].class));
+    assertThat(e).hasMessageThat().isEqualTo("null is not a valid long[] element; at path $[1]");
+
+    e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("['a',null,'b']", char[].class));
+    assertThat(e).hasMessageThat().isEqualTo("null is not a valid char[] element; at path $[1]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1,null,2]", byte[].class));
+    assertThat(e).hasMessageThat().isEqualTo("null is not a valid byte[] element; at path $[1]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1,null,2]", short[].class));
+    assertThat(e).hasMessageThat().isEqualTo("null is not a valid short[] element; at path $[1]");
+
+    e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("[1.0,null,2.0]", float[].class));
+    assertThat(e).hasMessageThat().isEqualTo("null is not a valid float[] element; at path $[1]");
+
+    // Multidimensional array: null inner element
+    e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("[[1,null],[2,3]]", int[][].class));
+    assertThat(e).hasMessageThat().isEqualTo("null is not a valid int[] element; at path $[0][1]");
+  }
+
+  @Test
+  public void testNullsInBoxedAndMultidimensionalArray() {
+    Integer[] boxed = gson.fromJson("[1,null,3]", Integer[].class);
+    assertThat(boxed).asList().containsExactly(1, null, 3).inOrder();
+
+    int[][] multi = gson.fromJson("[[1,2],null]", int[][].class);
+    assertThat(multi).hasLength(2);
+    assertThat(multi[0]).isEqualTo(new int[] {1, 2});
+    assertThat(multi[1]).isNull();
   }
 
   @Test
