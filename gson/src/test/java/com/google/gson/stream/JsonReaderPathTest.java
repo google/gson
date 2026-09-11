@@ -423,6 +423,40 @@ public class JsonReaderPathTest {
     reader.endObject();
   }
 
+  @Test
+  public void promoteNameToValueUpdatesPath_Skip() throws IOException {
+    JsonReader reader = factory.create("{\"name\":\"value\"}");
+    reader.beginObject();
+    JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);
+    reader.skipValue();
+    // Slight behavior difference, but probably acceptable; trying to fix this in JsonTreeReader
+    // would make its implementation unnecessarily complex
+    String expectedPath = factory == Factory.STRING_READER ? "$.<skipped>" : "$.name";
+    assertThat(reader.getPreviousPath()).isEqualTo(expectedPath);
+    assertThat(reader.getPath()).isEqualTo(expectedPath);
+    String s = reader.nextString();
+    assertThat(s).isEqualTo("value");
+    assertThat(reader.getPreviousPath()).isEqualTo(expectedPath);
+    assertThat(reader.getPath()).isEqualTo(expectedPath);
+    reader.endObject();
+  }
+
+  @Test
+  public void promoteNameToValueUpdatesPath_Number() throws IOException {
+    JsonReader reader = factory.create("{\"1\":\"value\"}");
+    reader.beginObject();
+    JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);
+    long number = reader.nextLong();
+    assertThat(number).isEqualTo(1);
+    assertThat(reader.getPreviousPath()).isEqualTo("$.1");
+    assertThat(reader.getPath()).isEqualTo("$.1");
+    String s = reader.nextString();
+    assertThat(s).isEqualTo("value");
+    assertThat(reader.getPreviousPath()).isEqualTo("$.1");
+    assertThat(reader.getPath()).isEqualTo("$.1");
+    reader.endObject();
+  }
+
   public enum Factory {
     STRING_READER {
       @Override

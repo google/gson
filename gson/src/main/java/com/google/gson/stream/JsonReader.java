@@ -1090,7 +1090,6 @@ public class JsonReader implements Closeable {
       case PEEKED_LONG:
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
-        recordPromotedName(Long.toString(peekedLong));
         return (double) peekedLong;
       case PEEKED_NUMBER:
         peekedString = new String(buffer, pos, peekedNumberLength);
@@ -1149,7 +1148,6 @@ public class JsonReader implements Closeable {
       case PEEKED_LONG:
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
-        recordPromotedName(Long.toString(peekedLong));
         return peekedLong;
       case PEEKED_NUMBER:
         peekedString = new String(buffer, pos, peekedNumberLength);
@@ -1425,7 +1423,6 @@ public class JsonReader implements Closeable {
       }
       peeked = PEEKED_NONE;
       pathIndices[stackSize - 1]++;
-      recordPromotedName(Long.toString(peekedLong));
       return result;
     }
 
