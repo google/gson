@@ -201,10 +201,13 @@ public class JsonReaderPathTest {
 
   @Test
   public void multipleTopLevelValuesInOneDocument() throws IOException {
-    assumeTrue(factory == Factory.STRING_READER);
+    assumeTrue(
+        "only JsonReader supports multiple top-level values, JsonTreeReader does not",
+        factory == Factory.STRING_READER);
 
     JsonReader reader = factory.create("[][]");
     reader.setStrictness(Strictness.LENIENT);
+
     reader.beginArray();
     reader.endArray();
     assertThat(reader.getPreviousPath()).isEqualTo("$");
@@ -446,6 +449,29 @@ public class JsonReaderPathTest {
     JsonReader reader = factory.create("{\"1\":\"value\"}");
     reader.beginObject();
     JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);
+    long number = reader.nextLong();
+    assertThat(number).isEqualTo(1);
+    assertThat(reader.getPreviousPath()).isEqualTo("$.1");
+    assertThat(reader.getPath()).isEqualTo("$.1");
+    String s = reader.nextString();
+    assertThat(s).isEqualTo("value");
+    assertThat(reader.getPreviousPath()).isEqualTo("$.1");
+    assertThat(reader.getPath()).isEqualTo("$.1");
+    reader.endObject();
+  }
+
+  @Test
+  public void promoteNameToValueUpdatesPath_UnquotedNumber() throws IOException {
+    assumeTrue(
+        "only relevant for JsonReader, not for JsonTreeReader", factory == Factory.STRING_READER);
+
+    // JSON object with unquoted name 1; should be promoted to unquoted string, not to JSON number
+    JsonReader reader = factory.create("{1: \"value\"}");
+    reader.setStrictness(Strictness.LENIENT);
+
+    reader.beginObject();
+    JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);
+    assertThat(reader.peek()).isEqualTo(JsonToken.STRING);
     long number = reader.nextLong();
     assertThat(number).isEqualTo(1);
     assertThat(reader.getPreviousPath()).isEqualTo("$.1");
