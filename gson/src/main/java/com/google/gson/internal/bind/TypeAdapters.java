@@ -477,8 +477,6 @@ public final class TypeAdapters {
       try {
         return (float) in.nextDouble();
       } catch (NumberFormatException e) {
-        // Consistent with BYTE, SHORT, INTEGER, LONG, BIG_DECIMAL and BIG_INTEGER above: a
-        // malformed number must surface as Gson's documented JsonSyntaxException.
         throw new JsonSyntaxException(e);
       }
     }
@@ -516,8 +514,6 @@ public final class TypeAdapters {
       try {
         return in.nextDouble();
       } catch (NumberFormatException e) {
-        // Consistent with BYTE, SHORT, INTEGER, LONG, BIG_DECIMAL and BIG_INTEGER above: a
-        // malformed number must surface as Gson's documented JsonSyntaxException.
         throw new JsonSyntaxException(e);
       }
     }
