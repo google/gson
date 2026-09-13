@@ -120,7 +120,7 @@
                   <!-- Also disallow too new JDK versions; they might introduce new lints, drop support
                     for older compiler Java target versions or cause issues for some Maven plugins.
                     Failing fast for such versions is better than failing with a confusing error during build. -->
-                  <version>[17,22)</version>
+                  <version>[17,26)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -132,7 +132,7 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>3.10.0</version>
         <executions>
           <execution>
             <goals>
@@ -342,7 +342,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.5.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -523,7 +523,7 @@
               <configuration>
                 <skip>${gson.isTestModule}</skip>
                 <signature>
-                  <!-- Google's internal use currently requires API Level 23 without desugaring. -->
+                  <!-- Don't use https://github.com/open-toast/gummy-bears; Google's internal use currently does not support desugaring. -->
                   <groupId>net.sf.androidscents.signature</groupId>
                   <artifactId>android-api-level-24</artifactId>
                   <version>7.0_r2</version>
@@ -561,6 +561,7 @@
         </plugins>
       </build>
     </profile>
+
     <!-- Disable Error Prone before Java 21 -->
     <profile>
       <id>disable-error-prone</id>

@@ -663,7 +663,7 @@ public final class LinkedTreeMap<K, V> extends AbstractMap<K, V> implements Seri
   /**
    * If somebody is unlucky enough to have to serialize one of these, serialize it as a
    * LinkedHashMap so that they won't need Gson on the other side to deserialize it. Using
-   * serialization defeats our DoS defence, so most apps shouldn't use it.
+   * serialization defeats our DoS defense, so most apps shouldn't use it.
    */
   private Object writeReplace() throws ObjectStreamException {
     return new LinkedHashMap<>(this);

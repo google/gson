@@ -121,6 +121,8 @@ public class JavaUtilConcurrentAtomicTest {
     JsonSyntaxException e =
         assertThrows(
             JsonSyntaxException.class, () -> gson.fromJson("[1,null,3]", AtomicLongArray.class));
-    assertThat(e).hasMessageThat().isEqualTo("null is not a valid AtomicLongArray element");
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("null is not a valid AtomicLongArray element; at path $[1]");
   }
 }

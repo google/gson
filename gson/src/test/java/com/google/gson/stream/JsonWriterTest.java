@@ -103,9 +103,9 @@ public final class JsonWriterTest {
     assertThat(string4.toString()).isEqualTo("123.4");
 
     StringWriter string5 = new StringWriter();
-    JsonWriter writert = new JsonWriter(string5);
-    writert.value("a");
-    writert.close();
+    JsonWriter writer5 = new JsonWriter(string5);
+    writer5.value("a");
+    writer5.close();
     assertThat(string5.toString()).isEqualTo("\"a\"");
   }
 

@@ -21,7 +21,6 @@ import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
 import static com.google.gson.stream.JsonToken.BOOLEAN;
 import static com.google.gson.stream.JsonToken.END_ARRAY;
-import static com.google.gson.stream.JsonToken.END_OBJECT;
 import static com.google.gson.stream.JsonToken.NAME;
 import static com.google.gson.stream.JsonToken.NULL;
 import static com.google.gson.stream.JsonToken.NUMBER;
@@ -30,6 +29,7 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Strictness;
 import java.io.EOFException;
+import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -135,6 +135,34 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader(json));
     reader.setStrictness(Strictness.STRICT);
     assertThat(reader.nextString()).isEqualTo("\u007F\u009F");
+  }
+
+  @Test
+  public void testStrictModeRejectsUnpairedSurrogates() throws IOException {
+    for (String json :
+        new String[] {"\"\\uD800\"", "\"\\uDC00\"", "\"\uD800\"", "{\"\\uD800\":1}"}) {
+      JsonReader reader = new JsonReader(reader(json));
+      reader.setStrictness(Strictness.STRICT);
+      if (json.startsWith("{")) {
+        reader.beginObject();
+        IOException expected = assertThrows(IOException.class, reader::nextName);
+        assertThat(expected)
+            .hasMessageThat()
+            .startsWith("Unpaired surrogate characters are not allowed in strict mode");
+      } else {
+        IOException expected = assertThrows(IOException.class, reader::nextString);
+        assertThat(expected)
+            .hasMessageThat()
+            .startsWith("Unpaired surrogate characters are not allowed in strict mode");
+      }
+    }
+  }
+
+  @Test
+  public void testStrictModeAllowsPairedSurrogates() throws IOException {
+    JsonReader reader = new JsonReader(reader("\"\\uD834\\uDD1E\""));
+    reader.setStrictness(Strictness.STRICT);
+    assertThat(reader.nextString()).isEqualTo("\uD834\uDD1E");
   }
 
   @Test
@@ -2217,24 +2245,38 @@ public final class JsonReaderTest {
     JsonReader reader = new JsonReader(reader(document));
     reader.setStrictness(Strictness.LENIENT);
     for (Object expectation : expectations) {
-      if (expectation == BEGIN_OBJECT) {
-        reader.beginObject();
-      } else if (expectation == BEGIN_ARRAY) {
-        reader.beginArray();
-      } else if (expectation == END_OBJECT) {
-        reader.endObject();
-      } else if (expectation == END_ARRAY) {
-        reader.endArray();
-      } else if (expectation == NAME) {
-        assertThat(reader.nextName()).isEqualTo("name");
-      } else if (expectation == BOOLEAN) {
-        assertThat(reader.nextBoolean()).isFalse();
-      } else if (expectation == STRING) {
-        assertThat(reader.nextString()).isEqualTo("string");
-      } else if (expectation == NUMBER) {
-        assertThat(reader.nextInt()).isEqualTo(123);
-      } else if (expectation == NULL) {
-        reader.nextNull();
+      if (expectation instanceof JsonToken) {
+        switch ((JsonToken) expectation) {
+          case BEGIN_OBJECT:
+            reader.beginObject();
+            break;
+          case BEGIN_ARRAY:
+            reader.beginArray();
+            break;
+          case END_OBJECT:
+            reader.endObject();
+            break;
+          case END_ARRAY:
+            reader.endArray();
+            break;
+          case NAME:
+            assertThat(reader.nextName()).isEqualTo("name");
+            break;
+          case BOOLEAN:
+            assertThat(reader.nextBoolean()).isFalse();
+            break;
+          case STRING:
+            assertThat(reader.nextString()).isEqualTo("string");
+            break;
+          case NUMBER:
+            assertThat(reader.nextInt()).isEqualTo(123);
+            break;
+          case NULL:
+            reader.nextNull();
+            break;
+          default:
+            throw new AssertionError("Unsupported expectation value: " + expectation);
+        }
       } else if (expectation instanceof Class
           && Exception.class.isAssignableFrom((Class<?>) expectation)) {
         var expected = assertThrows(Exception.class, () -> reader.peek());
@@ -2243,6 +2285,161 @@ public final class JsonReaderTest {
         throw new AssertionError("Unsupported expectation value: " + expectation);
       }
     }
+  }
+
+  @Test
+  public void testCharacterOffset_tokens() throws IOException {
+    String json = "{\"a\":[2,true,false,null,\"b\",{\"c\":\"d\"},[3]]}";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.getCharacterOffset()).isEqualTo(0);
+    reader.beginObject();
+    assertThat(reader.getCharacterOffset()).isEqualTo(1);
+    assertThat(reader.nextName()).isEqualTo("a");
+    assertThat(reader.getCharacterOffset()).isEqualTo(4);
+    reader.beginArray();
+    assertThat(reader.getCharacterOffset()).isEqualTo(6);
+    assertThat(reader.nextInt()).isEqualTo(2);
+    assertThat(reader.getCharacterOffset()).isEqualTo(7);
+    assertThat(reader.nextBoolean()).isTrue();
+    assertThat(reader.getCharacterOffset()).isEqualTo(12);
+    assertThat(reader.nextBoolean()).isFalse();
+    assertThat(reader.getCharacterOffset()).isEqualTo(18);
+    reader.nextNull();
+    assertThat(reader.getCharacterOffset()).isEqualTo(23);
+    assertThat(reader.nextString()).isEqualTo("b");
+    assertThat(reader.getCharacterOffset()).isEqualTo(27);
+    reader.beginObject();
+    assertThat(reader.getCharacterOffset()).isEqualTo(29);
+    assertThat(reader.nextName()).isEqualTo("c");
+    assertThat(reader.getCharacterOffset()).isEqualTo(32);
+    assertThat(reader.nextString()).isEqualTo("d");
+    assertThat(reader.getCharacterOffset()).isEqualTo(36);
+    reader.endObject();
+    assertThat(reader.getCharacterOffset()).isEqualTo(37);
+    reader.beginArray();
+    assertThat(reader.getCharacterOffset()).isEqualTo(39);
+    assertThat(reader.nextInt()).isEqualTo(3);
+    assertThat(reader.getCharacterOffset()).isEqualTo(40);
+    reader.endArray();
+    assertThat(reader.getCharacterOffset()).isEqualTo(41);
+    reader.endArray();
+    assertThat(reader.getCharacterOffset()).isEqualTo(42);
+    reader.endObject();
+    assertThat(reader.getCharacterOffset()).isEqualTo(43);
+    assertThat(reader.getCharacterOffset()).isEqualTo(json.length());
+  }
+
+  @Test
+  public void testCharacterOffset_escapes() throws IOException {
+    String json = "\"hello\\nworld\\u0041\"";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.getCharacterOffset()).isEqualTo(0);
+    assertThat(reader.nextString()).isEqualTo("hello\nworldA");
+    assertThat(reader.getCharacterOffset()).isEqualTo(json.length());
+  }
+
+  @Test
+  public void testCharacterOffset_bom() throws IOException {
+    String json = "\ufeff[123]";
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.getCharacterOffset()).isEqualTo(0);
+    reader.beginArray();
+    assertThat(reader.getCharacterOffset()).isEqualTo(2);
+    assertThat(reader.nextInt()).isEqualTo(123);
+    assertThat(reader.getCharacterOffset()).isEqualTo(5);
+    reader.endArray();
+    assertThat(reader.getCharacterOffset()).isEqualTo(6);
+    assertThat(reader.getCharacterOffset()).isEqualTo(json.length());
+  }
+
+  @Test
+  public void testCharacterOffset_multiBuffer() throws IOException {
+    int count = 2000;
+    StringBuilder sb = new StringBuilder("[");
+    for (int i = 0; i < count; i++) {
+      if (i > 0) {
+        sb.append(",");
+      }
+      sb.append("1");
+    }
+    sb.append("]");
+    String json = sb.toString();
+
+    JsonReader reader = new JsonReader(reader(json));
+    assertThat(reader.getCharacterOffset()).isEqualTo(0);
+    reader.beginArray();
+    assertThat(reader.getCharacterOffset()).isEqualTo(1);
+    for (int i = 0; i < count; i++) {
+      assertThat(reader.nextInt()).isEqualTo(1);
+      assertThat(reader.getCharacterOffset()).isEqualTo(2 + 2 * i);
+    }
+    reader.endArray();
+    assertThat(reader.getCharacterOffset()).isEqualTo(json.length());
+  }
+
+  @Test
+  public void testCharacterOffset_chunkedReader() throws IOException {
+    String json = "{\"key\": [1, 2, 3], \"nested\": {\"flag\": true}}";
+    for (int chunkSize : new int[] {1, 2, 3, 5, 10}) {
+      JsonReader reader =
+          new JsonReader(new ChunkLimitingReader(new StringReader(json), chunkSize));
+      reader.beginObject();
+      assertThat(reader.getCharacterOffset()).isEqualTo(1);
+      assertThat(reader.nextName()).isEqualTo("key");
+      assertThat(reader.getCharacterOffset()).isEqualTo(6);
+      reader.beginArray();
+      assertThat(reader.getCharacterOffset()).isEqualTo(9);
+      assertThat(reader.nextInt()).isEqualTo(1);
+      assertThat(reader.getCharacterOffset()).isEqualTo(10);
+      assertThat(reader.nextInt()).isEqualTo(2);
+      assertThat(reader.getCharacterOffset()).isEqualTo(13);
+      assertThat(reader.nextInt()).isEqualTo(3);
+      assertThat(reader.getCharacterOffset()).isEqualTo(16);
+      reader.endArray();
+      assertThat(reader.getCharacterOffset()).isEqualTo(17);
+      assertThat(reader.nextName()).isEqualTo("nested");
+      assertThat(reader.getCharacterOffset()).isEqualTo(27);
+      reader.beginObject();
+      assertThat(reader.getCharacterOffset()).isEqualTo(30);
+      assertThat(reader.nextName()).isEqualTo("flag");
+      assertThat(reader.getCharacterOffset()).isEqualTo(36);
+      assertThat(reader.nextBoolean()).isTrue();
+      assertThat(reader.getCharacterOffset()).isEqualTo(42);
+      reader.endObject();
+      assertThat(reader.getCharacterOffset()).isEqualTo(43);
+      reader.endObject();
+      assertThat(reader.getCharacterOffset()).isEqualTo(44);
+      assertThat(reader.getCharacterOffset()).isEqualTo(json.length());
+    }
+  }
+
+  @Test
+  public void testCharacterOffset_commentsAndWhitespace() throws IOException {
+    String json = "/* comment */ {\n  // line comment\n  \"a\": # hash comment\n  123\n}";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrictness(Strictness.LENIENT);
+    assertThat(reader.getCharacterOffset()).isEqualTo(0);
+    reader.beginObject();
+    assertThat(reader.getCharacterOffset()).isEqualTo(15);
+    assertThat(reader.nextName()).isEqualTo("a");
+    assertThat(reader.getCharacterOffset()).isEqualTo(39);
+    assertThat(reader.nextInt()).isEqualTo(123);
+    reader.endObject();
+    assertThat(reader.getCharacterOffset()).isEqualTo(json.length());
+  }
+
+  @Test
+  public void testCharacterOffset_skipValue() throws IOException {
+    String json = "{\"skipMe\": [1, 2, {\"nested\": \"value\"}], \"keep\": 42}";
+    JsonReader reader = new JsonReader(reader(json));
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("skipMe");
+    reader.skipValue();
+    assertThat(reader.getCharacterOffset()).isEqualTo(38);
+    assertThat(reader.nextName()).isEqualTo("keep");
+    assertThat(reader.nextInt()).isEqualTo(42);
+    reader.endObject();
+    assertThat(reader.getCharacterOffset()).isEqualTo(json.length());
   }
 
   /** Returns a reader that returns one character at a time. */
@@ -2263,5 +2460,20 @@ public final class JsonReaderTest {
       @Override public void close() throws IOException {
       }
     }; */
+  }
+
+  private static class ChunkLimitingReader extends FilterReader {
+    private final int maxCharsPerRead;
+
+    ChunkLimitingReader(Reader in, int maxCharsPerRead) {
+      super(in);
+      this.maxCharsPerRead = maxCharsPerRead;
+    }
+
+    @Override
+    public int read(char[] cbuf, int off, int len) throws IOException {
+      int limitedLen = Math.min(len, maxCharsPerRead);
+      return super.read(cbuf, off, limitedLen);
+    }
   }
 }

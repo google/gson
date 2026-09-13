@@ -16,9 +16,10 @@
 
 package com.google.gson.internal.bind;
 
+import static java.lang.Math.toIntExact;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -381,7 +383,8 @@ public final class TypeAdapters {
         while (in.hasNext()) {
           Number value = longAdapter.read(in);
           if (value == null) {
-            throw new JsonSyntaxException("null is not a valid AtomicLongArray element");
+            throw new JsonSyntaxException(
+                "null is not a valid AtomicLongArray element; at path " + in.getPreviousPath());
           }
           list.add(value.longValue());
         }
@@ -538,9 +541,15 @@ public final class TypeAdapters {
             return null;
           }
           String str = in.nextString();
-          if (str.length() != 1) {
+          int length = str.length();
+          if (length != 1) {
             throw new JsonSyntaxException(
-                "Expecting character, got: " + str + "; at " + in.getPreviousPath());
+                "Expecting single character, got: '"
+                    + str
+                    + "' (length "
+                    + length
+                    + "); at path "
+                    + in.getPreviousPath());
           }
           return str.charAt(0);
         }
@@ -702,7 +711,15 @@ public final class TypeAdapters {
             return null;
           }
           String nextString = in.nextString();
-          return nextString.equals("null") ? null : new URL(nextString);
+          if (nextString.equals("null")) {
+            return null;
+          }
+          try {
+            return new URL(nextString);
+          } catch (MalformedURLException e) {
+            throw new JsonSyntaxException(
+                "Failed parsing '" + nextString + "' as URL; at path " + in.getPreviousPath(), e);
+          }
         }
 
         @Override
@@ -721,11 +738,15 @@ public final class TypeAdapters {
             in.nextNull();
             return null;
           }
+          String nextString = in.nextString();
+          if (nextString.equals("null")) {
+            return null;
+          }
           try {
-            String nextString = in.nextString();
-            return nextString.equals("null") ? null : new URI(nextString);
+            return new URI(nextString);
           } catch (URISyntaxException e) {
-            throw new JsonIOException(e);
+            throw new JsonSyntaxException(
+                "Failed parsing '" + nextString + "' as URI; at path " + in.getPreviousPath(), e);
           }
         }
 
@@ -902,15 +923,6 @@ public final class TypeAdapters {
           };
         }
       };
-
-  // TODO: update this when we are on at least Android API Level 24.
-  private static int toIntExact(long x) {
-    int i = (int) x;
-    if (i != x) {
-      throw new IllegalArgumentException("Too big for an int: " + x);
-    }
-    return i;
-  }
 
   public static final TypeAdapterFactory CALENDAR_FACTORY =
       newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);

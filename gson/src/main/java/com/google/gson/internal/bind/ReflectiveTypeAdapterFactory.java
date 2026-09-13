@@ -218,15 +218,33 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       writeTypeAdapter = typeAdapter;
     }
     return new BoundField(serializedName, field) {
+      /**
+       * Whether the accessibility check has already passed. The result depends only on the member
+       * and the {@code ReflectionAccessFilter}s of the {@code Gson} instance, not on the object
+       * being serialized or deserialized, so once the check passes it will pass for every later
+       * call and the reflective check can be skipped. A single field suffices because {@code
+       * accessor} is fixed for this instance, and it is non-null only for records, which are
+       * deserialized via {@link #readIntoArray} rather than {@link #readIntoField}.
+       *
+       * <p>Deliberately not {@code volatile}: under concurrent use a thread may observe a stale
+       * {@code false} and redo the check, but the check is idempotent and always produces the same
+       * result for a given member, so the race is benign. Do not cache a negative result here; that
+       * would make the race unsafe.
+       */
+      private boolean knownAccessible;
+
       @Override
       void write(JsonWriter writer, Object source) throws IOException, IllegalAccessException {
         if (blockInaccessible) {
-          if (accessor == null) {
-            checkAccessible(source, field);
-          } else {
-            // Note: This check might actually be redundant because access check for canonical
-            // constructor should have failed already
-            checkAccessible(source, accessor);
+          if (!knownAccessible) {
+            if (accessor == null) {
+              checkAccessible(source, field);
+            } else {
+              // Note: This check might actually be redundant because access check for canonical
+              // constructor should have failed already
+              checkAccessible(source, accessor);
+            }
+            knownAccessible = true;
           }
         }
 
@@ -274,7 +292,10 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue != null || !isPrimitive) {
           if (blockInaccessible) {
-            checkAccessible(target, field);
+            if (!knownAccessible) {
+              checkAccessible(target, field);
+              knownAccessible = true;
+            }
           } else if (isStaticFinalField) {
             // Reflection does not permit setting value of `static final` field, even after calling
             // `setAccessible`

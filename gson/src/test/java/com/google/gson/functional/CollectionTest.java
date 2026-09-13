@@ -353,7 +353,7 @@ public class CollectionTest {
   }
 
   @Test
-  public void testWildcardPrimitiveCollectionSerilaization() {
+  public void testWildcardPrimitiveCollectionSerialization() {
     Collection<? extends Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
     Type collectionType = new TypeToken<Collection<? extends Integer>>() {}.getType();
     String json = gson.toJson(target, collectionType);
@@ -364,7 +364,7 @@ public class CollectionTest {
   }
 
   @Test
-  public void testWildcardPrimitiveCollectionDeserilaization() {
+  public void testWildcardPrimitiveCollectionDeserialization() {
     String json = "[1,2,3,4,5,6,7,8,9]";
     Type collectionType = new TypeToken<Collection<? extends Integer>>() {}.getType();
     Collection<? extends Integer> target = gson.fromJson(json, collectionType);

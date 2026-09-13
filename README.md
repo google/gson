@@ -69,6 +69,7 @@ see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gs
 
 #### Minimum Android API level
 
+- Gson 2.15.0 and newer: API level 24
 - Gson 2.11.0 and newer: API level 21
 - Gson 2.10.1 and older: API level 19
 
@@ -79,7 +80,7 @@ Older Gson versions may also support lower API levels, however this has not been
   * [User guide](UserGuide.md): This guide contains examples on how to use Gson in your code
   * [Troubleshooting guide](Troubleshooting.md): Describes how to solve common issues when using Gson
   * [Releases and change log](https://github.com/google/gson/releases): Latest releases and changes in these versions; for older releases see [`CHANGELOG.md`](CHANGELOG.md)
-  * [Design document](GsonDesignDocument.md): This document discusses issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for Json conversion
+  * [Design document](GsonDesignDocument.md): This document discusses issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for JSON conversion
 
 Please use the ['gson' tag on StackOverflow](https://stackoverflow.com/questions/tagged/gson), [GitHub Discussions](https://github.com/google/gson/discussions) or the [google-gson Google group](https://groups.google.com/group/google-gson) to discuss Gson or to post questions.
 
@@ -94,7 +95,7 @@ Gson uses Maven to build the project:
 mvn clean verify
 ```
 
-JDK 17 or newer is required for building, JDK 21 is recommended. Newer JDKs are currently not supported for building (but are supported when _using_ Gson).
+JDK 17 or newer is required for building, JDK 21 is recommended. JDK 25 is supported, but only runs a subset of all tests if JDK `jmod` files are missing. Newer JDKs are currently not supported for building (but are supported when _using_ Gson).
 
 ### Contributing
 
