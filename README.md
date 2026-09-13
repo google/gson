@@ -95,7 +95,7 @@ Gson uses Maven to build the project:
 mvn clean verify
 ```
 
-JDK 17 or newer is required for building, JDK 21 is recommended. Newer JDKs are currently not supported for building (but are supported when _using_ Gson).
+JDK 17 or newer is required for building, JDK 21 is recommended. JDK 25 is supported, but only runs a subset of all tests if JDK `jmod` files are missing. Newer JDKs are currently not supported for building (but are supported when _using_ Gson).
 
 ### Contributing
 

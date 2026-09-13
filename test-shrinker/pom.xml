@@ -210,4 +210,37 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!-- For JDK 25+ without jmod files, skip tests which rely on ProGuard because it requires jmod files -->
+    <!-- TODO: Remove this once https://github.com/Guardsquare/proguard/issues/473 is resolved -->
+    <profile>
+      <id>JDK25-proguard</id>
+      <activation>
+        <jdk>[25,)</jdk>
+        <file>
+          <missing>${java.home}/jmods/java.base.jmod</missing>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.wvengen</groupId>
+            <artifactId>proguard-maven-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <!-- Skip tests because they cannot succeed if ProGuard did not run -->
+              <skipITs>true</skipITs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

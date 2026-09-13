@@ -116,8 +116,9 @@
   </build>
 
   <profiles>
+    <!-- Profile for building additional tests which require >= Java 17 -->
     <profile>
-      <id>JDK17</id>
+      <id>JDK17-test</id>
       <activation>
         <jdk>[17,)</jdk>
       </activation>

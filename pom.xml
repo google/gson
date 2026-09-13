@@ -120,7 +120,7 @@
                   <!-- Also disallow too new JDK versions; they might introduce new lints, drop support
                     for older compiler Java target versions or cause issues for some Maven plugins.
                     Failing fast for such versions is better than failing with a confusing error during build. -->
-                  <version>[17,22)</version>
+                  <version>[17,26)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -561,6 +561,7 @@
         </plugins>
       </build>
     </profile>
+
     <!-- Disable Error Prone before Java 21 -->
     <profile>
       <id>disable-error-prone</id>
