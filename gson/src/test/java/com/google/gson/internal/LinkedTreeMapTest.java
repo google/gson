@@ -71,7 +71,8 @@ public final class LinkedTreeMapTest {
   @SuppressWarnings("ModifiedButNotUsed")
   public void testPutNonComparableKeyFails() {
     LinkedTreeMap<Object, String> map = new LinkedTreeMap<>();
-    assertThrows(ClassCastException.class, () -> map.put(new Object(), "android"));
+    Object value = new Object();
+    assertThrows(ClassCastException.class, () -> map.put(value, "android"));
   }
 
   @Test

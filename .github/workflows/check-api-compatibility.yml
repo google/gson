@@ -25,13 +25,14 @@ jobs:
 
     steps:
       - name: Check out old version
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: 'gson-old-japicmp'
+          persist-credentials: false
 
       - name: Set up JDK
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654  # v5.2.0
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c  # v6.0.0
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -46,7 +47,9 @@ jobs:
           mvn install -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
 
       - name: Check out new version
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Check API compatibility
         id: check-compatibility
@@ -54,7 +57,7 @@ jobs:
           mvn package japicmp:cmp --fail-at-end -Dmaven.test.skip --projects '!extras,!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
 
       - name: Upload API differences artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         # Run on workflow success (in that case differences report might include added methods and classes)
         # or when API compatibility check failed
         if: success() || ( failure() && steps.check-compatibility.outcome == 'failure' )

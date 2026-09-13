@@ -36,7 +36,7 @@ import java.util.Objects;
  * @see <a href="https://en.wikipedia.org/wiki/Newline">Wikipedia Newline article</a>
  * @since 2.11.0
  */
-public class FormattingStyle {
+public final class FormattingStyle {
   private final String newline;
   private final String indent;
   private final boolean spaceAfterSeparators;

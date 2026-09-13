@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /** Internal helper class for {@link ReflectionAccessFilter}. */
-public class ReflectionAccessFilterHelper {
+public final class ReflectionAccessFilterHelper {
   private ReflectionAccessFilterHelper() {}
 
   // Platform type detection is based on Moshi's Util.isPlatformType(Class)
@@ -73,6 +73,7 @@ public class ReflectionAccessFilterHelper {
   }
 
   /** See {@link AccessibleObject#canAccess(Object)} (Java >= 9) */
+  @SuppressWarnings("InvalidLink") // suppress Error Prone warning about link to Java 9 method
   public static boolean canAccess(AccessibleObject accessibleObject, Object object) {
     return AccessChecker.INSTANCE.canAccess(accessibleObject, object);
   }

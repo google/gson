@@ -54,7 +54,7 @@ public class PerformanceTest {
 
   @Test
   public void testDummy() {
-    // This is here to prevent Junit for complaining when we disable all tests.
+    // This is here to prevent JUnit from complaining when we disable all tests.
   }
 
   @Test

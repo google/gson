@@ -287,7 +287,7 @@ final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
   // A ZoneId is either a ZoneOffset or a ZoneRegion, where ZoneOffset is public and ZoneRegion is
   // not. For compatibility with reflection-based serialization, we need to write the "id" field of
   // ZoneRegion if we have a ZoneRegion, and we need to write the "totalSeconds" field of ZoneOffset
-  // if we have a ZoneOffset. When reading, we need to construct the the appropriate thing depending
+  // if we have a ZoneOffset. When reading, we need to construct the appropriate thing depending
   // on which of those two fields we see.
   private static final TypeAdapter<ZoneId> ZONE_ID =
       new TypeAdapter<ZoneId>() {

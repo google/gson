@@ -43,8 +43,8 @@ public class ToNumberPolicyTest {
             "JSON forbids NaN and infinities: Infinity at line 1 column 6 path $\n"
                 + "See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json");
 
-    assertThrows(
-        NumberFormatException.class, () -> strategy.readNumber(fromString("\"not-a-number\"")));
+    JsonReader jsonReader = fromString("\"not-a-number\"");
+    assertThrows(NumberFormatException.class, () -> strategy.readNumber(jsonReader));
   }
 
   @Test
@@ -118,18 +118,18 @@ public class ToNumberPolicyTest {
         .isEqualTo(new BigDecimal("3.141592653589793238462643383279"));
     assertThat(strategy.readNumber(fromString("1e400"))).isEqualTo(new BigDecimal("1e400"));
 
+    JsonReader jsonReader = fromString("\"not-a-number\"");
     JsonParseException e =
-        assertThrows(
-            JsonParseException.class, () -> strategy.readNumber(fromString("\"not-a-number\"")));
+        assertThrows(JsonParseException.class, () -> strategy.readNumber(jsonReader));
     assertThat(e).hasMessageThat().isEqualTo("Cannot parse not-a-number; at path $");
   }
 
   @Test
-  public void testNullsAreNeverExpected() throws IOException {
+  public void testNullsAreNeverExpected() {
+    JsonReader jsonReader = fromString("null");
     IllegalStateException e =
         assertThrows(
-            IllegalStateException.class,
-            () -> ToNumberPolicy.DOUBLE.readNumber(fromString("null")));
+            IllegalStateException.class, () -> ToNumberPolicy.DOUBLE.readNumber(jsonReader));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(

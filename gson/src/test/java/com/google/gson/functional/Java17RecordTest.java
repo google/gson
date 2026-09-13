@@ -196,7 +196,8 @@ public final class Java17RecordTest {
       }
     }
 
-    var e = assertThrows(JsonIOException.class, () -> gson.toJson(new LocalRecord("a")));
+    LocalRecord value = new LocalRecord("a");
+    var e = assertThrows(JsonIOException.class, () -> gson.toJson(value));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo("Accessor method '" + LocalRecord.class.getName() + "#s()' threw exception");
@@ -420,7 +421,8 @@ public final class Java17RecordTest {
     String json = gson.toJson(new Allowed(1));
     assertThat(json).isEqualTo("{\"a\":1}");
 
-    var exception = assertThrows(JsonIOException.class, () -> gson.toJson(new Blocked(1)));
+    Blocked value = new Blocked(1);
+    var exception = assertThrows(JsonIOException.class, () -> gson.toJson(value));
     assertThat(exception)
         .hasMessageThat()
         .isEqualTo(
@@ -434,7 +436,8 @@ public final class Java17RecordTest {
     Gson gson =
         new GsonBuilder().addReflectionAccessFilter(c -> FilterResult.BLOCK_INACCESSIBLE).create();
 
-    var exception = assertThrows(JsonIOException.class, () -> gson.toJson(new PrivateRecord(1)));
+    PrivateRecord value = new PrivateRecord(1);
+    var exception = assertThrows(JsonIOException.class, () -> gson.toJson(value));
     assertThat(exception)
         .hasMessageThat()
         .isEqualTo(

@@ -42,7 +42,9 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.time.Duration;
@@ -156,6 +158,14 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  public void testUrlDeserializationError() {
+    var e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"://invalid\"", URL.class));
+    assertThat(e.getMessage()).isEqualTo("Failed parsing '://invalid' as URL; at path $");
+    assertThat(e).hasCauseThat().isInstanceOf(MalformedURLException.class);
+  }
+
+  @Test
   public void testUrlNullSerialization() {
     ClassWithUrlField target = new ClassWithUrlField();
     assertThat(gson.toJson(target)).isEqualTo("{}");
@@ -184,7 +194,24 @@ public class DefaultTypeAdaptersTest {
     String uriValue = "http://google.com/";
     String json = '"' + uriValue + '"';
     URI target = gson.fromJson(json, URI.class);
-    assertThat(target.toASCIIString()).isEqualTo(uriValue);
+    assertThat(target.toString()).isEqualTo(uriValue);
+  }
+
+  @Test
+  public void testUriDeserializationError() {
+    var e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"://invalid\"", URI.class));
+    assertThat(e.getMessage()).isEqualTo("Failed parsing '://invalid' as URI; at path $");
+    assertThat(e).hasCauseThat().isInstanceOf(URISyntaxException.class);
+  }
+
+  @Test
+  public void testUriRoundTripWithNonAscii() throws Exception {
+    URI uri = new URI("s3://bucket/path/Kankyō.png");
+    String json = gson.toJson(uri);
+    URI roundTripUri = gson.fromJson(json, URI.class);
+    assertThat(roundTripUri).isEqualTo(uri);
+    assertThat(roundTripUri.toString()).isEqualTo(uri.toString());
   }
 
   @Test
@@ -624,7 +651,7 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
-  public void testDateSerializationWithPatternNotOverridenByTypeAdapter() {
+  public void testDateSerializationWithPatternNotOverriddenByTypeAdapter() {
     String pattern = "yyyy-MM-dd";
     Gson gson =
         new GsonBuilder()
