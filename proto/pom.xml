@@ -1,214 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2011 Google LLC
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.google.code.gson</groupId>
+  <parent>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson-parent</artifactId>
+    <version>2.14.1-SNAPSHOT</version>
+  </parent>
+
   <artifactId>proto</artifactId>
-  <packaging>jar</packaging>
-  <version>0.6-SNAPSHOT</version>
   <name>Gson Protobuf Support</name>
   <description>Gson support for Protobufs</description>
+
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Make the build reproducible, see root `pom.xml` -->
+    <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
+    <project.build.outputTimestamp>2026-04-23T19:00:38Z</project.build.outputTimestamp>
+
+    <protobufVersion>4.35.1</protobufVersion>
   </properties>
-  <distributionManagement>
-    <repository>
-      <id>local.repo</id>
-      <name>file repository to svn</name>
-      <url>file://${basedir}/../../mavenrepo</url>
-    </repository>
-  </distributionManagement>
-  <repositories>
-    <repository>
-      <id>gson</id>
-      <url>http://google-gson.googlecode.com/svn/mavenrepo</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-  </repositories>
+
   <licenses>
     <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
-  <scm>
-    <connection>scm:svn:http://google-gson.googlecode.com/svn/trunk/proto</connection>
-    <developerConnection>scm:svn:https://google-gson.googlecode.com/svn/trunk/proto</developerConnection>
-    <url>http://google-gson.codegoogle.com/svn/trunk/proto</url>
-  </scm>
-  <issueManagement>
-    <system>Google Code Issue Tracking</system>
-    <url>http://code.google.com/p/google-gson/issues/list</url>
-  </issueManagement>
 
   <dependencies>
-
-    <!--  Gson: Java to Json conversion -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.4</version>
-      <scope>compile</scope>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
-      <version>2.6.1</version>
-      <scope>compile</scope>
+      <version>${protobufVersion}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>18.0</version>
-      <scope>compile</scope>
+      <version>33.6.0-jre</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java-util</artifactId>
+      <version>${protobufVersion}</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
       <scope>test</scope>
     </dependency>
-    
     <dependency>
       <groupId>com.google.truth</groupId>
       <artifactId>truth</artifactId>
-      <version>0.27</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth.extensions</groupId>
+      <artifactId>truth-proto-extension</artifactId>
+      <version>1.4.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.testparameterinjector</groupId>
+      <artifactId>test-parameter-injector</artifactId>
+      <version>1.22</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
     <finalName>gson-proto</finalName>
+
     <plugins>
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
+        <groupId>io.github.ascopes</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>5.1.7</version>
+        <configuration>
+          <skip>${maven.test.skip}</skip>
+          <protoc>${protobufVersion}</protoc>
+          <fatalWarnings>true</fatalWarnings>
+          <!-- Embedding sources is redundant for test execution -->
+          <embedSourcesInClassOutputs>false</embedSourcesInClassOutputs>
+        </configuration>
         <executions>
           <execution>
-            <id>compile-protoc</id>
-            <phase>generate-sources</phase>
-            <configuration>
-              <tasks>
-                <mkdir dir="target/generated" />
-                <path id="proto.path">
-                  <fileset dir="src/main/protobuf">
-                    <include name="**/*.proto" />
-                  </fileset>
-                </path>
-                <pathconvert pathsep=" " property="proto.files" refid="proto.path" />
-                <exec executable="protoc" failonerror="true">
-                  <arg value="--java_out=src/main/java" />
-                  <arg value="--proto_path=/usr/include" />
-                  <arg value="-I${project.basedir}/src/main/protobuf" />
-                  <arg line="${proto.files}" />
-                </exec>
-              </tasks>
-            </configuration>
             <goals>
-              <goal>run</goal>
+              <goal>generate-test</goal>
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <version>2.8</version>
-        <configuration>
-          <downloadSources>true</downloadSources>
-          <downloadJavadocs>true</downloadJavadocs>
-          <workspace>../eclipse-ws</workspace>
-          <workspaceCodeStylesURL>file:///${basedir}/../lib/gson-formatting-styles.xml</workspaceCodeStylesURL>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <version>2.5.2</version>
-        <!-- configuration>
-          <updateReleaseInfo>true</updateReleaseInfo>
-          <createChecksum>true</createChecksum>
-          <groupId>${groupId}</groupId>
-          <artifactId>${artifactId}</artifactId>
-          <version>${version}</version>
-          <packaging>jar</packaging>
-          <classifier>sources</classifier>
-          <file>target/proto-sources.jar</file>
-        </configuration -->
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.1</version>
-        <configuration>
-          <arguments>-DenableCiProfile=true</arguments>
-          <tagBase>https://google-gson.googlecode.com/svn/tags/</tagBase>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.1.2</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.7</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <links>
-            <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
-          </links>
-          <version>true</version>
-          <show>public</show>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptor>src/main/resources/assembly-descriptor.xml</descriptor>
-          <finalName>proto-${project.version}</finalName>
-          <outputDirectory>target/dist</outputDirectory>
-          <workDirectory>target/assembly/work</workDirectory>
-        </configuration>
       </plugin>
     </plugins>
   </build>
+
   <developers>
     <developer>
       <name>Inderjeet Singh</name>

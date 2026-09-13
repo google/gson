@@ -16,9 +16,13 @@
 
 package com.google.gson.functional;
 
-import junit.framework.TestCase;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Functional tests for Java Character values.
@@ -26,30 +30,44 @@ import com.google.gson.Gson;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public class PrimitiveCharacterTest extends TestCase {
+public class PrimitiveCharacterTest {
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
 
+  @Test
   public void testPrimitiveCharacterAutoboxedSerialization() {
-    assertEquals("\"A\"", gson.toJson('A'));
-    assertEquals("\"A\"", gson.toJson('A', char.class));
-    assertEquals("\"A\"", gson.toJson('A', Character.class));
+    assertThat(gson.toJson('A')).isEqualTo("\"A\"");
+    assertThat(gson.toJson('A', char.class)).isEqualTo("\"A\"");
+    assertThat(gson.toJson('A', Character.class)).isEqualTo("\"A\"");
   }
 
+  @Test
   public void testPrimitiveCharacterAutoboxedDeserialization() {
     char expected = 'a';
     char actual = gson.fromJson("a", char.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
 
     actual = gson.fromJson("\"a\"", char.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
 
     actual = gson.fromJson("a", Character.class);
-    assertEquals(expected, actual);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  public void testWrongLength() {
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"\"", char.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Expecting single character, got: '' (length 0); at path $");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"ab\"", char.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Expecting single character, got: 'ab' (length 2); at path $");
   }
 }

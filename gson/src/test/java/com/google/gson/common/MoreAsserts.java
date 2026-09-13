@@ -16,40 +16,25 @@
 
 package com.google.gson.common;
 
-import junit.framework.Assert;
-
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import org.junit.Assert;
 
 /**
- * Handy asserts that we wish were present in {@link Assert}
- * so that we didn't have to write them.
+ * Handy asserts that we wish were present in {@link Assert} so that we didn't have to write them.
  *
  * @author Inderjeet Singh
  */
 public class MoreAsserts {
-
-  public static void assertEquals(int[] expected, int[] target) {
-    if (expected == null) {
-      Assert.assertNull(target);
-    }
-    Assert.assertEquals(expected.length, target.length);
-    for (int i = 0; i < expected.length; ++i) {
-      Assert.assertEquals(expected[i], target[i]);
-    }
-  }
-
-  public static void assertEquals(Integer[] expected, Integer[] target) {
-    if (expected == null) {
-      Assert.assertNull(target);
-    }
-    Assert.assertEquals(expected.length, target.length);
-    for (int i = 0; i < expected.length; ++i) {
-      Assert.assertEquals(expected[i], target[i]);
-    }
-  }
+  private MoreAsserts() {}
 
   /**
    * Asserts that the specified {@code value} is not present in {@code collection}
+   *
    * @param collection the collection to look into
    * @param value the value that needs to be checked for presence
    */
@@ -70,4 +55,55 @@ public class MoreAsserts {
     Assert.assertFalse(a.equals(new Object()));
   }
 
+  private static boolean isProtectedOrPublic(Method method) {
+    int modifiers = method.getModifiers();
+    return Modifier.isProtected(modifiers) || Modifier.isPublic(modifiers);
+  }
+
+  private static String getMethodSignature(Method method) {
+    StringBuilder builder = new StringBuilder(method.getName());
+    builder.append('(');
+
+    String sep = "";
+    for (Class<?> paramType : method.getParameterTypes()) {
+      builder.append(sep).append(paramType.getName());
+      sep = ",";
+    }
+
+    builder.append(')');
+    return builder.toString();
+  }
+
+  /**
+   * Asserts that {@code subClass} overrides all protected and public methods declared by {@code
+   * baseClass} except for the ones whose signatures are in {@code ignoredMethods}.
+   */
+  public static void assertOverridesMethods(
+      Class<?> baseClass, Class<?> subClass, List<String> ignoredMethods) {
+    Set<String> requiredOverriddenMethods = new LinkedHashSet<>();
+    for (Method method : baseClass.getDeclaredMethods()) {
+      // Note: Do not filter out `final` methods; maybe they should not be `final` and subclass
+      // needs to override them
+      if (isProtectedOrPublic(method)) {
+        requiredOverriddenMethods.add(getMethodSignature(method));
+      }
+    }
+
+    for (Method method : subClass.getDeclaredMethods()) {
+      requiredOverriddenMethods.remove(getMethodSignature(method));
+    }
+
+    for (String ignoredMethod : ignoredMethods) {
+      boolean foundIgnored = requiredOverriddenMethods.remove(ignoredMethod);
+      if (!foundIgnored) {
+        throw new IllegalArgumentException(
+            "Method '" + ignoredMethod + "' does not exist or is already overridden");
+      }
+    }
+
+    if (!requiredOverriddenMethods.isEmpty()) {
+      Assert.fail(
+          subClass.getSimpleName() + " must override these methods: " + requiredOverriddenMethods);
+    }
+  }
 }

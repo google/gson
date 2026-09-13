@@ -1,0 +1,70 @@
+# This workflow makes sure that a pull request does not make any incompatible changes
+# to the public API of Gson
+name: Check API compatibility
+
+on: pull_request
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
+env:
+  # Common Maven arguments
+  MAVEN_ARGS: --show-version --batch-mode --no-transfer-progress
+
+jobs:
+  check-api-compatibility:
+    runs-on: ubuntu-latest
+
+    # This setup tries to determine API incompatibility only for the changes introduced by the
+    # pull request. It does this by first checking out the 'old' version and installing it into
+    # the local Maven repository before then using japicmp to compare it to the current changes.
+    #
+    # Alternatively it would also be possible to compare against the last release version instead.
+    #
+    # Both approaches have their advantages and disadvantages, see description of
+    # https://github.com/google/gson/pull/2692 for details.
+
+    steps:
+      - name: Check out old version
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: 'gson-old-japicmp'
+          persist-credentials: false
+
+      - name: Set up JDK
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Build old version
+        run: |
+          cd gson-old-japicmp
+          # Set dummy version
+          mvn org.codehaus.mojo:versions-maven-plugin:2.16.2:set "-DnewVersion=0.0.0-JAPICMP-OLD"
+          # Install artifacts with dummy version in local repository; used later by Maven plugin for comparison
+          mvn install -Dmaven.test.skip --projects '!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
+
+      - name: Check out new version
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check API compatibility
+        id: check-compatibility
+        run: |
+          mvn package japicmp:cmp --fail-at-end -Dmaven.test.skip --projects '!extras,!metrics,!test-graal-native-image,!test-jpms,!test-shrinker'
+
+      - name: Upload API differences artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        # Run on workflow success (in that case differences report might include added methods and classes)
+        # or when API compatibility check failed
+        if: success() || ( failure() && steps.check-compatibility.outcome == 'failure' )
+        with:
+          name: api-differences
+          path: |
+            **/japicmp/default-cli.html
+            **/japicmp/default-cli.diff
+          # Plugin should always have created report files (though they might be empty)
+          if-no-files-found: error

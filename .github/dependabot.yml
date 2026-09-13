@@ -1,0 +1,32 @@
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 14
+    groups:
+      # Name is used for branch name and pull request title
+      maven:
+        patterns:
+          # Create a single pull request for all dependencies and plugins
+          - "*"
+        exclude-patterns:
+          # Exclude JUnit 6 from the group (that is, create a separate PR for it)
+          # It is currently only used by `/test-graal-native-image` and frequently causes incompatibilities
+          # there with `org.graalvm.buildtools:native-maven-plugin`, causing the complete Dependabot PR to fail
+          - "org.junit:junit-bom"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 14
+    groups:
+      # Name is used for branch name and pull request title
+      github-actions:
+        patterns:
+          # Create a single pull request for all actions
+          - "*"

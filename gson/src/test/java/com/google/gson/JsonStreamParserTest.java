@@ -15,60 +15,91 @@
  */
 package com.google.gson;
 
-import junit.framework.TestCase;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
+import java.io.EOFException;
 import java.util.NoSuchElementException;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link JsonStreamParser}
- * 
+ *
  * @author Inderjeet Singh
  */
-public class JsonStreamParserTest extends TestCase {
+public class JsonStreamParserTest {
   private JsonStreamParser parser;
-  
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+
+  @Before
+  public void setUp() throws Exception {
     parser = new JsonStreamParser("'one' 'two'");
   }
 
+  @Test
   public void testParseTwoStrings() {
     String actualOne = parser.next().getAsString();
-    assertEquals("one", actualOne);
+    assertThat(actualOne).isEqualTo("one");
     String actualTwo = parser.next().getAsString();
-    assertEquals("two", actualTwo);
+    assertThat(actualTwo).isEqualTo("two");
   }
 
+  @Test
   public void testIterator() {
-    assertTrue(parser.hasNext());
-    assertEquals("one", parser.next().getAsString());
-    assertTrue(parser.hasNext());
-    assertEquals("two", parser.next().getAsString());
-    assertFalse(parser.hasNext());
+    assertThat(parser.hasNext()).isTrue();
+    assertThat(parser.next().getAsString()).isEqualTo("one");
+    assertThat(parser.hasNext()).isTrue();
+    assertThat(parser.next().getAsString()).isEqualTo("two");
+    assertThat(parser.hasNext()).isFalse();
   }
 
-  public void testNoSideEffectForHasNext() throws Exception {
-    assertTrue(parser.hasNext());
-    assertTrue(parser.hasNext());
-    assertTrue(parser.hasNext());
-    assertEquals("one", parser.next().getAsString());
-    
-    assertTrue(parser.hasNext());
-    assertTrue(parser.hasNext());
-    assertEquals("two", parser.next().getAsString());
-    
-    assertFalse(parser.hasNext());
-    assertFalse(parser.hasNext());
+  @Test
+  public void testNoSideEffectForHasNext() {
+    assertThat(parser.hasNext()).isTrue();
+    assertThat(parser.hasNext()).isTrue();
+    assertThat(parser.hasNext()).isTrue();
+    assertThat(parser.next().getAsString()).isEqualTo("one");
+
+    assertThat(parser.hasNext()).isTrue();
+    assertThat(parser.hasNext()).isTrue();
+    assertThat(parser.next().getAsString()).isEqualTo("two");
+
+    assertThat(parser.hasNext()).isFalse();
+    assertThat(parser.hasNext()).isFalse();
   }
 
+  @Test
   public void testCallingNextBeyondAvailableInput() {
-    parser.next();
-    parser.next();
-    try {
-      parser.next();
-      fail("Parser should not go beyond available input");
-    } catch (NoSuchElementException expected) {
-    }
+    JsonElement unused1 = parser.next();
+    JsonElement unused2 = parser.next();
+    // Parser should not go beyond available input
+    assertThrows(NoSuchElementException.class, parser::next);
+  }
+
+  @Test
+  public void testEmptyInput() {
+    JsonStreamParser parser = new JsonStreamParser("");
+    JsonIOException e = assertThrows(JsonIOException.class, parser::next);
+    assertThat(e).hasCauseThat().isInstanceOf(EOFException.class);
+
+    parser = new JsonStreamParser("");
+    e = assertThrows(JsonIOException.class, parser::hasNext);
+    assertThat(e).hasCauseThat().isInstanceOf(EOFException.class);
+  }
+
+  @Test
+  public void testIncompleteInput() {
+    JsonStreamParser parser = new JsonStreamParser("[");
+    assertThat(parser.hasNext()).isTrue();
+    assertThrows(JsonSyntaxException.class, parser::next);
+  }
+
+  @Test
+  public void testMalformedInput() {
+    JsonStreamParser parser = new JsonStreamParser(":");
+    assertThrows(JsonSyntaxException.class, parser::hasNext);
+
+    parser = new JsonStreamParser(":");
+    assertThrows(JsonSyntaxException.class, parser::next);
   }
 }

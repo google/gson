@@ -16,30 +16,66 @@
 
 package com.google.gson;
 
-import java.net.InetAddress;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
-import junit.framework.TestCase;
+import java.net.InetAddress;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for the default serializer/deserializer for the {@code InetAddress} type.
- * 
+ *
  * @author Joel Leitch
  */
-public class DefaultInetAddressTypeAdapterTest extends TestCase {
+public class DefaultInetAddressTypeAdapterTest {
   private Gson gson;
-  
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+
+  @Before
+  public void setUp() throws Exception {
     gson = new Gson();
   }
-  
+
+  @Test
   public void testInetAddressSerializationAndDeserialization() throws Exception {
+    @SuppressWarnings("AddressSelection") // we really do want this method
     InetAddress address = InetAddress.getByName("8.8.8.8");
     String jsonAddress = gson.toJson(address);
-    assertEquals("\"8.8.8.8\"", jsonAddress);
-    
+    assertThat(jsonAddress).isEqualTo("\"8.8.8.8\"");
+
     InetAddress value = gson.fromJson(jsonAddress, InetAddress.class);
-    assertEquals(value, address);
-  } 
+    assertThat(address).isEqualTo(value);
+  }
+
+  @Test
+  public void testInetAddressSerializationAndDeserializationIpv6() throws Exception {
+    @SuppressWarnings("AddressSelection") // we really do want this method
+    InetAddress address = InetAddress.getByName("::1"); // IPv6 loopback address
+    String jsonAddress = gson.toJson(address);
+    InetAddress actual = gson.fromJson(jsonAddress, InetAddress.class);
+    assertThat(actual).isEqualTo(address);
+  }
+
+  @Test
+  public void testInetAddressDeserializeNonIpAddress() {
+    String jsonAddress = "\"localhost\"";
+    JsonSyntaxException e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson(jsonAddress, InetAddress.class));
+    assertThat(e)
+        .hasMessageThat()
+        .startsWith("Failed parsing 'localhost' as InetAddress; at path $");
+  }
+
+  @Test
+  public void testInetAddressDeserializeNonIpAddressAllowed() throws Exception {
+    String jsonAddress = "\"localhost\"";
+    InetAddress expected = InetAddress.getByName("localhost");
+    System.setProperty("gson.allowDnsInetAddress", "true");
+    try {
+      assertThat(gson.fromJson(jsonAddress, InetAddress.class)).isEqualTo(expected);
+    } finally {
+      System.clearProperty("gson.allowDnsInetAddress");
+    }
+  }
 }

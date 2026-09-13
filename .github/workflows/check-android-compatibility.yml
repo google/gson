@@ -1,0 +1,40 @@
+# For security reasons this is a separate GitHub workflow, see https://github.com/google/gson/issues/2429#issuecomment-1622522842
+# Once https://github.com/mojohaus/animal-sniffer/issues/252 or https://github.com/mojohaus/animal-sniffer/pull/253
+# are resolved, can consider adjusting pom.xml to include this as part of normal Maven build
+
+name: Check Android compatibility
+
+on:
+  push:
+    branches-ignore:
+      # Ignore Dependabot branches because it will also open a pull request, which would cause the
+      # workflow to redundantly run twice
+      - dependabot/**
+  pull_request:
+
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
+env:
+  # Common Maven arguments
+  MAVEN_ARGS: --show-version --batch-mode --no-transfer-progress
+
+jobs:
+  check-android-compatibility:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Check Android compatibility
+        run: |
+          mvn compile animal-sniffer:check@check-android-compatibility -Dmaven.test.skip --projects '!metrics,!proto,!test-graal-native-image,!test-jpms,!test-shrinker'

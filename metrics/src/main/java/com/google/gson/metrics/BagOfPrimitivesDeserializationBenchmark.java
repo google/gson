@@ -15,14 +15,12 @@
  */
 package com.google.gson.metrics;
 
+import com.google.caliper.BeforeExperiment;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
-
-import com.google.caliper.Runner;
-import com.google.caliper.SimpleBenchmark;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 
 /**
  * Caliper based micro benchmarks for Gson
@@ -31,36 +29,32 @@ import com.google.gson.stream.JsonReader;
  * @author Jesse Wilson
  * @author Joel Leitch
  */
-public class BagOfPrimitivesDeserializationBenchmark extends SimpleBenchmark {
+public class BagOfPrimitivesDeserializationBenchmark {
 
   private Gson gson;
   private String json;
 
   public static void main(String[] args) {
-    Runner.main(BagOfPrimitivesDeserializationBenchmark.class, args);
+    NonUploadingCaliperRunner.run(BagOfPrimitivesDeserializationBenchmark.class, args);
   }
-  
-  @Override
-  protected void setUp() throws Exception {
+
+  @BeforeExperiment
+  void setUp() throws Exception {
     this.gson = new Gson();
     BagOfPrimitives bag = new BagOfPrimitives(10L, 1, false, "foo");
     this.json = gson.toJson(bag);
   }
 
-  /** 
-   * Benchmark to measure Gson performance for deserializing an object
-   */
+  /** Benchmark to measure Gson performance for deserializing an object */
   public void timeBagOfPrimitivesDefault(int reps) {
-    for (int i=0; i<reps; ++i) {
-      gson.fromJson(json, BagOfPrimitives.class);
+    for (int i = 0; i < reps; ++i) {
+      BagOfPrimitives unused = gson.fromJson(json, BagOfPrimitives.class);
     }
   }
 
-  /**
-   * Benchmark to measure deserializing objects by hand
-   */
+  /** Benchmark to measure deserializing objects by hand */
   public void timeBagOfPrimitivesStreaming(int reps) throws IOException {
-    for (int i=0; i<reps; ++i) {
+    for (int i = 0; i < reps; ++i) {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);
       jr.beginObject();
@@ -68,18 +62,23 @@ public class BagOfPrimitivesDeserializationBenchmark extends SimpleBenchmark {
       int intValue = 0;
       boolean booleanValue = false;
       String stringValue = null;
-      while(jr.hasNext()) {
+      while (jr.hasNext()) {
         String name = jr.nextName();
-        if (name.equals("longValue")) {
-          longValue = jr.nextLong();
-        } else if (name.equals("intValue")) {
-          intValue = jr.nextInt();
-        } else if (name.equals("booleanValue")) {
-          booleanValue = jr.nextBoolean();
-        } else if (name.equals("stringValue")) {
-          stringValue = jr.nextString();
-        } else {
-          throw new IOException("Unexpected name: " + name);
+        switch (name) {
+          case "longValue":
+            longValue = jr.nextLong();
+            break;
+          case "intValue":
+            intValue = jr.nextInt();
+            break;
+          case "booleanValue":
+            booleanValue = jr.nextBoolean();
+            break;
+          case "stringValue":
+            stringValue = jr.nextString();
+            break;
+          default:
+            throw new IOException("Unexpected name: " + name);
         }
       }
       jr.endObject();
@@ -93,12 +92,12 @@ public class BagOfPrimitivesDeserializationBenchmark extends SimpleBenchmark {
    * and {@link #timeBagOfPrimitivesDefault(int)} .
    */
   public void timeBagOfPrimitivesReflectionStreaming(int reps) throws Exception {
-    for (int i=0; i<reps; ++i) {
+    for (int i = 0; i < reps; ++i) {
       StringReader reader = new StringReader(json);
       JsonReader jr = new JsonReader(reader);
       jr.beginObject();
       BagOfPrimitives bag = new BagOfPrimitives();
-      while(jr.hasNext()) {
+      while (jr.hasNext()) {
         String name = jr.nextName();
         for (Field field : BagOfPrimitives.class.getDeclaredFields()) {
           if (field.getName().equals(name)) {

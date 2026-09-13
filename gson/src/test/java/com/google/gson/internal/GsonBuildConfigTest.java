@@ -15,7 +15,7 @@
  */
 package com.google.gson.internal;
 
-import static org.junit.Assert.assertFalse;
+import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
 
@@ -28,6 +28,6 @@ public class GsonBuildConfigTest {
 
   @Test
   public void testEnsureGsonBuildConfigGetsUpdatedToMavenVersion() {
-    assertFalse("${project.version}".equals(GsonBuildConfig.VERSION));
+    assertThat("${project.version}").isNotEqualTo(GsonBuildConfig.VERSION);
   }
 }

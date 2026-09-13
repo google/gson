@@ -17,8 +17,8 @@
 package com.google.gson.internal;
 
 /**
- * Build configuration for Gson. This file is automatically populated by
- * templating-maven-plugin and .java/.class files are generated for use in Gson.
+ * Build configuration for Gson. This file is automatically populated by templating-maven-plugin and
+ * .java/.class files are generated for use in Gson.
  *
  * @author Inderjeet Singh
  */
@@ -28,5 +28,5 @@ public final class GsonBuildConfig {
   /** This field is automatically populated by Maven when a build is triggered */
   public static final String VERSION = "${project.version}";
 
-  private GsonBuildConfig() { }
+  private GsonBuildConfig() {}
 }

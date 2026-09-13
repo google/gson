@@ -20,130 +20,163 @@ import java.lang.reflect.Field;
 import java.util.Locale;
 
 /**
- * An enumeration that defines a few standard naming conventions for JSON field names.
- * This enumeration should be used in conjunction with {@link com.google.gson.GsonBuilder}
- * to configure a {@link com.google.gson.Gson} instance to properly translate Java field
- * names into the desired JSON field names.
+ * An enumeration that defines a few standard naming conventions for JSON field names. This
+ * enumeration should be used in conjunction with {@link GsonBuilder} to configure a {@link Gson}
+ * instance to properly translate Java field names into the desired JSON field names.
  *
+ * @see GsonBuilder#setFieldNamingStrategy(FieldNamingStrategy)
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
 public enum FieldNamingPolicy implements FieldNamingStrategy {
 
-  /**
-   * Using this naming policy with Gson will ensure that the field name is
-   * unchanged.
-   */
+  /** Using this naming policy with Gson will ensure that the field name is unchanged. */
   IDENTITY() {
-    @Override public String translateName(Field f) {
+    @Override
+    public String translateName(Field f) {
       return f.getName();
     }
   },
 
   /**
-   * Using this naming policy with Gson will ensure that the first "letter" of the Java
-   * field name is capitalized when serialized to its JSON form.
+   * Using this naming policy with Gson will ensure that the first "letter" of the Java field name
+   * is capitalized when serialized to its JSON form.
    *
-   * <p>Here's a few examples of the form "Java Field Name" ---> "JSON Field Name":</p>
+   * <p>Here are a few examples of the form "Java Field Name" ---&gt; "JSON Field Name":
+   *
    * <ul>
-   *   <li>someFieldName ---> SomeFieldName</li>
-   *   <li>_someFieldName ---> _SomeFieldName</li>
+   *   <li>someFieldName ---&gt; SomeFieldName
+   *   <li>_someFieldName ---&gt; _SomeFieldName
    * </ul>
    */
   UPPER_CAMEL_CASE() {
-    @Override public String translateName(Field f) {
+    @Override
+    public String translateName(Field f) {
       return upperCaseFirstLetter(f.getName());
     }
   },
 
   /**
-   * Using this naming policy with Gson will ensure that the first "letter" of the Java
-   * field name is capitalized when serialized to its JSON form and the words will be
-   * separated by a space.
+   * Using this naming policy with Gson will ensure that the first "letter" of the Java field name
+   * is capitalized when serialized to its JSON form and the words will be separated by a space.
    *
-   * <p>Here's a few examples of the form "Java Field Name" ---> "JSON Field Name":</p>
+   * <p>Here are a few examples of the form "Java Field Name" ---&gt; "JSON Field Name":
+   *
    * <ul>
-   *   <li>someFieldName ---> Some Field Name</li>
-   *   <li>_someFieldName ---> _Some Field Name</li>
+   *   <li>someFieldName ---&gt; Some Field Name
+   *   <li>_someFieldName ---&gt; _Some Field Name
    * </ul>
    *
    * @since 1.4
    */
   UPPER_CAMEL_CASE_WITH_SPACES() {
-    @Override public String translateName(Field f) {
-      return upperCaseFirstLetter(separateCamelCase(f.getName(), " "));
+    @Override
+    public String translateName(Field f) {
+      return upperCaseFirstLetter(separateCamelCase(f.getName(), ' '));
     }
   },
 
   /**
-   * Using this naming policy with Gson will modify the Java Field name from its camel cased
-   * form to a lower case field name where each word is separated by an underscore (_).
+   * Using this naming policy with Gson will modify the Java Field name from its camel cased form to
+   * an upper case field name where each word is separated by an underscore (_).
    *
-   * <p>Here's a few examples of the form "Java Field Name" ---> "JSON Field Name":</p>
+   * <p>Here are a few examples of the form "Java Field Name" ---&gt; "JSON Field Name":
+   *
    * <ul>
-   *   <li>someFieldName ---> some_field_name</li>
-   *   <li>_someFieldName ---> _some_field_name</li>
-   *   <li>aStringField ---> a_string_field</li>
-   *   <li>aURL ---> a_u_r_l</li>
+   *   <li>someFieldName ---&gt; SOME_FIELD_NAME
+   *   <li>_someFieldName ---&gt; _SOME_FIELD_NAME
+   *   <li>aStringField ---&gt; A_STRING_FIELD
+   *   <li>aURL ---&gt; A_U_R_L
+   * </ul>
+   *
+   * @since 2.9.0
+   */
+  UPPER_CASE_WITH_UNDERSCORES() {
+    @Override
+    public String translateName(Field f) {
+      return separateCamelCase(f.getName(), '_').toUpperCase(Locale.ENGLISH);
+    }
+  },
+
+  /**
+   * Using this naming policy with Gson will modify the Java Field name from its camel cased form to
+   * a lower case field name where each word is separated by an underscore (_).
+   *
+   * <p>Here are a few examples of the form "Java Field Name" ---&gt; "JSON Field Name":
+   *
+   * <ul>
+   *   <li>someFieldName ---&gt; some_field_name
+   *   <li>_someFieldName ---&gt; _some_field_name
+   *   <li>aStringField ---&gt; a_string_field
+   *   <li>aURL ---&gt; a_u_r_l
    * </ul>
    */
   LOWER_CASE_WITH_UNDERSCORES() {
-    @Override public String translateName(Field f) {
-      return separateCamelCase(f.getName(), "_").toLowerCase(Locale.ENGLISH);
+    @Override
+    public String translateName(Field f) {
+      return separateCamelCase(f.getName(), '_').toLowerCase(Locale.ENGLISH);
     }
   },
 
   /**
-   * Using this naming policy with Gson will modify the Java Field name from its camel cased
-   * form to a lower case field name where each word is separated by a dash (-).
+   * Using this naming policy with Gson will modify the Java Field name from its camel cased form to
+   * a lower case field name where each word is separated by a dash (-).
    *
-   * <p>Here's a few examples of the form "Java Field Name" ---> "JSON Field Name":</p>
+   * <p>Here are a few examples of the form "Java Field Name" ---&gt; "JSON Field Name":
+   *
    * <ul>
-   *   <li>someFieldName ---> some-field-name</li>
-   *   <li>_someFieldName ---> _some-field-name</li>
-   *   <li>aStringField ---> a-string-field</li>
-   *   <li>aURL ---> a-u-r-l</li>
+   *   <li>someFieldName ---&gt; some-field-name
+   *   <li>_someFieldName ---&gt; _some-field-name
+   *   <li>aStringField ---&gt; a-string-field
+   *   <li>aURL ---&gt; a-u-r-l
    * </ul>
+   *
    * Using dashes in JavaScript is not recommended since dash is also used for a minus sign in
    * expressions. This requires that a field named with dashes is always accessed as a quoted
-   * property like {@code myobject['my-field']}. Accessing it as an object field
-   * {@code myobject.my-field} will result in an unintended javascript expression.
+   * property like {@code myobject['my-field']}. Accessing it as an object field {@code
+   * myobject.my-field} will result in an unintended JavaScript expression.
+   *
    * @since 1.4
    */
   LOWER_CASE_WITH_DASHES() {
-    @Override public String translateName(Field f) {
-      return separateCamelCase(f.getName(), "-").toLowerCase(Locale.ENGLISH);
+    @Override
+    public String translateName(Field f) {
+      return separateCamelCase(f.getName(), '-').toLowerCase(Locale.ENGLISH);
     }
   },
 
   /**
-   * Using this naming policy with Gson will modify the Java Field name from its camel cased
-   * form to a lower case field name where each word is separated by a dot (.).
+   * Using this naming policy with Gson will modify the Java Field name from its camel cased form to
+   * a lower case field name where each word is separated by a dot (.).
    *
-   * <p>Here's a few examples of the form "Java Field Name" ---> "JSON Field Name":</p>
+   * <p>Here are a few examples of the form "Java Field Name" ---&gt; "JSON Field Name":
+   *
    * <ul>
-   *   <li>someFieldName ---> some.field.name</li>
-   *   <li>_someFieldName ---> _some.field.name</li>
-   *   <li>aStringField ---> a.string.field</li>
-   *   <li>aURL ---> a.u.r.l</li>
+   *   <li>someFieldName ---&gt; some.field.name
+   *   <li>_someFieldName ---&gt; _some.field.name
+   *   <li>aStringField ---&gt; a.string.field
+   *   <li>aURL ---&gt; a.u.r.l
    * </ul>
+   *
    * Using dots in JavaScript is not recommended since dot is also used for a member sign in
-   * expressions. This requires that a field named with dots is always accessed as a quoted
-   * property like {@code myobject['my.field']}. Accessing it as an object field
-   * {@code myobject.my.field} will result in an unintended javascript expression.
-   * @since 2.8
+   * expressions. This requires that a field named with dots is always accessed as a quoted property
+   * like {@code myobject['my.field']}. Accessing it as an object field {@code myobject.my.field}
+   * will result in an unintended JavaScript expression.
+   *
+   * @since 2.8.4
    */
   LOWER_CASE_WITH_DOTS() {
-    @Override public String translateName(Field f) {
-      return separateCamelCase(f.getName(), ".").toLowerCase(Locale.ENGLISH);
+    @Override
+    public String translateName(Field f) {
+      return separateCamelCase(f.getName(), '.').toLowerCase(Locale.ENGLISH);
     }
   };
 
   /**
-   * Converts the field name that uses camel-case define word separation into
-   * separate words that are separated by the provided {@code separatorString}.
+   * Converts the field name that uses camel-case define word separation into separate words that
+   * are separated by the provided {@code separator}.
    */
-  static String separateCamelCase(String name, String separator) {
+  static String separateCamelCase(String name, char separator) {
     StringBuilder translation = new StringBuilder();
     for (int i = 0, length = name.length(); i < length; i++) {
       char character = name.charAt(i);
@@ -155,35 +188,26 @@ public enum FieldNamingPolicy implements FieldNamingStrategy {
     return translation.toString();
   }
 
-  /**
-   * Ensures the JSON field names begins with an upper case letter.
-   */
-  static String upperCaseFirstLetter(String name) {
-    StringBuilder fieldNameBuilder = new StringBuilder();
-    int index = 0;
-    char firstCharacter = name.charAt(index);
-    int length = name.length();
+  /** Ensures the JSON field names begins with an upper case letter. */
+  static String upperCaseFirstLetter(String s) {
+    int length = s.length();
+    for (int i = 0; i < length; i++) {
+      char c = s.charAt(i);
+      if (Character.isLetter(c)) {
+        if (Character.isUpperCase(c)) {
+          return s;
+        }
 
-    while (index < length - 1) {
-      if (Character.isLetter(firstCharacter)) {
-        break;
+        char uppercased = Character.toUpperCase(c);
+        // For leading letter only need one substring
+        if (i == 0) {
+          return uppercased + s.substring(1);
+        } else {
+          return s.substring(0, i) + uppercased + s.substring(i + 1);
+        }
       }
-
-      fieldNameBuilder.append(firstCharacter);
-      firstCharacter = name.charAt(++index);
     }
 
-    if (!Character.isUpperCase(firstCharacter)) {
-      String modifiedTarget = modifyString(Character.toUpperCase(firstCharacter), name, ++index);
-      return fieldNameBuilder.append(modifiedTarget).toString();
-    } else {
-      return name;
-    }
-  }
-
-  private static String modifyString(char firstCharacter, String srcString, int indexOfSubstring) {
-    return (indexOfSubstring < srcString.length())
-        ? firstCharacter + srcString.substring(indexOfSubstring)
-        : String.valueOf(firstCharacter);
+    return s;
   }
 }

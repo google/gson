@@ -15,18 +15,52 @@
  */
 package com.google.gson.internal;
 
-import junit.framework.TestCase;
+import static com.google.common.truth.Truth.assertThat;
+import static java.util.stream.Collectors.toList;
 
-public class LazilyParsedNumberTest extends TestCase {
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Stream;
+import org.junit.Test;
+
+public class LazilyParsedNumberTest {
+  @Test
   public void testHashCode() {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
-    assertEquals(n1.hashCode(), n1Another.hashCode());
+    assertThat(n1Another.hashCode()).isEqualTo(n1.hashCode());
   }
 
+  @Test
   public void testEquals() {
     LazilyParsedNumber n1 = new LazilyParsedNumber("1");
     LazilyParsedNumber n1Another = new LazilyParsedNumber("1");
-    assertTrue(n1.equals(n1Another));
+    assertThat(n1.equals(n1Another)).isTrue();
+  }
+
+  @Test
+  public void testCompareTo() {
+    List<LazilyParsedNumber> inputs =
+        Stream.of("1", "1.0", "2", "1e6").map(LazilyParsedNumber::new).sorted().collect(toList());
+    List<LazilyParsedNumber> expected =
+        Stream.of("1", "1.0", "1e6", "2").map(LazilyParsedNumber::new).collect(toList());
+    assertThat(inputs).isEqualTo(expected);
+  }
+
+  @Test
+  public void testJavaSerialization() throws IOException, ClassNotFoundException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ObjectOutputStream objOut = new ObjectOutputStream(out);
+    objOut.writeObject(new LazilyParsedNumber("123"));
+    objOut.close();
+
+    ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(out.toByteArray()));
+    Number deserialized = (Number) objIn.readObject();
+    assertThat(deserialized).isEqualTo(new BigDecimal("123"));
   }
 }

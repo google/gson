@@ -16,38 +16,60 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.bind.TypeAdapters;
+
 /**
- * Defines the expected format for a {@code long} or {@code Long} type when its serialized.
+ * Defines the expected format for a {@code long} or {@code Long} type when it is serialized.
  *
+ * @see GsonBuilder#setLongSerializationPolicy(LongSerializationPolicy)
  * @since 1.3
- *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
 public enum LongSerializationPolicy {
   /**
-   * This is the "default" serialization policy that will output a {@code long} object as a JSON
+   * This is the "default" serialization policy that will output a {@code Long} object as a JSON
    * number. For example, assume an object has a long field named "f" then the serialized output
-   * would be:
-   * {@code {"f":123}}.
+   * would be: {@code {"f":123}}
+   *
+   * <p>A {@code null} value is serialized as {@link JsonNull}.
    */
   DEFAULT() {
-    @Override public JsonElement serialize(Long value) {
+    @Override
+    public JsonElement serialize(Long value) {
+      if (value == null) {
+        return JsonNull.INSTANCE;
+      }
       return new JsonPrimitive(value);
     }
+
+    @Override
+    TypeAdapter<Number> typeAdapter() {
+      return TypeAdapters.LONG;
+    }
   },
-  
+
   /**
-   * Serializes a long value as a quoted string. For example, assume an object has a long field 
-   * named "f" then the serialized output would be:
-   * {@code {"f":"123"}}.
+   * Serializes a long value as a quoted string. For example, assume an object has a long field
+   * named "f" then the serialized output would be: {@code {"f":"123"}}
+   *
+   * <p>A {@code null} value is serialized as {@link JsonNull}.
    */
   STRING() {
-    @Override public JsonElement serialize(Long value) {
-      return new JsonPrimitive(String.valueOf(value));
+    @Override
+    public JsonElement serialize(Long value) {
+      if (value == null) {
+        return JsonNull.INSTANCE;
+      }
+      return new JsonPrimitive(value.toString());
+    }
+
+    @Override
+    TypeAdapter<Number> typeAdapter() {
+      return TypeAdapters.LONG_AS_STRING;
     }
   };
-  
+
   /**
    * Serialize this {@code value} using this serialization policy.
    *
@@ -55,4 +77,8 @@ public enum LongSerializationPolicy {
    * @return the serialized version of {@code value}
    */
   public abstract JsonElement serialize(Long value);
+
+  /** Returns the corresponding {@link TypeAdapter} for this serialization policy. */
+  // Internal method
+  abstract TypeAdapter<Number> typeAdapter();
 }

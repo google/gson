@@ -5,6 +5,19 @@ Gson can work with arbitrary Java objects including pre-existing objects that yo
 
 There are a few open-source projects that can convert Java objects to JSON. However, most of them require that you place Java annotations in your classes; something that you can not do if you do not have access to the source-code. Most also do not fully support the use of Java Generics. Gson considers both of these as very important design goals.
 
+> [!NOTE]\
+> Gson is currently in maintenance mode; existing bugs will be fixed, but large new features will likely not be added. If you want to add a new feature, please first search for existing GitHub issues, or create a new one to discuss the feature and get feedback.
+
+> [!IMPORTANT]\
+> Gson's main focus is on Java. Using it with other JVM languages such as Kotlin or Scala might work fine in many cases, but language-specific features such as Kotlin's non-`null` types or constructors with default arguments are not supported. This can lead to confusing and incorrect behavior.\
+> When using languages other than Java, prefer a JSON library with explicit support for that language.
+
+> [!IMPORTANT]\
+> Gson is not a recommended library for interacting with JSON on Android. The open-ended reflection in the Gson runtime doesn't play nicely with shrinking/optimization/obfuscation passes that Android release apps should perform.\
+> If your app or library may be running on Android, consider using [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/basic-serialization.md#basics),
+> which uses code generation instead of reflection. This avoids Gson's runtime crashes when optimizations are applied (usually due to the fields missing or being obfuscated), and results in faster performance on Android devices.
+> If you still want to use Gson and attempt to avoid these crashes, you can see how to do so [here](Troubleshooting.md#proguard-r8).
+
 ### Goals
   * Provide simple `toJson()` and `fromJson()` methods to convert Java objects to JSON and vice-versa
   * Allow pre-existing unmodifiable objects to be converted to and from JSON
@@ -17,7 +30,7 @@ There are a few open-source projects that can convert Java objects to JSON. Howe
 Gradle:
 ```gradle
 dependencies {
-  implementation 'com.google.code.gson:gson:2.8.5'
+  implementation 'com.google.code.gson:gson:2.14.0'
 }
 ```
 
@@ -26,26 +39,70 @@ Maven:
 <dependency>
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
-  <version>2.8.5</version>
+  <version>2.14.0</version>
 </dependency>
 ```
 
-[Gson jar downloads](https://maven-badges.herokuapp.com/maven-central/com.google.code.gson/gson) are available from Maven Central.
+[Gson jar downloads](https://central.sonatype.com/artifact/com.google.code.gson/gson) are available from Maven Central.
 
-[![Build Status](https://travis-ci.org/google/gson.svg?branch=master)](https://travis-ci.org/google/gson)
+![Build Status](https://github.com/google/gson/actions/workflows/build.yml/badge.svg)
+
+### Requirements
+#### Minimum Java version
+- Gson 2.12.0 and newer: Java 8
+- Gson 2.9.0 to 2.11.0: Java 7
+- Gson 2.8.9 and older: Java 6
+
+Despite supporting older Java versions, Gson also provides a JPMS module descriptor (module name `com.google.gson`) for users of Java 9 or newer.
+
+#### JPMS dependencies (Java 9+)
+These are the optional Java Platform Module System (JPMS) JDK modules which Gson depends on.
+This only applies when running Java 9 or newer.
+
+- `java.sql` (optional since Gson 2.8.9)\
+When this module is present, Gson provides default adapters for some SQL date and time classes.
+
+- `jdk.unsupported`, respectively, class `sun.misc.Unsafe` (optional)\
+When this module is present, Gson can use the `Unsafe` class to create instances of classes without a no-args constructor.
+However, care should be taken when relying on this. `Unsafe` is not available in all environments and its usage has some pitfalls,
+see [`GsonBuilder.disableJdkUnsafe()`](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#disableJdkUnsafe()).
+
+#### Minimum Android API level
+
+- Gson 2.15.0 and newer: API level 24
+- Gson 2.11.0 and newer: API level 21
+- Gson 2.10.1 and older: API level 19
+
+Older Gson versions may also support lower API levels, however this has not been verified.
 
 ### Documentation
-  * [API Javadoc](http://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release
-  * [User guide](https://github.com/google/gson/blob/master/UserGuide.md): This guide contains examples on how to use Gson in your code.
-  * [Change log](https://github.com/google/gson/blob/master/CHANGELOG.md): Changes in the recent versions
-  * [Design document](https://github.com/google/gson/blob/master/GsonDesignDocument.md): This document discusses issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for Json conversion
+  * [API Javadoc](https://www.javadoc.io/doc/com.google.code.gson/gson): Documentation for the current release
+  * [User guide](UserGuide.md): This guide contains examples on how to use Gson in your code
+  * [Troubleshooting guide](Troubleshooting.md): Describes how to solve common issues when using Gson
+  * [Releases and change log](https://github.com/google/gson/releases): Latest releases and changes in these versions; for older releases see [`CHANGELOG.md`](CHANGELOG.md)
+  * [Design document](GsonDesignDocument.md): This document discusses issues we faced while designing Gson. It also includes a comparison of Gson with other Java libraries that can be used for JSON conversion
 
-Please use the 'gson' tag on StackOverflow or the [google-gson Google group](http://groups.google.com/group/google-gson) to discuss Gson or to post questions.
+Please use the ['gson' tag on StackOverflow](https://stackoverflow.com/questions/tagged/gson), [GitHub Discussions](https://github.com/google/gson/discussions) or the [google-gson Google group](https://groups.google.com/group/google-gson) to discuss Gson or to post questions.
 
-### Related Content Created by Third Parties
-  * [Gson Tutorial](http://www.studytrails.com/java/json/java-google-json-introduction.jsp) by `StudyTrails`
-  * [Gson Tutorial Series](https://futurestud.io/tutorials/gson-getting-started-with-java-json-serialization-deserialization) by `Future Studio`
-  * [Gson API Report](https://abi-laboratory.pro/java/tracker/timeline/gson/)
+### ProGuard / R8
+
+See the details in the related section in the [Troubleshooting guide](Troubleshooting.md#proguard-r8).
+
+### Building
+
+Gson uses Maven to build the project:
+```
+mvn clean verify
+```
+
+JDK 17 or newer is required for building, JDK 21 is recommended. Newer JDKs are currently not supported for building (but are supported when _using_ Gson).
+
+### Contributing
+
+See the [contributing guide](https://github.com/google/.github/blob/master/CONTRIBUTING.md).\
+Please perform a quick search to check if there are already existing issues or pull requests related to your contribution.
+
+Keep in mind that Gson is in maintenance mode. If you want to add a new feature, please first search for existing GitHub issues, or create a new one to discuss the feature and get feedback.
 
 ### License
 

@@ -15,32 +15,35 @@
  */
 package com.google.gson.functional;
 
+import static com.google.common.truth.Truth.assertThat;
+import static java.util.Collections.singletonList;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
-import static java.util.Collections.singletonList;
-
-/**
- * Functional tests for leniency option.
- */
-public class LeniencyTest extends TestCase {
+/** Functional tests for leniency option. */
+public class LeniencyTest {
 
   private Gson gson;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // for GsonBuilder.setLenient
+  @Before
+  public void setUp() throws Exception {
     gson = new GsonBuilder().setLenient().create();
   }
 
+  @Test
   public void testLenientFromJson() {
-    List<String> json = gson.fromJson(""
-        + "[ # One!\n"
-        + "  'Hi' #Element!\n"
-        + "] # Array!", new TypeToken<List<String>>() {}.getType());
-    assertEquals(singletonList("Hi"), json);
+    List<String> json =
+        gson.fromJson(
+            "[ # One!\n" //
+                + "  'Hi' #Element!\n" //
+                + "] # Array!",
+            new TypeToken<List<String>>() {}.getType());
+    assertThat(json).isEqualTo(singletonList("Hi"));
   }
 }
