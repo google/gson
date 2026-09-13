@@ -128,8 +128,9 @@ public class ReflectionAccessFilterTest {
     Gson gson =
         new GsonBuilder().addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_ALL_JAVA).create();
 
+    Thread value = Thread.currentThread();
     // Serialization should fail for any Java class without custom adapter
-    var e = assertThrows(JsonIOException.class, () -> gson.toJson(Thread.currentThread()));
+    var e = assertThrows(JsonIOException.class, () -> gson.toJson(value));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -142,7 +143,8 @@ public class ReflectionAccessFilterTest {
     Gson gson =
         new GsonBuilder().addReflectionAccessFilter(ReflectionAccessFilter.BLOCK_ALL_JAVA).create();
 
-    var e = assertThrows(JsonIOException.class, () -> gson.toJson(new ClassExtendingJdkClass()));
+    ClassExtendingJdkClass value = new ClassExtendingJdkClass();
+    var e = assertThrows(JsonIOException.class, () -> gson.toJson(value));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(
@@ -224,8 +226,9 @@ public class ReflectionAccessFilterTest {
                 })
             .create();
 
+    SuperTestClass value = new SuperTestClass();
     // Filter disallows SuperTestClass
-    var e = assertThrows(JsonIOException.class, () -> gson.toJson(new SuperTestClass()));
+    var e = assertThrows(JsonIOException.class, () -> gson.toJson(value));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo(

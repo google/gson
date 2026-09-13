@@ -142,9 +142,8 @@ public class ReadersWritersTest {
   @Test
   public void testTypeMismatchThrowsJsonSyntaxExceptionForReaders() {
     Type type = new TypeToken<Map<String, String>>() {}.getType();
-    var e =
-        assertThrows(
-            JsonSyntaxException.class, () -> gson.fromJson(new StringReader("true"), type));
+    StringReader reader = new StringReader("true");
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson(reader, type));
     assertThat(e)
         .hasCauseThat()
         .hasMessageThat()

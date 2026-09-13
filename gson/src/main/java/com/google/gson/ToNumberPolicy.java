@@ -29,6 +29,8 @@ import java.math.BigDecimal;
  * {@link Number}.
  *
  * @see ToNumberStrategy
+ * @see GsonBuilder#setObjectToNumberStrategy(ToNumberStrategy)
+ * @see GsonBuilder#setNumberToNumberStrategy(ToNumberStrategy)
  * @since 2.8.9
  */
 public enum ToNumberPolicy implements ToNumberStrategy {

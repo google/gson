@@ -26,6 +26,6 @@ import com.google.gson.InstanceCreator;
  */
 public interface JsonPostDeserializer<T> {
 
-  /** This method is called by Gson after the object has been deserialized from Json. */
+  /** This method is called by Gson after the object has been deserialized from JSON. */
   public void postDeserialize(T object);
 }

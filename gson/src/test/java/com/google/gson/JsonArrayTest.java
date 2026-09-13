@@ -78,7 +78,8 @@ public final class JsonArrayTest {
   @Test
   public void testSet() {
     JsonArray array = new JsonArray();
-    assertThrows(IndexOutOfBoundsException.class, () -> array.set(0, new JsonPrimitive(1)));
+    JsonPrimitive value = new JsonPrimitive(1);
+    assertThrows(IndexOutOfBoundsException.class, () -> array.set(0, value));
 
     JsonPrimitive a = new JsonPrimitive("a");
     array.add(a);

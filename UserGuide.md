@@ -76,7 +76,7 @@ The Gson instance does not maintain any state while invoking JSON operations. So
 
 ```gradle
 dependencies {
-    implementation 'com.google.code.gson:gson:2.13.2'
+    implementation 'com.google.code.gson:gson:2.14.0'
 }
 ```
 
@@ -90,7 +90,7 @@ To use Gson with Maven2/3, you can use the Gson version available in Maven Centr
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.13.2</version>
+      <version>2.14.0</version>
       <scope>compile</scope>
     </dependency>
 </dependencies>
@@ -528,7 +528,7 @@ String jsonOutput = gson.toJson(someObject);
 
 ### Null Object Support
 
-The default behaviour that is implemented in Gson is that `null` object fields are ignored. This allows for a more compact output format; however, the client must define a default value for these fields as the JSON format is converted back into its Java form.
+The default behavior that is implemented in Gson is that `null` object fields are ignored. This allows for a more compact output format; however, the client must define a default value for these fields as the JSON format is converted back into its Java form.
 
 Here's how you would configure a `Gson` instance to output null:
 

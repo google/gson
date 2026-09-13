@@ -137,6 +137,6 @@ public class JsonParserTest {
     assertThat(e)
         .hasCauseThat()
         .hasMessageThat()
-        .startsWith("Expected name at line 1 column 7 path $.\n");
+        .startsWith("Expected name at line 1 column 7 path $.a\n");
   }
 }

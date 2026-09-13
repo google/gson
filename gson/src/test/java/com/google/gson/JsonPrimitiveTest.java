@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.common.MoreAsserts;
+import com.google.gson.internal.LazilyParsedNumber;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import org.junit.Test;
@@ -296,6 +297,34 @@ public class JsonPrimitiveTest {
         new JsonPrimitive(new BigDecimal("0")), new JsonPrimitive(0));
     MoreAsserts.assertEqualsAndHashCode(
         new JsonPrimitive(Float.NaN), new JsonPrimitive(Double.NaN));
+  }
+
+  /**
+   * Regression test for <a href="https://github.com/google/gson/issues/992">issue 992</a>: numbers
+   * which {@link JsonPrimitive#equals(Object)} considers equal must have the same hash code, even
+   * when they are backed by different {@link Number} classes.
+   */
+  @Test
+  public void testEqualsAndHashCodeAcrossNumberTypes() {
+    // The case from issue 992: an integer compared with the corresponding lazily parsed number
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(42), new JsonPrimitive(new LazilyParsedNumber("42")));
+    // Round-trip through JSON string representation produces a lazily parsed number
+    JsonPrimitive integer = new JsonPrimitive(42);
+    JsonPrimitive parsedBack = JsonParser.parseString(integer.toString()).getAsJsonPrimitive();
+    MoreAsserts.assertEqualsAndHashCode(integer, parsedBack);
+
+    // Integral and floating point Number classes with the same numeric value
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(42), new JsonPrimitive(42.0));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new BigDecimal("42")), new JsonPrimitive(42));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new BigInteger("42")), new JsonPrimitive(new LazilyParsedNumber("42")));
+    // equals considers -0.0 and 0 equal
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(-0.0), new JsonPrimitive(0));
+    // equals considers a large long equal to the double it loses precision to
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(9007199254740993L), new JsonPrimitive(9007199254740992.0));
   }
 
   @Test

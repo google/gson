@@ -156,40 +156,42 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
   }
 
   public boolean excludeField(Field field, boolean serialize) {
-    if ((modifiers & field.getModifiers()) != 0) {
-      return true;
-    }
+    return isExcludedByModifier(field)
+        || isExcludedByVersion(field)
+        || field.isSynthetic()
+        || isExcludedByExposeAnnotation(field, serialize)
+        || excludeClass(field.getType(), serialize)
+        || isExcludedByStrategy(field, serialize);
+  }
 
-    if (version != Excluder.IGNORE_VERSIONS
-        && !isValidVersion(field.getAnnotation(Since.class), field.getAnnotation(Until.class))) {
-      return true;
-    }
+  private boolean isExcludedByModifier(Field field) {
+    return (modifiers & field.getModifiers()) != 0;
+  }
 
-    if (field.isSynthetic()) {
-      return true;
-    }
+  private boolean isExcludedByVersion(Field field) {
+    return version != Excluder.IGNORE_VERSIONS
+        && !isValidVersion(field.getAnnotation(Since.class), field.getAnnotation(Until.class));
+  }
 
-    if (requireExpose) {
-      Expose annotation = field.getAnnotation(Expose.class);
-      if (annotation == null || (serialize ? !annotation.serialize() : !annotation.deserialize())) {
+  private boolean isExcludedByExposeAnnotation(Field field, boolean serialize) {
+    if (!requireExpose) {
+      return false;
+    }
+    Expose annotation = field.getAnnotation(Expose.class);
+    return annotation == null || (serialize ? !annotation.serialize() : !annotation.deserialize());
+  }
+
+  private boolean isExcludedByStrategy(Field field, boolean serialize) {
+    List<ExclusionStrategy> list = serialize ? serializationStrategies : deserializationStrategies;
+    if (list.isEmpty()) {
+      return false;
+    }
+    FieldAttributes fieldAttributes = new FieldAttributes(field);
+    for (ExclusionStrategy exclusionStrategy : list) {
+      if (exclusionStrategy.shouldSkipField(fieldAttributes)) {
         return true;
       }
     }
-
-    if (excludeClass(field.getType(), serialize)) {
-      return true;
-    }
-
-    List<ExclusionStrategy> list = serialize ? serializationStrategies : deserializationStrategies;
-    if (!list.isEmpty()) {
-      FieldAttributes fieldAttributes = new FieldAttributes(field);
-      for (ExclusionStrategy exclusionStrategy : list) {
-        if (exclusionStrategy.shouldSkipField(fieldAttributes)) {
-          return true;
-        }
-      }
-    }
-
     return false;
   }
 

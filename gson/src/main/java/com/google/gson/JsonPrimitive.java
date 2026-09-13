@@ -262,16 +262,45 @@ public final class JsonPrimitive extends JsonElement {
     if (value == null) {
       return 31;
     }
-    // Using recommended hashing algorithm from Effective Java for longs and doubles
+    // The conditions below parallel the structure of equals(Object). Unlike in equals, every
+    // numeric branch must delegate to the same double-based hash: equals can consider primitives
+    // from *different* branches equal (for example Integer 42 equals Double 42.0 and a lazily
+    // parsed number 42 through the floating-point comparison), so a branch hashing anything other
+    // than the double value would give equal primitives different hash codes, see
+    // https://github.com/google/gson/issues/992
     if (isIntegral(this)) {
-      long value = getAsNumber().longValue();
-      return (int) (value ^ (value >>> 32));
+      // equals compares two integral primitives by their BigInteger values or long values;
+      // primitives equal under either comparison also have the same double value, so the
+      // double-based hash is consistent with this branch of equals. It is also consistent with
+      // the mixed comparisons handled below, such as Integer 42 vs Double 42.0.
+      return hashOfDoubleValue(getAsNumber().doubleValue());
     }
     if (value instanceof Number) {
-      long value = Double.doubleToLongBits(getAsNumber().doubleValue());
-      return (int) (value ^ (value >>> 32));
+      // equals compares the remaining numbers by their double values. (For two BigDecimals it
+      // uses compareTo, which only considers values equal that also have the same double value.)
+      return hashOfDoubleValue(getAsNumber().doubleValue());
     }
     return value.hashCode();
+  }
+
+  /**
+   * Hash code derived from the {@code double} value which {@link #equals(Object)} ultimately
+   * compares numbers by.
+   *
+   * <p>Mathematically integral values within {@code long} range use the hashing algorithm
+   * recommended by Effective Java for longs; this keeps the hash code unchanged for the common
+   * integral types and also normalizes {@code -0.0} to {@code 0.0} (which {@code equals} considers
+   * equal to {@code 0}). All other values hash their {@link Double#doubleToLongBits} bits, which
+   * collapses all NaN bit patterns to a single canonical value, matching {@code equals} which
+   * considers all NaN values equal.
+   */
+  private static int hashOfDoubleValue(double doubleValue) {
+    long longValue = (long) doubleValue;
+    if (doubleValue == longValue) {
+      return (int) (longValue ^ (longValue >>> 32));
+    }
+    long bits = Double.doubleToLongBits(doubleValue);
+    return (int) (bits ^ (bits >>> 32));
   }
 
   /**
