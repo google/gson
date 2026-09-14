@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.common.testing.EqualsTester;
 import com.google.gson.common.MoreAsserts;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import org.junit.Test;
 
@@ -354,5 +355,260 @@ public final class JsonArrayTest {
     nestedObject.addProperty("n\0", 1);
     array.add(nestedObject);
     assertThat(array.toString()).isEqualTo("[null,NaN,\"a\\u0000\",[\"\\\"\"],{\"n\\u0000\":1}]");
+  }
+
+  @Test
+  public void testAddNullElement() {
+    JsonArray jsonArray = new JsonArray();
+    JsonElement element = null;
+    jsonArray.add(element);
+    assertThat(jsonArray.get(0)).isEqualTo(JsonNull.INSTANCE);
+  }
+
+  @Test
+  public void testAddAll() {
+    // set up Arrays
+    JsonArray jsonArrayToAdd = new JsonArray();
+    JsonArray jsonArray = new JsonArray();
+
+    // initialize variables to add
+    Number number = 1;
+    String string = "test";
+    double d = 10.10;
+    BigDecimal bigDecimal = new BigDecimal("215.87");
+    BigInteger bigInteger = new BigInteger("215");
+    float f = 10.4f;
+    long l = 12345678910L;
+    int i = 10;
+    byte b = 10;
+    char c = 'a';
+    short s = 10;
+    boolean bool = true;
+
+    // add variables to Array
+    jsonArrayToAdd.add(number);
+    jsonArrayToAdd.add(string);
+    jsonArrayToAdd.add(d);
+    jsonArrayToAdd.add(bigDecimal);
+    jsonArrayToAdd.add(bigInteger);
+    jsonArrayToAdd.add(f);
+    jsonArrayToAdd.add(l);
+    jsonArrayToAdd.add(i);
+    jsonArrayToAdd.add(b);
+    jsonArrayToAdd.add(c);
+    jsonArrayToAdd.add(s);
+    jsonArrayToAdd.add(bool);
+
+    // execute method
+    jsonArray.addAll(jsonArrayToAdd);
+
+    // check
+    assertThat(jsonArray).isEqualTo(jsonArrayToAdd);
+  }
+
+  @Test
+  public void testGetSingleElementAsNumber() {
+    JsonArray singleElement = new JsonArray();
+    Number number = 1;
+    singleElement.add(number);
+    assertThat(singleElement.getAsNumber()).isEqualTo(number);
+  }
+
+  @Test
+  public void testGetElementsAsNumberException() {
+    JsonArray singleElement = new JsonArray();
+    Number number = 1;
+    singleElement.add(number);
+    singleElement.add(number);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsNumber());
+  }
+
+  @Test
+  public void testGetSingleElementAsString() {
+    JsonArray singleElement = new JsonArray();
+    String string = "test";
+    singleElement.add(string);
+    assertThat(singleElement.getAsString()).isEqualTo(string);
+  }
+
+  @Test
+  public void testGetElementsAsStringException() {
+    JsonArray singleElement = new JsonArray();
+    String string = "test";
+    singleElement.add(string);
+    singleElement.add(string);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsString());
+  }
+
+  @Test
+  public void testGetSingleElementAsDouble() {
+    JsonArray singleElement = new JsonArray();
+    double d = 10.10;
+    singleElement.add(d);
+    assertThat(singleElement.getAsDouble()).isEqualTo(d);
+  }
+
+  @Test
+  public void testGetElementsAsDoubleException() {
+    JsonArray singleElement = new JsonArray();
+    double d = 10.10;
+    singleElement.add(d);
+    singleElement.add(d);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsDouble());
+  }
+
+  @Test
+  public void testGetSingleElementAsBigDecimal() {
+    JsonArray singleElement = new JsonArray();
+    BigDecimal bigDecimal = new BigDecimal("215.87");
+    singleElement.add(bigDecimal);
+    assertThat(singleElement.getAsBigDecimal()).isEqualTo(bigDecimal);
+  }
+
+  @Test
+  public void testGetElementsAsBigDecimalException() {
+    JsonArray singleElement = new JsonArray();
+    BigDecimal bigDecimal = new BigDecimal("215.87");
+    singleElement.add(bigDecimal);
+    singleElement.add(bigDecimal);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsBigDecimal());
+  }
+
+  @Test
+  public void testGetSingleElementAsBigInteger() {
+    JsonArray singleElement = new JsonArray();
+    BigInteger bigInteger = new BigInteger("215");
+    singleElement.add(bigInteger);
+    assertThat(singleElement.getAsBigInteger()).isEqualTo(bigInteger);
+  }
+
+  @Test
+  public void testGetElementsAsBigIntegerException() {
+    JsonArray singleElement = new JsonArray();
+    BigInteger bigInteger = new BigInteger("215");
+    singleElement.add(bigInteger);
+    singleElement.add(bigInteger);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsBigInteger());
+  }
+
+  @Test
+  public void testGetSingleElementAsFloat() {
+    JsonArray singleElement = new JsonArray();
+    float f = 10.4f;
+    singleElement.add(f);
+    assertThat(singleElement.getAsFloat()).isEqualTo(f);
+  }
+
+  @Test
+  public void testGetElementsAsFloatException() {
+    JsonArray singleElement = new JsonArray();
+    float f = 10.4f;
+    singleElement.add(f);
+    singleElement.add(f);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsFloat());
+  }
+
+  @Test
+  public void testGetSingleElementAsLong() {
+    JsonArray singleElement = new JsonArray();
+    long l = 12345678910L;
+    singleElement.add(l);
+    assertThat(singleElement.getAsLong()).isEqualTo(l);
+  }
+
+  @Test
+  public void testGetElementsAsLongException() {
+    JsonArray singleElement = new JsonArray();
+    long l = 12345678910L;
+    singleElement.add(l);
+    singleElement.add(l);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsLong());
+  }
+
+  @Test
+  public void testGetSingleElementAsInt() {
+    JsonArray singleElement = new JsonArray();
+    int i = 10;
+    singleElement.add(i);
+    assertThat(singleElement.getAsInt()).isEqualTo(i);
+  }
+
+  @Test
+  public void testGetElementsAsIntException() {
+    JsonArray singleElement = new JsonArray();
+    int i = 10;
+    singleElement.add(i);
+    singleElement.add(i);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsInt());
+  }
+
+  @Test
+  public void testGetSingleElementAsByte() {
+    JsonArray singleElement = new JsonArray();
+    byte b = 10;
+    singleElement.add(b);
+    assertThat(singleElement.getAsByte()).isEqualTo(b);
+  }
+
+  @Test
+  public void testGetElementsAsByteException() {
+    JsonArray singleElement = new JsonArray();
+    byte b = 10;
+    singleElement.add(b);
+    singleElement.add(b);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsByte());
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void testGetSingleElementAsCharacter() {
+    JsonArray singleElement = new JsonArray();
+    char c = 'a';
+    singleElement.add(c);
+    assertThat(singleElement.getAsCharacter()).isEqualTo(c);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void testGetElementsAsCharacterException() {
+    JsonArray singleElement = new JsonArray();
+    char c = 'a';
+    singleElement.add(c);
+    singleElement.add(c);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsCharacter());
+  }
+
+  @Test
+  public void testGetSingleElementAsShort() {
+    JsonArray singleElement = new JsonArray();
+    short s = 10;
+    singleElement.add(s);
+    assertThat(singleElement.getAsShort()).isEqualTo(s);
+  }
+
+  @Test
+  public void testGetElementsAsShortException() {
+    JsonArray singleElement = new JsonArray();
+    short s = 10;
+    singleElement.add(s);
+    singleElement.add(s);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsShort());
+  }
+
+  @Test
+  public void testGetSingleElementAsBoolean() {
+    JsonArray singleElement = new JsonArray();
+    boolean bool = true;
+    singleElement.add(bool);
+    assertThat(singleElement.getAsBoolean()).isEqualTo(bool);
+  }
+
+  @Test
+  public void testGetElementsAsBooleanException() {
+    JsonArray singleElement = new JsonArray();
+    boolean bool = true;
+    singleElement.add(bool);
+    singleElement.add(bool);
+    assertThrows(IllegalStateException.class, () -> singleElement.getAsBoolean());
   }
 }
