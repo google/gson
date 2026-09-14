@@ -296,11 +296,7 @@ public final class JsonPrimitive extends JsonElement {
    */
   private static int hashOfDoubleValue(double doubleValue) {
     long longValue = (long) doubleValue;
-    if (doubleValue == longValue) {
-      return (int) (longValue ^ (longValue >>> 32));
-    }
-    long bits = Double.doubleToLongBits(doubleValue);
-    return (int) (bits ^ (bits >>> 32));
+    return (doubleValue == longValue) ? Long.hashCode(longValue) : Double.hashCode(doubleValue);
   }
 
   /**
