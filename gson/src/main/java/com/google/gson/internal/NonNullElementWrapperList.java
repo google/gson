@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.RandomAccess;
 import java.util.Spliterator;
+import java.util.function.Predicate;
 
 /**
  * {@link List} which wraps another {@code List} but prevents insertion of {@code null} elements.
@@ -92,6 +93,11 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   @Override
   public boolean retainAll(Collection<?> c) {
     return delegate.retainAll(c);
+  }
+
+  @Override
+  public boolean removeIf(Predicate<? super E> filter) {
+    return delegate.removeIf(filter);
   }
 
   @Override
