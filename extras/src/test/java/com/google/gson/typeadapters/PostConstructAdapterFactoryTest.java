@@ -95,6 +95,37 @@ public class PostConstructAdapterFactoryTest {
     }
   }
 
+  @Test
+  public void testErrorFromPostConstructPropagatesAsError() {
+    Gson gson =
+        new GsonBuilder().registerTypeAdapterFactory(new PostConstructAdapterFactory()).create();
+
+    CustomTestError thrown =
+        assertThrows(
+            CustomTestError.class, () -> gson.fromJson("{\"value\": 1}", ErrorThrowingClass.class));
+
+    assertThat(thrown).hasMessageThat().isEqualTo("error from post-construct");
+  }
+
+  static class ErrorThrowingClass {
+    public int value;
+
+    @PostConstruct
+    private void init() {
+      throw new CustomTestError("error from post-construct");
+    }
+  }
+
+  // A dedicated Error subclass so the test does not rely on a JDK Error type (e.g. AssertionError,
+  // which Gson re-tags with a version prefix) and is not confused with a meaningful JVM error.
+  private static final class CustomTestError extends Error {
+    private static final long serialVersionUID = 1L;
+
+    CustomTestError(String message) {
+      super(message);
+    }
+  }
+
   @SuppressWarnings({"overrides", "EqualsHashCode"}) // for missing hashCode() override
   static class MultipleSandwiches {
     public List<Sandwich> sandwiches;
