@@ -337,40 +337,40 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory ATOMIC_BOOLEAN_FACTORY =
       newFactory(AtomicBoolean.class, TypeAdapters.ATOMIC_BOOLEAN);
 
-  public static final TypeAdapter<AtomicIntegerArray> ATOMIC_INTEGER_ARRAY =
-      new TypeAdapter<AtomicIntegerArray>() {
-        @Override
-        public AtomicIntegerArray read(JsonReader in) throws IOException {
-          List<Integer> list = new ArrayList<>();
-          in.beginArray();
-          while (in.hasNext()) {
-            try {
-              int integer = in.nextInt();
-              list.add(integer);
-            } catch (NumberFormatException e) {
-              throw new JsonSyntaxException(e);
-            }
+  public static TypeAdapter<AtomicIntegerArray> atomicIntegerArrayAdapter(
+      TypeAdapter<Number> intAdapter) {
+    Objects.requireNonNull(intAdapter);
+    return new TypeAdapter<AtomicIntegerArray>() {
+      @Override
+      public AtomicIntegerArray read(JsonReader in) throws IOException {
+        List<Integer> list = new ArrayList<>();
+        in.beginArray();
+        while (in.hasNext()) {
+          Number value = intAdapter.read(in);
+          if (value == null) {
+            throw new JsonSyntaxException("null is not a valid AtomicIntegerArray element");
           }
-          in.endArray();
-          int length = list.size();
-          AtomicIntegerArray array = new AtomicIntegerArray(length);
-          for (int i = 0; i < length; ++i) {
-            array.set(i, list.get(i));
-          }
-          return array;
+          list.add(value.intValue());
         }
+        in.endArray();
+        int length = list.size();
+        AtomicIntegerArray array = new AtomicIntegerArray(length);
+        for (int i = 0; i < length; ++i) {
+          array.set(i, list.get(i));
+        }
+        return array;
+      }
 
-        @Override
-        public void write(JsonWriter out, AtomicIntegerArray value) throws IOException {
-          out.beginArray();
-          for (int i = 0, length = value.length(); i < length; i++) {
-            out.value(value.get(i));
-          }
-          out.endArray();
+      @Override
+      public void write(JsonWriter out, AtomicIntegerArray value) throws IOException {
+        out.beginArray();
+        for (int i = 0, length = value.length(); i < length; i++) {
+          intAdapter.write(out, value.get(i));
         }
-      }.nullSafe();
-  public static final TypeAdapterFactory ATOMIC_INTEGER_ARRAY_FACTORY =
-      newFactory(AtomicIntegerArray.class, TypeAdapters.ATOMIC_INTEGER_ARRAY);
+        out.endArray();
+      }
+    }.nullSafe();
+  }
 
   public static TypeAdapter<AtomicLongArray> atomicLongArrayAdapter(
       TypeAdapter<Number> longAdapter) {
