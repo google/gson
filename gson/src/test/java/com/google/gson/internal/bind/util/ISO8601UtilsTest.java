@@ -52,7 +52,8 @@ public class ISO8601UtilsTest {
       TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
       Date date = ISO8601Utils.parse("1966-11-01", new ParsePosition(0));
 
-      GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("America/Sao_Paulo"), Locale.US);
+      GregorianCalendar calendar =
+          new GregorianCalendar(TimeZone.getTimeZone("America/Sao_Paulo"), Locale.US);
       // Calendar was created with current time, must clear it
       calendar.clear();
       calendar.setTime(date);
@@ -75,9 +76,12 @@ public class ISO8601UtilsTest {
       // Strict parsing introduced for date-only values must keep rejecting dates which do
       // not exist, even in time zones where midnight is skipped by a DST transition
       TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
-      assertThrows(ParseException.class, () -> ISO8601Utils.parse("2021-02-30", new ParsePosition(0)));
-      assertThrows(ParseException.class, () -> ISO8601Utils.parse("2021-13-01", new ParsePosition(0)));
-      assertThrows(ParseException.class, () -> ISO8601Utils.parse("1966-00-01", new ParsePosition(0)));
+      assertThrows(
+          ParseException.class, () -> ISO8601Utils.parse("2021-02-30", new ParsePosition(0)));
+      assertThrows(
+          ParseException.class, () -> ISO8601Utils.parse("2021-13-01", new ParsePosition(0)));
+      assertThrows(
+          ParseException.class, () -> ISO8601Utils.parse("1966-00-01", new ParsePosition(0)));
     } finally {
       TimeZone.setDefault(defaultTimeZone);
     }
