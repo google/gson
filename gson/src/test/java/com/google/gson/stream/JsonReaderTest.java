@@ -138,6 +138,34 @@ public final class JsonReaderTest {
   }
 
   @Test
+  public void testStrictModeRejectsUnpairedSurrogates() throws IOException {
+    for (String json :
+        new String[] {"\"\\uD800\"", "\"\\uDC00\"", "\"\uD800\"", "{\"\\uD800\":1}"}) {
+      JsonReader reader = new JsonReader(reader(json));
+      reader.setStrictness(Strictness.STRICT);
+      if (json.startsWith("{")) {
+        reader.beginObject();
+        IOException expected = assertThrows(IOException.class, reader::nextName);
+        assertThat(expected)
+            .hasMessageThat()
+            .startsWith("Unpaired surrogate characters are not allowed in strict mode");
+      } else {
+        IOException expected = assertThrows(IOException.class, reader::nextString);
+        assertThat(expected)
+            .hasMessageThat()
+            .startsWith("Unpaired surrogate characters are not allowed in strict mode");
+      }
+    }
+  }
+
+  @Test
+  public void testStrictModeAllowsPairedSurrogates() throws IOException {
+    JsonReader reader = new JsonReader(reader("\"\\uD834\\uDD1E\""));
+    reader.setStrictness(Strictness.STRICT);
+    assertThat(reader.nextString()).isEqualTo("\uD834\uDD1E");
+  }
+
+  @Test
   public void testNonStrictModeParsesUnescapedControlCharacter() throws IOException {
     String json = "\"\t\"";
     JsonReader reader = new JsonReader(reader(json));

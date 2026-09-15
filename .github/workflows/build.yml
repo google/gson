@@ -17,24 +17,26 @@ env:
 
 jobs:
   build:
-    name: "Build on JDK ${{ matrix.java }}"
+    name: "Build on JDK ${{ matrix.java }} (${{ matrix.java-package }})"
     strategy:
       matrix:
-        java: [ 17, 21 ]
+        java: [ 17, 21, 25 ]
+        java-package: [ jdk ]
         include:
           # Custom JDK 11 configuration because some of the plugins and test dependencies don't support it anymore,
           # but it is important to still test with a JDK version without Record classes
           - java: 11
+            java-package: jdk
             # Disable Enforcer check which (intentionally) prevents using JDK 11 for building
             # Exclude 'test-graal-native-image' module because JUnit 6 requires >= Java 17
             # Exclude 'proto' module because protobuf-maven-plugin requires >= Java 17
             extra-mvn-args: -Denforcer.fail=false --projects '!test-graal-native-image,!proto'
+          # Additional build with JDK 25 and jmod files, to run ProGuard-related tests on JDK 25 as well
+          # Not needed for older JDK versions tested here, they include jmod files by default
+          # See also https://github.com/Guardsquare/proguard/issues/473
+          # TODO: Remove this and the `java-package` config once ProGuard does not require jmod files anymore
           - java: 25
-            # Disable Enforcer check which (intentionally) prevents using JDK 25 for building
-            # Exclude 'test-shrinker' because ProGuard does not support JDK 25 yet, see
-            # https://github.com/Guardsquare/proguard/issues/481 and https://github.com/Guardsquare/proguard/issues/473
-            # TODO: Once ProGuard supports JDK 25, also remove the corresponding 'JDK25' profile in `gson/pom.xml`
-            extra-mvn-args: -Denforcer.fail=false --projects '!test-shrinker'
+            java-package: jdk+jmods
     runs-on: ubuntu-latest
 
     steps:
@@ -42,10 +44,11 @@ jobs:
         with:
           persist-credentials: false
       - name: "Set up JDK ${{ matrix.java }}"
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c  # v6.0.0
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
+          java-package: ${{ matrix.java-package }}
           cache: 'maven'
       - name: Build with Maven
         # This also runs javadoc:jar to detect any issues with the Javadoc generated during release
@@ -60,7 +63,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up JDK
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c  # v6.0.0
         with:
           distribution: 'temurin'
           java-version: 21
@@ -72,12 +75,7 @@ jobs:
     name: "GraalVM Native Image test (JDK ${{ matrix.java }})"
     strategy:
       matrix:
-        java: [ 21 ]
-        include:
-          - java: 25
-            # Disable Enforcer check which (intentionally) prevents using JDK 25 for building
-            # TODO: Remove this once JDK 25 is fully supported for building Gson
-            extra-mvn-args: -Denforcer.fail=false
+        java: [ 21, 25 ]
     runs-on: ubuntu-latest
 
     steps:
@@ -85,7 +83,7 @@ jobs:
         with:
           persist-credentials: false
       - name: "Set up GraalVM"
-        uses: graalvm/setup-graalvm@0def53c0fd8534bc13416c9469f5be45265824fd  # v1.6.3
+        uses: graalvm/setup-graalvm@5298d94fb55a4f185c602eeac5de1b553882abe2  # v1.6.4
         with:
           java-version: ${{ matrix.java }}
           distribution: 'graalvm'
@@ -106,7 +104,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up JDK
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c  # v6.0.0
         with:
           distribution: 'temurin'
           java-version: 17

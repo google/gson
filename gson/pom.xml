@@ -67,13 +67,13 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava-testlib</artifactId>
-      <version>33.6.0-jre</version>
+      <version>33.7.0-jre</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.6.0-jre</version>
+      <version>33.7.0-jre</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -371,8 +371,9 @@
   </build>
 
   <profiles>
+    <!-- Profile for building additional tests which require >= Java 17 -->
     <profile>
-      <id>JDK17</id>
+      <id>JDK17-test</id>
       <activation>
         <jdk>[17,)</jdk>
       </activation>
@@ -381,14 +382,19 @@
         <excludeTestCompilation />
       </properties>
     </profile>
-    <!-- For JDK 25+ skip tests which rely on ProGuard because it does not support JDK 25 yet -->
-    <!-- TODO: Remove this once ProGuard supports JDK 25, and there is a solution for https://github.com/Guardsquare/proguard/issues/473 -->
+
+    <!-- For JDK 25+ without jmod files, skip tests which rely on ProGuard because it requires jmod files -->
+    <!-- TODO: Remove this once https://github.com/Guardsquare/proguard/issues/473 is resolved -->
     <profile>
-      <id>JDK25</id>
+      <id>JDK25-proguard</id>
       <activation>
         <jdk>[25,)</jdk>
+        <file>
+          <missing>${java.home}/jmods/java.base.jmod</missing>
+        </file>
       </activation>
       <properties>
+        <!-- Exclude ProGuard-dependent test class -->
         <excludeTestCompilation>com/google/gson/functional/EnumWithObfuscatedTest.java</excludeTestCompilation>
       </properties>
       <build>
