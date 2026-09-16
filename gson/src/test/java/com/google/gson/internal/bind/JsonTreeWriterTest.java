@@ -27,6 +27,8 @@ import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -315,5 +317,37 @@ public final class JsonTreeWriterTest {
     JsonTreeWriter writer = new JsonTreeWriter();
     writer.beginObject();
     assertThrows(IllegalStateException.class, () -> writer.endArray());
+  }
+
+  @Test
+  public void testStrictWriterAcceptsFiniteBigDecimalAboveDoubleMax() throws IOException {
+    // Pre-fix, JsonTreeWriter.value(Number) routed Number arguments through
+    // doubleValue() for finiteness checking and rejected BigDecimal("1E400") —
+    // a finite value whose doubleValue() overflows to Infinity. JsonWriter
+    // already skips that check for BigDecimal/BigInteger via the
+    // alwaysCreatesValidJsonNumber whitelist; this test pins that JsonTreeWriter
+    // now mirrors that behavior in STRICT mode.
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setStrictness(Strictness.STRICT);
+    writer.beginArray();
+    writer.value(new BigDecimal("1E400"));
+    writer.endArray();
+    assertThat(writer.get().toString()).isEqualTo("[1E+400]");
+  }
+
+  @Test
+  public void testStrictWriterAcceptsFiniteBigIntegerAboveDoubleMax() throws IOException {
+    // Same fix surface as the BigDecimal case above but for BigInteger.
+    // doubleValue() on a BigInteger > Double.MAX_VALUE overflows to Infinity;
+    // the alwaysCreatesValidJsonNumber whitelist covers both classes and the
+    // fix mirrors that. Pin BigInteger separately so a future change to the
+    // BigDecimal-only branch cannot silently regress BigInteger handling.
+    JsonTreeWriter writer = new JsonTreeWriter();
+    writer.setStrictness(Strictness.STRICT);
+    BigInteger finiteHuge = BigInteger.TEN.pow(400);
+    writer.beginArray();
+    writer.value(finiteHuge);
+    writer.endArray();
+    assertThat(writer.get().toString()).isEqualTo("[" + finiteHuge + "]");
   }
 }
