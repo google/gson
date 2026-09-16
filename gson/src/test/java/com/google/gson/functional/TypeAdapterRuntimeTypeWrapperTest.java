@@ -23,13 +23,19 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 
 public class TypeAdapterRuntimeTypeWrapperTest {
@@ -201,5 +207,65 @@ public class TypeAdapterRuntimeTypeWrapperTest {
     b.f = new CyclicSub(2);
     String json = new Gson().toJson(b);
     assertThat(json).isEqualTo("{\"f\":{\"i\":2}}");
+  }
+
+  private static class Holder {
+    @SuppressWarnings("unused")
+    List<? extends Number> field;
+  }
+
+  /**
+   * A trivial adapter for {@link WildcardType}. It never uses reflection.
+   *
+   * <p>Regression test for https://github.com/google/gson/issues/3122: when serializing a value as
+   * an array/collection element, {@code TypeAdapterRuntimeTypeWrapper} must not fail while eagerly
+   * resolving a reflective adapter for an inaccessible runtime implementation class if the
+   * declared-type adapter would be preferred anyway.
+   */
+  private static final TypeAdapter<WildcardType> WILDCARD_ADAPTER =
+      new TypeAdapter<WildcardType>() {
+        @Override
+        public void write(JsonWriter out, WildcardType value) throws IOException {
+          out.value(value == null ? null : value.getTypeName());
+        }
+
+        @Override
+        public WildcardType read(JsonReader in) throws IOException {
+          var unused = in.nextString();
+          return null;
+        }
+      };
+
+  private static WildcardType sampleWildcard() throws Exception {
+    ParameterizedType listOfWildcard =
+        (ParameterizedType) Holder.class.getDeclaredField("field").getGenericType();
+    return (WildcardType) listOfWildcard.getActualTypeArguments()[0];
+  }
+
+  @Test
+  public void testNonReflectiveInterfaceAdapter_PrefersDelegateWhenRuntimeReflectiveFails()
+      throws Exception {
+    WildcardType wildcard = sampleWildcard();
+    // Runtime class is typically sun.reflect.generics.reflectiveObjects.WildcardTypeImpl, which is
+    // not reflectively accessible under the module system.
+    try {
+      var unused = new Gson().getAdapter(TypeToken.get(wildcard.getClass()));
+      // If reflective access happens to succeed on this JDK, the bug cannot be reproduced here.
+      return;
+    } catch (JsonIOException expected) {
+      // Continue with the regression assertions.
+    }
+
+    Gson gson =
+        new GsonBuilder().registerTypeAdapter(WildcardType.class, WILDCARD_ADAPTER).create();
+
+    String expected = "\"" + wildcard.getTypeName() + "\"";
+    assertThat(gson.toJson(wildcard, WildcardType.class)).isEqualTo(expected);
+    assertThat(gson.toJson(new WildcardType[] {wildcard}, WildcardType[].class))
+        .isEqualTo("[" + expected + "]");
+    assertThat(
+            gson.toJson(
+                Arrays.asList(wildcard), new TypeToken<List<WildcardType>>() {}.getType()))
+        .isEqualTo("[" + expected + "]");
   }
 }

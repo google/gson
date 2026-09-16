@@ -16,6 +16,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -56,22 +57,36 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
     @SuppressWarnings("ReferenceEquality")
     boolean isDifferentType = runtimeType != type;
     if (isDifferentType) {
-      @SuppressWarnings("unchecked")
-      TypeAdapter<T> runtimeTypeAdapter =
-          (TypeAdapter<T>) context.getAdapter(TypeToken.get(runtimeType));
-      // For backward compatibility only check ReflectiveTypeAdapterFactory.Adapter here but not any
-      // other wrapping adapters, see
-      // https://github.com/google/gson/pull/1787#issuecomment-1222175189
-      if (!(runtimeTypeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter)) {
-        // The user registered a type adapter for the runtime type, so we will use that
-        chosen = runtimeTypeAdapter;
-      } else if (!isReflective(delegate)) {
-        // The user registered a type adapter for Base class, so we prefer it over the
-        // reflective type adapter for the runtime type
-        chosen = delegate;
-      } else {
-        // Use the type adapter for runtime type
-        chosen = runtimeTypeAdapter;
+      TypeAdapter<T> runtimeTypeAdapter = null;
+      try {
+        @SuppressWarnings("unchecked")
+        TypeAdapter<T> adapter =
+            (TypeAdapter<T>) context.getAdapter(TypeToken.get(runtimeType));
+        runtimeTypeAdapter = adapter;
+      } catch (JsonIOException e) {
+        // Building an adapter for the runtime type can fail (for example when reflective
+        // access to a JDK-internal implementation class is denied). Only propagate that
+        // failure if we would actually have used the runtime-type adapter; otherwise keep
+        // the non-reflective declared-type adapter. See https://github.com/google/gson/issues/3122
+        if (isReflective(delegate)) {
+          throw e;
+        }
+      }
+      if (runtimeTypeAdapter != null) {
+        // For backward compatibility only check ReflectiveTypeAdapterFactory.Adapter here but not
+        // any other wrapping adapters, see
+        // https://github.com/google/gson/pull/1787#issuecomment-1222175189
+        if (!(runtimeTypeAdapter instanceof ReflectiveTypeAdapterFactory.Adapter)) {
+          // The user registered a type adapter for the runtime type, so we will use that
+          chosen = runtimeTypeAdapter;
+        } else if (!isReflective(delegate)) {
+          // The user registered a type adapter for Base class, so we prefer it over the
+          // reflective type adapter for the runtime type
+          chosen = delegate;
+        } else {
+          // Use the type adapter for runtime type
+          chosen = runtimeTypeAdapter;
+        }
       }
     }
     chosen.write(out, value);
