@@ -55,6 +55,12 @@ import java.util.TimeZone;
 public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T> {
   private static final String SIMPLE_NAME = "DefaultDateTypeAdapter";
 
+  /** Narrow no-break space (U+202F), used before AM/PM by CLDR 42+ (JDK 21+). */
+  private static final char NARROW_NO_BREAK_SPACE = '\u202f';
+
+  /** No-break space (U+00A0). */
+  private static final char NO_BREAK_SPACE = '\u00a0';
+
   /** Factory for {@link Date} adapters which use {@link DateFormat#DEFAULT} as style. */
   public static final TypeAdapterFactory DEFAULT_STYLE_FACTORY =
       // Because SimpleDateFormat captures the default TimeZone when it was created, let the factory
@@ -169,9 +175,10 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
       for (DateFormat dateFormat : dateFormats) {
         TimeZone originalTimeZone = dateFormat.getTimeZone();
         try {
-          return dateFormat.parse(s);
-        } catch (ParseException ignored) {
-          // OK: try the next format
+          Date parsed = parseDateWithSpaceVariants(dateFormat, s);
+          if (parsed != null) {
+            return parsed;
+          }
         } finally {
           dateFormat.setTimeZone(originalTimeZone);
         }
@@ -184,6 +191,88 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
       throw new JsonSyntaxException(
           "Failed parsing '" + s + "' as Date; at path " + in.getPreviousPath(), e);
     }
+  }
+
+  /**
+   * Parses {@code s} with {@code dateFormat}, retrying with alternate space characters around the
+   * AM/PM marker.
+   *
+   * <p>Starting with the CLDR 42 update in JDK 21 ({@code JDK-8284840}), {@link
+   * DateFormat#getDateTimeInstance} for some locales uses U+202F (narrow no-break space) before
+   * AM/PM instead of U+0020. Dates serialized on one JDK version may therefore fail to parse on
+   * another. Trying both space variants keeps default {@code Date} adapters interoperable.
+   *
+   * @return the parsed date, or {@code null} if none of the variants could be parsed
+   */
+  private static Date parseDateWithSpaceVariants(DateFormat dateFormat, String s) {
+    try {
+      return dateFormat.parse(s);
+    } catch (ParseException ignored) {
+      // try alternate spaces below
+    }
+
+    for (String variant : alternateAmPmSpaceVariants(s)) {
+      try {
+        return dateFormat.parse(variant);
+      } catch (ParseException ignored) {
+        // OK: try the next variant
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns alternate forms of {@code s} where the space before an AM/PM marker is swapped between
+   * U+0020 and U+202F (narrow no-break space). Also normalizes U+00A0 (no-break space) to U+0020.
+   * Does not include {@code s} itself.
+   */
+  private static String[] alternateAmPmSpaceVariants(String s) {
+    // First normalize any no-break spaces to regular space so we have a canonical baseline.
+    String withRegularSpace = s.replace(NARROW_NO_BREAK_SPACE, ' ').replace(NO_BREAK_SPACE, ' ');
+
+    String withNarrowNoBreakSpace = replaceSpaceBeforeAmPm(withRegularSpace, NARROW_NO_BREAK_SPACE);
+
+    // Collect unique variants different from the original input.
+    // At most two: regular-space form and NNBSP form.
+    if (withRegularSpace.equals(s)) {
+      if (withNarrowNoBreakSpace.equals(s)) {
+        return new String[0];
+      }
+      return new String[] {withNarrowNoBreakSpace};
+    }
+    if (withNarrowNoBreakSpace.equals(s) || withNarrowNoBreakSpace.equals(withRegularSpace)) {
+      return new String[] {withRegularSpace};
+    }
+    return new String[] {withRegularSpace, withNarrowNoBreakSpace};
+  }
+
+  /**
+   * Replaces a single ASCII space immediately before an AM/PM marker with {@code spaceChar}. If no
+   * such marker is found, returns {@code s} unchanged.
+   */
+  private static String replaceSpaceBeforeAmPm(String s, char spaceChar) {
+    int length = s.length();
+    for (int i = 0; i < length - 2; i++) {
+      if (s.charAt(i) != ' ') {
+        continue;
+      }
+      char first = s.charAt(i + 1);
+      char second = s.charAt(i + 2);
+      if (!isAmPmLetter(first, second)) {
+        continue;
+      }
+      // Require end of string or a non-letter after "AM"/"PM" so we do not match prefixes.
+      if (i + 3 < length && Character.isLetter(s.charAt(i + 3))) {
+        continue;
+      }
+      return s.substring(0, i) + spaceChar + s.substring(i + 1);
+    }
+    return s;
+  }
+
+  private static boolean isAmPmLetter(char first, char second) {
+    return (first == 'A' || first == 'a' || first == 'P' || first == 'p')
+        && (second == 'M' || second == 'm');
   }
 
   @Override
