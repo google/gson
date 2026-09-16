@@ -23,6 +23,7 @@ import com.google.gson.FormattingStyle;
 import com.google.gson.Strictness;
 import com.google.gson.internal.LazilyParsedNumber;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -989,5 +990,72 @@ public final class JsonWriterTest {
             + "  ]\n" //
             + "}";
     assertThat(stringWriter.toString()).isEqualTo(expected);
+  }
+
+  @Test
+  public void testStrictModeRejectsUnpairedSurrogates() throws IOException {
+    // A JSON string is a sequence of Unicode characters, so an unpaired UTF-16 surrogate has no
+    // valid JSON encoding. The reader rejects these in strict mode; the writer must too, otherwise
+    // it emits a document that its own documentation promises conforms to RFC 8259 but which
+    // JsonReader in STRICT mode cannot read back.
+    for (String value : new String[] {"\uD800", "\uDC00", "a\uD800b", "\uDC00\uD800"}) {
+      JsonWriter writer = new JsonWriter(new StringWriter());
+      writer.setStrictness(Strictness.STRICT);
+      writer.beginArray();
+      IllegalArgumentException expected =
+          assertThrows(IllegalArgumentException.class, () -> writer.value(value));
+      assertThat(expected)
+          .hasMessageThat()
+          .isEqualTo("Unpaired surrogate characters are not allowed in strict mode");
+    }
+  }
+
+  @Test
+  public void testStrictModeRejectsUnpairedSurrogateInName() throws IOException {
+    JsonWriter writer = new JsonWriter(new StringWriter());
+    writer.setStrictness(Strictness.STRICT);
+    writer.beginObject();
+    // A name is written lazily, so the rejection surfaces when the value that
+    // completes the entry is written.
+    writer.name("\uD800");
+    IllegalArgumentException expected =
+        assertThrows(IllegalArgumentException.class, () -> writer.value(1));
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo("Unpaired surrogate characters are not allowed in strict mode");
+  }
+
+  @Test
+  public void testStrictModeAllowsPairedSurrogates() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.setStrictness(Strictness.STRICT);
+    writer.beginArray();
+    writer.value("\uD834\uDD1E"); // U+1D11E MUSICAL SYMBOL G CLEF
+    writer.endArray();
+    writer.close();
+    assertThat(stringWriter.toString()).isEqualTo("[\"\uD834\uDD1E\"]");
+
+    // ...and the result must be readable again in the same strictness mode.
+    JsonReader reader = new JsonReader(new StringReader(stringWriter.toString()));
+    reader.setStrictness(Strictness.STRICT);
+    reader.beginArray();
+    assertThat(reader.nextString()).isEqualTo("\uD834\uDD1E");
+  }
+
+  @Test
+  public void testNonStrictModesStillAllowUnpairedSurrogates() throws IOException {
+    // The validation is deliberately limited to STRICT so that existing callers of the legacy
+    // permissive modes see no behaviour change.
+    for (Strictness strictness : new Strictness[] {Strictness.LEGACY_STRICT, Strictness.LENIENT}) {
+      StringWriter stringWriter = new StringWriter();
+      JsonWriter writer = new JsonWriter(stringWriter);
+      writer.setStrictness(strictness);
+      writer.beginArray();
+      writer.value("\uD800");
+      writer.endArray();
+      writer.close();
+      assertThat(stringWriter.toString()).isEqualTo("[\"\uD800\"]");
+    }
   }
 }
