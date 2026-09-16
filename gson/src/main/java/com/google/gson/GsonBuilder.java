@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
@@ -959,7 +960,9 @@ public final class GsonBuilder {
     factories.add(
         TypeAdapters.newFactory(
             AtomicLongArray.class, TypeAdapters.atomicLongArrayAdapter(longAdapter)));
-    factories.add(TypeAdapters.ATOMIC_INTEGER_ARRAY_FACTORY);
+    factories.add(
+        TypeAdapters.newFactory(
+            AtomicIntegerArray.class, TypeAdapters.atomicIntegerArrayAdapter(TypeAdapters.INTEGER)));
     factories.add(TypeAdapters.CHARACTER_FACTORY);
     factories.add(TypeAdapters.STRING_BUILDER_FACTORY);
     factories.add(TypeAdapters.STRING_BUFFER_FACTORY);
