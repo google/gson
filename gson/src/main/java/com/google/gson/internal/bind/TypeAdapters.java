@@ -347,7 +347,7 @@ public final class TypeAdapters {
             try {
               int integer = in.nextInt();
               list.add(integer);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | IllegalStateException e) {
               throw new JsonSyntaxException(e);
             }
           }
