@@ -60,8 +60,7 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
       TypeAdapter<T> runtimeTypeAdapter = null;
       try {
         @SuppressWarnings("unchecked")
-        TypeAdapter<T> adapter =
-            (TypeAdapter<T>) context.getAdapter(TypeToken.get(runtimeType));
+        TypeAdapter<T> adapter = (TypeAdapter<T>) context.getAdapter(TypeToken.get(runtimeType));
         runtimeTypeAdapter = adapter;
       } catch (JsonIOException e) {
         // Building an adapter for the runtime type can fail (for example when reflective

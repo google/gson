@@ -17,6 +17,7 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -26,6 +27,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
+import com.google.gson.ReflectionAccessFilter.FilterResult;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -73,6 +75,21 @@ public class TypeAdapterRuntimeTypeWrapperTest {
 
     String json = gson.toJson(new Container());
     assertThat(json).isEqualTo("{\"b\":\"serializer\"}");
+  }
+
+  @Test
+  public void testNonReflectiveDelegateWhenRuntimeReflectionIsBlocked() {
+    Gson gson =
+        new GsonBuilder()
+            .addReflectionAccessFilter(
+                type -> type == Subclass.class ? FilterResult.BLOCK_ALL : FilterResult.INDECISIVE)
+            .registerTypeAdapter(
+                Base.class,
+                (JsonSerializer<Base>) (src, typeOfSrc, context) -> new JsonPrimitive("serializer"))
+            .create();
+
+    assertThrows(JsonIOException.class, () -> gson.getAdapter(Subclass.class));
+    assertThat(gson.toJson(new Container())).isEqualTo("{\"b\":\"serializer\"}");
   }
 
   /**
@@ -264,8 +281,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
     assertThat(gson.toJson(new WildcardType[] {wildcard}, WildcardType[].class))
         .isEqualTo("[" + expected + "]");
     assertThat(
-            gson.toJson(
-                Arrays.asList(wildcard), new TypeToken<List<WildcardType>>() {}.getType()))
+            gson.toJson(Arrays.asList(wildcard), new TypeToken<List<WildcardType>>() {}.getType()))
         .isEqualTo("[" + expected + "]");
   }
 }
