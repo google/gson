@@ -432,6 +432,15 @@ public class DefaultTypeAdaptersTest {
     assertThat(exception)
         .hasMessageThat()
         .isEqualTo("Invalid bitset value 2, expected 0 or 1; at path $[1]");
+
+    // A malformed number must not escape as a raw NumberFormatException.
+    exception =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[\"0AA\"]", BitSet.class));
+    assertThat(exception)
+        .hasMessageThat()
+        .isEqualTo(
+            "java.lang.NumberFormatException: Expected an int but was 0AA at line 1 column 7"
+                + " path $[0]");
   }
 
   @Test

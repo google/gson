@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.ConstructorConstructor;
@@ -82,7 +83,24 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
       in.beginArray();
       while (in.hasNext()) {
         E instance = elementTypeAdapter.read(in);
-        collection.add(instance);
+        if (instance == null) {
+          // Most collections accept null, but some (TreeSet, ArrayDeque, PriorityQueue, EnumSet...)
+          // reject it with a NullPointerException. Surface that as Gson's documented
+          // JsonSyntaxException. Only the null case is wrapped, so a NullPointerException from
+          // anywhere else is not masked.
+          try {
+            collection.add(null);
+          } catch (NullPointerException e) {
+            throw new JsonSyntaxException(
+                "null is not a valid element for "
+                    + collection.getClass().getName()
+                    + "; at path "
+                    + in.getPreviousPath(),
+                e);
+          }
+        } else {
+          collection.add(instance);
+        }
       }
       in.endArray();
       return collection;
