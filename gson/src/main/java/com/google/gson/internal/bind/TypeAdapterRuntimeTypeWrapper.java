@@ -23,6 +23,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 
 final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
   private final Gson context;
@@ -100,8 +101,21 @@ final class TypeAdapterRuntimeTypeWrapper<T> extends TypeAdapter<T> {
 
   /** Finds a compatible runtime type if it is more specific */
   private static Type getRuntimeTypeIfMoreSpecific(Type type, Object value) {
-    if (value != null && (type instanceof Class<?> || type instanceof TypeVariable<?>)) {
-      type = value.getClass();
+    if (value == null) {
+      return type;
+    }
+
+    Type declaredType = type;
+    // A wildcard says nothing more than its upper bound, so `? extends Base` is decided the same
+    // way as `Base`. Note that the bound is only used to make this decision; when it is a
+    // parameterized type the declared type is kept, the same as for a plain parameterized type,
+    // because the runtime class would lose the type arguments.
+    if (declaredType instanceof WildcardType) {
+      declaredType = ((WildcardType) declaredType).getUpperBounds()[0];
+    }
+
+    if (declaredType instanceof Class<?> || declaredType instanceof TypeVariable<?>) {
+      return value.getClass();
     }
     return type;
   }
