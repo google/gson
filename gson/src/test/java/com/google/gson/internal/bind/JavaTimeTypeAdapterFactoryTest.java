@@ -5,14 +5,14 @@ import static com.google.common.truth.Truth.assertThat;
 import org.junit.Test;
 
 /** Functional tests are in {@link com.google.gson.functional.JavaTimeTest}. */
-public class JavaTimeTypeAdaptersTest {
+public class JavaTimeTypeAdapterFactoryTest {
   @Test
   public void testJavaTimePackage() {
-    assertThat(JavaTimeTypeAdapters.javaTimePackage()).isEqualTo("java.time.");
+    assertThat(JavaTimeTypeAdapterFactory.javaTimePackage()).isEqualTo("java.time.");
   }
 
   @Test
   public void testGetFactory() {
-    assertThat(new JavaTimeTypeAdapters().get()).isNotNull();
+    assertThat(new JavaTimeTypeAdapterFactory().get()).isNotNull();
   }
 }

@@ -1000,7 +1000,7 @@ public final class TypeAdapters {
   public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
     try {
       Class<?> javaTimeTypeAdapterFactoryClass =
-          Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");
+          Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapterFactory");
       FactorySupplier supplier =
           (FactorySupplier) javaTimeTypeAdapterFactoryClass.getDeclaredConstructor().newInstance();
       return supplier.get();

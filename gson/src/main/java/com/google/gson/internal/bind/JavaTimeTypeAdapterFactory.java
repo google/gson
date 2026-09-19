@@ -59,7 +59,7 @@ import java.time.ZonedDateTime;
  * from {@link TypeAdapters#javaTimeTypeAdapterFactory()}.
  */
 @IgnoreJRERequirement // Protected by a reflective check in `TypeAdapters`
-final class JavaTimeTypeAdapters implements TypeAdapters.FactorySupplier {
+final class JavaTimeTypeAdapterFactory implements TypeAdapters.FactorySupplier {
 
   @Override
   public TypeAdapterFactory get() {
