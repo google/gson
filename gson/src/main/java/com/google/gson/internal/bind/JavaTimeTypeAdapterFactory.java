@@ -92,7 +92,7 @@ final class JavaTimeTypeAdapterFactory implements TypeAdapterFactory {
    * and rewrites all references to it in the app. This also affects the Gson code (included as
    * dependency) where all {@code java.time} references are rewritten to {@code j$.time}.
    */
-  @IgnoreJRERequirement // access to `java.time`; guarded by package name check above
+  @IgnoreAndroidApiLevelRequirement // access to `java.time`; guarded by package name check above
   private static class Impl {
     private static final TypeAdapter<Duration> DURATION =
         new IntegerFieldsTypeAdapter<Duration>("seconds", "nanos") {

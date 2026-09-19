@@ -27,4 +27,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.TYPE, ElementType.FIELD})
 @SuppressWarnings("IdentifierName")
-@interface IgnoreJRERequirement {}
+@interface IgnoreAndroidApiLevelRequirement {}
