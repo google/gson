@@ -26,7 +26,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -43,7 +42,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 /**
- * Type adapters for {@code java.time} types.
+ * Type adapter factory for {@code java.time} types.
  *
  * <p>These adapters mimic what {@link ReflectiveTypeAdapterFactory} would produce for the same
  * types. That is by no means a natural encoding, given that many of the types have standard ISO
@@ -54,280 +53,127 @@ import java.time.ZonedDateTime;
  * is obviously fragile, and it also needs special {@code --add-opens} configuration with more
  * recent JDK versions. So here we freeze the representation that was current with JDK 21, in a way
  * that does not use reflection.
- *
- * <p>This class should not directly be used, instead the type adapter factory should be obtained
- * from {@link TypeAdapters#javaTimeTypeAdapterFactory()}.
  */
-@IgnoreJRERequirement // Protected by a reflective check in `TypeAdapters`
-final class JavaTimeTypeAdapterFactory implements TypeAdapters.FactorySupplier {
+final class JavaTimeTypeAdapterFactory implements TypeAdapterFactory {
 
   @Override
-  public TypeAdapterFactory get() {
-    String packageName = javaTimePackage();
-    if (packageName == null) {
-      return null;
+  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    Class<?> rawType = type.getRawType();
+    String className = rawType.getName();
+    // Only try to load `java.time` classes when handling a `java.time` type, otherwise this could
+    // lead to a LinkageError on Android if `java.time` is unavailable
+    // Additionally handle "j$.time", the package name used by Android API desugaring, because Gson
+    // code is rewritten by it as well so all `java.time` references below will then actually refer
+    // to `j$.time` types
+    // It seems even with R8 shrinking and obfuscation the `j$.time` name is preserved
+    if (className.startsWith("java.time.") || className.startsWith("j$.time.")) {
+      return createImpl(gson, rawType);
     }
-    return new AdapterFactory(packageName);
+    return null;
   }
 
-  private static final TypeAdapter<Duration> DURATION =
-      new IntegerFieldsTypeAdapter<Duration>("seconds", "nanos") {
-        @Override
-        Duration create(long[] values) {
-          return Duration.ofSeconds(values[0], values[1]);
-        }
+  // Separate method to really only load the `Impl` class when dealing with `java.time` types,
+  // avoiding LinkageError when `java.time` is not available
+  private <T> TypeAdapter<T> createImpl(Gson gson, Class<?> rawType) {
+    return Impl.createAdapter(gson, rawType);
+  }
 
-        @Override
-        @SuppressWarnings("JavaDurationGetSecondsGetNano")
-        long[] integerValues(Duration duration) {
-          return new long[] {duration.getSeconds(), duration.getNano()};
-        }
-      };
-
-  private static final TypeAdapter<Instant> INSTANT =
-      new IntegerFieldsTypeAdapter<Instant>("seconds", "nanos") {
-        @Override
-        Instant create(long[] values) {
-          return Instant.ofEpochSecond(values[0], values[1]);
-        }
-
-        @Override
-        @SuppressWarnings("JavaInstantGetSecondsGetNano")
-        long[] integerValues(Instant instant) {
-          return new long[] {instant.getEpochSecond(), instant.getNano()};
-        }
-      };
-
-  private static final TypeAdapter<LocalDate> LOCAL_DATE =
-      new IntegerFieldsTypeAdapter<LocalDate>("year", "month", "day") {
-        @Override
-        LocalDate create(long[] values) {
-          return LocalDate.of(toIntExact(values[0]), toIntExact(values[1]), toIntExact(values[2]));
-        }
-
-        @Override
-        long[] integerValues(LocalDate localDate) {
-          return new long[] {
-            localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth()
-          };
-        }
-      };
-
-  private static final TypeAdapter<LocalTime> LOCAL_TIME =
-      new IntegerFieldsTypeAdapter<LocalTime>("hour", "minute", "second", "nano") {
-        @Override
-        LocalTime create(long[] values) {
-          return LocalTime.of(
-              toIntExact(values[0]),
-              toIntExact(values[1]),
-              toIntExact(values[2]),
-              toIntExact(values[3]));
-        }
-
-        @Override
-        long[] integerValues(LocalTime localTime) {
-          return new long[] {
-            localTime.getHour(), localTime.getMinute(), localTime.getSecond(), localTime.getNano()
-          };
-        }
-      };
-
-  private static TypeAdapter<LocalDateTime> localDateTime(Gson gson) {
-    TypeAdapter<LocalDate> localDateAdapter = gson.getAdapter(LocalDate.class);
-    TypeAdapter<LocalTime> localTimeAdapter = gson.getAdapter(LocalTime.class);
-    return new TypeAdapter<LocalDateTime>() {
-      @Override
-      public LocalDateTime read(JsonReader in) throws IOException {
-        LocalDate localDate = null;
-        LocalTime localTime = null;
-        in.beginObject();
-        while (in.hasNext()) {
-          String name = in.nextName();
-          switch (name) {
-            case "date":
-              localDate = localDateAdapter.read(in);
-              break;
-            case "time":
-              localTime = localTimeAdapter.read(in);
-              break;
-            default:
-              // Ignore other fields.
-              in.skipValue();
+  /**
+   * Contains the actual implementation, and all access to {@code java.time} types.
+   *
+   * <p>On Android support for {@code java.time} was only added in API Level 26, but Gson currently
+   * targets a lower API Level as minimum. Therefore this class is only accessed when actually
+   * handling a {@code java.time} type, meaning the application runs on a JDK, on Android API Level
+   * >= 26, or it uses <a
+   * href="https://developer.android.com/studio/write/java8-support#library-desugaring">Android API
+   * desugaring</a>.
+   *
+   * <p>In case of Android API desugaring, D8 includes its own implementation of {@code java.time}
+   * and rewrites all references to it in the app. This also affects the Gson code (included as
+   * dependency) where all {@code java.time} references are rewritten to {@code j$.time}.
+   */
+  @IgnoreJRERequirement // access to `java.time`; guarded by package name check above
+  private static class Impl {
+    private static final TypeAdapter<Duration> DURATION =
+        new IntegerFieldsTypeAdapter<Duration>("seconds", "nanos") {
+          @Override
+          Duration create(long[] values) {
+            return Duration.ofSeconds(values[0], values[1]);
           }
-        }
-        in.endObject();
-        return LocalDateTime.of(
-            requireNonNullField(localDate, "date", in), requireNonNullField(localTime, "time", in));
-      }
 
-      @Override
-      public void write(JsonWriter out, LocalDateTime value) throws IOException {
-        out.beginObject();
-        out.name("date");
-        localDateAdapter.write(out, value.toLocalDate());
-        out.name("time");
-        localTimeAdapter.write(out, value.toLocalTime());
-        out.endObject();
-      }
-    }.nullSafe();
-  }
-
-  private static final TypeAdapter<MonthDay> MONTH_DAY =
-      new IntegerFieldsTypeAdapter<MonthDay>("month", "day") {
-        @Override
-        MonthDay create(long[] values) {
-          return MonthDay.of(toIntExact(values[0]), toIntExact(values[1]));
-        }
-
-        @Override
-        long[] integerValues(MonthDay monthDay) {
-          return new long[] {monthDay.getMonthValue(), monthDay.getDayOfMonth()};
-        }
-      };
-
-  private static TypeAdapter<OffsetDateTime> offsetDateTime(Gson gson) {
-    TypeAdapter<LocalDateTime> localDateTimeAdapter = localDateTime(gson);
-    TypeAdapter<ZoneOffset> zoneOffsetAdapter = gson.getAdapter(ZoneOffset.class);
-    return new TypeAdapter<OffsetDateTime>() {
-      @Override
-      public OffsetDateTime read(JsonReader in) throws IOException {
-        in.beginObject();
-        LocalDateTime localDateTime = null;
-        ZoneOffset zoneOffset = null;
-        while (in.hasNext()) {
-          String name = in.nextName();
-          switch (name) {
-            case "dateTime":
-              localDateTime = localDateTimeAdapter.read(in);
-              break;
-            case "offset":
-              zoneOffset = zoneOffsetAdapter.read(in);
-              break;
-            default:
-              // Ignore other fields.
-              in.skipValue();
+          @Override
+          @SuppressWarnings("JavaDurationGetSecondsGetNano")
+          long[] integerValues(Duration duration) {
+            return new long[] {duration.getSeconds(), duration.getNano()};
           }
-        }
-        in.endObject();
-        return OffsetDateTime.of(
-            requireNonNullField(localDateTime, "dateTime", in),
-            requireNonNullField(zoneOffset, "offset", in));
-      }
+        };
 
-      @Override
-      public void write(JsonWriter out, OffsetDateTime value) throws IOException {
-        out.beginObject();
-        out.name("dateTime");
-        localDateTimeAdapter.write(out, value.toLocalDateTime());
-        out.name("offset");
-        zoneOffsetAdapter.write(out, value.getOffset());
-        out.endObject();
-      }
-    }.nullSafe();
-  }
-
-  private static TypeAdapter<OffsetTime> offsetTime(Gson gson) {
-    TypeAdapter<LocalTime> localTimeAdapter = gson.getAdapter(LocalTime.class);
-    TypeAdapter<ZoneOffset> zoneOffsetAdapter = gson.getAdapter(ZoneOffset.class);
-    return new TypeAdapter<OffsetTime>() {
-      @Override
-      public OffsetTime read(JsonReader in) throws IOException {
-        in.beginObject();
-        LocalTime localTime = null;
-        ZoneOffset zoneOffset = null;
-        while (in.hasNext()) {
-          String name = in.nextName();
-          switch (name) {
-            case "time":
-              localTime = localTimeAdapter.read(in);
-              break;
-            case "offset":
-              zoneOffset = zoneOffsetAdapter.read(in);
-              break;
-            default:
-              // Ignore other fields.
-              in.skipValue();
+    private static final TypeAdapter<Instant> INSTANT =
+        new IntegerFieldsTypeAdapter<Instant>("seconds", "nanos") {
+          @Override
+          Instant create(long[] values) {
+            return Instant.ofEpochSecond(values[0], values[1]);
           }
-        }
-        in.endObject();
-        return OffsetTime.of(
-            requireNonNullField(localTime, "time", in),
-            requireNonNullField(zoneOffset, "offset", in));
-      }
 
-      @Override
-      public void write(JsonWriter out, OffsetTime value) throws IOException {
-        out.beginObject();
-        out.name("time");
-        localTimeAdapter.write(out, value.toLocalTime());
-        out.name("offset");
-        zoneOffsetAdapter.write(out, value.getOffset());
-        out.endObject();
-      }
-    }.nullSafe();
-  }
+          @Override
+          @SuppressWarnings("JavaInstantGetSecondsGetNano")
+          long[] integerValues(Instant instant) {
+            return new long[] {instant.getEpochSecond(), instant.getNano()};
+          }
+        };
 
-  private static final TypeAdapter<Period> PERIOD =
-      new IntegerFieldsTypeAdapter<Period>("years", "months", "days") {
+    private static final TypeAdapter<LocalDate> LOCAL_DATE =
+        new IntegerFieldsTypeAdapter<LocalDate>("year", "month", "day") {
+          @Override
+          LocalDate create(long[] values) {
+            return LocalDate.of(
+                toIntExact(values[0]), toIntExact(values[1]), toIntExact(values[2]));
+          }
+
+          @Override
+          long[] integerValues(LocalDate localDate) {
+            return new long[] {
+              localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth()
+            };
+          }
+        };
+
+    private static final TypeAdapter<LocalTime> LOCAL_TIME =
+        new IntegerFieldsTypeAdapter<LocalTime>("hour", "minute", "second", "nano") {
+          @Override
+          LocalTime create(long[] values) {
+            return LocalTime.of(
+                toIntExact(values[0]),
+                toIntExact(values[1]),
+                toIntExact(values[2]),
+                toIntExact(values[3]));
+          }
+
+          @Override
+          long[] integerValues(LocalTime localTime) {
+            return new long[] {
+              localTime.getHour(), localTime.getMinute(), localTime.getSecond(), localTime.getNano()
+            };
+          }
+        };
+
+    private static TypeAdapter<LocalDateTime> localDateTime(Gson gson) {
+      TypeAdapter<LocalDate> localDateAdapter = gson.getAdapter(LocalDate.class);
+      TypeAdapter<LocalTime> localTimeAdapter = gson.getAdapter(LocalTime.class);
+      return new TypeAdapter<LocalDateTime>() {
         @Override
-        Period create(long[] values) {
-          return Period.of(toIntExact(values[0]), toIntExact(values[1]), toIntExact(values[2]));
-        }
-
-        @Override
-        long[] integerValues(Period period) {
-          return new long[] {period.getYears(), period.getMonths(), period.getDays()};
-        }
-      };
-
-  private static final TypeAdapter<Year> YEAR =
-      new IntegerFieldsTypeAdapter<Year>("year") {
-        @Override
-        Year create(long[] values) {
-          return Year.of(toIntExact(values[0]));
-        }
-
-        @Override
-        long[] integerValues(Year year) {
-          return new long[] {year.getValue()};
-        }
-      };
-
-  private static final TypeAdapter<YearMonth> YEAR_MONTH =
-      new IntegerFieldsTypeAdapter<YearMonth>("year", "month") {
-        @Override
-        YearMonth create(long[] values) {
-          return YearMonth.of(toIntExact(values[0]), toIntExact(values[1]));
-        }
-
-        @Override
-        long[] integerValues(YearMonth yearMonth) {
-          return new long[] {yearMonth.getYear(), yearMonth.getMonthValue()};
-        }
-      };
-
-  // A ZoneId is either a ZoneOffset or a ZoneRegion, where ZoneOffset is public and ZoneRegion is
-  // not. For compatibility with reflection-based serialization, we need to write the "id" field of
-  // ZoneRegion if we have a ZoneRegion, and we need to write the "totalSeconds" field of ZoneOffset
-  // if we have a ZoneOffset. When reading, we need to construct the appropriate thing depending
-  // on which of those two fields we see.
-  // Note: This constant here seems to cause eager class loading, see
-  //   https://github.com/google/gson/pull/2972#discussion_r2702408266
-  private static final TypeAdapter<ZoneId> ZONE_ID =
-      new TypeAdapter<ZoneId>() {
-        @Override
-        public ZoneId read(JsonReader in) throws IOException {
+        public LocalDateTime read(JsonReader in) throws IOException {
+          LocalDate localDate = null;
+          LocalTime localTime = null;
           in.beginObject();
-          String id = null;
-          Integer totalSeconds = null;
           while (in.hasNext()) {
             String name = in.nextName();
             switch (name) {
-              case "id":
-                id = in.nextString();
+              case "date":
+                localDate = localDateAdapter.read(in);
                 break;
-              case "totalSeconds":
-                totalSeconds = in.nextInt();
+              case "time":
+                localTime = localTimeAdapter.read(in);
                 break;
               default:
                 // Ignore other fields.
@@ -335,130 +181,273 @@ final class JavaTimeTypeAdapterFactory implements TypeAdapters.FactorySupplier {
             }
           }
           in.endObject();
-          if (id != null) {
-            return ZoneId.of(id);
-          } else if (totalSeconds != null) {
-            return ZoneOffset.ofTotalSeconds(totalSeconds);
-          } else {
-            throw new JsonSyntaxException(
-                "Missing id or totalSeconds field; at path " + in.getPreviousPath());
-          }
+          return LocalDateTime.of(
+              requireNonNullField(localDate, "date", in),
+              requireNonNullField(localTime, "time", in));
         }
 
         @Override
-        public void write(JsonWriter out, ZoneId value) throws IOException {
-          if (value instanceof ZoneOffset) {
-            out.beginObject();
-            out.name("totalSeconds");
-            out.value(((ZoneOffset) value).getTotalSeconds());
-            out.endObject();
-          } else {
-            out.beginObject();
-            out.name("id");
-            out.value(value.getId());
-            out.endObject();
-          }
+        public void write(JsonWriter out, LocalDateTime value) throws IOException {
+          out.beginObject();
+          out.name("date");
+          localDateAdapter.write(out, value.toLocalDate());
+          out.name("time");
+          localTimeAdapter.write(out, value.toLocalTime());
+          out.endObject();
         }
       }.nullSafe();
+    }
 
-  private static TypeAdapter<ZonedDateTime> zonedDateTime(Gson gson) {
-    TypeAdapter<LocalDateTime> localDateTimeAdapter = localDateTime(gson);
-    TypeAdapter<ZoneOffset> zoneOffsetAdapter = gson.getAdapter(ZoneOffset.class);
-    TypeAdapter<ZoneId> zoneIdAdapter = gson.getAdapter(ZoneId.class);
-    return new TypeAdapter<ZonedDateTime>() {
-      @Override
-      public ZonedDateTime read(JsonReader in) throws IOException {
-        in.beginObject();
-        LocalDateTime localDateTime = null;
-        ZoneOffset zoneOffset = null;
-        ZoneId zoneId = null;
-        while (in.hasNext()) {
-          String name = in.nextName();
-          switch (name) {
-            case "dateTime":
-              localDateTime = localDateTimeAdapter.read(in);
-              break;
-            case "offset":
-              zoneOffset = zoneOffsetAdapter.read(in);
-              break;
-            case "zone":
-              zoneId = zoneIdAdapter.read(in);
-              break;
-            default:
-              // Ignore other fields.
-              in.skipValue();
+    private static final TypeAdapter<MonthDay> MONTH_DAY =
+        new IntegerFieldsTypeAdapter<MonthDay>("month", "day") {
+          @Override
+          MonthDay create(long[] values) {
+            return MonthDay.of(toIntExact(values[0]), toIntExact(values[1]));
           }
+
+          @Override
+          long[] integerValues(MonthDay monthDay) {
+            return new long[] {monthDay.getMonthValue(), monthDay.getDayOfMonth()};
+          }
+        };
+
+    private static TypeAdapter<OffsetDateTime> offsetDateTime(Gson gson) {
+      TypeAdapter<LocalDateTime> localDateTimeAdapter = localDateTime(gson);
+      TypeAdapter<ZoneOffset> zoneOffsetAdapter = gson.getAdapter(ZoneOffset.class);
+      return new TypeAdapter<OffsetDateTime>() {
+        @Override
+        public OffsetDateTime read(JsonReader in) throws IOException {
+          in.beginObject();
+          LocalDateTime localDateTime = null;
+          ZoneOffset zoneOffset = null;
+          while (in.hasNext()) {
+            String name = in.nextName();
+            switch (name) {
+              case "dateTime":
+                localDateTime = localDateTimeAdapter.read(in);
+                break;
+              case "offset":
+                zoneOffset = zoneOffsetAdapter.read(in);
+                break;
+              default:
+                // Ignore other fields.
+                in.skipValue();
+            }
+          }
+          in.endObject();
+          return OffsetDateTime.of(
+              requireNonNullField(localDateTime, "dateTime", in),
+              requireNonNullField(zoneOffset, "offset", in));
         }
-        in.endObject();
-        return ZonedDateTime.ofInstant(
-            requireNonNullField(localDateTime, "dateTime", in),
-            requireNonNullField(zoneOffset, "offset", in),
-            requireNonNullField(zoneId, "zone", in));
-      }
 
-      @Override
-      public void write(JsonWriter out, ZonedDateTime value) throws IOException {
-        if (value == null) {
-          out.nullValue();
-          return;
+        @Override
+        public void write(JsonWriter out, OffsetDateTime value) throws IOException {
+          out.beginObject();
+          out.name("dateTime");
+          localDateTimeAdapter.write(out, value.toLocalDateTime());
+          out.name("offset");
+          zoneOffsetAdapter.write(out, value.getOffset());
+          out.endObject();
         }
-        out.beginObject();
-        out.name("dateTime");
-        localDateTimeAdapter.write(out, value.toLocalDateTime());
-        out.name("offset");
-        zoneOffsetAdapter.write(out, value.getOffset());
-        out.name("zone");
-        zoneIdAdapter.write(out, value.getZone());
-        out.endObject();
+      }.nullSafe();
+    }
+
+    private static TypeAdapter<OffsetTime> offsetTime(Gson gson) {
+      TypeAdapter<LocalTime> localTimeAdapter = gson.getAdapter(LocalTime.class);
+      TypeAdapter<ZoneOffset> zoneOffsetAdapter = gson.getAdapter(ZoneOffset.class);
+      return new TypeAdapter<OffsetTime>() {
+        @Override
+        public OffsetTime read(JsonReader in) throws IOException {
+          in.beginObject();
+          LocalTime localTime = null;
+          ZoneOffset zoneOffset = null;
+          while (in.hasNext()) {
+            String name = in.nextName();
+            switch (name) {
+              case "time":
+                localTime = localTimeAdapter.read(in);
+                break;
+              case "offset":
+                zoneOffset = zoneOffsetAdapter.read(in);
+                break;
+              default:
+                // Ignore other fields.
+                in.skipValue();
+            }
+          }
+          in.endObject();
+          return OffsetTime.of(
+              requireNonNullField(localTime, "time", in),
+              requireNonNullField(zoneOffset, "offset", in));
+        }
+
+        @Override
+        public void write(JsonWriter out, OffsetTime value) throws IOException {
+          out.beginObject();
+          out.name("time");
+          localTimeAdapter.write(out, value.toLocalTime());
+          out.name("offset");
+          zoneOffsetAdapter.write(out, value.getOffset());
+          out.endObject();
+        }
+      }.nullSafe();
+    }
+
+    private static final TypeAdapter<Period> PERIOD =
+        new IntegerFieldsTypeAdapter<Period>("years", "months", "days") {
+          @Override
+          Period create(long[] values) {
+            return Period.of(toIntExact(values[0]), toIntExact(values[1]), toIntExact(values[2]));
+          }
+
+          @Override
+          long[] integerValues(Period period) {
+            return new long[] {period.getYears(), period.getMonths(), period.getDays()};
+          }
+        };
+
+    private static final TypeAdapter<Year> YEAR =
+        new IntegerFieldsTypeAdapter<Year>("year") {
+          @Override
+          Year create(long[] values) {
+            return Year.of(toIntExact(values[0]));
+          }
+
+          @Override
+          long[] integerValues(Year year) {
+            return new long[] {year.getValue()};
+          }
+        };
+
+    private static final TypeAdapter<YearMonth> YEAR_MONTH =
+        new IntegerFieldsTypeAdapter<YearMonth>("year", "month") {
+          @Override
+          YearMonth create(long[] values) {
+            return YearMonth.of(toIntExact(values[0]), toIntExact(values[1]));
+          }
+
+          @Override
+          long[] integerValues(YearMonth yearMonth) {
+            return new long[] {yearMonth.getYear(), yearMonth.getMonthValue()};
+          }
+        };
+
+    // A ZoneId is either a ZoneOffset or a ZoneRegion, where ZoneOffset is public and ZoneRegion is
+    // not. For compatibility with reflection-based serialization, we need to write the "id" field
+    // of ZoneRegion if we have a ZoneRegion, and we need to write the "totalSeconds" field of
+    // ZoneOffset if we have a ZoneOffset. When reading, we need to construct the appropriate thing
+    // depending on which of those two fields we see.
+    private static final TypeAdapter<ZoneId> ZONE_ID =
+        new TypeAdapter<ZoneId>() {
+          @Override
+          public ZoneId read(JsonReader in) throws IOException {
+            in.beginObject();
+            String id = null;
+            Integer totalSeconds = null;
+            while (in.hasNext()) {
+              String name = in.nextName();
+              switch (name) {
+                case "id":
+                  id = in.nextString();
+                  break;
+                case "totalSeconds":
+                  totalSeconds = in.nextInt();
+                  break;
+                default:
+                  // Ignore other fields.
+                  in.skipValue();
+              }
+            }
+            in.endObject();
+            if (id != null) {
+              return ZoneId.of(id);
+            } else if (totalSeconds != null) {
+              return ZoneOffset.ofTotalSeconds(totalSeconds);
+            } else {
+              throw new JsonSyntaxException(
+                  "Missing id or totalSeconds field; at path " + in.getPreviousPath());
+            }
+          }
+
+          @Override
+          public void write(JsonWriter out, ZoneId value) throws IOException {
+            if (value instanceof ZoneOffset) {
+              out.beginObject();
+              out.name("totalSeconds");
+              out.value(((ZoneOffset) value).getTotalSeconds());
+              out.endObject();
+            } else {
+              out.beginObject();
+              out.name("id");
+              out.value(value.getId());
+              out.endObject();
+            }
+          }
+        }.nullSafe();
+
+    private static TypeAdapter<ZonedDateTime> zonedDateTime(Gson gson) {
+      TypeAdapter<LocalDateTime> localDateTimeAdapter = localDateTime(gson);
+      TypeAdapter<ZoneOffset> zoneOffsetAdapter = gson.getAdapter(ZoneOffset.class);
+      TypeAdapter<ZoneId> zoneIdAdapter = gson.getAdapter(ZoneId.class);
+      return new TypeAdapter<ZonedDateTime>() {
+        @Override
+        public ZonedDateTime read(JsonReader in) throws IOException {
+          in.beginObject();
+          LocalDateTime localDateTime = null;
+          ZoneOffset zoneOffset = null;
+          ZoneId zoneId = null;
+          while (in.hasNext()) {
+            String name = in.nextName();
+            switch (name) {
+              case "dateTime":
+                localDateTime = localDateTimeAdapter.read(in);
+                break;
+              case "offset":
+                zoneOffset = zoneOffsetAdapter.read(in);
+                break;
+              case "zone":
+                zoneId = zoneIdAdapter.read(in);
+                break;
+              default:
+                // Ignore other fields.
+                in.skipValue();
+            }
+          }
+          in.endObject();
+          return ZonedDateTime.ofInstant(
+              requireNonNullField(localDateTime, "dateTime", in),
+              requireNonNullField(zoneOffset, "offset", in),
+              requireNonNullField(zoneId, "zone", in));
+        }
+
+        @Override
+        public void write(JsonWriter out, ZonedDateTime value) throws IOException {
+          if (value == null) {
+            out.nullValue();
+            return;
+          }
+          out.beginObject();
+          out.name("dateTime");
+          localDateTimeAdapter.write(out, value.toLocalDateTime());
+          out.name("offset");
+          zoneOffsetAdapter.write(out, value.getOffset());
+          out.name("zone");
+          zoneIdAdapter.write(out, value.getZone());
+          out.endObject();
+        }
+      }.nullSafe();
+    }
+
+    private static <T> T requireNonNullField(T field, String fieldName, JsonReader reader) {
+      if (field == null) {
+        throw new JsonSyntaxException(
+            "Missing " + fieldName + " field; at path " + reader.getPreviousPath());
       }
-    }.nullSafe();
-  }
-
-  private static <T> T requireNonNullField(T field, String fieldName, JsonReader reader) {
-    if (field == null) {
-      throw new JsonSyntaxException(
-          "Missing " + fieldName + " field; at path " + reader.getPreviousPath());
-    }
-    return field;
-  }
-
-  /**
-   * Gets the package name (with trailing '.') of the {@code java.time} classes, or {@code null} if
-   * unavailable.
-   *
-   * <p>On Android this might actually be something other than {@code "java.time."}, for example
-   * {@code "j$.time."}, due to <a
-   * href="https://developer.android.com/studio/write/java8-support#library-desugaring">API
-   * desugaring</a>.
-   */
-  static String javaTimePackage() {
-    try {
-      // Use arbitrary java.time.* class here, one which is quite simple and does not refer to many
-      // other classes
-      String className = DateTimeException.class.getName();
-      int packageEnd = className.lastIndexOf('.');
-      return className.substring(0, packageEnd + 1);
-    } catch (LinkageError ignored) {
-      // java.time.* classes are probably not available
-      return null;
-    }
-  }
-
-  private static class AdapterFactory implements TypeAdapterFactory {
-    private final String javaTimePackage;
-
-    AdapterFactory(String javaTimePackage) {
-      this.javaTimePackage = javaTimePackage;
+      return field;
     }
 
-    @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-      Class<? super T> rawType = typeToken.getRawType();
-      if (!rawType.getName().startsWith(javaTimePackage)) {
-        // Immediately return null so we don't load all these classes when nobody's doing
-        // anything with java.time.
-        return null;
-      }
+    /** Creates the adapter, or {@code null} if no adapter exists for the type. */
+    static <T> TypeAdapter<T> createAdapter(Gson gson, Class<?> rawType) {
       TypeAdapter<?> adapter = null;
       if (rawType == Duration.class) {
         adapter = DURATION;
@@ -483,11 +472,11 @@ final class JavaTimeTypeAdapterFactory implements TypeAdapters.FactorySupplier {
       } else if (rawType == YearMonth.class) {
         adapter = YEAR_MONTH;
       } else if (rawType == ZoneId.class || rawType == ZoneOffset.class) {
-        // We don't check ZoneId.class.isAssignableFrom(rawType) because we don't want to match
-        // the non-public class ZoneRegion in the runtime type check in
-        // TypeAdapterRuntimeTypeWrapper.write. If we did, then our ZONE_ID would take
-        // precedence over a ZoneId adapter that the user might have registered. (This exact
-        // situation showed up in a Google-internal test.)
+        // We don't check ZoneId.class.isAssignableFrom(rawType) because we don't want to match the
+        // non-public class ZoneRegion in the runtime type check in
+        // TypeAdapterRuntimeTypeWrapper.write. If we did, then our ZONE_ID would take precedence
+        // over a ZoneId adapter that the user might have registered. (This exact situation showed
+        // up in a Google-internal test.)
         // TODO: Maybe this needs an additional `ZoneId.class.isAssignableFrom(rawType)` check
         //   nonetheless, see https://github.com/google/gson/pull/2972#discussion_r2702021300
         adapter = ZONE_ID;

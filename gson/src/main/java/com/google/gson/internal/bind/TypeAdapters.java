@@ -988,26 +988,7 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
 
-  interface FactorySupplier {
-    /** Gets the type adapter factory, or {@code null} if the factory cannot be supplied. */
-    TypeAdapterFactory get();
-  }
-
-  /**
-   * Adapter factory for {@code java.time} classes. Returns {@code null} if not supported by the
-   * current environment (e.g. too old Android version, without desugaring).
-   */
-  public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
-    try {
-      Class<?> javaTimeTypeAdapterFactoryClass =
-          Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapterFactory");
-      FactorySupplier supplier =
-          (FactorySupplier) javaTimeTypeAdapterFactoryClass.getDeclaredConstructor().newInstance();
-      return supplier.get();
-    } catch (ReflectiveOperationException | LinkageError e) {
-      return null;
-    }
-  }
+  public static final TypeAdapterFactory JAVA_TIME_FACTORY = new JavaTimeTypeAdapterFactory();
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
