@@ -38,6 +38,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.AssumptionViolatedException;
 import org.junit.Test;
 
 public class TypeAdapterRuntimeTypeWrapperTest {
@@ -226,11 +227,6 @@ public class TypeAdapterRuntimeTypeWrapperTest {
     assertThat(json).isEqualTo("{\"f\":{\"i\":2}}");
   }
 
-  private static class Holder {
-    @SuppressWarnings("unused")
-    List<? extends Number> field;
-  }
-
   /**
    * A trivial adapter for {@link WildcardType}. It never uses reflection.
    *
@@ -248,12 +244,16 @@ public class TypeAdapterRuntimeTypeWrapperTest {
 
         @Override
         public WildcardType read(JsonReader in) throws IOException {
-          var unused = in.nextString();
-          return null;
+          throw new UnsupportedOperationException();
         }
       };
 
   private static WildcardType sampleWildcard() throws Exception {
+    class Holder {
+      @SuppressWarnings("unused")
+      List<? extends Number> field;
+    }
+
     ParameterizedType listOfWildcard =
         (ParameterizedType) Holder.class.getDeclaredField("field").getGenericType();
     return (WildcardType) listOfWildcard.getActualTypeArguments()[0];
@@ -268,7 +268,7 @@ public class TypeAdapterRuntimeTypeWrapperTest {
     try {
       var unused = new Gson().getAdapter(TypeToken.get(wildcard.getClass()));
       // If reflective access happens to succeed on this JDK, the bug cannot be reproduced here.
-      return;
+      throw new AssumptionViolatedException("Runtime wildcard type is reflectively accessible");
     } catch (JsonIOException expected) {
       // Continue with the regression assertions.
     }
