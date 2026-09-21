@@ -345,6 +345,10 @@ public final class TypeAdapters {
           in.beginArray();
           while (in.hasNext()) {
             try {
+              if (in.peek() == JsonToken.NULL) {
+                throw new JsonSyntaxException(
+                    "null is not a valid AtomicIntegerArray element; at path " + in.getPath());
+              }
               int integer = in.nextInt();
               list.add(integer);
             } catch (NumberFormatException e) {
