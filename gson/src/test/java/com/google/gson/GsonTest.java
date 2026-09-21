@@ -61,6 +61,11 @@ public final class GsonTest {
   }
 
   @Test
+  public void testDefaultJsonStringBuilderCapacity() {
+    assertThat(Gson.newJsonStringBuilder().capacity()).isEqualTo(256);
+  }
+
+  @Test
   public void testStrictnessDefault() {
     assertThat(new Gson().strictness).isNull();
   }

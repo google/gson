@@ -420,7 +420,7 @@ public abstract class JsonElement {
   @Override
   public String toString() {
     try {
-      StringBuilder stringBuilder = new StringBuilder();
+      StringBuilder stringBuilder = Gson.newJsonStringBuilder();
       JsonWriter jsonWriter = new JsonWriter(Streams.writerForAppendable(stringBuilder));
       // Make writer lenient because toString() must not fail, even if for example JsonPrimitive
       // contains NaN
