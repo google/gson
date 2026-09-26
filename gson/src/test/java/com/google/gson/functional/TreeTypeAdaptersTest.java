@@ -29,6 +29,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.Reader;
@@ -101,8 +102,8 @@ public class TreeTypeAdaptersTest {
             }
           };
 
-      IOException actual =
-          assertThrows(IOException.class, () -> gson.getAdapter(Id.class).fromJson(reader));
+      TypeAdapter<?> adapter = gson.getAdapter(Id.class);
+      IOException actual = assertThrows(IOException.class, () -> adapter.fromJson(reader));
       assertThat(actual).isSameInstanceAs(failure);
     }
   }
@@ -120,8 +121,8 @@ public class TreeTypeAdaptersTest {
                     })
             .create();
 
-    JsonIOException actual =
-        assertThrows(JsonIOException.class, () -> customGson.getAdapter(Id.class).fromJson("1"));
+    TypeAdapter<?> adapter = customGson.getAdapter(Id.class);
+    JsonIOException actual = assertThrows(JsonIOException.class, () -> adapter.fromJson("1"));
     assertThat(actual).isSameInstanceAs(failure);
   }
 
