@@ -17,19 +17,25 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,6 +83,46 @@ public class TreeTypeAdaptersTest {
     assertThat(target.getStudents().get(0).id.getValue()).isEqualTo("1");
     assertThat(target.getStudents().get(1).id.getValue()).isEqualTo("6");
     assertThat(target.getId().getValue()).isEqualTo("1");
+  }
+
+  @Test
+  public void testReadPropagatesIOException() {
+    for (String prefix : Arrays.asList("", "{\"value\":")) {
+      IOException failure = new SocketTimeoutException("response timed out");
+      Reader reader =
+          new StringReader(prefix) {
+            @Override
+            public int read(char[] buffer, int offset, int length) throws IOException {
+              int count = super.read(buffer, offset, length);
+              if (count == -1) {
+                throw failure;
+              }
+              return count;
+            }
+          };
+
+      IOException actual =
+          assertThrows(IOException.class, () -> gson.getAdapter(Id.class).fromJson(reader));
+      assertThat(actual).isSameInstanceAs(failure);
+    }
+  }
+
+  @Test
+  public void testReadPreservesDeserializerException() {
+    JsonIOException failure = new JsonIOException(new IOException("custom deserializer"));
+    Gson customGson =
+        new GsonBuilder()
+            .registerTypeAdapter(
+                Id.class,
+                (JsonDeserializer<Id<?>>)
+                    (json, type, context) -> {
+                      throw failure;
+                    })
+            .create();
+
+    JsonIOException actual =
+        assertThrows(JsonIOException.class, () -> customGson.getAdapter(Id.class).fromJson("1"));
+    assertThat(actual).isSameInstanceAs(failure);
   }
 
   @SuppressWarnings("UnusedTypeParameter")
