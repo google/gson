@@ -113,8 +113,9 @@ public class TreeTypeAdaptersTest {
   @Test
   public void testReadPreservesEOFExceptionAsJsonSyntaxException() {
     TypeAdapter<?> adapter = gson.getAdapter(Id.class);
+    Reader reader = new StringReader("[");
     JsonSyntaxException actual =
-        assertThrows(JsonSyntaxException.class, () -> adapter.fromJson(new StringReader("[")));
+        assertThrows(JsonSyntaxException.class, () -> adapter.fromJson(reader));
     assertThat(actual).hasCauseThat().isInstanceOf(EOFException.class);
   }
 
