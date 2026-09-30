@@ -202,11 +202,7 @@ public final class LegacyProtoTypeAdapterFactoryTest {
                 + "|bit.?[fF]ield.*"
                 + "|.*Memoized.?Serialized.?Size$",
             Pattern.CASE_INSENSITIVE);
-    var keysToRemove =
-        json.keySet().stream()
-            .filter(key -> pattern.matcher(key).find())
-            .collect(toImmutableList());
-    json.keySet().removeAll(keysToRemove);
+    json.keySet().removeIf(key -> pattern.matcher(key).find());
     json.keySet().removeAll(TRANSIENT_FIELDS);
 
     // Similarly, the RTAF JSON for a ByteString can include a `hash` field that is either 0
