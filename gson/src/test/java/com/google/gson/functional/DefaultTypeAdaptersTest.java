@@ -320,6 +320,17 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  public void testLocaleRoundTripWithEmptyLanguageOrCountry() {
+    Locale countryOnly = new Locale("", "US");
+    assertThat(gson.toJson(countryOnly)).isEqualTo("\"_US\"");
+    assertThat(gson.fromJson("\"_US\"", Locale.class)).isEqualTo(countryOnly);
+
+    Locale languageAndVariant = new Locale("en", "", "POSIX");
+    assertThat(gson.toJson(languageAndVariant)).isEqualTo("\"en__POSIX\"");
+    assertThat(gson.fromJson("\"en__POSIX\"", Locale.class)).isEqualTo(languageAndVariant);
+  }
+
+  @Test
   public void testBigDecimalFieldSerialization() {
     ClassWithBigDecimal target = new ClassWithBigDecimal("-122.01e-21");
     String json = gson.toJson(target);
