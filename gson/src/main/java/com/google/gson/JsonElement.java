@@ -94,6 +94,9 @@ import java.math.BigInteger;
  * @author Joel Leitch
  */
 public abstract class JsonElement {
+
+  private static final int DEFAULT_JSON_BUFFER_SIZE = 256;
+
   /**
    * @deprecated Creating custom {@code JsonElement} subclasses is highly discouraged and can lead
    *     to undefined behavior.<br>
@@ -420,7 +423,7 @@ public abstract class JsonElement {
   @Override
   public String toString() {
     try {
-      StringBuilder stringBuilder = Gson.newJsonStringBuilder();
+      StringBuilder stringBuilder = newJsonStringBuilder();
       JsonWriter jsonWriter = new JsonWriter(Streams.writerForAppendable(stringBuilder));
       // Make writer lenient because toString() must not fail, even if for example JsonPrimitive
       // contains NaN
@@ -430,5 +433,9 @@ public abstract class JsonElement {
     } catch (IOException e) {
       throw new AssertionError(e);
     }
+  }
+
+  static StringBuilder newJsonStringBuilder() {
+    return new StringBuilder(DEFAULT_JSON_BUFFER_SIZE);
   }
 }

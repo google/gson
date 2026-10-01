@@ -158,7 +158,7 @@ public abstract class TypeAdapter<T> {
    * @since 2.2
    */
   public final String toJson(T value) {
-    StringBuilder stringBuilder = Gson.newJsonStringBuilder();
+    StringBuilder stringBuilder = JsonElement.newJsonStringBuilder();
     try {
       toJson(Streams.writerForAppendable(stringBuilder), value);
     } catch (IOException e) {

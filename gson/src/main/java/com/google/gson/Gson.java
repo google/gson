@@ -157,12 +157,6 @@ public final class Gson {
 
   private static final String JSON_NON_EXECUTABLE_PREFIX = ")]}'\n";
 
-  private static final int DEFAULT_JSON_BUFFER_SIZE = 256;
-
-  static StringBuilder newJsonStringBuilder() {
-    return new StringBuilder(DEFAULT_JSON_BUFFER_SIZE);
-  }
-
   /**
    * This thread local guards against reentrant calls to {@link #getAdapter(TypeToken)}. In certain
    * object graphs, creating an adapter for a type may recursively require an adapter for the same
@@ -594,7 +588,7 @@ public final class Gson {
    * @see #toJson(Object)
    */
   public String toJson(Object src, Type typeOfSrc) {
-    StringBuilder writer = newJsonStringBuilder();
+    StringBuilder writer = JsonElement.newJsonStringBuilder();
     toJson(src, typeOfSrc, writer);
     return writer.toString();
   }
@@ -712,7 +706,7 @@ public final class Gson {
    * @since 1.4
    */
   public String toJson(JsonElement jsonElement) {
-    StringBuilder writer = newJsonStringBuilder();
+    StringBuilder writer = JsonElement.newJsonStringBuilder();
     toJson(jsonElement, writer);
     return writer.toString();
   }
