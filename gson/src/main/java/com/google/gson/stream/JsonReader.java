@@ -1616,7 +1616,7 @@ public class JsonReader implements Closeable {
       limit += total;
 
       // if this is the first read, consume an optional byte order mark (BOM) if it exists
-      if (lineNumber == 0 && lineStart == 0 && limit > 0 && buffer[0] == '\ufeff') {
+      if (bufferStart == 0 && pos == 0 && limit > 0 && buffer[0] == '\ufeff') {
         pos++;
         lineStart++;
         minimum++;
