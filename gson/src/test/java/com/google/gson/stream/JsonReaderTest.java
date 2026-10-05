@@ -1683,6 +1683,14 @@ public final class JsonReaderTest {
     assertStrictError(e, "line 1 column 2 path $[0]");
   }
 
+  @Test
+  public void testRepeatedBom() throws IOException {
+    JsonReader reader =
+        new JsonReader(new ChunkLimitingReader(new StringReader("\ufeff\ufefffoo"), 2));
+    reader.setStrictness(Strictness.LENIENT);
+    assertThat(reader.nextString()).isEqualTo("\ufefffoo");
+  }
+
   @SuppressWarnings("UngroupedOverloads")
   @Test
   public void testFailWithPosition() throws IOException {
