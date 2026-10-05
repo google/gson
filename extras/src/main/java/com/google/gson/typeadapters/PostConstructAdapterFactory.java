@@ -65,6 +65,8 @@ public class PostConstructAdapterFactory implements TypeAdapterFactory {
         } catch (InvocationTargetException e) {
           if (e.getCause() instanceof RuntimeException) {
             throw (RuntimeException) e.getCause();
+          } else if (e.getCause() instanceof Error) {
+            throw (Error) e.getCause();
           }
           throw new RuntimeException(e.getCause());
         }
