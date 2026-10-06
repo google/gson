@@ -1341,6 +1341,11 @@ public class JsonReader implements Closeable {
   }
 
   private void skipQuotedValue(char quote) throws IOException {
+    if (strictness == Strictness.STRICT) {
+      // Read the value so that the same validation as for nextString() and nextName() is applied
+      String unused = nextQuotedValue(quote);
+      return;
+    }
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
     do {
