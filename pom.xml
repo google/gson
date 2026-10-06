@@ -529,7 +529,7 @@
                   <version>7.0_r2</version>
                 </signature>
                 <annotations>
-                  <annotation>com.google.gson.internal.bind.IgnoreJRERequirement</annotation>
+                  <annotation>com.google.gson.internal.bind.IgnoreAndroidApiLevelRequirement</annotation>
                 </annotations>
               </configuration>
             </execution>

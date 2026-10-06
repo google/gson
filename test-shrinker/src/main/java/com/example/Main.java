@@ -9,6 +9,9 @@ import com.example.GenericClasses.UsingGenericClass;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import java.time.LocalTime;
+import java.time.OffsetTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -55,6 +58,8 @@ public class Main {
     testGenericClasses(outputConsumer);
 
     testDeserializingInterfaceImpl(outputConsumer);
+
+    testJavaTime(outputConsumer);
   }
 
   private static void testTypeTokenWriteRead(
@@ -312,5 +317,27 @@ public class Main {
             return "ClassCastException";
           }
         });
+  }
+
+  /**
+   * Test for {@code java.time} classes, to make sure that the reflection usage in their current
+   * adapter implementations does not interfere with code shrinking tools.
+   */
+  private static void testJavaTime(BiConsumer<String, String> outputConsumer) {
+    Gson gson = new Gson();
+    TestExecutor.run(
+        outputConsumer,
+        "Write: java.time.OffsetTime",
+        () ->
+            gson.toJson(
+                OffsetTime.of(
+                    LocalTime.of(12, 34, 56, 789_012_345), ZoneOffset.ofTotalSeconds(123))));
+
+    String json =
+        "{\"time\":{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345},\"offset\":{\"totalSeconds\":123}}";
+    TestExecutor.run(
+        outputConsumer,
+        "Read: java.time.OffsetTime",
+        () -> gson.fromJson(json, OffsetTime.class).toString());
   }
 }
