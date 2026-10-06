@@ -159,6 +159,28 @@ public final class JsonReaderTest {
   }
 
   @Test
+  public void testStrictModeSkipValueRejectsInvalidStrings() throws IOException {
+    for (String json : new String[] {"[\"\t\"]", "[\"\\uD800\"]", "[\"\uD800\"]", "{\"\t\":1}"}) {
+      JsonReader reader = new JsonReader(reader(json));
+      reader.setStrictness(Strictness.STRICT);
+      if (json.startsWith("{")) {
+        reader.beginObject();
+      } else {
+        reader.beginArray();
+      }
+      assertThrows(MalformedJsonException.class, reader::skipValue);
+    }
+
+    JsonReader reader = new JsonReader(reader("{\"a\":\"\\uD834\\uDD1E\"}"));
+    reader.setStrictness(Strictness.STRICT);
+    reader.beginObject();
+    reader.skipValue();
+    reader.skipValue();
+    reader.endObject();
+    assertThat(reader.peek()).isEqualTo(JsonToken.END_DOCUMENT);
+  }
+
+  @Test
   public void testStrictModeAllowsPairedSurrogates() throws IOException {
     JsonReader reader = new JsonReader(reader("\"\\uD834\\uDD1E\""));
     reader.setStrictness(Strictness.STRICT);
