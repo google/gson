@@ -102,7 +102,14 @@ public final class TypeAdapters {
             switch (tokenType) {
               case NUMBER:
               case STRING:
-                int intValue = in.nextInt();
+                int intValue;
+                try {
+                  intValue = in.nextInt();
+                } catch (NumberFormatException e) {
+                  // Match the other adapters: malformed numbers must surface as Gson's documented
+                  // JsonSyntaxException, not as a raw NumberFormatException.
+                  throw new JsonSyntaxException(e);
+                }
                 if (intValue == 0) {
                   set = false;
                 } else if (intValue == 1) {
@@ -467,7 +474,11 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return (float) in.nextDouble();
+      try {
+        return (float) in.nextDouble();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override
@@ -500,7 +511,11 @@ public final class TypeAdapters {
         in.nextNull();
         return null;
       }
-      return in.nextDouble();
+      try {
+        return in.nextDouble();
+      } catch (NumberFormatException e) {
+        throw new JsonSyntaxException(e);
+      }
     }
 
     @Override

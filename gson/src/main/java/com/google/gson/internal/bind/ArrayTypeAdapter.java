@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.GsonTypes;
@@ -69,17 +70,27 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
       return null;
     }
 
+    boolean primitiveComponent = componentType.isPrimitive();
     ArrayList<E> list = new ArrayList<>();
     in.beginArray();
     while (in.hasNext()) {
       E instance = componentTypeAdapter.read(in);
+      if (instance == null && primitiveComponent) {
+        // A primitive array cannot hold null; reject it here so that callers see Gson's documented
+        // JsonSyntaxException instead of an IllegalArgumentException from Array.set below.
+        throw new JsonSyntaxException(
+            "null is not a valid value for a "
+                + componentType.getName()
+                + " array element; at path "
+                + in.getPreviousPath());
+      }
       list.add(instance);
     }
     in.endArray();
 
     int size = list.size();
     // Have to copy primitives one by one to primitive array
-    if (componentType.isPrimitive()) {
+    if (primitiveComponent) {
       Object array = Array.newInstance(componentType, size);
       for (int i = 0; i < size; i++) {
         Array.set(array, i, list.get(i));
