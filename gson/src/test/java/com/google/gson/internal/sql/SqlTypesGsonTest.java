@@ -95,6 +95,28 @@ public class SqlTypesGsonTest {
     }
   }
 
+  // java.sql.Date and java.sql.Time must serialize with a fixed locale, independent of the JVM's
+  // default locale, so the output is stable and round-trippable across hosts.
+  @Test
+  public void testSqlDateSerializationIsLocaleIndependent() {
+    Locale.setDefault(Locale.GERMANY);
+    Gson gson = new Gson();
+    java.sql.Date date = new java.sql.Date(1259875082000L);
+    assertThat(gson.toJson(date)).isEqualTo("\"Dec 3, 2009\"");
+    DefaultTypeAdaptersTest.assertEqualsDate(
+        gson.fromJson("\"Dec 3, 2009\"", java.sql.Date.class), 2009, 11, 3);
+  }
+
+  @Test
+  public void testSqlTimeSerializationIsLocaleIndependent() {
+    Locale.setDefault(Locale.GERMANY);
+    Gson gson = new Gson();
+    Time time = new Time(1259875082000L);
+    assertThat(gson.toJson(time)).isEqualTo("\"01:18:02 PM\"");
+    DefaultTypeAdaptersTest.assertEqualsTime(
+        gson.fromJson("\"01:18:02 PM\"", Time.class), 13, 18, 2);
+  }
+
   @Test
   public void testDefaultSqlTimeSerialization() {
     Time now = new Time(1259875082000L);
