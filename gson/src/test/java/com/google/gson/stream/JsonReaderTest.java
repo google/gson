@@ -29,7 +29,6 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Strictness;
 import java.io.EOFException;
-import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -139,28 +138,36 @@ public final class JsonReaderTest {
 
   @Test
   public void testStrictModeRejectsUnpairedSurrogates() throws IOException {
-    for (String json :
-        new String[] {"\"\\uD800\"", "\"\\uDC00\"", "\"\uD800\"", "{\"\\uD800\":1}"}) {
+    for (String[] data :
+        new String[][] {
+          {"\"\\uD800\"", "Expected Unicode escape for low surrogate char "},
+          {"\"\\uDC00\"", "Unpaired low surrogate char "},
+          {"\"\uD800\"", "Expected low surrogate char "},
+          {"\"\uDC00\"", "Unpaired low surrogate char "}
+        }) {
+      String json = data[0];
+      String expectedExceptionMessage = data[1];
+
       JsonReader reader = new JsonReader(reader(json));
       reader.setStrictness(Strictness.STRICT);
-      if (json.startsWith("{")) {
-        reader.beginObject();
-        IOException expected = assertThrows(IOException.class, reader::nextName);
-        assertThat(expected)
-            .hasMessageThat()
-            .startsWith("Unpaired surrogate characters are not allowed in strict mode");
-      } else {
-        IOException expected = assertThrows(IOException.class, reader::nextString);
-        assertThat(expected)
-            .hasMessageThat()
-            .startsWith("Unpaired surrogate characters are not allowed in strict mode");
-      }
+      IOException expected = assertThrows(IOException.class, reader::nextString);
+      assertThat(expected).hasMessageThat().startsWith(expectedExceptionMessage);
+
+      JsonReader readerName = new JsonReader(reader("{" + json + ":1}"));
+      readerName.setStrictness(Strictness.STRICT);
+      readerName.beginObject();
+      expected = assertThrows(IOException.class, readerName::nextName);
+      assertThat(expected).hasMessageThat().startsWith(expectedExceptionMessage);
     }
   }
 
   @Test
   public void testStrictModeAllowsPairedSurrogates() throws IOException {
-    JsonReader reader = new JsonReader(reader("\"\\uD834\\uDD1E\""));
+    JsonReader reader = new JsonReader(reader("\"\uD834\uDD1E\""));
+    reader.setStrictness(Strictness.STRICT);
+    assertThat(reader.nextString()).isEqualTo("\uD834\uDD1E");
+
+    reader = new JsonReader(reader("\"\\uD834\\uDD1E\""));
     reader.setStrictness(Strictness.STRICT);
     assertThat(reader.nextString()).isEqualTo("\uD834\uDD1E");
   }
@@ -1685,8 +1692,7 @@ public final class JsonReaderTest {
 
   @Test
   public void testRepeatedBom() throws IOException {
-    JsonReader reader =
-        new JsonReader(new ChunkLimitingReader(new StringReader("\ufeff\ufefffoo"), 2));
+    JsonReader reader = new JsonReader(new ChunkLimitingReader("\ufeff\ufefffoo", 2));
     reader.setStrictness(Strictness.LENIENT);
     assertThat(reader.nextString()).isEqualTo("\ufefffoo");
   }
@@ -2389,8 +2395,7 @@ public final class JsonReaderTest {
   public void testCharacterOffset_chunkedReader() throws IOException {
     String json = "{\"key\": [1, 2, 3], \"nested\": {\"flag\": true}}";
     for (int chunkSize : new int[] {1, 2, 3, 5, 10}) {
-      JsonReader reader =
-          new JsonReader(new ChunkLimitingReader(new StringReader(json), chunkSize));
+      JsonReader reader = new JsonReader(new ChunkLimitingReader(json, chunkSize));
       reader.beginObject();
       assertThat(reader.getCharacterOffset()).isEqualTo(1);
       assertThat(reader.nextName()).isEqualTo("key");
@@ -2470,18 +2475,473 @@ public final class JsonReaderTest {
     }; */
   }
 
-  private static class ChunkLimitingReader extends FilterReader {
+  private static class ChunkLimitingReader extends Reader {
+    private final Reader delegate;
     private final int maxCharsPerRead;
 
     ChunkLimitingReader(Reader in, int maxCharsPerRead) {
-      super(in);
+      this.delegate = in;
       this.maxCharsPerRead = maxCharsPerRead;
+    }
+
+    ChunkLimitingReader(String s, int maxCharsPerRead) {
+      this(new StringReader(s), maxCharsPerRead);
     }
 
     @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
       int limitedLen = Math.min(len, maxCharsPerRead);
-      return super.read(cbuf, off, limitedLen);
+      return delegate.read(cbuf, off, limitedLen);
     }
+
+    @Override
+    public void close() {}
+  }
+
+  /** Used by {@link #testJsonStringReading}. */
+  @FunctionalInterface
+  private interface JsonStringReaderFactory {
+    /**
+     * Creates a JSON reader whose JSON data contains the given string value as next token.
+     *
+     * @param jsonStringValue the JSON string value, including surrounding quotation marks
+     * @param strictness strictness for the created JSON reader
+     * @param appendSuffix when wrapping the JSON string value (e.g. when treating it as object
+     *     member name), whether to append a suffix to make the JSON complete and valid; a test
+     *     might use {@code false} to check how incomplete strings are handled
+     */
+    JsonReader create(String jsonStringValue, Strictness strictness, boolean appendSuffix)
+        throws IOException;
+
+    default JsonReader create(String jsonStringValue, Strictness strictness) throws IOException {
+      return create(jsonStringValue, strictness, true);
+    }
+  }
+
+  /** Used by {@link #testJsonStringReading}. */
+  private interface JsonStringConsumer {
+    /**
+     * Calls one of the {@code JsonReader} methods for consuming a JSON string (value or object
+     * member name) and returns the result.
+     */
+    String consume(JsonReader jsonReader) throws IOException;
+  }
+
+  /**
+   * Tests behavior when reading a JSON string (value or object member name).
+   *
+   * @param isConsumerSkipping whether the {@code consumer} is skipping the value, e.g. by calling
+   *     {@link JsonReader#skipValue()}, and the result should therefore not be compared against an
+   *     expected value
+   */
+  private void testJsonStringReading(
+      JsonStringReaderFactory jsonReaderFactory,
+      JsonStringConsumer consumer,
+      boolean isConsumerSkipping)
+      throws IOException {
+    // Empty string
+    for (Strictness strictness : Strictness.values()) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"\"", strictness);
+      String result = consumer.consume(jsonReader);
+      if (!isConsumerSkipping) {
+        assertThat(result).isEqualTo("");
+      }
+    }
+
+    for (Strictness strictness : Strictness.values()) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"abc\"", strictness);
+      String result = consumer.consume(jsonReader);
+      if (!isConsumerSkipping) {
+        assertThat(result).isEqualTo("abc");
+      }
+    }
+
+    // Single quoted (allowed)
+    for (Strictness strictness : new Strictness[] {Strictness.LENIENT}) {
+      JsonReader jsonReader = jsonReaderFactory.create("'abc'", strictness);
+      String result = consumer.consume(jsonReader);
+      if (!isConsumerSkipping) {
+        assertThat(result).isEqualTo("abc");
+      }
+    }
+
+    // Single quoted (rejected)
+    for (Strictness strictness : new Strictness[] {Strictness.LEGACY_STRICT, Strictness.STRICT}) {
+      JsonReader jsonReader = jsonReaderFactory.create("'abc'", strictness);
+      var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+      assertThat(e)
+          .hasMessageThat()
+          .startsWith("Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON ");
+    }
+
+    // Missing closing double quote
+    for (Strictness strictness : Strictness.values()) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"abc", strictness, false);
+      var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+      assertThat(e).hasMessageThat().startsWith("Unterminated string ");
+    }
+
+    // Missing closing single quote
+    for (Strictness strictness : new Strictness[] {Strictness.LENIENT}) {
+      JsonReader jsonReader = jsonReaderFactory.create("'abc", strictness, false);
+      var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+      assertThat(e).hasMessageThat().startsWith("Unterminated string ");
+    }
+
+    // Mismatching closing single quote
+    for (Strictness strictness : Strictness.values()) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"abc'", strictness, false);
+      var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+      assertThat(e).hasMessageThat().startsWith("Unterminated string ");
+    }
+
+    // Mismatching closing double quote
+    for (Strictness strictness : new Strictness[] {Strictness.LENIENT}) {
+      JsonReader jsonReader = jsonReaderFactory.create("'abc\"", strictness, false);
+      var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+      assertThat(e).hasMessageThat().startsWith("Unterminated string ");
+    }
+
+    // Control char (allowed)
+    for (Strictness strictness : new Strictness[] {Strictness.LENIENT}) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"abc\0de\"", strictness);
+      String result = consumer.consume(jsonReader);
+      if (!isConsumerSkipping) {
+        assertThat(result).isEqualTo("abc\0de");
+      }
+    }
+
+    // Control char line break (allowed)
+    for (Strictness strictness : new Strictness[] {Strictness.LENIENT, Strictness.LEGACY_STRICT}) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"abc\nde\"", strictness);
+      String result = consumer.consume(jsonReader);
+      if (!isConsumerSkipping) {
+        assertThat(result).isEqualTo("abc\nde");
+      }
+      // Has incremented line number
+      assertThat(jsonReader.locationString()).startsWith(" at line 2 column 4 ");
+    }
+
+    // Control char (rejected)
+    for (Strictness strictness : new Strictness[] {Strictness.STRICT}) {
+      for (String content : new String[] {"\0", "\n"}) {
+        JsonReader jsonReader = jsonReaderFactory.create('"' + content + '"', strictness);
+        var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+        assertThat(e)
+            .hasMessageThat()
+            .startsWith(
+                "Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode ");
+      }
+    }
+
+    // Escapes
+    for (Strictness strictness : Strictness.values()) {
+      JsonReader jsonReader =
+          jsonReaderFactory.create(
+              "\"\\t \\b \\n \\r \\f \\\" \\\\ \\/ \\u1234 \\u5678 \\u90ab \\ucdef"
+                  + " \\u09AB \\uCDEF \\uaBcD \\uEf10\"",
+              strictness);
+      String result = consumer.consume(jsonReader);
+      if (!isConsumerSkipping) {
+        assertThat(result)
+            .isEqualTo(
+                "\t \b \n \r \f \" \\ / \u1234 \u5678 \u90AB \uCDEF \u09AB \uCDEF \uABCD \uEF10");
+      }
+    }
+
+    // Escape incomplete
+    for (Strictness strictness : Strictness.values()) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"\\", strictness, false);
+      var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+      assertThat(e).hasMessageThat().startsWith("Unterminated escape sequence ");
+    }
+
+    // Escape incomplete string
+    for (Strictness strictness : Strictness.values()) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"\\\"", strictness, false);
+      var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+      assertThat(e).hasMessageThat().startsWith("Unterminated string ");
+    }
+
+    // Escape unknown
+    for (Strictness strictness : Strictness.values()) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"\\x\"", strictness);
+      var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+      assertThat(e).hasMessageThat().startsWith("Invalid escape sequence ");
+    }
+
+    // Escape incomplete Unicode
+    for (Strictness strictness : Strictness.values()) {
+      for (String content : new String[] {"\\u", "\\u1", "\\u12"}) {
+        JsonReader jsonReader = jsonReaderFactory.create('"' + content + '"', strictness, false);
+        var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+        assertThat(e).hasMessageThat().startsWith("Unterminated escape sequence ");
+      }
+    }
+
+    // Escape malformed Unicode
+    for (Strictness strictness : Strictness.values()) {
+      for (String[] data :
+          new String[][] {
+            {"\\u123", "Malformed Unicode escape \\u123\" "},
+            {"\\u123g", "Malformed Unicode escape \\u123g "},
+            {"\\u123G", "Malformed Unicode escape \\u123G "},
+            {"\\u123X", "Malformed Unicode escape \\u123X "},
+            // Arabic digits for 1234
+            {"\\u123\u0664", "Malformed Unicode escape \\u123\u0664 "},
+            {
+              "\\u\u0661\u0662\u0663\u0664", "Malformed Unicode escape \\u\u0661\u0662\u0663\u0664 "
+            },
+          }) {
+        String json = '"' + data[0] + '"';
+        String expectedExceptionMessage = data[1];
+        JsonReader jsonReader = jsonReaderFactory.create(json, strictness);
+        var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+        assertThat(e).hasMessageThat().startsWith(expectedExceptionMessage);
+      }
+    }
+
+    // Additional escapes
+    for (String[] data :
+        new String[][] {
+          {"a\\\nb", "a\nb", "Cannot escape a newline character in strict mode "},
+          {"\\'", "'", "Invalid escaped character \"'\" in strict mode "}
+        }) {
+      String json = '"' + data[0] + '"';
+      String expectedRead = data[1];
+      String expectedExceptionMessage = data[2];
+
+      // (allowed)
+      for (Strictness strictness :
+          new Strictness[] {Strictness.LENIENT, Strictness.LEGACY_STRICT}) {
+        JsonReader jsonReader = jsonReaderFactory.create(json, strictness);
+        String result = consumer.consume(jsonReader);
+        if (!isConsumerSkipping) {
+          assertThat(result).isEqualTo(expectedRead);
+        }
+      }
+
+      // (rejected)
+      for (Strictness strictness : new Strictness[] {Strictness.STRICT}) {
+        JsonReader jsonReader = jsonReaderFactory.create(json, strictness);
+        var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+        assertThat(e).hasMessageThat().startsWith(expectedExceptionMessage);
+      }
+    }
+
+    // Escaped line break (allowed)
+    for (Strictness strictness : new Strictness[] {Strictness.LENIENT, Strictness.LEGACY_STRICT}) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"abc\\\nde\"", strictness);
+      String result = consumer.consume(jsonReader);
+      if (!isConsumerSkipping) {
+        assertThat(result).isEqualTo("abc\nde");
+      }
+      // Has incremented line number
+      assertThat(jsonReader.locationString()).startsWith(" at line 2 column 4 ");
+    }
+
+    // Surrogate escaped
+    for (Strictness strictness : Strictness.values()) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"\\uD834\\uDD1E\"", strictness);
+      String result = consumer.consume(jsonReader);
+      if (!isConsumerSkipping) {
+        assertThat(result).isEqualTo("\uD834\uDD1E");
+      }
+    }
+
+    // Surrogate unescaped
+    for (Strictness strictness : Strictness.values()) {
+      JsonReader jsonReader = jsonReaderFactory.create("\"\uD834\uDD1E\"", strictness);
+      String result = consumer.consume(jsonReader);
+      if (!isConsumerSkipping) {
+        assertThat(result).isEqualTo("\uD834\uDD1E");
+      }
+    }
+
+    // Malformed escaped surrogates
+    for (String[] data :
+        new String[][] {
+          // unpaired high
+          {"\\uD834", "\uD834", "Expected Unicode escape for low surrogate char "},
+          // unpaired low
+          {"\\uDD1E", "\uDD1E", "Unpaired low surrogate char "},
+          // high, high
+          {"\\uD834\\uD834", "\uD834\uD834", "Expected Unicode escape for low surrogate char "},
+          // low, low
+          {"\\uDD1E\\uDD1E", "\uDD1E\uDD1E", "Unpaired low surrogate char "},
+          // high, other
+          {"\\uD834\\u1234", "\uD834\u1234", "Expected Unicode escape for low surrogate char "},
+          {"\\uD834\\n", "\uD834\n", "Expected Unicode escape for low surrogate char "},
+          {"\\uD834\\nDD1E", "\uD834\nDD1E", "Expected Unicode escape for low surrogate char "},
+          {"\\uD834a", "\uD834a", "Expected Unicode escape for low surrogate char "},
+          {"\\uD834abcdefgh", "\uD834abcdefgh", "Expected Unicode escape for low surrogate char "},
+          // other, low
+          {"\\u1234\\uDD1E", "\u1234\uDD1E", "Unpaired low surrogate char "},
+        }) {
+      String json = '"' + data[0] + '"';
+      String expectedRead = data[1];
+      String expectedExceptionMessage = data[2];
+
+      // (allowed)
+      for (Strictness strictness :
+          new Strictness[] {Strictness.LENIENT, Strictness.LEGACY_STRICT}) {
+        JsonReader jsonReader = jsonReaderFactory.create(json, strictness);
+        String result = consumer.consume(jsonReader);
+        if (!isConsumerSkipping) {
+          assertThat(result).isEqualTo(expectedRead);
+        }
+      }
+
+      // (rejected)
+      for (Strictness strictness : new Strictness[] {Strictness.STRICT}) {
+        JsonReader jsonReader = jsonReaderFactory.create(json, strictness);
+        var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+        assertThat(e).hasMessageThat().startsWith(expectedExceptionMessage);
+      }
+    }
+
+    // Malformed unescaped surrogates
+    for (String[] data :
+        new String[][] {
+          // unpaired high
+          {"\uD834", "\uD834", "Expected low surrogate char "},
+          // unpaired low
+          {"\uDD1E", "\uDD1E", "Unpaired low surrogate char "},
+          // high, high
+          {"\uD834\uD834", "\uD834\uD834", "Expected low surrogate char "},
+          // low, low
+          {"\uDD1E\uDD1E", "\uDD1E\uDD1E", "Unpaired low surrogate char "},
+          // high, other
+          {"\uD834" + "\\u1234", "\uD834\u1234", "Expected low surrogate char "},
+          {"\uD834\\n", "\uD834\n", "Expected low surrogate char "},
+          {"\uD834\\nDD1E", "\uD834\nDD1E", "Expected low surrogate char "},
+          {"\uD834a", "\uD834a", "Expected low surrogate char "},
+          {"\uD834abcdefgh", "\uD834abcdefgh", "Expected low surrogate char "},
+          // other, low
+          {"\\u1234\uDD1E", "\u1234\uDD1E", "Unpaired low surrogate char "},
+          // high (escaped), low (unescaped)
+          {"\\uD834\uDD1E", "\uD834\uDD1E", "Expected Unicode escape for low surrogate char "},
+          // high (unescaped), low (escaped)
+          {"\uD834" + "\\uDD1E", "\uD834\uDD1E", "Expected low surrogate char "},
+        }) {
+      String json = '"' + data[0] + '"';
+      String expectedRead = data[1];
+      String expectedExceptionMessage = data[2];
+
+      // (allowed)
+      for (Strictness strictness :
+          new Strictness[] {Strictness.LENIENT, Strictness.LEGACY_STRICT}) {
+        JsonReader jsonReader = jsonReaderFactory.create(json, strictness);
+        String result = consumer.consume(jsonReader);
+        if (!isConsumerSkipping) {
+          assertThat(result).isEqualTo(expectedRead);
+        }
+      }
+
+      // (rejected)
+      for (Strictness strictness : new Strictness[] {Strictness.STRICT}) {
+        JsonReader jsonReader = jsonReaderFactory.create(json, strictness);
+        var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+        assertThat(e).hasMessageThat().startsWith(expectedExceptionMessage);
+      }
+    }
+
+    // Unquoted strings
+    for (String[] data :
+        new String[][] {
+          {
+            "unquoted",
+            "unquoted",
+            "Use JsonReader.setStrictness(Strictness.LENIENT) to accept malformed JSON "
+          }
+        }) {
+      String json = data[0];
+      String expectedRead = data[1];
+      String expectedExceptionMessage = data[2];
+
+      // (allowed)
+      for (Strictness strictness : new Strictness[] {Strictness.LENIENT}) {
+        JsonReader jsonReader = jsonReaderFactory.create(json, strictness);
+        String result = consumer.consume(jsonReader);
+        if (!isConsumerSkipping) {
+          assertThat(result).isEqualTo(expectedRead);
+        }
+      }
+
+      // (rejected)
+      for (Strictness strictness : new Strictness[] {Strictness.LEGACY_STRICT, Strictness.STRICT}) {
+        JsonReader jsonReader = jsonReaderFactory.create(json, strictness);
+        var e = assertThrows(MalformedJsonException.class, () -> consumer.consume(jsonReader));
+        assertThat(e).hasMessageThat().startsWith(expectedExceptionMessage);
+      }
+    }
+  }
+
+  /** Tests {@link JsonReader#nextString()} */
+  @Test
+  public void testString() throws IOException {
+    testJsonStringReading(
+        (jsonStringValue, strictness, appendSuffix) -> {
+          JsonReader jsonReader = new JsonReader(new ChunkLimitingReader(jsonStringValue, 1));
+          jsonReader.setStrictness(strictness);
+          return jsonReader;
+        },
+        JsonReader::nextString,
+        false);
+  }
+
+  /** Tests {@link JsonReader#nextName()} */
+  @Test
+  public void testNextName() throws IOException {
+    testJsonStringReading(
+        (jsonStringValue, strictness, appendSuffix) -> {
+          String json = "{" + jsonStringValue;
+          if (appendSuffix) {
+            json += ":1}";
+          }
+          JsonReader jsonReader = new JsonReader(new ChunkLimitingReader(json, 1));
+          jsonReader.setStrictness(strictness);
+          jsonReader.beginObject();
+          return jsonReader;
+        },
+        JsonReader::nextName,
+        false);
+  }
+
+  /** Tests {@link JsonReader#skipValue()} */
+  @Test
+  public void testSkipValue() throws IOException {
+    testJsonStringReading(
+        (jsonStringValue, strictness, appendSuffix) -> {
+          JsonReader jsonReader = new JsonReader(new ChunkLimitingReader(jsonStringValue, 1));
+          jsonReader.setStrictness(strictness);
+          return jsonReader;
+        },
+        jsonReader -> {
+          jsonReader.skipValue();
+          return null;
+        },
+        true);
+  }
+
+  /** Tests {@link JsonReader#skipValue()} for an object member name */
+  @Test
+  public void testSkipValue_Name() throws IOException {
+    testJsonStringReading(
+        (jsonStringValue, strictness, appendSuffix) -> {
+          String json = "{" + jsonStringValue;
+          if (appendSuffix) {
+            json += ":1}";
+          }
+          JsonReader jsonReader = new JsonReader(new ChunkLimitingReader(json, 1));
+          jsonReader.setStrictness(strictness);
+          jsonReader.beginObject();
+          return jsonReader;
+        },
+        jsonReader -> {
+          jsonReader.skipValue();
+          return null;
+        },
+        true);
   }
 }

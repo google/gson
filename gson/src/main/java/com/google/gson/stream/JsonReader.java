@@ -1199,47 +1199,118 @@ public class JsonReader implements Closeable {
   }
 
   /**
-   * Returns the string up to but not including {@code quote}, unescaping any character escape
+   * Consumer for a JSON string (value or object member name).
+   *
+   * @param <T> the result type built by the consumer
+   */
+  private interface JsonStringConsumer<T> {
+    void append(char c);
+
+    void append(char[] chars, int offset, int len);
+
+    /** Appends the given final chars, and returns the complete result. */
+    T appendFinal(char[] chars, int offset, int len);
+  }
+
+  /** JSON string consumer which builds a {@code String}. */
+  private static class JsonStringBuilder implements JsonStringConsumer<String> {
+    private StringBuilder builder = null;
+
+    @Override
+    public void append(char c) {
+      if (builder == null) {
+        builder = new StringBuilder();
+      }
+      builder.append(c);
+    }
+
+    @Override
+    public void append(char[] chars, int offset, int len) {
+      if (builder == null) {
+        // `* 2` assumes that after the first append (caused by escape sequence or buffer refill)
+        // roughly the same amount of chars will follow
+        builder = new StringBuilder(Math.max(len * 2, 16));
+      }
+      builder.append(chars, offset, len);
+    }
+
+    @Override
+    public String appendFinal(char[] chars, int offset, int len) {
+      if (builder == null) {
+        return new String(chars, offset, len);
+      } else {
+        builder.append(chars, offset, len);
+        return builder.toString();
+      }
+    }
+  }
+
+  /** JSON string consumer which ignores the value, and builds nothing as result. */
+  private static class JsonStringIgnorer implements JsonStringConsumer<Void> {
+    static final JsonStringIgnorer INSTANCE = new JsonStringIgnorer();
+
+    @Override
+    public void append(char c) {}
+
+    @Override
+    public void append(char[] chars, int offset, int len) {}
+
+    @Override
+    public Void appendFinal(char[] chars, int offset, int len) {
+      return null;
+    }
+  }
+
+  private String nextQuotedValue(char quote) throws IOException {
+    return nextQuotedValue(quote, new JsonStringBuilder());
+  }
+
+  /**
+   * Reads the string up to but not including {@code quote}, unescaping any character escape
    * sequences encountered along the way. The opening quote should have already been read. This
-   * consumes the closing quote, but does not include it in the returned string.
+   * consumes the closing quote, but does not include it in the read string.
    *
    * @param quote either ' or ".
    */
-  private String nextQuotedValue(char quote) throws IOException {
+  private <T> T nextQuotedValue(char quote, JsonStringConsumer<T> consumer) throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
-    StringBuilder builder = null;
+    boolean expectsLowSurrogate = false;
     while (true) {
       int p = pos;
       int l = limit;
       /* the index of the first character not yet appended to the builder. */
       int start = p;
       while (p < l) {
-        int c = buffer[p++];
+        char c = buffer[p++];
 
-        // In strict mode, throw an exception when meeting unescaped control characters (U+0000
-        // through U+001F)
-        if (strictness == Strictness.STRICT && c < 0x20) {
-          throw syntaxError(
-              "Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode");
-        } else if (c == quote) {
+        if (strictness == Strictness.STRICT) {
+          if (c < 0x20) {
+            throw syntaxError(
+                "Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode");
+          }
+          if (Character.isLowSurrogate(c)) {
+            if (expectsLowSurrogate) {
+              expectsLowSurrogate = false;
+            } else {
+              throw syntaxError("Unpaired low surrogate char");
+            }
+          } else if (expectsLowSurrogate) {
+            throw syntaxError("Expected low surrogate char");
+          } else if (Character.isHighSurrogate(c)) {
+            expectsLowSurrogate = true;
+          }
+        }
+
+        if (c == quote) {
           pos = p;
           int len = p - start - 1;
-          if (builder == null) {
-            return validateString(new String(buffer, start, len));
-          } else {
-            builder.append(buffer, start, len);
-            return validateString(builder.toString());
-          }
+          return consumer.appendFinal(buffer, start, len);
         } else if (c == '\\') {
           pos = p;
           int len = p - start - 1;
-          if (builder == null) {
-            int estimatedLength = (len + 1) * 2;
-            builder = new StringBuilder(Math.max(estimatedLength, 16));
-          }
-          builder.append(buffer, start, len);
-          builder.append(readEscapeCharacter());
+          consumer.append(buffer, start, len);
+          readEscapeCharacter(consumer);
           p = pos;
           l = limit;
           start = p;
@@ -1249,11 +1320,7 @@ public class JsonReader implements Closeable {
         }
       }
 
-      if (builder == null) {
-        int estimatedLength = (p - start) * 2;
-        builder = new StringBuilder(Math.max(estimatedLength, 16));
-      }
-      builder.append(buffer, start, p - start);
+      consumer.append(buffer, start, p - start);
       pos = p;
       if (!fillBuffer(1)) {
         throw syntaxError("Unterminated string");
@@ -1261,29 +1328,13 @@ public class JsonReader implements Closeable {
     }
   }
 
-  /** Validates that a string does not contain unpaired UTF-16 surrogate characters. */
-  private String validateString(String value) throws IOException {
-    if (strictness != Strictness.STRICT) {
-      return value;
-    }
-    for (int i = 0; i < value.length(); i++) {
-      char c = value.charAt(i);
-      if (Character.isSurrogate(c)) {
-        if (Character.isHighSurrogate(c)
-            && i + 1 < value.length()
-            && Character.isLowSurrogate(value.charAt(++i))) {
-          continue;
-        }
-        throw syntaxError("Unpaired surrogate characters are not allowed in strict mode");
-      }
-    }
-    return value;
+  private String nextUnquotedValue() throws IOException {
+    return nextUnquotedValue(new JsonStringBuilder());
   }
 
-  /** Returns an unquoted value as a string. */
+  /** Reads an unquoted value as a string. */
   @SuppressWarnings("fallthrough")
-  private String nextUnquotedValue() throws IOException {
-    StringBuilder builder = null;
+  private <T> T nextUnquotedValue(JsonStringConsumer<T> consumer) throws IOException {
     int i = 0;
 
     findNonLiteralCharacter:
@@ -1295,7 +1346,6 @@ public class JsonReader implements Closeable {
           case ';':
           case '#':
           case '=':
-            checkLenient(); // fall-through
           case '{':
           case '}':
           case '[':
@@ -1322,11 +1372,7 @@ public class JsonReader implements Closeable {
         }
       }
 
-      // use a StringBuilder when the value is too long. This is too long to be a number!
-      if (builder == null) {
-        builder = new StringBuilder(Math.max(i, 16));
-      }
-      builder.append(buffer, pos, i);
+      consumer.append(buffer, pos, i);
       pos += i;
       i = 0;
       if (!fillBuffer(1)) {
@@ -1334,70 +1380,17 @@ public class JsonReader implements Closeable {
       }
     }
 
-    String result =
-        (builder == null) ? new String(buffer, pos, i) : builder.append(buffer, pos, i).toString();
+    T result = consumer.appendFinal(buffer, pos, i);
     pos += i;
     return result;
   }
 
   private void skipQuotedValue(char quote) throws IOException {
-    // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
-    char[] buffer = this.buffer;
-    do {
-      int p = pos;
-      int l = limit;
-      /* the index of the first character not yet appended to the builder. */
-      while (p < l) {
-        int c = buffer[p++];
-        if (c == quote) {
-          pos = p;
-          return;
-        } else if (c == '\\') {
-          pos = p;
-          char unused = readEscapeCharacter();
-          p = pos;
-          l = limit;
-        } else if (c == '\n') {
-          lineNumber++;
-          lineStart = p;
-        }
-      }
-      pos = p;
-    } while (fillBuffer(1));
-    throw syntaxError("Unterminated string");
+    Void unused = nextQuotedValue(quote, JsonStringIgnorer.INSTANCE);
   }
 
-  @SuppressWarnings("fallthrough")
   private void skipUnquotedValue() throws IOException {
-    do {
-      int i = 0;
-      for (; pos + i < limit; i++) {
-        switch (buffer[pos + i]) {
-          case '/':
-          case '\\':
-          case ';':
-          case '#':
-          case '=':
-            checkLenient(); // fall-through
-          case '{':
-          case '}':
-          case '[':
-          case ']':
-          case ':':
-          case ',':
-          case ' ':
-          case '\t':
-          case '\f':
-          case '\r':
-          case '\n':
-            pos += i;
-            return;
-          default:
-            // skip the character
-        }
-      }
-      pos += i;
-    } while (fillBuffer(1));
+    Void unused = nextUnquotedValue(JsonStringIgnorer.INSTANCE);
   }
 
   /**
@@ -1860,15 +1853,42 @@ public class JsonReader implements Closeable {
     return bufferStart + pos;
   }
 
+  /** Reads the {@code XXXX} part of a JSON Unicode <code>&bsol;uXXXX</code> escape. */
+  private char readUnicodeEscapeHex() throws IOException {
+    if (pos + 4 > limit && !fillBuffer(4)) {
+      throw syntaxError("Unterminated escape sequence");
+    }
+    int result = 0;
+    for (int i = pos, end = i + 4; i < end; i++) {
+      char c = buffer[i];
+      result <<= 4;
+      if (c >= '0' && c <= '9') {
+        result += (c - '0');
+      } else if (c >= 'a' && c <= 'f') {
+        result += (c - 'a' + 10);
+      } else if (c >= 'A' && c <= 'F') {
+        result += (c - 'A' + 10);
+      } else {
+        throw syntaxError("Malformed Unicode escape \\u" + new String(buffer, pos, 4));
+      }
+    }
+    pos += 4;
+    return (char) result;
+  }
+
   /**
    * Unescapes the character identified by the character or characters that immediately follow a
    * backslash. The backslash '\' should have already been read. This supports both Unicode escapes
    * "u000A" and two-character escapes "\n".
    *
+   * <p>In case of strictness {@link Strictness#STRICT}, for Unicode escapes representing surrogate
+   * chars, reads the high and the low surrogate, throwing an exception in case of unpaired
+   * surrogates.
+   *
    * @throws MalformedJsonException if the escape sequence is malformed
    */
   @SuppressWarnings("fallthrough")
-  private char readEscapeCharacter() throws IOException {
+  private void readEscapeCharacter(JsonStringConsumer<?> consumer) throws IOException {
     if (pos == limit && !fillBuffer(1)) {
       throw syntaxError("Unterminated escape sequence");
     }
@@ -1876,41 +1896,53 @@ public class JsonReader implements Closeable {
     char escaped = buffer[pos++];
     switch (escaped) {
       case 'u':
-        if (pos + 4 > limit && !fillBuffer(4)) {
-          throw syntaxError("Unterminated escape sequence");
-        }
-        // Equivalent to Integer.parseInt(stringPool.get(buffer, pos, 4), 16);
-        int result = 0;
-        for (int i = pos, end = i + 4; i < end; i++) {
-          char c = buffer[i];
-          result <<= 4;
-          if (c >= '0' && c <= '9') {
-            result += (c - '0');
-          } else if (c >= 'a' && c <= 'f') {
-            result += (c - 'a' + 10);
-          } else if (c >= 'A' && c <= 'F') {
-            result += (c - 'A' + 10);
-          } else {
-            throw syntaxError("Malformed Unicode escape \\u" + new String(buffer, pos, 4));
+        char result = readUnicodeEscapeHex();
+        consumer.append(result);
+
+        if (strictness == Strictness.STRICT) {
+          // Note: The exceptions here occur after the `append(result)` call above; probably fine
+          // though since the caller will discard the consumer on exception
+
+          if (Character.isLowSurrogate(result)) {
+            throw syntaxError("Unpaired low surrogate char");
+          }
+
+          // For high surrogate try to read the subsequent low surrogate
+          if (Character.isHighSurrogate(result)) {
+            if ((pos + 6 > limit && !fillBuffer(6))
+                || buffer[pos] != '\\'
+                || buffer[pos + 1] != 'u') {
+              throw syntaxError("Expected Unicode escape for low surrogate char");
+            }
+            pos += 2;
+            result = readUnicodeEscapeHex();
+            if (!Character.isLowSurrogate(result)) {
+              throw syntaxError("Expected Unicode escape for low surrogate char");
+            }
+            consumer.append(result);
           }
         }
-        pos += 4;
-        return (char) result;
+        break;
 
       case 't':
-        return '\t';
+        consumer.append('\t');
+        break;
 
       case 'b':
-        return '\b';
+        consumer.append('\b');
+        break;
 
       case 'n':
-        return '\n';
+        consumer.append('\n');
+        break;
 
       case 'r':
-        return '\r';
+        consumer.append('\r');
+        break;
 
       case 'f':
-        return '\f';
+        consumer.append('\f');
+        break;
 
       case '\n':
         if (strictness == Strictness.STRICT) {
@@ -1927,7 +1959,8 @@ public class JsonReader implements Closeable {
       case '"':
       case '\\':
       case '/':
-        return escaped;
+        consumer.append(escaped);
+        break;
       default:
         // throw error when none of the above cases are matched
         throw syntaxError("Invalid escape sequence");
