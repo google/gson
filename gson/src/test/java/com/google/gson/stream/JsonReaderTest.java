@@ -2639,13 +2639,14 @@ public final class JsonReaderTest {
       JsonReader jsonReader =
           jsonReaderFactory.create(
               "\"\\t \\b \\n \\r \\f \\\" \\\\ \\/ \\u1234 \\u5678 \\u90ab \\ucdef"
-                  + " \\u09AB \\uCDEF \\uaBcD \\uEf10\"",
+                  + " \\u09AB \\uCDEF \\uaBcD \\uEf10 \\\\u1234\"",
               strictness);
       String result = consumer.consume(jsonReader);
       if (!isConsumerSkipping) {
         assertThat(result)
             .isEqualTo(
-                "\t \b \n \r \f \" \\ / \u1234 \u5678 \u90AB \uCDEF \u09AB \uCDEF \uABCD \uEF10");
+                "\t \b \n \r \f \" \\ / \u1234 \u5678 \u90AB \uCDEF"
+                    + " \u09AB \uCDEF \uABCD \uEF10 \\u1234");
       }
     }
 
@@ -2687,6 +2688,8 @@ public final class JsonReaderTest {
             {"\\u123g", "Malformed Unicode escape \\u123g "},
             {"\\u123G", "Malformed Unicode escape \\u123G "},
             {"\\u123X", "Malformed Unicode escape \\u123X "},
+            {"\\U1234", "Invalid escape sequence "},
+            {"\\uu1234", "Malformed Unicode escape \\uu123 "},
             // Arabic digits for 1234
             {"\\u123\u0664", "Malformed Unicode escape \\u123\u0664 "},
             {
