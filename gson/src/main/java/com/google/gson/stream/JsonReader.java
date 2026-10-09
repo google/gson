@@ -365,7 +365,8 @@ public class JsonReader implements Closeable {
    *
    * <dl>
    *   <dt>{@link Strictness#STRICT}
-   *   <dd>In strict mode, only input compliant with RFC 8259 is accepted.
+   *   <dd>In strict mode, only input compliant with RFC 8259 is accepted.<br>
+   *       Incomplete and invalid Unicode surrogate pairs are rejected.
    *   <dt>{@link Strictness#LEGACY_STRICT}
    *   <dd>In legacy strict mode, the following departures from RFC 8259 are accepted:
    *       <ul>
@@ -378,6 +379,8 @@ public class JsonReader implements Closeable {
    *             read JSON string
    *         <li>JsonReader allows unescaped control characters ({@code U+0000} through {@code
    *             U+001F})
+   *         <li>JsonReader allows incomplete and invalid Unicode surrogate pairs and emits them as
+   *             is in the read value.
    *       </ul>
    *   <dt>{@link Strictness#LENIENT}
    *   <dd>In lenient mode, all input that is accepted in legacy strict mode is accepted in addition
