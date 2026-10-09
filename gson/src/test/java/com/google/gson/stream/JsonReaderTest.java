@@ -2692,6 +2692,11 @@ public final class JsonReaderTest {
             {
               "\\u\u0661\u0662\u0663\u0664", "Malformed Unicode escape \\u\u0661\u0662\u0663\u0664 "
             },
+            // Fullwidth 'A' (accepted by `Character#digit`, but not allowed by JSON)
+            {"\\u123\uFF21", "Malformed Unicode escape \\u123\uFF21 "},
+            {
+              "\\u\uFF21\uFF21\uFF21\uFF21", "Malformed Unicode escape \\u\uFF21\uFF21\uFF21\uFF21 "
+            },
           }) {
         String json = '"' + data[0] + '"';
         String expectedExceptionMessage = data[1];
