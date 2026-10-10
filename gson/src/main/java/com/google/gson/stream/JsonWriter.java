@@ -740,7 +740,40 @@ public class JsonWriter implements Closeable, Flushable {
         || c == AtomicLong.class;
   }
 
+  /**
+   * Rejects strings which cannot be encoded as valid JSON text.
+   *
+   * <p>A JSON string is a sequence of Unicode characters (RFC 8259, section 7), so a UTF-16 string
+   * containing an unpaired surrogate has no faithful JSON encoding. Escaping it as a numeric escape
+   * produces output which this class's own documentation promises conforms to RFC 8259 but which no
+   * conforming parser - including {@link JsonReader} in {@link Strictness#STRICT} - will read back,
+   * and which is silently replaced by {@code ?} when the document is encoded as UTF-8. Rejecting
+   * the value here keeps the write side consistent with the read side, which has enforced the same
+   * rule since unpaired surrogates were made a strict-mode error.
+   *
+   * <p>Only {@link Strictness#STRICT} is affected, so this cannot change the behaviour of an
+   * existing caller that relies on the legacy permissive modes.
+   */
+  private void validateString(String value) {
+    if (strictness != Strictness.STRICT) {
+      return;
+    }
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      if (Character.isSurrogate(c)) {
+        if (Character.isHighSurrogate(c)
+            && i + 1 < value.length()
+            && Character.isLowSurrogate(value.charAt(++i))) {
+          continue;
+        }
+        throw new IllegalArgumentException(
+            "Unpaired surrogate characters are not allowed in strict mode");
+      }
+    }
+  }
+
   private void string(String value) throws IOException {
+    validateString(value);
     String[] replacements = htmlSafe ? HTML_SAFE_REPLACEMENT_CHARS : REPLACEMENT_CHARS;
     out.write('\"');
     int last = 0;
