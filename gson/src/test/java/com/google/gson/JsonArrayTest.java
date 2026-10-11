@@ -560,7 +560,7 @@ public final class JsonArrayTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings("deprecation") // for JsonArray.getAsCharacter()
   public void testGetSingleElementAsCharacter() {
     JsonArray singleElement = new JsonArray();
     char c = 'a';
@@ -569,7 +569,7 @@ public final class JsonArrayTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings("deprecation") // for JsonArray.getAsCharacter()
   public void testGetElementsAsCharacterException() {
     JsonArray singleElement = new JsonArray();
     char c = 'a';

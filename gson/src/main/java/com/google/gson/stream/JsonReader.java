@@ -16,6 +16,7 @@
 
 package com.google.gson.stream;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Strictness;
 import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.TroubleshootingGuide;
@@ -1262,6 +1263,7 @@ public class JsonReader implements Closeable {
   }
 
   /** Validates that a string does not contain unpaired UTF-16 surrogate characters. */
+  @CanIgnoreReturnValue
   private String validateString(String value) throws IOException {
     if (strictness != Strictness.STRICT) {
       return value;
