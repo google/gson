@@ -847,6 +847,8 @@ public final class TypeAdapters {
    * An abstract {@link TypeAdapter} for classes whose JSON serialization consists of a fixed set of
    * integer fields. That is the case for {@link Calendar} and the legacy serialization of various
    * {@code java.time} types.
+   *
+   * <p>This class handles {@code null}; subclasses don't have to use {@link #nullSafe()}.
    */
   abstract static class IntegerFieldsTypeAdapter<T> extends TypeAdapter<T> {
     private final List<String> fields;
@@ -855,8 +857,21 @@ public final class TypeAdapters {
       this.fields = Arrays.asList(fields);
     }
 
+    /**
+     * On deserialization: Creates an object from the integer values. Subclasses should use {@link
+     * Math#toIntExact(long)} and similar if necessary to prevent silent truncation.
+     *
+     * <p>Values have the same order as the field names provided to the {@linkplain
+     * #IntegerFieldsTypeAdapter(String[]) constructor}.
+     */
     abstract T create(long[] values);
 
+    /**
+     * On serialization: Extracts the integer values from the object.
+     *
+     * <p>Values must have the same order as the field names provided to the {@linkplain
+     * #IntegerFieldsTypeAdapter(String[]) constructor}.
+     */
     abstract long[] integerValues(T t);
 
     @Override
@@ -867,7 +882,7 @@ public final class TypeAdapters {
       }
       in.beginObject();
       long[] values = new long[fields.size()];
-      while (in.peek() != JsonToken.END_OBJECT) {
+      while (in.hasNext()) {
         String name = in.nextName();
         int index = fields.indexOf(name);
         if (index >= 0) {
@@ -973,21 +988,7 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
 
-  interface FactorySupplier {
-    TypeAdapterFactory get();
-  }
-
-  public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
-    try {
-      Class<?> javaTimeTypeAdapterFactoryClass =
-          Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");
-      FactorySupplier supplier =
-          (FactorySupplier) javaTimeTypeAdapterFactoryClass.getDeclaredConstructor().newInstance();
-      return supplier.get();
-    } catch (ReflectiveOperationException | LinkageError e) {
-      return null;
-    }
-  }
+  public static final TypeAdapterFactory JAVA_TIME_FACTORY = new JavaTimeTypeAdapterFactory();
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
