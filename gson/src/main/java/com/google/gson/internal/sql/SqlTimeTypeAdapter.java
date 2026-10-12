@@ -30,6 +30,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -50,7 +51,7 @@ final class SqlTimeTypeAdapter extends TypeAdapter<Time> {
         }
       };
 
-  private final DateFormat format = new SimpleDateFormat("hh:mm:ss a");
+  private final DateFormat format = new SimpleDateFormat("hh:mm:ss a", Locale.US);
 
   private SqlTimeTypeAdapter() {}
 
