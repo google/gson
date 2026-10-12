@@ -68,6 +68,29 @@ public class DefaultInetAddressTypeAdapterTest {
   }
 
   @Test
+  public void testInetAddressDeserializeInvalidIpAddress() {
+    // These match the general shape of an IP address but are not valid numeric literals, so
+    // InetAddress.getByName would fall back to a name service lookup for them.
+    String[] invalidAddresses = {"300.1.1.1", "87654321.1.1.1", "1.2.3.256", "z:z"};
+    for (String address : invalidAddresses) {
+      String jsonAddress = "\"" + address + "\"";
+      JsonSyntaxException e =
+          assertThrows(
+              JsonSyntaxException.class, () -> gson.fromJson(jsonAddress, InetAddress.class));
+      assertThat(e)
+          .hasMessageThat()
+          .startsWith("Failed parsing '" + address + "' as InetAddress; at path $");
+    }
+  }
+
+  @Test
+  public void testInetAddressDeserializeBoundaryIpAddress() throws Exception {
+    @SuppressWarnings("AddressSelection") // we really do want this method
+    InetAddress expected = InetAddress.getByName("255.255.255.255");
+    assertThat(gson.fromJson("\"255.255.255.255\"", InetAddress.class)).isEqualTo(expected);
+  }
+
+  @Test
   public void testInetAddressDeserializeNonIpAddressAllowed() throws Exception {
     String jsonAddress = "\"localhost\"";
     InetAddress expected = InetAddress.getByName("localhost");

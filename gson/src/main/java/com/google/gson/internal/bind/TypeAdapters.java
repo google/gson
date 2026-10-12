@@ -761,11 +761,17 @@ public final class TypeAdapters {
   public static final TypeAdapter<InetAddress> INET_ADDRESS =
       new TypeAdapter<InetAddress>() {
 
-        // A pattern that matches every IP address and no DNS address. It matches plenty of things
-        // that aren't either of those, which is fine. An IPv4 address is n.n.n.n where each n is a
-        // non-negative integer. An IPv6 address contains at least one colon. (There are further
-        // constraints in both cases, but they don't matter here.)
-        private final Pattern ipAddressPattern = Pattern.compile(".*:.*|[0-9]+(\\.[0-9]+){3}");
+        // A pattern that matches every IP address and no DNS address. Every string this matches
+        // is handled by InetAddress.getByName as a numeric literal, so matching can never lead to
+        // a name service lookup. An IPv4 address is four dot-separated decimal octets of at most
+        // three digits each, with values at most 255. A candidate IPv6 address contains a colon
+        // and starts with '[', ':', or a hex digit; getByName parses such a string as an IPv6
+        // literal or rejects it, but never passes it to the name service.
+        private final Pattern ipAddressPattern =
+            Pattern.compile(
+                "[\\[:0-9a-fA-F].*:.*"
+                    + "|(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})"
+                    + "(\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})){3}");
 
         @Override
         public InetAddress read(JsonReader in) throws IOException {
