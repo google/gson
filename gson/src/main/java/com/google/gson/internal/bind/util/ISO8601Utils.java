@@ -178,9 +178,26 @@ public final class ISO8601Utils {
       if (!hasT && (date.length() <= offset)) {
         Calendar calendar = new GregorianCalendar(year, month - 1, day);
         calendar.setLenient(false);
-
-        pos.setIndex(offset);
-        return calendar.getTime();
+        try {
+          pos.setIndex(offset);
+          return calendar.getTime();
+        } catch (IllegalArgumentException e) {
+          // The calendar date can be valid while local midnight does not exist in the default
+          // time zone, for example '1966-11-01' in America/Sao_Paulo where clocks were shifted
+          // forward from 0:00 to 1:00. In that case resolve the date like java.time's
+          // LocalDate.atStartOfDay(ZoneId) by using the first existing instant of that day.
+          // Truly invalid dates (such as '2021-02-30') also fail above, but lenient resolution
+          // would shift them to a different day, so they are re-thrown below.
+          Calendar lenientCalendar = new GregorianCalendar(year, month - 1, day);
+          Date resolved = lenientCalendar.getTime();
+          if (lenientCalendar.get(Calendar.YEAR) != year
+              || lenientCalendar.get(Calendar.MONTH) != month - 1
+              || lenientCalendar.get(Calendar.DAY_OF_MONTH) != day) {
+            throw e;
+          }
+          pos.setIndex(offset);
+          return resolved;
+        }
       }
 
       if (hasT) {
