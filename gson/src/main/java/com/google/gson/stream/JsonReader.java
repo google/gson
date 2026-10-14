@@ -366,7 +366,9 @@ public class JsonReader implements Closeable {
    * <dl>
    *   <dt>{@link Strictness#STRICT}
    *   <dd>In strict mode, only input compliant with RFC 8259 is accepted.<br>
-   *       Incomplete and invalid Unicode surrogate pairs are rejected.
+   *       Incomplete and invalid Unicode surrogate pairs are rejected. The chars of a surrogate
+   *       pair must either exist both as raw {@code char} or both as Unicode escape, a mix of a raw
+   *       surrogate char and an escaped surrogate char is not considered a valid pair.
    *   <dt>{@link Strictness#LEGACY_STRICT}
    *   <dd>In legacy strict mode, the following departures from RFC 8259 are accepted:
    *       <ul>
@@ -1278,7 +1280,7 @@ public class JsonReader implements Closeable {
   private <T> T nextQuotedValue(char quote, JsonStringConsumer<T> consumer) throws IOException {
     // Like nextNonWhitespace, this uses locals 'p' and 'l' to save inner-loop field access.
     char[] buffer = this.buffer;
-    boolean expectsLowSurrogate = false;
+    boolean expectingLowSurrogate = false;
     while (true) {
       int p = pos;
       int l = limit;
@@ -1293,15 +1295,15 @@ public class JsonReader implements Closeable {
                 "Unescaped control characters (\\u0000-\\u001F) are not allowed in strict mode");
           }
           if (Character.isLowSurrogate(c)) {
-            if (expectsLowSurrogate) {
-              expectsLowSurrogate = false;
+            if (expectingLowSurrogate) {
+              expectingLowSurrogate = false;
             } else {
               throw syntaxError("Unpaired low surrogate char");
             }
-          } else if (expectsLowSurrogate) {
+          } else if (expectingLowSurrogate) {
             throw syntaxError("Expected low surrogate char");
           } else if (Character.isHighSurrogate(c)) {
-            expectsLowSurrogate = true;
+            expectingLowSurrogate = true;
           }
         }
 
@@ -1336,7 +1338,6 @@ public class JsonReader implements Closeable {
   }
 
   /** Reads an unquoted value as a string. */
-  @SuppressWarnings("fallthrough")
   private <T> T nextUnquotedValue(JsonStringConsumer<T> consumer) throws IOException {
     int i = 0;
 
@@ -1884,9 +1885,10 @@ public class JsonReader implements Closeable {
    * backslash. The backslash '\' should have already been read. This supports both Unicode escapes
    * "u000A" and two-character escapes "\n".
    *
-   * <p>In case of strictness {@link Strictness#STRICT}, for Unicode escapes representing surrogate
-   * chars, reads the high and the low surrogate, throwing an exception in case of unpaired
-   * surrogates.
+   * <p>For {@link Strictness#STRICT}: If the escape is a Unicode escape for a high surrogate char,
+   * requires that another Unicode escape for the low surrogate follows and consumes it. Throws an
+   * exception for unpaired surrogate chars, and for an escaped high surrogate followed by an
+   * unescaped low surrogate.
    *
    * @throws MalformedJsonException if the escape sequence is malformed
    */
@@ -1900,30 +1902,28 @@ public class JsonReader implements Closeable {
     switch (escaped) {
       case 'u':
         char result = readUnicodeEscapeHex();
-        consumer.append(result);
 
-        if (strictness == Strictness.STRICT) {
-          // Note: The exceptions here occur after the `append(result)` call above; probably fine
-          // though since the caller will discard the consumer on exception
-
+        if (strictness == Strictness.STRICT && Character.isSurrogate(result)) {
           if (Character.isLowSurrogate(result)) {
             throw syntaxError("Unpaired low surrogate char");
           }
 
-          // For high surrogate try to read the subsequent low surrogate
-          if (Character.isHighSurrogate(result)) {
-            if ((pos + 6 > limit && !fillBuffer(6))
-                || buffer[pos] != '\\'
-                || buffer[pos + 1] != 'u') {
-              throw syntaxError("Expected Unicode escape for low surrogate char");
-            }
-            pos += 2;
-            result = readUnicodeEscapeHex();
-            if (!Character.isLowSurrogate(result)) {
-              throw syntaxError("Expected Unicode escape for low surrogate char");
-            }
-            consumer.append(result);
+          // For high surrogate try to read the subsequent escaped low surrogate
+          char highSurrogate = result;
+          if ((pos + 6 > limit && !fillBuffer(6))
+              || buffer[pos] != '\\'
+              || buffer[pos + 1] != 'u') {
+            throw syntaxError("Expected Unicode escape for low surrogate char");
           }
+          pos += 2;
+          char lowSurrogate = readUnicodeEscapeHex();
+          if (!Character.isLowSurrogate(lowSurrogate)) {
+            throw syntaxError("Expected Unicode escape for low surrogate char");
+          }
+          consumer.append(highSurrogate);
+          consumer.append(lowSurrogate);
+        } else {
+          consumer.append(result);
         }
         break;
 
