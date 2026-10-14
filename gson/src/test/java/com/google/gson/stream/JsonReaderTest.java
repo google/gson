@@ -28,15 +28,21 @@ import static com.google.gson.stream.JsonToken.STRING;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Strictness;
+import com.google.testing.junit.testparameterinjector.TestParameter;
+import com.google.testing.junit.testparameterinjector.TestParameterInjector;
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @SuppressWarnings("resource")
+@RunWith(TestParameterInjector.class)
 public final class JsonReaderTest {
 
   @Test
@@ -136,38 +142,54 @@ public final class JsonReaderTest {
     assertThat(reader.nextString()).isEqualTo("\u007F\u009F");
   }
 
-  @Test
-  public void testStrictModeRejectsUnpairedSurrogates() throws IOException {
-    for (String[] data :
-        new String[][] {
-          {"\"\\uD800\"", "Expected Unicode escape for low surrogate char "},
-          {"\"\\uDC00\"", "Unpaired low surrogate char "},
-          {"\"\uD800\"", "Expected low surrogate char "},
-          {"\"\uDC00\"", "Unpaired low surrogate char "}
-        }) {
-      String json = data[0];
-      String expectedExceptionMessage = data[1];
+  public static class UnpairedSurrogatesProvider extends TestParameterValuesProvider {
+    public static class UnpairedSurrogate {
+      final String stringContent;
+      final String expectedExceptionMessage;
 
-      JsonReader reader = new JsonReader(reader(json));
-      reader.setStrictness(Strictness.STRICT);
-      IOException expected = assertThrows(IOException.class, reader::nextString);
-      assertThat(expected).hasMessageThat().startsWith(expectedExceptionMessage);
+      UnpairedSurrogate(String stringContent, String expectedExceptionMessage) {
+        this.stringContent = stringContent;
+        this.expectedExceptionMessage = expectedExceptionMessage;
+      }
+    }
 
-      JsonReader readerName = new JsonReader(reader("{" + json + ":1}"));
-      readerName.setStrictness(Strictness.STRICT);
-      readerName.beginObject();
-      expected = assertThrows(IOException.class, readerName::nextName);
-      assertThat(expected).hasMessageThat().startsWith(expectedExceptionMessage);
+    @Override
+    protected List<?> provideValues(Context context) {
+      return List.of(
+          value(new UnpairedSurrogate("\\uD800", "Expected Unicode escape for low surrogate char "))
+              .withName("escaped high surrogate"),
+          value(new UnpairedSurrogate("\\uDC00", "Unpaired low surrogate char "))
+              .withName("escaped low surrogate"),
+          value(new UnpairedSurrogate("\uD800", "Expected low surrogate char "))
+              .withName("raw high surrogate"),
+          value(new UnpairedSurrogate("\uDC00", "Unpaired low surrogate char "))
+              .withName("raw low surrogate"));
     }
   }
 
   @Test
-  public void testStrictModeAllowsPairedSurrogates() throws IOException {
-    JsonReader reader = new JsonReader(reader("\"\uD834\uDD1E\""));
-    reader.setStrictness(Strictness.STRICT);
-    assertThat(reader.nextString()).isEqualTo("\uD834\uDD1E");
+  public void testStrictModeRejectsUnpairedSurrogates(
+      @TestParameter(valuesProvider = UnpairedSurrogatesProvider.class)
+          UnpairedSurrogatesProvider.UnpairedSurrogate unpairedSurrogate)
+      throws IOException {
+    String json = '"' + unpairedSurrogate.stringContent + '"';
 
-    reader = new JsonReader(reader("\"\\uD834\\uDD1E\""));
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrictness(Strictness.STRICT);
+    IOException expected = assertThrows(IOException.class, reader::nextString);
+    assertThat(expected).hasMessageThat().startsWith(unpairedSurrogate.expectedExceptionMessage);
+
+    JsonReader readerName = new JsonReader(reader("{" + json + ":1}"));
+    readerName.setStrictness(Strictness.STRICT);
+    readerName.beginObject();
+    expected = assertThrows(IOException.class, readerName::nextName);
+    assertThat(expected).hasMessageThat().startsWith(unpairedSurrogate.expectedExceptionMessage);
+  }
+
+  @Test
+  public void testStrictModeAllowsPairedSurrogates(
+      @TestParameter({"\uD834\uDD1E", "\\uD834\\uDD1E"}) String stringContent) throws IOException {
+    JsonReader reader = new JsonReader(reader('"' + stringContent + '"'));
     reader.setStrictness(Strictness.STRICT);
     assertThat(reader.nextString()).isEqualTo("\uD834\uDD1E");
   }
