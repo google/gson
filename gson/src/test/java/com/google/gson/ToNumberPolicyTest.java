@@ -111,6 +111,21 @@ public class ToNumberPolicyTest {
   }
 
   @Test
+  public void testLongOrDoubleRejectsNonAsciiDigits() throws IOException {
+    ToNumberStrategy strategy = ToNumberPolicy.LONG_OR_DOUBLE;
+    // U+FF11 U+FF12 U+FF13 are the fullwidth digits "123". Long.parseLong would accept them via
+    // Character.digit and silently coerce the string to 123L.
+    JsonReader jsonReader = fromString("\"１２３\"");
+    JsonParseException e =
+        assertThrows(JsonParseException.class, () -> strategy.readNumber(jsonReader));
+    assertThat(e).hasMessageThat().isEqualTo("Cannot parse １２３; at path $");
+
+    JsonReader jsonReader2 = fromString("\"１.２３\"");
+    e = assertThrows(JsonParseException.class, () -> strategy.readNumber(jsonReader2));
+    assertThat(e).hasMessageThat().isEqualTo("Cannot parse １.２３; at path $");
+  }
+
+  @Test
   public void testBigDecimal() throws IOException {
     ToNumberStrategy strategy = ToNumberPolicy.BIG_DECIMAL;
     assertThat(strategy.readNumber(fromString("10.1"))).isEqualTo(new BigDecimal("10.1"));
