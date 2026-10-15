@@ -18,6 +18,7 @@ package com.google.gson;
 
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.NumberLimits;
+import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
@@ -72,13 +73,17 @@ public enum ToNumberPolicy implements ToNumberStrategy {
       String value = in.nextString();
       if (value.indexOf('.') >= 0) {
         return parseAsDouble(value, in);
-      } else {
+      }
+      // Long.parseLong accepts non-ASCII Unicode digits (e.g. fullwidth U+FF10-U+FF19) via
+      // Character.digit, so guard against them here to match JsonReader.nextLong (see #2994).
+      if (JsonTreeReader.isAllAscii(value)) {
         try {
           return Long.parseLong(value);
         } catch (NumberFormatException e) {
-          return parseAsDouble(value, in);
+          // Not a valid long; fall back to parsing as a double below.
         }
       }
+      return parseAsDouble(value, in);
     }
 
     private Number parseAsDouble(String value, JsonReader in) throws IOException {
