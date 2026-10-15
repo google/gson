@@ -119,6 +119,10 @@ public class ToNumberPolicyTest {
     JsonParseException e =
         assertThrows(JsonParseException.class, () -> strategy.readNumber(jsonReader));
     assertThat(e).hasMessageThat().isEqualTo("Cannot parse １２３; at path $");
+
+    JsonReader jsonReader2 = fromString("\"１.２３\"");
+    e = assertThrows(JsonParseException.class, () -> strategy.readNumber(jsonReader2));
+    assertThat(e).hasMessageThat().isEqualTo("Cannot parse １.２３; at path $");
   }
 
   @Test
