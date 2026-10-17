@@ -215,6 +215,24 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  public void testUriRoundTripWithStringValueNull() throws Exception {
+    // "null" is a valid relative URI reference, not a JSON null; it must survive a roundtrip
+    URI uri = new URI("null");
+    String json = gson.toJson(uri);
+    assertThat(json).isEqualTo("\"null\"");
+    assertThat(gson.fromJson(json, URI.class)).isEqualTo(uri);
+  }
+
+  @Test
+  public void testUrlDeserializationOfNullString() {
+    // "null" is not a valid URL, so it must be rejected like any other malformed URL instead of
+    // being silently converted to null
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"null\"", URL.class));
+    assertThat(e.getMessage()).isEqualTo("Failed parsing 'null' as URL; at path $");
+    assertThat(e).hasCauseThat().isInstanceOf(MalformedURLException.class);
+  }
+
+  @Test
   public void testNullSerialization() {
     testNullSerializationAndDeserialization(Boolean.class);
     testNullSerializationAndDeserialization(Byte.class);
