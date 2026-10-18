@@ -279,6 +279,14 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
                   + " because it does not define a field named "
                   + typeFieldName);
         }
+        if (!labelJsonElement.isJsonPrimitive()) {
+          throw new JsonParseException(
+              "cannot deserialize "
+                  + baseType
+                  + " because the type field "
+                  + typeFieldName
+                  + " is not a string");
+        }
         String label = labelJsonElement.getAsString();
         @SuppressWarnings("unchecked") // registration requires that subtype extends T
         TypeAdapter<R> delegate = (TypeAdapter<R>) labelToDelegate.get(label);
