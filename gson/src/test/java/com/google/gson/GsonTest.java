@@ -67,6 +67,9 @@ public final class GsonTest {
     assertThat(gson.fromJson("null", JsonObject.class)).isNull();
     assertThat(gson.fromJson("null", JsonArray.class)).isNull();
     assertThat(gson.fromJson("null", JsonPrimitive.class)).isNull();
+    JsonObject[] objectArray = gson.fromJson("[null]", JsonObject[].class);
+    assertThat(objectArray).hasLength(1);
+    assertThat(objectArray[0]).isNull();
     assertThat(gson.fromJson("null", JsonElement.class)).isSameInstanceAs(JsonNull.INSTANCE);
     assertThat(gson.fromJson("null", JsonNull.class)).isSameInstanceAs(JsonNull.INSTANCE);
   }
