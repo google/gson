@@ -61,6 +61,16 @@ public final class GsonTest {
   }
 
   @Test
+  public void testFromJsonNullForJsonElementSubtype() {
+    Gson gson = new Gson();
+
+    assertThat(gson.fromJson("null", JsonObject.class)).isNull();
+    assertThat(gson.fromJson("null", JsonArray.class)).isNull();
+    assertThat(gson.fromJson("null", JsonElement.class)).isSameInstanceAs(JsonNull.INSTANCE);
+    assertThat(gson.fromJson("null", JsonNull.class)).isSameInstanceAs(JsonNull.INSTANCE);
+  }
+
+  @Test
   public void testStrictnessDefault() {
     assertThat(new Gson().strictness).isNull();
   }

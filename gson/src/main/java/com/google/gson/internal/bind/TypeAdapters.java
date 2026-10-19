@@ -20,6 +20,7 @@ import static java.lang.Math.toIntExact;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -1089,6 +1090,14 @@ public final class TypeAdapters {
               @Override
               public T1 read(JsonReader in) throws IOException {
                 T1 result = typeAdapter.read(in);
+                // A JSON null is a JsonNull value, but should become Java null for other
+                // JsonElement subtypes such as JsonObject and JsonArray.
+                if (clazz.equals(JsonElement.class)
+                    && JsonNull.INSTANCE.equals(result)
+                    && !requestedType.equals(JsonElement.class)
+                    && !requestedType.equals(JsonNull.class)) {
+                  return null;
+                }
                 if (result != null && !requestedType.isInstance(result)) {
                   throw new JsonSyntaxException(
                       "Expected a "
