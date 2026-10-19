@@ -80,7 +80,7 @@ import java.util.Map;
  * be used as the map's key; not just strings. But it's also less portable because the receiver of
  * such JSON must be aware of the map entry convention.
  *
- * <p>Register this adapter when you are creating your Gson instance.
+ * <p>Register this adapter when you are creating your {@code Gson} instance.
  *
  * <pre>{@code
  * Gson gson = new GsonBuilder()

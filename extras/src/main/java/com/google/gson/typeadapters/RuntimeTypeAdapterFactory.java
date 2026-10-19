@@ -122,7 +122,7 @@ import java.util.Map;
  * shapeAdapterFactory.registerSubtype(Diamond.class, "Diamond");
  * }</pre>
  *
- * Finally, register the type adapter factory in your application's Gson builder:
+ * Finally, register the type adapter factory in your application's {@code Gson} builder:
  *
  * <pre>{@code
  * Gson gson = new GsonBuilder()
