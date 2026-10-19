@@ -1104,14 +1104,6 @@ public final class TypeAdapters {
               @Override
               public T1 read(JsonReader in) throws IOException {
                 T1 result = typeAdapter.read(in);
-                // A JSON null is a JsonNull value, but should become Java null for other
-                // JsonElement subtypes such as JsonObject and JsonArray.
-                if (clazz.equals(JsonElement.class)
-                    && JsonNull.INSTANCE.equals(result)
-                    && !requestedType.equals(JsonElement.class)
-                    && !requestedType.equals(JsonNull.class)) {
-                  return null;
-                }
                 if (result != null && !requestedType.isInstance(result)) {
                   throw new JsonSyntaxException(
                       "Expected a "
