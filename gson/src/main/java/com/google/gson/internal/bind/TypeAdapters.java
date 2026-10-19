@@ -21,6 +21,7 @@ import static java.lang.Math.toIntExact;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -969,8 +970,22 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<JsonElement> JSON_ELEMENT = JsonElementTypeAdapter.ADAPTER;
 
-  public static final TypeAdapterFactory JSON_ELEMENT_FACTORY =
+  private static final TypeAdapterFactory JSON_ELEMENT_HIERARCHY_FACTORY =
       newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
+
+  public static final TypeAdapterFactory JSON_ELEMENT_FACTORY =
+      new TypeAdapterFactory() {
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
+          TypeAdapter<T> typeAdapter = JSON_ELEMENT_HIERARCHY_FACTORY.create(gson, typeToken);
+          if (typeAdapter == null) {
+            return null;
+          }
+          return typeToken.getRawType().isInstance(JsonNull.INSTANCE)
+              ? typeAdapter
+              : typeAdapter.nullSafe();
+        }
+      };
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
 

@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+## Unreleased
+
+* Return Java `null` when deserializing JSON `null` to `JsonObject`, `JsonArray`, or `JsonPrimitive`.
+
 The change log for versions newer than 2.10 is available only on the [GitHub Releases page](https://github.com/google/gson/releases).
 
 ## Version 2.10
