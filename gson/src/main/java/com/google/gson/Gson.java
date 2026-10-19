@@ -588,7 +588,7 @@ public final class Gson {
    * @see #toJson(Object)
    */
   public String toJson(Object src, Type typeOfSrc) {
-    StringBuilder writer = new StringBuilder(256);
+    StringBuilder writer = JsonElement.newJsonStringBuilder();
     toJson(src, typeOfSrc, writer);
     return writer.toString();
   }
