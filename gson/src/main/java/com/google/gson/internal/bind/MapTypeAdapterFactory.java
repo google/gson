@@ -63,7 +63,7 @@ import java.util.Map;
  * }
  * }</pre>
  *
- * But GSON is unable to deserialize this value because the JSON string name is just the {@link
+ * But Gson is unable to deserialize this value because the JSON string name is just the {@link
  * Object#toString() toString()} of the map key. Attempting to convert the above JSON to an object
  * fails with a parse exception:
  *
@@ -80,7 +80,7 @@ import java.util.Map;
  * be used as the map's key; not just strings. But it's also less portable because the receiver of
  * such JSON must be aware of the map entry convention.
  *
- * <p>Register this adapter when you are creating your GSON instance.
+ * <p>Register this adapter when you are creating your Gson instance.
  *
  * <pre>{@code
  * Gson gson = new GsonBuilder()
