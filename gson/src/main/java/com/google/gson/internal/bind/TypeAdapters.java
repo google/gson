@@ -980,7 +980,8 @@ public final class TypeAdapters {
           if (typeAdapter == null) {
             return null;
           }
-          return typeToken.getRawType().isInstance(JsonNull.INSTANCE)
+          // For a JSON null return JsonNull if possible; otherwise make adapter null-safe and return Java null
+          return typeToken.getRawType().isAssignableFrom(JsonNull.class)
               ? typeAdapter
               : typeAdapter.nullSafe();
         }
