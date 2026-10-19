@@ -517,7 +517,7 @@ In the above example, an instance of the Id class can not be created without act
 
 The default JSON output that is provided by Gson is a compact JSON format. This means that there will not be any whitespace in the output JSON structure. Therefore, there will be no whitespace between field names and its value, object fields, and objects within arrays in the JSON output. As well, "null" fields will be ignored in the output (NOTE: null values will still be included in collections/arrays of objects). See the [Null Object Support](#null-object-support) section for information on configure Gson to output all null values.
 
-To use pretty printing, configure your `Gson` instance with `GsonBuilder.setPrettyPrinting()`. This uses Gson's standard pretty formatting style, with a newline between lines, two spaces for indentation, and a space after JSON separators. For a custom style, use `GsonBuilder.setFormattingStyle(FormattingStyle)`; see the [`FormattingStyle` API](gson/src/main/java/com/google/gson/FormattingStyle.java) for the available options.
+To use pretty printing, configure your `Gson` instance with `GsonBuilder.setPrettyPrinting()`. This uses Gson's standard pretty formatting style, with a newline between lines, two spaces for indentation, and a space after JSON separators. For a custom style, use `GsonBuilder.setFormattingStyle(FormattingStyle)`; see the [`FormattingStyle` API](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/FormattingStyle.html) for the available options.
 
 ```java
 Gson gson = new GsonBuilder().setPrettyPrinting().create();
