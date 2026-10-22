@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 
-/** Reads and writes GSON parse trees over streams. */
+/** Reads and writes {@link JsonElement} trees over streams. */
 public final class Streams {
   private Streams() {
     throw new UnsupportedOperationException();
