@@ -699,6 +699,10 @@ public class JsonWriter implements Closeable, Flushable {
     return this;
   }
 
+  public String getDeferredName() {
+	  return this.deferredName;
+  }
+  
   /**
    * Ensures all buffered data is written to the underlying {@link Writer} and flushes that writer.
    */
