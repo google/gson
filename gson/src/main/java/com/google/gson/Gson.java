@@ -1115,7 +1115,7 @@ public final class Gson {
       return object;
     } catch (EOFException e) {
       /*
-       * For compatibility with JSON 1.5 and earlier, we return null for empty
+       * For compatibility with Gson 1.5 and earlier, we return null for empty
        * documents instead of throwing.
        */
       if (isEmpty) {

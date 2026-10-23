@@ -48,7 +48,7 @@ public final class Streams {
       return JsonElementTypeAdapter.ADAPTER.read(reader);
     } catch (EOFException e) {
       /*
-       * For compatibility with JSON 1.5 and earlier, we return a JsonNull for
+       * For compatibility with Gson 1.5 and earlier, we return a JsonNull for
        * empty documents instead of throwing.
        */
       if (isEmpty) {
