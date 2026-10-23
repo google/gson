@@ -977,10 +977,7 @@ public final class GsonBuilder {
     factories.add(TypeAdapters.BIT_SET_FACTORY);
     factories.add(DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
     factories.add(TypeAdapters.CALENDAR_FACTORY);
-    TypeAdapterFactory javaTimeFactory = TypeAdapters.javaTimeTypeAdapterFactory();
-    if (javaTimeFactory != null) {
-      factories.add(javaTimeFactory);
-    }
+    factories.add(TypeAdapters.JAVA_TIME_FACTORY);
     factories.addAll(SqlTypesSupport.SQL_TYPE_FACTORIES);
     factories.add(ArrayTypeAdapter.FACTORY);
     factories.add(TypeAdapters.CLASS_FACTORY);
