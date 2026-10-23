@@ -33,7 +33,7 @@ import java.util.TimeZone;
  *
  * @see <a href="http://www.w3.org/TR/NOTE-datetime">this specification</a>
  */
-// Date parsing code from Jackson databind ISO8601Utils.java
+// Date parsing code from Jackson databind ISO8601Utils.java, with modifications
 // https://github.com/FasterXML/jackson-databind/blob/2.8/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
 @SuppressWarnings("MemberName") // legacy class name
 public final class ISO8601Utils {
@@ -143,7 +143,11 @@ public final class ISO8601Utils {
    * @param pos The position to start parsing from, updated to where parsing stopped.
    * @return the parsed date
    * @throws ParseException if the date is not in the appropriate format
+   * @deprecated For Gson-internal usage prefer {@link #parseFully(String)}.<br>
+   *     For external users: {@code ISO8601Utils} is a Gson-internal class; prefer {@code java.time}
+   *     for date parsing.
    */
+  @Deprecated
   public static Date parse(String date, ParsePosition pos) throws ParseException {
     Exception fail = null;
     try {
@@ -237,14 +241,18 @@ public final class ISO8601Utils {
       if (timezoneIndicator == 'Z') {
         timezone = TIMEZONE_UTC;
         offset += 1;
+
+        if (date.length() > offset) {
+          throw new IllegalArgumentException("Trailing data after time zone 'Z'");
+        }
       } else if (timezoneIndicator == '+' || timezoneIndicator == '-') {
         String timezoneOffset = date.substring(offset);
+        offset += timezoneOffset.length();
 
         // When timezone has no minutes, we should append it, valid timezones are, for example:
         // +00:00, +0000 and +00
         timezoneOffset = timezoneOffset.length() >= 5 ? timezoneOffset : timezoneOffset + "00";
 
-        offset += timezoneOffset.length();
         // 18-Jun-2015, tatu: Minor simplification, skip offset of "+0000"/"+00:00"
         if (timezoneOffset.equals("+0000") || timezoneOffset.equals("+00:00")) {
           timezone = TIMEZONE_UTC;
@@ -306,6 +314,25 @@ public final class ISO8601Utils {
         new ParseException("Failed to parse date [" + input + "]: " + msg, pos.getIndex());
     ex.initCause(fail);
     throw ex;
+  }
+
+  /**
+   * Fully parses a date string.
+   *
+   * <p>Delegates to {@link #parse(String, ParsePosition)} and verifies that the given string was
+   * fully parsed.
+   */
+  public static Date parseFully(String dateStr) throws ParseException {
+    ParsePosition pos = new ParsePosition(0);
+    Date date = ISO8601Utils.parse(dateStr, pos);
+
+    int parseEnd = pos.getIndex();
+    if (parseEnd != dateStr.length()) {
+      // Note: Should be effectively unreachable because `ISO8601Utils#parse` already throws if
+      // there is unrelated trailing data; but keep this check here to be safe
+      throw new ParseException("Failed to fully parse date [" + dateStr + "]", parseEnd);
+    }
+    return date;
   }
 
   /**

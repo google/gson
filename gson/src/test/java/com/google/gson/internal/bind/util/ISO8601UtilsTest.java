@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -79,7 +78,7 @@ public class ISO8601UtilsTest {
   @SuppressWarnings("UndefinedEquals")
   public void testDateParseWithDefaultTimezone() throws ParseException {
     String dateStr = "2018-06-25";
-    Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
+    Date date = ISO8601Utils.parseFully(dateStr);
     Date expectedDate = new GregorianCalendar(2018, Calendar.JUNE, 25).getTime();
     assertThat(date).isEqualTo(expectedDate);
   }
@@ -87,20 +86,20 @@ public class ISO8601UtilsTest {
   @Test
   public void testDateParseInvalidDay() {
     String dateStr = "2022-12-33";
-    assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
+    assertThrows(ParseException.class, () -> ISO8601Utils.parseFully(dateStr));
   }
 
   @Test
   public void testDateParseInvalidMonth() {
     String dateStr = "2022-14-30";
-    assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
+    assertThrows(ParseException.class, () -> ISO8601Utils.parseFully(dateStr));
   }
 
   @Test
   @SuppressWarnings("UndefinedEquals")
   public void testDateParseWithTimezone() throws ParseException {
     String dateStr = "2018-06-25T00:00:00-03:00";
-    Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
+    Date date = ISO8601Utils.parseFully(dateStr);
     GregorianCalendar calendar = createUtcCalendar();
     calendar.set(2018, Calendar.JUNE, 25, 3, 0);
     Date expectedDate = calendar.getTime();
@@ -111,7 +110,7 @@ public class ISO8601UtilsTest {
   @SuppressWarnings("UndefinedEquals")
   public void testDateParseSpecialTimezone() throws ParseException {
     String dateStr = "2018-06-25T00:02:00-02:58";
-    Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
+    Date date = ISO8601Utils.parseFully(dateStr);
     GregorianCalendar calendar = createUtcCalendar();
     calendar.set(2018, Calendar.JUNE, 25, 3, 0);
     Date expectedDate = calendar.getTime();
@@ -119,8 +118,47 @@ public class ISO8601UtilsTest {
   }
 
   @Test
+  @SuppressWarnings("UndefinedEquals")
+  public void testDateParseShortZeroTimezone() throws ParseException {
+    // timezone "+00" is extended by parser to "+0000"
+    String dateStr = "2018-06-25T00:00:00+00";
+    Date date = ISO8601Utils.parseFully(dateStr);
+    GregorianCalendar calendar = createUtcCalendar();
+    calendar.set(2018, Calendar.JUNE, 25, 0, 0);
+    Date expectedDate = calendar.getTime();
+    assertThat(date).isEqualTo(expectedDate);
+  }
+
+  @Test
   public void testDateParseInvalidTime() {
     String dateStr = "2018-06-25T61:60:62-03:00";
-    assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
+    assertThrows(ParseException.class, () -> ISO8601Utils.parseFully(dateStr));
+  }
+
+  @Test
+  public void testDateParseInvalidZTimezone() {
+    String dateStr = "2018-06-25T00:02:00Z10";
+    var e = assertThrows(ParseException.class, () -> ISO8601Utils.parseFully(dateStr));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Failed to parse date [\"" + dateStr + "\"]: Trailing data after time zone 'Z'");
+  }
+
+  @Test
+  public void testDateParseNoTimezoneIndicator() {
+    String dateStr = "2018-06-25T00:02:00";
+    var e = assertThrows(ParseException.class, () -> ISO8601Utils.parseFully(dateStr));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Failed to parse date [\"" + dateStr + "\"]: No time zone indicator");
+  }
+
+  @Test
+  public void testDateParseInvalidTimezoneIndicator() {
+    String dateStr = "2018-06-25T00:02:00X";
+    var e = assertThrows(ParseException.class, () -> ISO8601Utils.parseFully(dateStr));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Failed to parse date [\"" + dateStr + "\"]: Invalid time zone indicator 'X'");
   }
 }

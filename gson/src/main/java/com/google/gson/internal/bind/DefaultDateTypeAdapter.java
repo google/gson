@@ -30,7 +30,6 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -179,7 +178,7 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
     }
 
     try {
-      return ISO8601Utils.parse(s, new ParsePosition(0));
+      return ISO8601Utils.parseFully(s);
     } catch (ParseException e) {
       throw new JsonSyntaxException(
           "Failed parsing '" + s + "' as Date; at path " + in.getPreviousPath(), e);
