@@ -11,14 +11,14 @@ jobs:
     - name: Build Fuzzers
       id: build
       # Cannot be pinned to commit because there are no releases, see https://github.com/google/oss-fuzz/issues/6836
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master # zizmor: ignore[unpinned-uses]
       with:
         oss-fuzz-project-name: 'gson'
         dry-run: false
         language: jvm
     - name: Run Fuzzers
       # Cannot be pinned to commit because there are no releases, see https://github.com/google/oss-fuzz/issues/6836
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master # zizmor: ignore[unpinned-uses]
       with:
         oss-fuzz-project-name: 'gson'
         fuzz-seconds: 600
