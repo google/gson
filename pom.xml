@@ -540,11 +540,11 @@
   </build>
 
   <profiles>
-    <!-- Disable Spotless before Java 17 -->
+    <!-- Disable Spotless before Java 21 -->
     <profile>
       <id>disable-spotless</id>
       <activation>
-        <jdk>[,17)</jdk>
+        <jdk>[,21)</jdk>
       </activation>
       <build>
         <plugins>
