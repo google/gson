@@ -98,7 +98,7 @@
       <plugin>
         <groupId>io.github.ascopes</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <version>5.1.8</version>
+        <version>5.1.11</version>
         <configuration>
           <skip>${maven.test.skip}</skip>
           <protoc>${protobufVersion}</protoc>
