@@ -16,7 +16,10 @@
 package com.google.gson;
 
 /**
- * This exception is raised when Gson attempts to read (or write) a malformed JSON element.
+ * This exception is raised when Gson attempts to read malformed JSON data, or JSON data which is
+ * well-formed but does not have the expected structure or format. For example, it is thrown when a
+ * JSON string is found where a JSON array was expected, or when a JSON number cannot be represented
+ * by the requested Java type, such as {@code 10000000000} for an {@code int}.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
