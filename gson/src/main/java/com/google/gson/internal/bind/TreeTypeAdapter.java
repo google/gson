@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -88,7 +89,15 @@ public final class TreeTypeAdapter<T> extends SerializationDelegatingTypeAdapter
     if (deserializer == null) {
       return delegate().read(in);
     }
-    JsonElement value = Streams.parse(in);
+    JsonElement value;
+    try {
+      value = Streams.parse(in);
+    } catch (JsonIOException e) {
+      if (e.getCause() instanceof IOException) {
+        throw (IOException) e.getCause();
+      }
+      throw e;
+    }
     if (nullSafe && value.isJsonNull()) {
       return null;
     }
