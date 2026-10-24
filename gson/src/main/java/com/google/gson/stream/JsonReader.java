@@ -1856,7 +1856,7 @@ public class JsonReader implements Closeable {
    * if not reading from a character stream.
    *
    * @return the character offset from the beginning of the stream, or {@code -1}
-   * @since $next-version$
+   * @since 2.15.0
    */
   public long getCharacterOffset() {
     return bufferStart + pos;
