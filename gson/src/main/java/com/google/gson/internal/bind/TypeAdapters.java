@@ -711,9 +711,6 @@ public final class TypeAdapters {
             return null;
           }
           String nextString = in.nextString();
-          if (nextString.equals("null")) {
-            return null;
-          }
           try {
             return new URL(nextString);
           } catch (MalformedURLException e) {
@@ -739,9 +736,6 @@ public final class TypeAdapters {
             return null;
           }
           String nextString = in.nextString();
-          if (nextString.equals("null")) {
-            return null;
-          }
           try {
             return new URI(nextString);
           } catch (URISyntaxException e) {
