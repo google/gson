@@ -16,6 +16,7 @@
 
 package com.google.gson.stream;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Strictness;
 import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.TroubleshootingGuide;
@@ -1262,6 +1263,7 @@ public class JsonReader implements Closeable {
   }
 
   /** Validates that a string does not contain unpaired UTF-16 surrogate characters. */
+  @CanIgnoreReturnValue
   private String validateString(String value) throws IOException {
     if (strictness != Strictness.STRICT) {
       return value;
@@ -1616,7 +1618,7 @@ public class JsonReader implements Closeable {
       limit += total;
 
       // if this is the first read, consume an optional byte order mark (BOM) if it exists
-      if (lineNumber == 0 && lineStart == 0 && limit > 0 && buffer[0] == '\ufeff') {
+      if (bufferStart == 0 && pos == 0 && limit > 0 && buffer[0] == '\ufeff') {
         pos++;
         lineStart++;
         minimum++;
@@ -1854,7 +1856,7 @@ public class JsonReader implements Closeable {
    * if not reading from a character stream.
    *
    * @return the character offset from the beginning of the stream, or {@code -1}
-   * @since $next-version$
+   * @since 2.15.0
    */
   public long getCharacterOffset() {
     return bufferStart + pos;

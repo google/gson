@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * Adapts values whose runtime type may differ from their declaration type. This is necessary when a
- * field's type is not the same type that GSON should create when deserializing that field. For
+ * field's type is not the same type that Gson should create when deserializing that field. For
  * example, consider these types:
  *
  * <pre>{@code
@@ -122,7 +122,7 @@ import java.util.Map;
  * shapeAdapterFactory.registerSubtype(Diamond.class, "Diamond");
  * }</pre>
  *
- * Finally, register the type adapter factory in your application's GSON builder:
+ * Finally, register the type adapter factory in your application's {@code Gson} builder:
  *
  * <pre>{@code
  * Gson gson = new GsonBuilder()

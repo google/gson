@@ -383,7 +383,7 @@ public final class Gson {
 
     if (candidate == null) {
       throw new IllegalArgumentException(
-          "GSON (" + GsonBuildConfig.VERSION + ") cannot handle " + type);
+          "Gson (" + GsonBuildConfig.VERSION + ") cannot handle " + type);
     }
 
     if (isInitialAdapterRequest) {
@@ -495,7 +495,7 @@ public final class Gson {
     }
 
     if (skipPastFound) {
-      throw new IllegalArgumentException("GSON cannot serialize or deserialize " + type);
+      throw new IllegalArgumentException("Gson cannot serialize or deserialize " + type);
     } else {
       // Probably a factory from @JsonAdapter on a field
       return getAdapter(type);
@@ -690,7 +690,7 @@ public final class Gson {
       throw new JsonIOException(e);
     } catch (AssertionError e) {
       throw new AssertionError(
-          "AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+          "AssertionError (Gson " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
     } finally {
       writer.setStrictness(oldStrictness);
       writer.setHtmlSafe(oldHtmlSafe);
@@ -769,7 +769,7 @@ public final class Gson {
       throw new JsonIOException(e);
     } catch (AssertionError e) {
       throw new AssertionError(
-          "AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+          "AssertionError (Gson " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
     } finally {
       writer.setStrictness(oldStrictness);
       writer.setHtmlSafe(oldHtmlSafe);
@@ -1115,7 +1115,7 @@ public final class Gson {
       return object;
     } catch (EOFException e) {
       /*
-       * For compatibility with JSON 1.5 and earlier, we return null for empty
+       * For compatibility with Gson 1.5 and earlier, we return null for empty
        * documents instead of throwing.
        */
       if (isEmpty) {
@@ -1129,7 +1129,7 @@ public final class Gson {
       throw new JsonSyntaxException(e);
     } catch (AssertionError e) {
       throw new AssertionError(
-          "AssertionError (GSON " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
+          "AssertionError (Gson " + GsonBuildConfig.VERSION + "): " + e.getMessage(), e);
     } finally {
       reader.setStrictness(oldStrictness);
     }

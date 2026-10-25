@@ -44,7 +44,7 @@ jobs:
         with:
           persist-credentials: false
       - name: "Set up JDK ${{ matrix.java }}"
-        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c  # v6.0.0
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6  # v6.0.1
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
@@ -63,7 +63,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up JDK
-        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c  # v6.0.0
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6  # v6.0.1
         with:
           distribution: 'temurin'
           java-version: 21
@@ -83,7 +83,7 @@ jobs:
         with:
           persist-credentials: false
       - name: "Set up GraalVM"
-        uses: graalvm/setup-graalvm@5298d94fb55a4f185c602eeac5de1b553882abe2  # v1.6.4
+        uses: graalvm/setup-graalvm@0426e2e191540e8514dff98dc52a5f5146a2a276  # v1.6.6
         with:
           java-version: ${{ matrix.java }}
           distribution: 'graalvm'
@@ -104,7 +104,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up JDK
-        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c  # v6.0.0
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6  # v6.0.1
         with:
           distribution: 'temurin'
           java-version: 17

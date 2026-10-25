@@ -74,6 +74,55 @@ public class MoreSpecificTypeSerializationTest {
     assertThat(sub.get("s").getAsInt()).isEqualTo(3);
   }
 
+  @Test
+  public void testWildcardListOfSubclassFields() {
+    List<Sub> list = new ArrayList<>();
+    list.add(new Sub(2, 3));
+    ClassWithWildcardContainersOfBaseFields target =
+        new ClassWithWildcardContainersOfBaseFields(list, null, null);
+    String json = gson.toJson(target);
+    assertThat(json).contains("{\"s\":3,\"b\":2}");
+  }
+
+  @Test
+  public void testWildcardMapOfSubclassFields() {
+    Map<String, Sub> map = new HashMap<>();
+    map.put("sub", new Sub(2, 3));
+    ClassWithWildcardContainersOfBaseFields target =
+        new ClassWithWildcardContainersOfBaseFields(null, map, null);
+    JsonObject json = gson.toJsonTree(target).getAsJsonObject().get("map").getAsJsonObject();
+    JsonObject sub = json.get("sub").getAsJsonObject();
+    assertThat(sub.get("b").getAsInt()).isEqualTo(2);
+    assertThat(sub.get("s").getAsInt()).isEqualTo(3);
+  }
+
+  /** A wildcard can also end up as the type of a field, through a resolved type variable. */
+  @Test
+  public void testWildcardTypeVariableSubclassFields() {
+    Container<Sub> container = new Container<>(new Sub(2, 3));
+    ClassWithWildcardContainersOfBaseFields target =
+        new ClassWithWildcardContainersOfBaseFields(null, null, container);
+    JsonObject json = gson.toJsonTree(target).getAsJsonObject().get("container").getAsJsonObject();
+    JsonObject sub = json.get("t").getAsJsonObject();
+    assertThat(sub.get("b").getAsInt()).isEqualTo(2);
+    assertThat(sub.get("s").getAsInt()).isEqualTo(3);
+  }
+
+  /**
+   * For a wildcard whose bound is a parameterized type, Gson has to stick to the declared type, the
+   * same way it does for a plain parameterized type.
+   */
+  @Test
+  public void testWildcardListOfParameterizedSubclassFields() {
+    List<ParameterizedSub<String>> list = new ArrayList<>();
+    list.add(new ParameterizedSub<>("two", "three"));
+    ClassWithWildcardContainerOfParameterizedBaseFields target =
+        new ClassWithWildcardContainerOfParameterizedBaseFields(list);
+    String json = gson.toJson(target);
+    assertThat(json).contains("{\"t\":\"two\"}");
+    assertThat(json).doesNotContain("\"s\":");
+  }
+
   /** For parameterized type, Gson ignores the more-specific type and sticks to the declared type */
   @Test
   public void testParameterizedSubclassFields() {
@@ -150,6 +199,38 @@ public class MoreSpecificTypeSerializationTest {
     ClassWithContainersOfBaseFields(Collection<Base> collection, Map<String, Base> map) {
       this.collection = collection;
       this.map = map;
+    }
+  }
+
+  private static class Container<T> {
+    T t;
+
+    Container(T t) {
+      this.t = t;
+    }
+  }
+
+  private static class ClassWithWildcardContainersOfBaseFields {
+    Collection<? extends Base> collection;
+    Map<String, ? extends Base> map;
+    Container<? extends Base> container;
+
+    ClassWithWildcardContainersOfBaseFields(
+        Collection<? extends Base> collection,
+        Map<String, ? extends Base> map,
+        Container<? extends Base> container) {
+      this.collection = collection;
+      this.map = map;
+      this.container = container;
+    }
+  }
+
+  private static class ClassWithWildcardContainerOfParameterizedBaseFields {
+    Collection<? extends ParameterizedBase<String>> collection;
+
+    ClassWithWildcardContainerOfParameterizedBaseFields(
+        Collection<? extends ParameterizedBase<String>> collection) {
+      this.collection = collection;
     }
   }
 

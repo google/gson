@@ -427,7 +427,7 @@ public class JsonReaderPathTest {
   }
 
   @Test
-  public void promoteNameToValueUpdatesPath_Skip() throws IOException {
+  public void promoteNameToValueUpdatesPath_skip() throws IOException {
     JsonReader reader = factory.create("{\"name\":\"value\"}");
     reader.beginObject();
     JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);
@@ -445,7 +445,7 @@ public class JsonReaderPathTest {
   }
 
   @Test
-  public void promoteNameToValueUpdatesPath_Number() throws IOException {
+  public void promoteNameToValueUpdatesPath_number() throws IOException {
     JsonReader reader = factory.create("{\"1\":\"value\"}");
     reader.beginObject();
     JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);
@@ -461,7 +461,7 @@ public class JsonReaderPathTest {
   }
 
   @Test
-  public void promoteNameToValueUpdatesPath_UnquotedNumber() throws IOException {
+  public void promoteNameToValueUpdatesPath_unquotedNumber() throws IOException {
     assumeTrue(
         "only relevant for JsonReader, not for JsonTreeReader", factory == Factory.STRING_READER);
 
