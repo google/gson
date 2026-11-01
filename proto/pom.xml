@@ -31,7 +31,7 @@
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
     <project.build.outputTimestamp>2026-10-24T01:07:07Z</project.build.outputTimestamp>
 
-    <protobufVersion>4.35.1</protobufVersion>
+    <protobufVersion>4.36.2</protobufVersion>
   </properties>
 
   <licenses>
@@ -57,7 +57,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.7.0-jre</version>
+      <version>33.7.2-jre</version>
     </dependency>
 
     <dependency>
@@ -86,7 +86,7 @@
     <dependency>
       <groupId>com.google.testparameterinjector</groupId>
       <artifactId>test-parameter-injector</artifactId>
-      <version>1.22</version>
+      <version>1.24</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
