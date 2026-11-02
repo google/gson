@@ -618,6 +618,21 @@ public final class GsonTest {
     assertThat(customClass3.s).isEqualTo("custom-instance");
   }
 
+  @Test
+  public void testFromJsonTreeStrictModeRejectsUnpairedSurrogate() {
+    Gson strictGson = new GsonBuilder().setStrictness(Strictness.STRICT).create();
+    JsonElement element = new JsonPrimitive("\uD800");
+    JsonSyntaxException expected =
+        assertThrows(JsonSyntaxException.class, () -> strictGson.fromJson(element, String.class));
+    assertThat(expected).hasMessageThat().contains("Unpaired surrogate characters");
+  }
+
+  @Test
+  public void testFromJsonTreeDefaultStrictnessAllowsUnpairedSurrogate() {
+    JsonElement element = new JsonPrimitive("\uD800");
+    assertThat(new Gson().fromJson(element, String.class)).isEqualTo("\uD800");
+  }
+
   private static class CustomClass1 {}
 
   private static class CustomClass2 {}

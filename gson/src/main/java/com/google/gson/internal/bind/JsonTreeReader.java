@@ -22,6 +22,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.Strictness;
+import com.google.gson.internal.TroubleshootingGuide;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
@@ -193,6 +195,9 @@ public final class JsonTreeReader extends JsonReader {
     Iterator<?> i = (Iterator<?>) peekStack();
     Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
     String result = (String) entry.getKey();
+    if (!skipName) {
+      validateString(result);
+    }
     pathNames[stackSize - 1] = skipName ? "<skipped>" : result;
     push(entry.getValue());
     return result;
@@ -211,6 +216,7 @@ public final class JsonTreeReader extends JsonReader {
           "Expected " + JsonToken.STRING + " but was " + token + locationString());
     }
     String result = ((JsonPrimitive) popStack()).getAsString();
+    validateString(result);
     if (stackSize > 0) {
       pathIndices[stackSize - 1]++;
     }
@@ -438,6 +444,31 @@ public final class JsonTreeReader extends JsonReader {
     if (!isAllAscii(s)) {
       throw new MalformedJsonException(
           "String contains non-ASCII characters: " + s + locationString());
+    }
+  }
+
+  /**
+   * Mirrors the behavior of {@link JsonReader} in {@link Strictness#STRICT} mode: rejects strings
+   * containing unpaired UTF-16 surrogate characters.
+   */
+  private void validateString(String s) throws MalformedJsonException {
+    if (getStrictness() != Strictness.STRICT) {
+      return;
+    }
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (Character.isSurrogate(c)) {
+        if (Character.isHighSurrogate(c)
+            && i + 1 < s.length()
+            && Character.isLowSurrogate(s.charAt(++i))) {
+          continue;
+        }
+        throw new MalformedJsonException(
+            "Unpaired surrogate characters are not allowed in strict mode"
+                + locationString()
+                + "\nSee "
+                + TroubleshootingGuide.createUrl("malformed-json"));
+      }
     }
   }
 

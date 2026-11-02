@@ -1213,7 +1213,9 @@ public final class Gson {
     if (json == null) {
       return null;
     }
-    return fromJson(new JsonTreeReader(json), typeOfT);
+    JsonTreeReader jsonTreeReader = new JsonTreeReader(json);
+    jsonTreeReader.setStrictness(strictness == null ? Strictness.LEGACY_STRICT : strictness);
+    return fromJson(jsonTreeReader, typeOfT);
   }
 
   private static void assertFullConsumption(Object obj, JsonReader reader) {

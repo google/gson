@@ -22,6 +22,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.Strictness;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -296,5 +298,41 @@ public class JsonTreeReaderTest {
             "setNestingLimit(int)",
             "getNestingLimit()");
     MoreAsserts.assertOverridesMethods(JsonReader.class, JsonTreeReader.class, ignoredMethods);
+  }
+
+  @Test
+  public void testStrictModeRejectsUnpairedSurrogateInString() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonPrimitive("\uD800"));
+    reader.setStrictness(Strictness.STRICT);
+    IOException expected = assertThrows(IOException.class, reader::nextString);
+    assertThat(expected)
+        .hasMessageThat()
+        .startsWith("Unpaired surrogate characters are not allowed in strict mode");
+  }
+
+  @Test
+  public void testStrictModeRejectsUnpairedSurrogateInName() throws IOException {
+    JsonObject object = new JsonObject();
+    object.addProperty("\uD800", 1);
+    JsonTreeReader reader = new JsonTreeReader(object);
+    reader.setStrictness(Strictness.STRICT);
+    reader.beginObject();
+    IOException expected = assertThrows(IOException.class, reader::nextName);
+    assertThat(expected)
+        .hasMessageThat()
+        .startsWith("Unpaired surrogate characters are not allowed in strict mode");
+  }
+
+  @Test
+  public void testStrictModeAllowsPairedSurrogates() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonPrimitive("\uD834\uDD1E"));
+    reader.setStrictness(Strictness.STRICT);
+    assertThat(reader.nextString()).isEqualTo("\uD834\uDD1E");
+  }
+
+  @Test
+  public void testNonStrictModeAllowsUnpairedSurrogates() throws IOException {
+    JsonTreeReader reader = new JsonTreeReader(new JsonPrimitive("\uD800"));
+    assertThat(reader.nextString()).isEqualTo("\uD800");
   }
 }
