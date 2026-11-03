@@ -981,6 +981,7 @@ public final class GsonBuilder {
     if (javaTimeFactory != null) {
       factories.add(javaTimeFactory);
     }
+    factories.add(TypeAdapters.JDK_OPTIONAL_FACTORY);
     factories.addAll(SqlTypesSupport.SQL_TYPE_FACTORIES);
     factories.add(ArrayTypeAdapter.FACTORY);
     factories.add(TypeAdapters.CLASS_FACTORY);
