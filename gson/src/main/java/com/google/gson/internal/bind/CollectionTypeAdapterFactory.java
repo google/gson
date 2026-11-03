@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.ConstructorConstructor;
@@ -82,7 +83,19 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
       in.beginArray();
       while (in.hasNext()) {
         E instance = elementTypeAdapter.read(in);
-        collection.add(instance);
+        try {
+          collection.add(instance);
+        } catch (NullPointerException e) {
+          if (instance == null) {
+            throw new JsonSyntaxException(
+                "Null element is not allowed in "
+                    + collection.getClass()
+                    + "; at path "
+                    + in.getPreviousPath(),
+                e);
+          }
+          throw e;
+        }
       }
       in.endArray();
       return collection;

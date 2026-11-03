@@ -186,13 +186,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         in.beginArray();
         while (in.hasNext()) {
           in.beginArray(); // entry array
-          K key = keyTypeAdapter.read(in);
-          if (map.containsKey(key)) {
-            throw new JsonSyntaxException(
-                "Duplicate key '" + key + "'; at path " + in.getPreviousPath());
-          }
-          V value = valueTypeAdapter.read(in);
-          map.put(key, value);
+          readEntry(in, map);
           in.endArray();
         }
         in.endArray();
@@ -200,17 +194,46 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         in.beginObject();
         while (in.hasNext()) {
           JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
-          K key = keyTypeAdapter.read(in);
-          if (map.containsKey(key)) {
-            throw new JsonSyntaxException(
-                "Duplicate key '" + key + "'; at path " + in.getPreviousPath());
-          }
-          V value = valueTypeAdapter.read(in);
-          map.put(key, value);
+          readEntry(in, map);
         }
         in.endObject();
       }
       return map;
+    }
+
+    private void readEntry(JsonReader in, Map<K, V> map) throws IOException {
+      K key = keyTypeAdapter.read(in);
+      String keyPath = (key == null) ? in.getPreviousPath() : null;
+      boolean duplicate;
+      try {
+        duplicate = map.containsKey(key);
+      } catch (NullPointerException e) {
+        if (key == null) {
+          throw nullJsonSyntaxException("key", map, keyPath, e);
+        }
+        throw e;
+      }
+      if (duplicate) {
+        throw new JsonSyntaxException(
+            "Duplicate key '" + key + "'; at path " + in.getPreviousPath());
+      }
+      V value = valueTypeAdapter.read(in);
+      try {
+        map.put(key, value);
+      } catch (NullPointerException e) {
+        if (key == null) {
+          throw nullJsonSyntaxException("key", map, keyPath, e);
+        } else if (value == null) {
+          throw nullJsonSyntaxException("value", map, in.getPreviousPath(), e);
+        }
+        throw e;
+      }
+    }
+
+    private static JsonSyntaxException nullJsonSyntaxException(
+        String keyOrValue, Map<?, ?> map, String path, NullPointerException e) {
+      return new JsonSyntaxException(
+          "Null " + keyOrValue + " is not allowed in " + map.getClass() + "; at path " + path, e);
     }
 
     @Override
