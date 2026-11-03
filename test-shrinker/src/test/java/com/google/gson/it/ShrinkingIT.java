@@ -225,6 +225,9 @@ public class ShrinkingIT {
                 // TODO: Currently only works for ProGuard but not R8
                 isTestingProGuard() ? "value" : "ClassCastException",
                 "===",
+                "Adapter: java.time.Instant",
+                "is reflective: false",
+                "===",
                 "Write: java.time.OffsetTime",
                 "{\"time\":{\"hour\":12,\"minute\":34,\"second\":56,\"nano\":789012345},\"offset\":{\"totalSeconds\":123}}",
                 "===",

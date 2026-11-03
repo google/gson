@@ -9,6 +9,7 @@ import com.example.GenericClasses.UsingGenericClass;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import java.time.Instant;
 import java.time.LocalTime;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
@@ -327,6 +328,16 @@ public class Main {
     Gson gson = new Gson();
     TestExecutor.run(
         outputConsumer,
+        "Adapter: java.time.Instant",
+        // Because code is obfuscated cannot check adapter class name; instead get adapter for class
+        // where reflective adapter will be used and then compare against that
+        () ->
+            "is reflective: "
+                + (gson.getAdapter(Instant.class).getClass()
+                    == gson.getAdapter(DummyReflectiveClass.class).getClass()));
+
+    TestExecutor.run(
+        outputConsumer,
         "Write: java.time.OffsetTime",
         () ->
             gson.toJson(
@@ -339,5 +350,11 @@ public class Main {
         outputConsumer,
         "Read: java.time.OffsetTime",
         () -> gson.fromJson(json, OffsetTime.class).toString());
+  }
+
+  /** Dummy class with no registered adapter, so Gson should use the reflective one. */
+  private static class DummyReflectiveClass {
+    @SuppressWarnings("unused")
+    int i;
   }
 }

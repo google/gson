@@ -416,11 +416,10 @@ public class JavaTimeTest {
   }
 
   private static void assertUsesCustomAdapter(Gson customGson, Class<?> valueClass) {
-    Class<?> adapterClass = customGson.getAdapter(valueClass).getClass();
-    assertThat(adapterClass).isNotInstanceOf(ReflectiveTypeAdapterFactory.Adapter.class);
-    // To be safe also check the class name (in case the adapter factory has other nested adapter
-    // classes as well)
-    assertThat(adapterClass.getName()).doesNotContain("Reflective");
+    TypeAdapter<?> adapter = customGson.getAdapter(valueClass);
+    // Check `toString()` instead of `getClass().getName()` because adapter is wrapped
+    // in NullSafeTypeAdapter
+    assertThat(adapter.toString()).contains("JavaTimeTypeAdapterFactory");
   }
 
   // Assuming we have reflective access to the fields of java.time classes, check that

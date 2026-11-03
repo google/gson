@@ -28,6 +28,14 @@ import org.junit.jupiter.api.Test;
 class JavaTimeTest {
   private final Gson gson = new Gson();
 
+  /** Verify that dedicated adapter is used instead of fallback reflective one */
+  @Test
+  void testAdapter() {
+    // Check `toString()` instead of `getClass().getName()` because adapter is wrapped
+    // in NullSafeTypeAdapter
+    assertThat(gson.getAdapter(Instant.class).toString()).contains("JavaTimeTypeAdapterFactory");
+  }
+
   @Test
   void testDuration() {
     Duration duration = Duration.ofSeconds(123, 456_789_012);
