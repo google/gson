@@ -327,9 +327,7 @@ public class DefaultTypeAdaptersTest {
   public void testLocaleDeserializationError(@TestParameter({"", "_", "___"}) String invalid) {
     String invalidJson = "[\"" + invalid + "\"]";
     JsonSyntaxException e =
-        assertThrows(
-            JsonSyntaxException.class,
-            () -> gson.fromJson(invalidJson, Locale[].class));
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson(invalidJson, Locale[].class));
     assertThat(e)
         .hasMessageThat()
         .isEqualTo("Failed parsing '" + invalid + "' as Locale; at path $[0]");
