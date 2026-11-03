@@ -230,7 +230,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
       }
     }
 
-    private static JsonSyntaxException nullJsonSyntaxException(
+    private JsonSyntaxException nullJsonSyntaxException(
         String keyOrValue, Map<?, ?> map, String path, NullPointerException e) {
       return new JsonSyntaxException(
           "Null " + keyOrValue + " is not allowed in " + map.getClass() + "; at path " + path, e);
