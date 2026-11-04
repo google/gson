@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.common.TestTypes.ClassWithObjects;
 import com.google.gson.reflect.TypeToken;
@@ -233,6 +234,34 @@ public class ArrayTest {
   public void testArrayOfNullDeserialization() {
     String[] values = gson.fromJson("[null]", String[].class);
     assertThat(values[0]).isNull();
+  }
+
+  @Test
+  public void testPrimitiveArrayWithNullElementDeserialization() {
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1, null]", int[].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Null value is not allowed in int[] array; at path $[1]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[null]", boolean[].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Null value is not allowed in boolean[] array; at path $[0]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1.0, null]", double[].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Null value is not allowed in double[] array; at path $[1]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[null]]", int[][].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Null value is not allowed in int[] array; at path $[0][0]");
+
+    // Outer array element in int[][] is int[] (an Object, not primitive), so [null] is allowed
+    int[][] outerNull = gson.fromJson("[null]", int[][].class);
+    assertThat(outerNull).asList().containsExactly((Object) null);
   }
 
   /** Regression tests for Issue 272 */

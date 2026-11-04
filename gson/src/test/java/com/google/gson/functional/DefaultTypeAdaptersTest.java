@@ -34,6 +34,8 @@ import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.google.testing.junit.testparameterinjector.TestParameter;
+import com.google.testing.junit.testparameterinjector.TestParameterInjector;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -78,6 +80,7 @@ import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Functional test for Json serialization and deserialization for common classes for which default
@@ -87,6 +90,7 @@ import org.junit.Test;
  * @author Joel Leitch
  */
 @SuppressWarnings("JavaUtilDate")
+@RunWith(TestParameterInjector.class)
 public class DefaultTypeAdaptersTest {
   private Gson gson;
   private TimeZone oldTimeZone;
@@ -317,6 +321,16 @@ public class DefaultTypeAdaptersTest {
     assertThat(locale.getLanguage()).isEqualTo("de");
     assertThat(locale.getCountry()).isEqualTo("DE");
     assertThat(locale.getVariant()).isEqualTo("EURO");
+  }
+
+  @Test
+  public void testLocaleDeserializationError(@TestParameter({"", "_", "___"}) String invalid) {
+    String invalidJson = "[\"" + invalid + "\"]";
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson(invalidJson, Locale[].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Failed parsing '" + invalid + "' as Locale; at path $[0]");
   }
 
   @Test
