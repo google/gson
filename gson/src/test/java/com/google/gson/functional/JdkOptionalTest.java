@@ -23,11 +23,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InaccessibleObjectException;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -46,33 +47,33 @@ public final class JdkOptionalTest {
 
   @Test
   public void testEmptyOptional() {
-    roundTrip(Optional.<String>empty(), new TypeToken<Optional<String>>() {}, "{}");
+    roundTrip(Optional.empty(), new TypeToken<Optional<String>>() {}, "{}");
   }
 
   @Test
   public void testEmptyOptionalSerializeNulls() {
     Gson gsonWithNulls = new GsonBuilder().serializeNulls().create();
-    Type type = new TypeToken<Optional<String>>() {}.getType();
-    assertThat(gsonWithNulls.toJson(Optional.empty(), type)).isEqualTo("{\"value\":null}");
-    assertThat(gsonWithNulls.<Optional<String>>fromJson("{\"value\":null}", type)).isEmpty();
+    var typeToken = new TypeToken<Optional<String>>() {};
+    assertThat(gsonWithNulls.toJson(Optional.empty(), typeToken.getType()))
+        .isEqualTo("{\"value\":null}");
+    assertThat(gsonWithNulls.fromJson("{\"value\":null}", typeToken)).isEmpty();
   }
 
   @Test
   public void testNullOptional() {
-    Type type = new TypeToken<Optional<String>>() {}.getType();
-    assertThat(gson.toJson(null, type)).isEqualTo("null");
-    assertThat(gson.<Optional<String>>fromJson("null", type)).isNull();
+    var typeToken = new TypeToken<Optional<String>>() {};
+    assertThat(gson.toJson(null, typeToken.getType())).isEqualTo("null");
+    assertThat(gson.fromJson("null", typeToken)).isNull();
   }
 
   @Test
   public void testOptionalWithUnknownFields() {
-    Type type = new TypeToken<Optional<String>>() {}.getType();
+    var typeToken = new TypeToken<Optional<String>>() {};
     String json = "{\"tiddly\":\"pom\",\"value\":\"hello\",\"wibble\":\"wobble\"}";
-    assertThat(gson.<Optional<String>>fromJson(json, type)).hasValue("hello");
+    assertThat(gson.fromJson(json, typeToken)).hasValue("hello");
   }
 
   @Test
-  @SuppressWarnings("rawtypes")
   public void testRawOptional() {
     roundTrip(Optional.of("hello"), TypeToken.get(Optional.class), "{\"value\":\"hello\"}");
     roundTrip(Optional.empty(), TypeToken.get(Optional.class), "{}");
@@ -80,24 +81,23 @@ public final class JdkOptionalTest {
 
   @Test
   public void testNestedOptional() {
-    TypeToken<Optional<Optional<String>>> typeToken =
-        new TypeToken<Optional<Optional<String>>>() {};
+    var typeToken = new TypeToken<Optional<Optional<String>>>() {};
     roundTrip(Optional.of(Optional.of("hello")), typeToken, "{\"value\":{\"value\":\"hello\"}}");
-    roundTrip(Optional.of(Optional.<String>empty()), typeToken, "{\"value\":{}}");
-    roundTrip(Optional.<Optional<String>>empty(), typeToken, "{}");
+    roundTrip(Optional.of(Optional.empty()), typeToken, "{\"value\":{}}");
+    roundTrip(Optional.empty(), typeToken, "{}");
   }
 
   @Test
   public void testOptionalPolymorphicValue() {
-    Type type = new TypeToken<Optional<Object>>() {}.getType();
-    assertThat(gson.toJson(Optional.<Object>of(new Holder("abc")), type))
-        .isEqualTo("{\"value\":{\"s\":\"abc\"}}");
+    var typeToken = new TypeToken<Optional<SuperClass>>() {};
+    assertThat(gson.toJson(Optional.of(new SubClass("abc", "def")), typeToken.getType()))
+        .isEqualTo("{\"value\":{\"sub\":\"def\",\"sup\":\"abc\"}}");
   }
 
   @Test
   public void testOptionalFieldSerialization_serializeNulls() {
     Gson gsonWithNulls = new GsonBuilder().serializeNulls().create();
-    TestClass testClass = new TestClass(Optional.of("hello"), Optional.<String>empty());
+    TestClass testClass = new TestClass(Optional.of("hello"), Optional.empty());
     String json = gsonWithNulls.toJson(testClass);
     assertThat(json).isEqualTo("{\"present\":{\"value\":\"hello\"},\"empty\":{\"value\":null}}");
     TestClass deserialized = gsonWithNulls.fromJson(json, TestClass.class);
@@ -107,7 +107,7 @@ public final class JdkOptionalTest {
 
   @Test
   public void testOptionalFieldSerialization_skipNulls() {
-    TestClass testClass = new TestClass(Optional.of("hello"), Optional.<String>empty());
+    TestClass testClass = new TestClass(Optional.of("hello"), Optional.empty());
     String json = gson.toJson(testClass);
     assertThat(json).isEqualTo("{\"present\":{\"value\":\"hello\"},\"empty\":{}}");
     TestClass deserialized = gson.fromJson(json, TestClass.class);
@@ -166,6 +166,32 @@ public final class JdkOptionalTest {
             gson.fromJson(
                 "{\"extra\":1,\"isPresent\":true,\"value\":12.5,\"more\":2}", OptionalDouble.class))
         .isEqualTo(OptionalDouble.of(12.5));
+    Gson lenientGson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+    assertThat(lenientGson.fromJson("{\"isPresent\":false,\"value\":NaN}", OptionalDouble.class))
+        .isEqualTo(OptionalDouble.empty());
+  }
+
+  @Test
+  public void testCustomAdapterPrecedence() {
+    TypeAdapter<OptionalInt> customAdapter =
+        new TypeAdapter<OptionalInt>() {
+          @Override
+          public OptionalInt read(JsonReader in) throws IOException {
+            int value = in.nextInt();
+            return value == -1 ? OptionalInt.empty() : OptionalInt.of(value);
+          }
+
+          @Override
+          public void write(JsonWriter out, OptionalInt value) throws IOException {
+            out.value(value.orElse(-1));
+          }
+        }.nullSafe();
+    Gson customGson =
+        new GsonBuilder().registerTypeAdapter(OptionalInt.class, customAdapter).create();
+    assertThat(customGson.toJson(OptionalInt.of(42))).isEqualTo("42");
+    assertThat(customGson.toJson(OptionalInt.empty())).isEqualTo("-1");
+    assertThat(customGson.fromJson("42", OptionalInt.class)).isEqualTo(OptionalInt.of(42));
+    assertThat(customGson.fromJson("-1", OptionalInt.class)).isEqualTo(OptionalInt.empty());
   }
 
   private static final boolean OPTIONAL_FIELDS_ARE_ACCESSIBLE;
@@ -184,9 +210,9 @@ public final class JdkOptionalTest {
   }
 
   private <T> void roundTrip(T value, TypeToken<T> typeToken, String expectedJson) {
-    assertThat(gson.getAdapter(typeToken).getClass().getName()).doesNotContain("Reflective");
+    assertThat(gson.getAdapter(typeToken).toString()).contains("JdkOptionalTypeAdapters");
     assertThat(gson.toJson(value, typeToken.getType())).isEqualTo(expectedJson);
-    assertThat(gson.<T>fromJson(expectedJson, typeToken.getType())).isEqualTo(value);
+    assertThat(gson.fromJson(expectedJson, typeToken)).isEqualTo(value);
     if (OPTIONAL_FIELDS_ARE_ACCESSIBLE) {
       checkReflectiveTypeAdapterFactory(value, typeToken, expectedJson);
     }
@@ -216,6 +242,7 @@ public final class JdkOptionalTest {
             .map(f -> (ReflectiveTypeAdapterFactory) f)
             .findFirst()
             .get();
+    // Safe for test serialization
     @SuppressWarnings("unchecked")
     TypeAdapter<Object> adapter = (TypeAdapter<Object>) adapterFactory.create(gson, typeToken);
     StringWriter stringWriter = new StringWriter();
@@ -227,18 +254,30 @@ public final class JdkOptionalTest {
     assertThat(stringWriter.toString()).isEqualTo(expectedJson);
   }
 
-  private static class Holder {
+  private static class SuperClass {
+    // Read reflectively by Gson
     @SuppressWarnings("unused")
-    final String s;
+    final String sup;
 
-    Holder(String s) {
-      this.s = s;
+    SuperClass(String sup) {
+      this.sup = sup;
+    }
+  }
+
+  private static class SubClass extends SuperClass {
+    // Read reflectively by Gson
+    @SuppressWarnings("unused")
+    final String sub;
+
+    SubClass(String sup, String sub) {
+      super(sup);
+      this.sub = sub;
     }
   }
 
   private static class TestClass {
     Optional<String> present;
-    Optional<String> empty = Optional.empty();
+    Optional<String> empty;
 
     TestClass() {}
 

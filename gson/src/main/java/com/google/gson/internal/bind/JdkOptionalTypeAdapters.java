@@ -21,7 +21,6 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
@@ -67,6 +66,7 @@ final class JdkOptionalTypeAdapters {
           } else {
             return null;
           }
+          // Safe because adapter matches rawType
           @SuppressWarnings("unchecked")
           TypeAdapter<T> result = (TypeAdapter<T>) adapter;
           return result;
@@ -84,7 +84,7 @@ final class JdkOptionalTypeAdapters {
     public Optional<E> read(JsonReader in) throws IOException {
       E value = null;
       in.beginObject();
-      while (in.peek() != JsonToken.END_OBJECT) {
+      while (in.hasNext()) {
         String name = in.nextName();
         if (name.equals("value")) {
           value = innerAdapter.read(in);
@@ -116,7 +116,7 @@ final class JdkOptionalTypeAdapters {
           boolean isPresent = false;
           int value = 0;
           in.beginObject();
-          while (in.peek() != JsonToken.END_OBJECT) {
+          while (in.hasNext()) {
             String name = in.nextName();
             switch (name) {
               case "isPresent":
@@ -151,7 +151,7 @@ final class JdkOptionalTypeAdapters {
           boolean isPresent = false;
           long value = 0;
           in.beginObject();
-          while (in.peek() != JsonToken.END_OBJECT) {
+          while (in.hasNext()) {
             String name = in.nextName();
             switch (name) {
               case "isPresent":
@@ -186,7 +186,7 @@ final class JdkOptionalTypeAdapters {
           boolean isPresent = false;
           double value = 0;
           in.beginObject();
-          while (in.peek() != JsonToken.END_OBJECT) {
+          while (in.hasNext()) {
             String name = in.nextName();
             switch (name) {
               case "isPresent":
