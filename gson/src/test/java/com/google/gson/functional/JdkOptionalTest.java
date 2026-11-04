@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.Strictness;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -166,7 +167,9 @@ public final class JdkOptionalTest {
             gson.fromJson(
                 "{\"extra\":1,\"isPresent\":true,\"value\":12.5,\"more\":2}", OptionalDouble.class))
         .isEqualTo(OptionalDouble.of(12.5));
-    Gson lenientGson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+    Gson lenientGson = new GsonBuilder().setStrictness(Strictness.LENIENT).create();
+    // Empty OptionalDouble internally has value NaN; reflective adapter would have written that,
+    // verify that it can be deserialized again
     assertThat(lenientGson.fromJson("{\"isPresent\":false,\"value\":NaN}", OptionalDouble.class))
         .isEqualTo(OptionalDouble.empty());
   }

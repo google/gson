@@ -46,7 +46,7 @@ final class JdkOptionalTypeAdapters {
         @Override
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
           Class<? super T> rawType = typeToken.getRawType();
-          TypeAdapter<?> adapter;
+          TypeAdapter<?> adapter = null;
           if (rawType == Optional.class) {
             Type type = typeToken.getType();
             Type innerType =
@@ -63,8 +63,6 @@ final class JdkOptionalTypeAdapters {
             adapter = OPTIONAL_LONG;
           } else if (rawType == OptionalDouble.class) {
             adapter = OPTIONAL_DOUBLE;
-          } else {
-            return null;
           }
           // Safe because adapter matches rawType
           @SuppressWarnings("unchecked")
