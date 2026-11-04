@@ -28,6 +28,8 @@ import static com.google.gson.stream.JsonToken.STRING;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Strictness;
+import com.google.testing.junit.testparameterinjector.TestParameter;
+import com.google.testing.junit.testparameterinjector.TestParameterInjector;
 import java.io.EOFException;
 import java.io.FilterReader;
 import java.io.IOException;
@@ -36,8 +38,10 @@ import java.io.StringReader;
 import java.util.Arrays;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @SuppressWarnings("resource")
+@RunWith(TestParameterInjector.class)
 public final class JsonReaderTest {
 
   @Test
@@ -138,23 +142,22 @@ public final class JsonReaderTest {
   }
 
   @Test
-  public void testStrictModeRejectsUnpairedSurrogates() throws IOException {
-    for (String json :
-        new String[] {"\"\\uD800\"", "\"\\uDC00\"", "\"\uD800\"", "{\"\\uD800\":1}"}) {
-      JsonReader reader = new JsonReader(reader(json));
-      reader.setStrictness(Strictness.STRICT);
-      if (json.startsWith("{")) {
-        reader.beginObject();
-        IOException expected = assertThrows(IOException.class, reader::nextName);
-        assertThat(expected)
-            .hasMessageThat()
-            .startsWith("Unpaired surrogate characters are not allowed in strict mode");
-      } else {
-        IOException expected = assertThrows(IOException.class, reader::nextString);
-        assertThat(expected)
-            .hasMessageThat()
-            .startsWith("Unpaired surrogate characters are not allowed in strict mode");
-      }
+  public void testStrictModeRejectsUnpairedSurrogates(
+      @TestParameter({"\"\\uD800\"", "\"\\uDC00\"", "\"\uD800\"", "{\"\\uD800\":1}"}) String json)
+      throws IOException {
+    JsonReader reader = new JsonReader(reader(json));
+    reader.setStrictness(Strictness.STRICT);
+    if (json.startsWith("{")) {
+      reader.beginObject();
+      IOException expected = assertThrows(IOException.class, reader::nextName);
+      assertThat(expected)
+          .hasMessageThat()
+          .startsWith("Unpaired surrogate characters are not allowed in strict mode");
+    } else {
+      IOException expected = assertThrows(IOException.class, reader::nextString);
+      assertThat(expected)
+          .hasMessageThat()
+          .startsWith("Unpaired surrogate characters are not allowed in strict mode");
     }
   }
 
