@@ -27,10 +27,12 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.AbstractCollection;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,6 +46,7 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.Vector;
 import org.junit.Before;
 import org.junit.Test;
@@ -500,5 +503,30 @@ public class CollectionTest {
     SmallClass small = bigClass.inBig.get("key").get(0);
     assertThat(small).isNotNull();
     assertThat(small.inSmall).isEqualTo("hello");
+  }
+
+  @Test
+  public void testCollectionRejectingNullElement() {
+    // TreeSet, ArrayDeque and PriorityQueue throw NullPointerException from add(null); that must be
+    // reported as malformed input instead of escaping to the caller.
+    TypeToken<TreeSet<String>> treeSetType = new TypeToken<TreeSet<String>>() {};
+    TypeToken<ArrayDeque<String>> dequeType = new TypeToken<ArrayDeque<String>>() {};
+    TypeToken<PriorityQueue<String>> queueType = new TypeToken<PriorityQueue<String>>() {};
+    TypeToken<List<String>> listType = new TypeToken<List<String>>() {};
+
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[null]", treeSetType));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("null is not a valid element for java.util.TreeSet; at path $[0]");
+
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[null]", dequeType));
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[null]", queueType));
+
+    // Collections that do accept null are unaffected.
+    assertThat(gson.<List<String>>fromJson("[null]", listType)).containsExactly((String) null);
+    assertThat(gson.<TreeSet<String>>fromJson("[\"b\",\"a\"]", treeSetType))
+        .containsExactly("a", "b")
+        .inOrder();
   }
 }

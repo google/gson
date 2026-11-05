@@ -969,4 +969,26 @@ public class PrimitiveTest {
     List<Boolean> deserialized = gson.fromJson(json, new TypeToken<List<Boolean>>() {});
     assertThat(deserialized).isEqualTo(Arrays.asList(true, false, true, false, false));
   }
+
+  @Test
+  public void testDoubleAndFloatDeserializationMalformed() {
+    // Consistent with byte, short, int, long, BigDecimal and BigInteger, which already wrap the
+    // NumberFormatException from JsonReader into a JsonSyntaxException.
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"0AA\"", double.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "java.lang.NumberFormatException: Expected a double but was 0AA at line 1 column 6"
+                + " path $");
+
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"0AA\"", float.class));
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"0AA\"", Double.class));
+
+    // Well-formed values keep working, including the special ones.
+    assertThat(gson.fromJson("1.5", double.class)).isEqualTo(1.5);
+    assertThat(gson.fromJson("\"1.5\"", double.class)).isEqualTo(1.5);
+    assertThat(gson.fromJson("1e3", double.class)).isEqualTo(1000.0);
+    assertThat(gson.fromJson("NaN", double.class)).isNaN();
+  }
 }
