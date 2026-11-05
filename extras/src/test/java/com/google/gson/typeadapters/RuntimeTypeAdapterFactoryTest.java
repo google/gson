@@ -143,6 +143,80 @@ public final class RuntimeTypeAdapterFactoryTest {
   }
 
   @Test
+  public void testDeserializeNullTypeField() {
+    TypeAdapterFactory billingAdapter =
+        RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(CreditCard.class);
+    Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.fromJson("{type:null,ownerName:'Jesse'}", BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot deserialize "
+                + BillingInstrument.class
+                + " because the type field type is not a string");
+  }
+
+  @Test
+  public void testDeserializeNullTypeFieldWithMaintainType() {
+    TypeAdapterFactory billingAdapter =
+        RuntimeTypeAdapterFactory.of(BillingInstrument.class, "type", true)
+            .registerSubtype(CreditCard.class);
+    Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () -> gson.fromJson("{type:null,ownerName:'Jesse'}", BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot deserialize "
+                + BillingInstrument.class
+                + " because the type field type is not a string");
+  }
+
+  @Test
+  public void testDeserializeObjectAsTypeField() {
+    TypeAdapterFactory billingAdapter =
+        RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(CreditCard.class);
+    Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () ->
+                gson.fromJson(
+                    "{type:{name:'CreditCard'},ownerName:'Jesse'}", BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot deserialize "
+                + BillingInstrument.class
+                + " because the type field type is not a string");
+  }
+
+  @Test
+  public void testDeserializeSingleElementArrayAsTypeField() {
+    TypeAdapterFactory billingAdapter =
+        RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(CreditCard.class);
+    Gson gson = new GsonBuilder().registerTypeAdapterFactory(billingAdapter).create();
+    // A single-element array previously went through JsonArray.getAsString() and was
+    // accepted; the isJsonPrimitive() check now rejects it like other non-string labels.
+    var e =
+        assertThrows(
+            JsonParseException.class,
+            () ->
+                gson.fromJson("{type:['CreditCard'],ownerName:'Jesse'}", BillingInstrument.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "cannot deserialize "
+                + BillingInstrument.class
+                + " because the type field type is not a string");
+  }
+
+  @Test
   public void testDeserializeMissingSubtype() {
     TypeAdapterFactory billingAdapter =
         RuntimeTypeAdapterFactory.of(BillingInstrument.class).registerSubtype(BankTransfer.class);
