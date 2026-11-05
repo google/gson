@@ -988,6 +988,8 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
 
+  public static final TypeAdapterFactory JDK_OPTIONAL_FACTORY = JdkOptionalTypeAdapters.FACTORY;
+
   interface FactorySupplier {
     TypeAdapterFactory get();
   }
