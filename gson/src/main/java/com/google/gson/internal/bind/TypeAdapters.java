@@ -992,22 +992,6 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory JDK_OPTIONAL_FACTORY = JdkOptionalTypeAdapters.FACTORY;
 
-  interface FactorySupplier {
-    TypeAdapterFactory get();
-  }
-
-  public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
-    try {
-      Class<?> javaTimeTypeAdapterFactoryClass =
-          Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");
-      FactorySupplier supplier =
-          (FactorySupplier) javaTimeTypeAdapterFactoryClass.getDeclaredConstructor().newInstance();
-      return supplier.get();
-    } catch (ReflectiveOperationException | LinkageError e) {
-      return null;
-    }
-  }
-
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(
       TypeToken<TT> type, TypeAdapter<TT> typeAdapter) {
