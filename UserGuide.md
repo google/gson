@@ -160,9 +160,11 @@ BagOfPrimitives obj2 = gson.fromJson(json, BagOfPrimitives.class);
 
 ### Nested Classes (including Inner Classes)
 
-Gson can serialize static nested classes quite easily.
+Gson can serialize and deserialize static nested classes. It can also serialize a named, non-static inner class. The reference to the enclosing instance is excluded from JSON.
 
-Gson can also deserialize static nested classes. However, Gson can **not** automatically deserialize the **pure inner classes since their no-args constructor also need a reference to the containing Object** which is not available at the time of deserialization. You can address this problem by either making the inner class static or by providing a custom InstanceCreator for it. Here is an example:
+A non-static inner class constructor requires an enclosing instance, even when the constructor declares no arguments. Gson cannot invoke that constructor by itself. If Gson falls back to JDK `Unsafe`, it can allocate the inner object without running its constructor or attaching an enclosing instance. Prefer a static nested class if the type does not need the enclosing instance.
+
+For an inner class such as `A.B` that needs an enclosing instance, register an `InstanceCreator` that supplies one.
 
 ```java
 public class A {
@@ -179,10 +181,6 @@ public class A {
 }
 ```
 
-**NOTE**: The above class B can not (by default) be serialized with Gson.
-
-Gson can not deserialize `{"b":"abc"}` into an instance of B since the class B is an inner class. If it was defined as static class B then Gson would have been able to deserialize the string. Another solution is to write a custom instance creator for B.
-
 ```java
 public class InstanceCreatorForB implements InstanceCreator<A.B> {
   private final A a;
@@ -195,7 +193,15 @@ public class InstanceCreatorForB implements InstanceCreator<A.B> {
 }
 ```
 
-The above is possible, but not recommended.
+Register the creator for the inner class before deserializing it:
+
+```java
+A outer = new A();
+Gson gson = new GsonBuilder()
+    .registerTypeAdapter(A.B.class, new InstanceCreatorForB(outer))
+    .create();
+A.B inner = gson.fromJson("{\"b\":\"abc\"}", A.B.class);
+```
 
 ### Array Examples
 
