@@ -51,7 +51,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * GSON type adapter for protocol buffers that knows how to serialize enums either by using their
+ * Gson type adapter for protocol buffers that knows how to serialize enums either by using their
  * values or their names, and also supports custom proto field names.
  *
  * <p>You can specify which case representation is used for the proto fields when writing/reading

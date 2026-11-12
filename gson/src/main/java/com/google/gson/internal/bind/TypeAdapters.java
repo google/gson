@@ -154,7 +154,7 @@ public final class TypeAdapters {
             in.nextNull();
             return null;
           } else if (peek == JsonToken.STRING) {
-            // support strings for compatibility with GSON 1.7
+            // support strings for compatibility with Gson 1.7
             return Boolean.parseBoolean(in.nextString());
           }
           return in.nextBoolean();
@@ -972,6 +972,8 @@ public final class TypeAdapters {
       newTypeHierarchyFactory(JsonElement.class, JSON_ELEMENT);
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
+
+  public static final TypeAdapterFactory JDK_OPTIONAL_FACTORY = JdkOptionalTypeAdapters.FACTORY;
 
   interface FactorySupplier {
     TypeAdapterFactory get();

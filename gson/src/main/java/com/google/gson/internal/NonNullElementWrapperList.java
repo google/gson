@@ -86,6 +86,11 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   }
 
   @Override
+  protected void removeRange(int fromIndex, int toIndex) {
+    delegate.subList(fromIndex, toIndex).clear();
+  }
+
+  @Override
   public boolean removeAll(Collection<?> c) {
     return delegate.removeAll(c);
   }
