@@ -462,7 +462,7 @@
           <version>3.7.0</version>
         </plugin>
 
-        <!-- Plugin for checking source and binary compatibility; used by GitHub workflow -->
+        <!-- Plugins for checking source and binary compatibility; used by GitHub workflow -->
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
@@ -475,7 +475,7 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>${project.artifactId}</artifactId>
                 <!-- This is set by the GitHub workflow -->
-                <version>0.0.0-JAPICMP-OLD</version>
+                <version>0.0.0-OLD</version>
               </dependency>
             </oldVersion>
 
@@ -491,6 +491,47 @@
               <skipXmlReport>true</skipXmlReport>
               <reportOnlyFilename>true</reportOnlyFilename>
             </parameter>
+          </configuration>
+        </plugin>
+
+        <!-- Note: Requires Java >= 25 at runtime. For the `gson` module, `com.google.gson.internal`
+          and its subpackages are automatically excluded because `module-info.class` (added during
+          the `package` phase by moditect-maven-plugin) does not export them. -->
+        <plugin>
+          <groupId>io.github.alien-tools</groupId>
+          <artifactId>roseau-maven-plugin</artifactId>
+          <version>0.7.0</version>
+          <!-- Upgrade JDT Core from 3.46.0 to 3.47.0 because 3.46.0 declares version ranges whose
+            lower bounds (3.24.0 / 3.14.700) do not exist as exact versions on Maven Central, which
+            breaks proxies that strip version ranges. -->
+          <dependencies>
+            <dependency>
+              <groupId>org.eclipse.jdt</groupId>
+              <artifactId>org.eclipse.jdt.core</artifactId>
+              <version>3.47.0</version>
+            </dependency>
+          </dependencies>
+          <configuration>
+            <skip>${gson.isTestModule}</skip>
+
+            <baselineDependency>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <!-- This is set by the GitHub workflow -->
+              <version>0.0.0-OLD</version>
+            </baselineDependency>
+
+            <failOnIncompatibility>true</failOnIncompatibility>
+            <reports>
+              <report>
+                <file>report.html</file>
+                <format>HTML</format>
+              </report>
+              <report>
+                <file>report.csv</file>
+                <format>CSV</format>
+              </report>
+            </reports>
           </configuration>
         </plugin>
 
