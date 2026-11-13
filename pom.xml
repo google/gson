@@ -177,25 +177,6 @@
         </configuration>
       </plugin>
 
-      <!-- Attaches a `.buildinfo` file which contains information for reproducing the build,
-        such as OS, JDK version, ...
-        Since this is a multi-module Maven project, only one aggregated file will be created for
-        the last module, see the note on https://maven.apache.org/plugins/maven-artifact-plugin/usage.html#recording-buildinfo-file -->
-      <!-- The other goals of this plugin are run by the GitHub workflow to verify that
-        the build is reproducible (see `artifact:...` usage in the workflow) -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-artifact-plugin</artifactId>
-        <version>3.7.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>buildinfo</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Publish gson-parent to Maven Central on `deploy` (common configuration is defined in `pluginManagement`) -->
       <plugin>
         <groupId>org.sonatype.central</groupId>
@@ -472,6 +453,13 @@
               </configuration>
             </execution>
           </executions>
+        </plugin>
+
+        <!-- Plugin for verifying reproducible builds; see `mvn ... artifact:...` usage in GitHub workflow -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-artifact-plugin</artifactId>
+          <version>3.7.0</version>
         </plugin>
 
         <!-- Plugin for checking source and binary compatibility; used by GitHub workflow -->
