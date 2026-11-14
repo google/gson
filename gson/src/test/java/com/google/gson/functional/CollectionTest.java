@@ -295,20 +295,20 @@ public class CollectionTest {
 
   @Test
   public void testNullsInEnumSetDeserialization() {
-    TypeToken<EnumSet<MyEnum>> typeOfT = new TypeToken<EnumSet<MyEnum>>() {};
+    var typeToken = new TypeToken<EnumSet<MyEnum>>() {};
+    Class<?> enumSetClass = EnumSet.noneOf(MyEnum.class).getClass();
     JsonSyntaxException enumSetNullException =
-        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[\"A\", null]", typeOfT));
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[\"A\", null]", typeToken));
     assertThat(enumSetNullException)
         .hasMessageThat()
-        .isEqualTo("Null element is not allowed in class java.util.RegularEnumSet; at path $[1]");
+        .isEqualTo("Null element is not allowed in " + enumSetClass + "; at path $[1]");
     assertThat(enumSetNullException).hasCauseThat().isInstanceOf(NullPointerException.class);
 
-    TypeToken<EnumSet<MyEnum>> typeOfT2 = new TypeToken<EnumSet<MyEnum>>() {};
     JsonSyntaxException enumSetUnknownException =
-        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[\"UNKNOWN\"]", typeOfT2));
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[\"UNKNOWN\"]", typeToken));
     assertThat(enumSetUnknownException)
         .hasMessageThat()
-        .isEqualTo("Null element is not allowed in class java.util.RegularEnumSet; at path $[0]");
+        .isEqualTo("Null element is not allowed in " + enumSetClass + "; at path $[0]");
     assertThat(enumSetUnknownException).hasCauseThat().isInstanceOf(NullPointerException.class);
   }
 

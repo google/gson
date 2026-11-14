@@ -324,7 +324,17 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
-  public void testLocaleDeserializationError(@TestParameter({"", "_", "___"}) String invalid) {
+  public void testLocaleSerializationRoot() {
+    assertThat(gson.toJson(Locale.ROOT)).isEqualTo("\"\"");
+  }
+
+  @Test
+  public void testLocaleDeserializationRoot() {
+    assertThat(gson.fromJson("\"\"", Locale.class)).isEqualTo(Locale.ROOT);
+  }
+
+  @Test
+  public void testLocaleDeserializationError(@TestParameter({"_", "___"}) String invalid) {
     String invalidJson = "[\"" + invalid + "\"]";
     JsonSyntaxException e =
         assertThrows(JsonSyntaxException.class, () -> gson.fromJson(invalidJson, Locale[].class));

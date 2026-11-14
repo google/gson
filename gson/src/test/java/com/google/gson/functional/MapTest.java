@@ -341,6 +341,7 @@ public class MapTest {
     B
   }
 
+  /** Provider of {@link Map} types whose {@link Map#containsKey(Object)} disallows {@code null}. */
   private static final class NullKeyDisallowedInContainsKeyTypesProvider
       extends TestParameterValuesProvider {
     @Override
@@ -370,19 +371,18 @@ public class MapTest {
   @Test
   public void testEnumMapDeserializationNullKeyDisallowed() {
     // EnumMap.containsKey(null) returns false, so NullPointerException is thrown by EnumMap.put
-    TypeToken<EnumMap<MyEnum, String>> typeOfT = new TypeToken<EnumMap<MyEnum, String>>() {};
+    var typeToken = new TypeToken<EnumMap<MyEnum, String>>() {};
     JsonSyntaxException enumMapArrayException =
-        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[null, \"a\"]]", typeOfT));
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[null, \"a\"]]", typeToken));
     assertThat(enumMapArrayException)
         .hasMessageThat()
         .isEqualTo("Null key is not allowed in class java.util.EnumMap; at path $[0][0]");
     assertThat(enumMapArrayException).hasCauseThat().isInstanceOf(NullPointerException.class);
 
     // Unknown enum constant deserializes to a null key in JSON object syntax
-    TypeToken<EnumMap<MyEnum, String>> typeOfT2 = new TypeToken<EnumMap<MyEnum, String>>() {};
     JsonSyntaxException enumMapObjectException =
         assertThrows(
-            JsonSyntaxException.class, () -> gson.fromJson("{\"UNKNOWN\": \"a\"}", typeOfT2));
+            JsonSyntaxException.class, () -> gson.fromJson("{\"UNKNOWN\": \"a\"}", typeToken));
     assertThat(enumMapObjectException)
         .hasMessageThat()
         .isEqualTo("Null key is not allowed in class java.util.EnumMap; at path $.UNKNOWN");

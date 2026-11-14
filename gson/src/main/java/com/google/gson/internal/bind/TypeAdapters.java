@@ -936,6 +936,9 @@ public final class TypeAdapters {
             return null;
           }
           String locale = in.nextString();
+          if (locale.isEmpty()) {
+            return Locale.ROOT;
+          }
           StringTokenizer tokenizer = new StringTokenizer(locale, "_");
           String language = null;
           String country = null;
@@ -953,7 +956,7 @@ public final class TypeAdapters {
             throw new JsonSyntaxException(
                 "Failed parsing '" + locale + "' as Locale; at path " + in.getPreviousPath());
           }
-          if (country == null && variant == null) {
+          if (country == null) {
             return new Locale(language);
           } else if (variant == null) {
             return new Locale(language, country);
