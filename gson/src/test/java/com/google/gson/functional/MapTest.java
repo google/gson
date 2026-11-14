@@ -36,14 +36,22 @@ import com.google.gson.internal.GsonTypes;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.google.testing.junit.testparameterinjector.TestParameter;
+import com.google.testing.junit.testparameterinjector.TestParameterInjector;
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -53,6 +61,7 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Functional test for Json serialization and deserialization for Maps
@@ -60,6 +69,7 @@ import org.junit.Test;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@RunWith(TestParameterInjector.class)
 public class MapTest {
   private Gson gson;
 
@@ -324,6 +334,100 @@ public class MapTest {
     assertThat(map.get(123)).isEqualTo("456");
     String json = gson.toJson(map);
     assertThat(json).isEqualTo("{\"123\":\"456\"}");
+  }
+
+  private enum MyEnum {
+    A,
+    B
+  }
+
+  private static final class NullKeyDisallowedInContainsKeyTypesProvider
+      extends TestParameterValuesProvider {
+    @Override
+    protected List<?> provideValues(Context context) {
+      return Arrays.asList(
+          TypeToken.get(Properties.class),
+          new TypeToken<Hashtable<String, String>>() {},
+          new TypeToken<TreeMap<String, String>>() {},
+          new TypeToken<ConcurrentMap<String, String>>() {},
+          new TypeToken<ConcurrentHashMap<String, String>>() {},
+          new TypeToken<ConcurrentNavigableMap<String, String>>() {},
+          new TypeToken<ConcurrentSkipListMap<String, String>>() {});
+    }
+  }
+
+  @Test
+  public void testMapDeserializationNullKeyDisallowed(
+      @TestParameter(valuesProvider = NullKeyDisallowedInContainsKeyTypesProvider.class)
+          TypeToken<?> typeToken) {
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[null, \"a\"]]", typeToken));
+    assertThat(e).hasMessageThat().startsWith("Null key is not allowed in class java.util.");
+    assertThat(e).hasMessageThat().endsWith("; at path $[0][0]");
+    assertThat(e).hasCauseThat().isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  public void testEnumMapDeserializationNullKeyDisallowed() {
+    // EnumMap.containsKey(null) returns false, so NullPointerException is thrown by EnumMap.put
+    TypeToken<EnumMap<MyEnum, String>> typeOfT = new TypeToken<EnumMap<MyEnum, String>>() {};
+    JsonSyntaxException enumMapArrayException =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[null, \"a\"]]", typeOfT));
+    assertThat(enumMapArrayException)
+        .hasMessageThat()
+        .isEqualTo("Null key is not allowed in class java.util.EnumMap; at path $[0][0]");
+    assertThat(enumMapArrayException).hasCauseThat().isInstanceOf(NullPointerException.class);
+
+    // Unknown enum constant deserializes to a null key in JSON object syntax
+    TypeToken<EnumMap<MyEnum, String>> typeOfT2 = new TypeToken<EnumMap<MyEnum, String>>() {};
+    JsonSyntaxException enumMapObjectException =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("{\"UNKNOWN\": \"a\"}", typeOfT2));
+    assertThat(enumMapObjectException)
+        .hasMessageThat()
+        .isEqualTo("Null key is not allowed in class java.util.EnumMap; at path $.UNKNOWN");
+    assertThat(enumMapObjectException).hasCauseThat().isInstanceOf(NullPointerException.class);
+  }
+
+  private static final class NullValueDisallowedTypesProvider extends TestParameterValuesProvider {
+    @Override
+    protected List<?> provideValues(Context context) {
+      return Arrays.asList(
+          TypeToken.get(Properties.class),
+          new TypeToken<Hashtable<String, String>>() {},
+          new TypeToken<ConcurrentMap<String, String>>() {},
+          new TypeToken<ConcurrentHashMap<String, String>>() {},
+          new TypeToken<ConcurrentNavigableMap<String, String>>() {},
+          new TypeToken<ConcurrentSkipListMap<String, String>>() {});
+    }
+  }
+
+  @Test
+  public void testMapDeserializationNullValueDisallowed(
+      @TestParameter(valuesProvider = NullValueDisallowedTypesProvider.class)
+          TypeToken<?> typeToken) {
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{\"a\": null}", typeToken));
+    assertThat(e).hasMessageThat().startsWith("Null value is not allowed in class java.util.");
+    assertThat(e).hasMessageThat().endsWith("; at path $.a");
+    assertThat(e).hasCauseThat().isInstanceOf(NullPointerException.class);
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[\"a\", null]]", typeToken));
+    assertThat(e).hasMessageThat().startsWith("Null value is not allowed in class java.util.");
+    assertThat(e).hasMessageThat().endsWith("; at path $[0][1]");
+    assertThat(e).hasCauseThat().isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  public void testEnumMapAndTreeMapDeserializationNullValueAllowed() {
+    // EnumMap and TreeMap allow null values
+    EnumMap<MyEnum, String> enumMap =
+        gson.fromJson("{\"A\": null}", new TypeToken<EnumMap<MyEnum, String>>() {});
+    assertThat(enumMap).containsExactly(MyEnum.A, null);
+
+    TreeMap<String, String> treeMap =
+        gson.fromJson("{\"a\": null}", new TypeToken<TreeMap<String, String>>() {});
+    assertThat(treeMap).containsExactly("a", null);
   }
 
   @Test

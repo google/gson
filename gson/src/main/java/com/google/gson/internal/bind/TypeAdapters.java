@@ -949,6 +949,10 @@ public final class TypeAdapters {
           if (tokenizer.hasMoreElements()) {
             variant = tokenizer.nextToken();
           }
+          if (language == null) {
+            throw new JsonSyntaxException(
+                "Failed parsing '" + locale + "' as Locale; at path " + in.getPreviousPath());
+          }
           if (country == null && variant == null) {
             return new Locale(language);
           } else if (variant == null) {
