@@ -160,9 +160,9 @@ BagOfPrimitives obj2 = gson.fromJson(json, BagOfPrimitives.class);
 
 ### Nested Classes (including Inner Classes)
 
-Gson can serialize static nested classes quite easily.
+Prefer static nested classes for types you serialize and deserialize with Gson. Gson can serialize a non-static inner class, but it omits the implicit reference to the enclosing instance. When deserializing, Gson therefore cannot reconstruct a valid inner class instance by default. If it falls back to JDK `Unsafe`, it may create an object whose enclosing reference is null.
 
-Gson can also deserialize static nested classes. However, Gson can **not** automatically deserialize the **pure inner classes since their no-args constructor also need a reference to the containing Object** which is not available at the time of deserialization. You can address this problem by either making the inner class static or by providing a custom InstanceCreator for it. Here is an example:
+If you must deserialize a non-static inner class, provide an `InstanceCreator` that supplies the enclosing instance. For example:
 
 ```java
 public class A {
@@ -179,10 +179,6 @@ public class A {
 }
 ```
 
-**NOTE**: The above class B can not (by default) be serialized with Gson.
-
-Gson can not deserialize `{"b":"abc"}` into an instance of B since the class B is an inner class. If it was defined as static class B then Gson would have been able to deserialize the string. Another solution is to write a custom instance creator for B.
-
 ```java
 public class InstanceCreatorForB implements InstanceCreator<A.B> {
   private final A a;
@@ -195,7 +191,7 @@ public class InstanceCreatorForB implements InstanceCreator<A.B> {
 }
 ```
 
-The above is possible, but not recommended.
+Register the creator for `A.B.class` with `GsonBuilder.registerTypeAdapter`. Prefer making `B` static if it does not need to access its enclosing instance.
 
 ### Array Examples
 
