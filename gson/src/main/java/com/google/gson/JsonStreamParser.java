@@ -30,19 +30,9 @@ import java.util.NoSuchElementException;
  * asynchronously. The JSON data is parsed in lenient mode, see also {@link
  * JsonReader#setStrictness(Strictness)}.
  *
- * <p>This class is conditionally thread-safe (see Item 70, Effective Java second edition). To
- * properly use this class across multiple threads, you will need to add some external
- * synchronization. For example:
+ * <p>This class is thread-safe: {@link #hasNext()} and {@link #next()} synchronize internally.
  *
- * <pre>
- * JsonStreamParser parser = new JsonStreamParser("['first'] {'second':10} 'third'");
- * JsonElement element;
- * synchronized (parser) {  // synchronize on an object shared by threads
- *   if (parser.hasNext()) {
- *     element = parser.next();
- *   }
- * }
- * </pre>
+ * <p>No external synchronization is required to share an instance across multiple threads.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -81,14 +71,16 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    */
   @Override
   public JsonElement next() throws JsonParseException {
-    if (!hasNext()) {
-      throw new NoSuchElementException();
-    }
+    synchronized (lock) {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
 
-    try {
-      return Streams.parse(parser);
-    } catch (StackOverflowError | OutOfMemoryError e) {
-      throw new JsonParseException("Failed parsing JSON source to Json", e);
+      try {
+        return Streams.parse(parser);
+      } catch (StackOverflowError | OutOfMemoryError e) {
+        throw new JsonParseException("Failed parsing JSON source to Json", e);
+      }
     }
   }
 
