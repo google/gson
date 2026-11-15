@@ -19,7 +19,13 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import java.io.EOFException;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -101,5 +107,55 @@ public class JsonStreamParserTest {
 
     parser = new JsonStreamParser(":");
     assertThrows(JsonSyntaxException.class, parser::next);
+  }
+
+  @Test
+  public void testConcurrentNext() throws InterruptedException {
+    int elementCount = 1000;
+    Set<String> expected = new HashSet<>();
+    StringBuilder json = new StringBuilder();
+    for (int i = 0; i < elementCount; i++) {
+      json.append("'element").append(i).append("' ");
+      expected.add("element" + i);
+    }
+    JsonStreamParser parser = new JsonStreamParser(json.toString());
+
+    // Consume the elements from two threads; every element must be returned to exactly one
+    // thread, without corrupting the state of the parser
+    Set<String> consumed = ConcurrentHashMap.newKeySet();
+    Queue<Throwable> failures = new ConcurrentLinkedQueue<>();
+    CountDownLatch startSignal = new CountDownLatch(1);
+    Thread[] threads = new Thread[2];
+    for (int i = 0; i < threads.length; i++) {
+      threads[i] = new Thread(() -> consumeElements(parser, consumed, failures, startSignal));
+      threads[i].start();
+    }
+
+    startSignal.countDown();
+    for (Thread thread : threads) {
+      thread.join(10000);
+    }
+
+    assertThat(failures).isEmpty();
+    assertThat(consumed).containsExactlyElementsIn(expected);
+  }
+
+  private static void consumeElements(
+      JsonStreamParser parser,
+      Set<String> consumed,
+      Queue<Throwable> failures,
+      CountDownLatch startSignal) {
+    try {
+      startSignal.await();
+      while (true) {
+        consumed.add(parser.next().getAsString());
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    } catch (NoSuchElementException expected) {
+      // All elements have been consumed
+    } catch (RuntimeException | Error e) {
+      failures.add(e);
+    }
   }
 }
