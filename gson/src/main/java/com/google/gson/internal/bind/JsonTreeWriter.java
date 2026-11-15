@@ -25,6 +25,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -218,7 +220,10 @@ public final class JsonTreeWriter extends JsonWriter {
       return nullValue();
     }
 
-    if (!isLenient()) {
+    // BigDecimal/BigInteger are always valid JSON numbers (mirrors
+    // JsonWriter.alwaysCreatesValidJsonNumber); their doubleValue() can overflow to Infinity
+    // even though the value is finite, so do not use it as the finiteness oracle for them.
+    if (!isLenient() && !(value instanceof BigDecimal) && !(value instanceof BigInteger)) {
       double d = value.doubleValue();
       if (Double.isNaN(d) || Double.isInfinite(d)) {
         throw new IllegalArgumentException("JSON forbids NaN and infinities: " + value);
