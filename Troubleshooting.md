@@ -155,12 +155,12 @@ To spot syntax errors in the JSON data easily you can open it in an editor with 
 
 **Symptom:** Gson parses malformed JSON without throwing any exceptions
 
-**Reason:** Due to legacy reasons Gson performs parsing by default in lenient mode
+**Reason:** For backward compatibility, most Gson parsing methods, such as `Gson.fromJson(String, Class)`, accept some malformed JSON when no strictness is configured. A standalone `JsonReader` defaults to `Strictness.LEGACY_STRICT`, which allows fewer deviations from the JSON specification than `Strictness.LENIENT`.
 
-**Solution:** If you are using Gson 2.11.0 or newer, call [`GsonBuilder.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#setStrictness(com.google.gson.Strictness)),
+**Solution:** If you are using Gson 2.11.0 or newer, configure `Strictness.STRICT` on the API you use. For parsing or writing through a `Gson` instance, use [`GsonBuilder.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/GsonBuilder.html#setStrictness(com.google.gson.Strictness)). For direct streaming, use
 [`JsonReader.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonReader.html#setStrictness(com.google.gson.Strictness))
 and [`JsonWriter.setStrictness`](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/stream/JsonWriter.html#setStrictness(com.google.gson.Strictness))
-with `Strictness.STRICT` to overwrite the default lenient behavior of `Gson` and make these classes strictly adhere to the JSON specification.
+on the reader or writer you use.
 Otherwise if you are using an older Gson version, see the [`Gson` class documentation](https://www.javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html#default-lenient)
 section "JSON Strictness handling" for alternative solutions.
 
