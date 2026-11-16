@@ -706,7 +706,7 @@ public final class Gson {
    * @since 1.4
    */
   public String toJson(JsonElement jsonElement) {
-    StringBuilder writer = new StringBuilder(256);
+    StringBuilder writer = JsonElement.newJsonStringBuilder();
     toJson(jsonElement, writer);
     return writer.toString();
   }
