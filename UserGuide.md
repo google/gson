@@ -153,7 +153,7 @@ BagOfPrimitives obj2 = gson.fromJson(json, BagOfPrimitives.class);
 * If a field is marked transient, (by default) it is ignored and not included in the JSON serialization or deserialization.
 * This implementation handles nulls correctly.
   * While serializing, a null field is omitted from the output.
-  * While deserializing, a missing entry in JSON results in setting the corresponding field in the object to its default value: null for object types, zero for numeric types, and false for booleans.
+  * For ordinary classes using Gson's default reflective deserialization, a missing JSON member leaves the corresponding field untouched. If Gson calls a constructor, the field keeps any value set by its initializer or constructor. If Gson allocates the object without calling a constructor, the field keeps its Java default, such as `null`, `0`, or `false`. See the [troubleshooting guide](Troubleshooting.md#default-field-values-missing).
 * If a field is _synthetic_, it is ignored and not included in JSON serialization or deserialization.
 * Fields corresponding to the outer classes in inner classes are ignored and not included in serialization or deserialization.
 * Anonymous and local classes are excluded. They will be serialized as JSON `null` and when deserialized their JSON value is ignored and `null` is returned. Convert the classes to `static` nested classes to enable serialization and deserialization for them.
