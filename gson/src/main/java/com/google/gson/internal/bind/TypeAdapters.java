@@ -217,7 +217,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value((Number) value.byteValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which widens number
+            Number byteNumber = value instanceof Byte ? value : value.byteValue();
+            out.value(byteNumber);
           }
         }
       };
@@ -252,7 +254,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value((Number) value.shortValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which widens number
+            Number shortNumber = value instanceof Short ? value : value.shortValue();
+            out.value(shortNumber);
           }
         }
       };
@@ -280,7 +284,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value((Number) value.intValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which widens number
+            Number intNumber = value instanceof Integer ? value : value.intValue();
+            out.value(intNumber);
           }
         }
       };
@@ -480,7 +486,7 @@ public final class TypeAdapters {
       if (strict) {
         checkValidFloatingPoint(floatValue);
       }
-      // For backward compatibility don't call `JsonWriter.value(float)` because that method has
+      // For backward compatibility don't call `JsonWriter#value(float)` because that method has
       // been newly added and not all custom JsonWriter implementations might override it yet
       Number floatNumber = value instanceof Float ? value : floatValue;
       out.value(floatNumber);
