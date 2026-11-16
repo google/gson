@@ -327,6 +327,52 @@ public class JsonPrimitiveTest {
         new JsonPrimitive(9007199254740993L), new JsonPrimitive(9007199254740992.0));
   }
 
+  /**
+   * Numbers parsed from JSON are backed by {@link LazilyParsedNumber}. Like two {@link BigDecimal}
+   * values, two such numbers should only be equal if their decimal values are equal, and not
+   * already if they are converted to the same {@code double} value.
+   */
+  @Test
+  public void testLazilyParsedNumberEquals() {
+    // Different integers above 2^53 which are converted to the same double value
+    assertThat(JsonParser.parseString("9007199254740993"))
+        .isNotEqualTo(JsonParser.parseString("9007199254740992"));
+    assertThat(JsonParser.parseString("{\"id\":12345678901234567891}"))
+        .isNotEqualTo(JsonParser.parseString("{\"id\":12345678901234567890}"));
+    // Different decimal numbers which are converted to the same double value
+    assertThat(new JsonPrimitive(new LazilyParsedNumber("0.1")))
+        .isNotEqualTo(new JsonPrimitive(new LazilyParsedNumber("0.10000000000000001")));
+    // Different numbers outside the double range
+    assertThat(new JsonPrimitive(new LazilyParsedNumber("1e400")))
+        .isNotEqualTo(new JsonPrimitive(new LazilyParsedNumber("2e400")));
+    assertThat(new JsonPrimitive(new LazilyParsedNumber("9007199254740993")))
+        .isNotEqualTo(new JsonPrimitive(new BigDecimal("9007199254740992")));
+
+    // Equal numbers with different representations
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("1")),
+        new JsonPrimitive(new LazilyParsedNumber("1.0")));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("100")),
+        new JsonPrimitive(new LazilyParsedNumber("1e2")));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("-0")),
+        new JsonPrimitive(new LazilyParsedNumber("0.0")));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("9007199254740993")),
+        new JsonPrimitive(new BigDecimal("9007199254740993.00")));
+    MoreAsserts.assertEqualsAndHashCode(
+        JsonParser.parseString("[1e400]"), JsonParser.parseString("[10E399]"));
+
+    // Values which are not supported by BigDecimal are compared as double
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("NaN")),
+        new JsonPrimitive(new LazilyParsedNumber("NaN")));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("-Infinity")),
+        new JsonPrimitive(new LazilyParsedNumber("-Infinity")));
+  }
+
   @Test
   public void testEqualsIntegerAndBigInteger() {
     JsonPrimitive a = new JsonPrimitive(5L);
