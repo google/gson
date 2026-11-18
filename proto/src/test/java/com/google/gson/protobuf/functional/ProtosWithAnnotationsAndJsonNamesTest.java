@@ -84,20 +84,18 @@ public class ProtosWithAnnotationsAndJsonNamesTest {
 
   @Test
   public void testProtoWithAnnotationsAndJsonNames_basicConversions() {
-    JSON_OUTPUTS.forEach(
-        (gson, json) -> {
-          assertThat(gson.fromJson(json, ProtoWithAnnotationsAndJsonNames.class)).isEqualTo(PROTO);
-          assertThat(gson.toJson(PROTO)).isEqualTo(json);
-        });
+    JSON_OUTPUTS.forEach((gson, json) -> {
+      assertThat(gson.fromJson(json, ProtoWithAnnotationsAndJsonNames.class)).isEqualTo(PROTO);
+      assertThat(gson.toJson(PROTO)).isEqualTo(json);
+    });
   }
 
   @Test
   public void testProtoWithAnnotationsAndJsonNames_basicRoundTrips() {
-    JSON_OUTPUTS.forEach(
-        (gson, json) -> {
-          assertThat(roundTrip(gson, gson, json)).isEqualTo(json);
-          assertThat(roundTrip(gson, gson, PROTO)).isEqualTo(PROTO);
-        });
+    JSON_OUTPUTS.forEach((gson, json) -> {
+      assertThat(roundTrip(gson, gson, json)).isEqualTo(json);
+      assertThat(roundTrip(gson, gson, PROTO)).isEqualTo(PROTO);
+    });
   }
 
   @Test
