@@ -258,19 +258,18 @@ public enum LegacyProtoTypeAdapterFactory implements TypeAdapterFactory {
         }
       }
       // Finally, set any string-valued oneof fields.
-      oneofNameToValue.forEach(
-          (oneofName, value) -> {
-            Integer caseNumber = oneofNameToCaseNumber.get(oneofName);
-            if (caseNumber != null && caseNumber > 0) {
-              OneofDescriptor oneofDescriptor = oneofNameToOneofDescriptor.get(oneofName);
-              FieldDescriptor fieldDescriptor =
-                  oneofDescriptor.getContainingType().findFieldByNumber(caseNumber);
-              if (fieldDescriptor != null
-                  && fieldDescriptor.getRealContainingOneof() == oneofDescriptor) {
-                builder.setField(fieldDescriptor, value);
-              }
-            }
-          });
+      oneofNameToValue.forEach((oneofName, value) -> {
+        Integer caseNumber = oneofNameToCaseNumber.get(oneofName);
+        if (caseNumber != null && caseNumber > 0) {
+          OneofDescriptor oneofDescriptor = oneofNameToOneofDescriptor.get(oneofName);
+          FieldDescriptor fieldDescriptor =
+              oneofDescriptor.getContainingType().findFieldByNumber(caseNumber);
+          if (fieldDescriptor != null
+              && fieldDescriptor.getRealContainingOneof() == oneofDescriptor) {
+            builder.setField(fieldDescriptor, value);
+          }
+        }
+      });
       @SuppressWarnings("unchecked")
       T result = (T) builder.build();
       return result;
@@ -442,12 +441,11 @@ public enum LegacyProtoTypeAdapterFactory implements TypeAdapterFactory {
     public void write(JsonWriter out, T message) throws IOException {
       int bitFieldCount = (fieldWithPresenceToBitIndex.size() + 31) / 32;
       int[] bitFields = new int[bitFieldCount];
-      fieldWithPresenceToBitIndex.forEach(
-          (fieldDescriptor, bitIndex) -> {
-            if (message.hasField(fieldDescriptor)) {
-              bitFields[bitIndex / 32] |= 1 << bitIndex; // `<<` automatically mods with 32
-            }
-          });
+      fieldWithPresenceToBitIndex.forEach((fieldDescriptor, bitIndex) -> {
+        if (message.hasField(fieldDescriptor)) {
+          bitFields[bitIndex / 32] |= 1 << bitIndex; // `<<` automatically mods with 32
+        }
+      });
       out.beginObject();
       for (int i = 0; i < bitFieldCount; i++) {
         writeFieldName(out, "bitField" + i + "_").value(bitFields[i]);

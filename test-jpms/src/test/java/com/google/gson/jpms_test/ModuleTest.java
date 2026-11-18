@@ -88,10 +88,9 @@ public class ModuleTest {
 
   private static Stream<Requires> filterImplicitRequires(Set<Requires> requires) {
     return requires.stream()
-        .filter(
-            r ->
-                !r.modifiers().contains(Requires.Modifier.MANDATED)
-                    && !r.modifiers().contains(Requires.Modifier.SYNTHETIC));
+        .filter(r ->
+            !r.modifiers().contains(Requires.Modifier.MANDATED)
+                && !r.modifiers().contains(Requires.Modifier.SYNTHETIC));
   }
 
   private static Set<String> getModuleDependencies(Set<Requires> requires) {
