@@ -34,10 +34,25 @@ import java.util.Objects;
  */
 public final class JsonPrimitive extends JsonElement {
 
+  /**
+   * A {@code JsonPrimitive} representing the boolean value {@code true}.
+   *
+   * @since $next-version$
+   */
+  public static final JsonPrimitive TRUE = new JsonPrimitive(true);
+
+  /**
+   * A {@code JsonPrimitive} representing the boolean value {@code false}.
+   *
+   * @since $next-version$
+   */
+  public static final JsonPrimitive FALSE = new JsonPrimitive(false);
+
   private final Object value;
 
   /**
-   * Create a primitive containing a boolean value.
+   * Create a primitive containing a boolean value. Consider using {@link #of(boolean)}, {@link
+   * #TRUE}, or {@link #FALSE} instead to avoid allocating a new instance.
    *
    * @param bool the value to create the primitive with.
    */
@@ -83,6 +98,15 @@ public final class JsonPrimitive extends JsonElement {
     // convert characters to strings since in JSON, characters are represented as a single
     // character string
     value = Objects.requireNonNull(c).toString();
+  }
+
+  /**
+   * Returns {@link #TRUE} or {@link #FALSE} corresponding to {@code value}.
+   *
+   * @since $next-version$
+   */
+  public static JsonPrimitive of(boolean value) {
+    return value ? TRUE : FALSE;
   }
 
   /**

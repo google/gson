@@ -67,6 +67,35 @@ public class JsonPrimitiveTest {
   }
 
   @Test
+  public void testBooleanConstantsAndOf() {
+    assertThat(JsonPrimitive.TRUE.isBoolean()).isTrue();
+    assertThat(JsonPrimitive.TRUE.getAsBoolean()).isTrue();
+    MoreAsserts.assertEqualsAndHashCode(JsonPrimitive.TRUE, new JsonPrimitive(true));
+
+    assertThat(JsonPrimitive.FALSE.isBoolean()).isTrue();
+    assertThat(JsonPrimitive.FALSE.getAsBoolean()).isFalse();
+    MoreAsserts.assertEqualsAndHashCode(JsonPrimitive.FALSE, new JsonPrimitive(false));
+
+    assertThat(JsonPrimitive.of(true)).isSameInstanceAs(JsonPrimitive.TRUE);
+    assertThat(JsonPrimitive.of(false)).isSameInstanceAs(JsonPrimitive.FALSE);
+
+    assertThat(JsonParser.parseString("true")).isSameInstanceAs(JsonPrimitive.TRUE);
+    assertThat(JsonParser.parseString("false")).isSameInstanceAs(JsonPrimitive.FALSE);
+
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("t", true);
+    jsonObject.addProperty("f", false);
+    assertThat(jsonObject.get("t")).isSameInstanceAs(JsonPrimitive.TRUE);
+    assertThat(jsonObject.get("f")).isSameInstanceAs(JsonPrimitive.FALSE);
+
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(true);
+    jsonArray.add(false);
+    assertThat(jsonArray.get(0)).isSameInstanceAs(JsonPrimitive.TRUE);
+    assertThat(jsonArray.get(1)).isSameInstanceAs(JsonPrimitive.FALSE);
+  }
+
+  @Test
   public void testParsingStringAsBoolean() {
     JsonPrimitive json = new JsonPrimitive("true");
 
