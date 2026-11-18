@@ -113,7 +113,7 @@ public final class JsonObject extends JsonElement {
    * @param value the boolean value associated with the member.
    */
   public void addProperty(String property, Boolean value) {
-    add(property, value == null ? JsonNull.INSTANCE : new JsonPrimitive(value));
+    add(property, value == null ? JsonNull.INSTANCE : JsonPrimitive.of(value));
   }
 
   /**

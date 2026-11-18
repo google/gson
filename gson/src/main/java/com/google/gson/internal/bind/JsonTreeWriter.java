@@ -170,7 +170,7 @@ public final class JsonTreeWriter extends JsonWriter {
   @CanIgnoreReturnValue
   @Override
   public JsonWriter value(boolean value) throws IOException {
-    put(new JsonPrimitive(value));
+    put(JsonPrimitive.of(value));
     return this;
   }
 
@@ -180,7 +180,7 @@ public final class JsonTreeWriter extends JsonWriter {
     if (value == null) {
       return nullValue();
     }
-    put(new JsonPrimitive(value));
+    put(JsonPrimitive.of(value));
     return this;
   }
 

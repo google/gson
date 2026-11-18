@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThrows;
 import com.google.common.truth.Expect;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.protobuf.StructTypeAdapter;
 import com.google.protobuf.ListValue;
 import com.google.protobuf.NullValue;
@@ -59,6 +60,7 @@ public class StructTypeAdapterTest {
             .putFields("numberField", Value.newBuilder().setNumberValue(42.5).build())
             .putFields("stringField", Value.newBuilder().setStringValue("hello").build())
             .putFields("boolField", Value.newBuilder().setBoolValue(true).build())
+            .putFields("falseField", Value.newBuilder().setBoolValue(false).build())
             .build();
 
     JsonObject json = StructTypeAdapter.fromStruct(struct);
@@ -66,7 +68,8 @@ public class StructTypeAdapterTest {
     expect.that(json.get("nullField").isJsonNull()).isTrue();
     expect.that(json.get("numberField").getAsDouble()).isEqualTo(42.5);
     expect.that(json.get("stringField").getAsString()).isEqualTo("hello");
-    expect.that(json.get("boolField").getAsBoolean()).isTrue();
+    expect.that(json.get("boolField")).isSameInstanceAs(JsonPrimitive.TRUE);
+    expect.that(json.get("falseField")).isSameInstanceAs(JsonPrimitive.FALSE);
   }
 
   @Test
