@@ -614,6 +614,8 @@ public final class JsonWriterTest {
     };
     String[] suffixes = {"", " ", "a", ".", "e1"};
 
+    // Use nested loops rather than @TestParameterInjector because expanding ~35,000 combinations
+    // into individual JUnit test cases adds ~9s of test-runner overhead (vs. <10ms for the loops).
     for (String prefix : prefixes) {
       for (String intPart : intParts) {
         for (String fracPart : fracParts) {
