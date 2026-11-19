@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
 
 /**
  * Writes a JSON (<a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>) encoded value to a
@@ -160,10 +159,6 @@ import java.util.regex.Pattern;
  * @since 1.6
  */
 public class JsonWriter implements Closeable, Flushable {
-
-  // Syntax as defined by https://datatracker.ietf.org/doc/html/rfc8259#section-6
-  private static final Pattern VALID_JSON_NUMBER_PATTERN =
-      Pattern.compile("-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?");
 
   /*
    * From RFC 8259, "All Unicode characters may be placed within the
@@ -647,7 +642,7 @@ public class JsonWriter implements Closeable, Flushable {
         }
       } else if (numberClass != Float.class
           && numberClass != Double.class
-          && !VALID_JSON_NUMBER_PATTERN.matcher(string).matches()) {
+          && !isValidJsonNumber(string)) {
         throw new IllegalArgumentException(
             "String created by " + numberClass + " is not a valid JSON number: " + string);
       }
@@ -738,6 +733,70 @@ public class JsonWriter implements Closeable, Flushable {
         || c == BigInteger.class
         || c == AtomicInteger.class
         || c == AtomicLong.class;
+  }
+
+  /**
+   * Returns whether {@code s} is a valid JSON number according to <a
+   * href="https://datatracker.ietf.org/doc/html/rfc8259#section-6">RFC 8259 section 6</a>, matching
+   * the grammar {@code -?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?}.
+   */
+  static boolean isValidJsonNumber(String s) {
+    int length = s.length();
+    int i = s.startsWith("-") ? 1 : 0;
+    if (i == length) {
+      return false;
+    }
+
+    // Integer part: 0 | [1-9][0-9]*
+    char c = s.charAt(i);
+    if (c == '0') {
+      i++;
+    } else if (c >= '1' && c <= '9') {
+      while (++i < length && isAsciiDigit(s.charAt(i))) {}
+    } else {
+      return false;
+    }
+
+    if (i == length) {
+      return true;
+    }
+
+    // Optional fraction part: \.[0-9]+
+    c = s.charAt(i);
+    if (c == '.') {
+      if (++i == length || !isAsciiDigit(s.charAt(i))) {
+        return false;
+      }
+      while (++i < length && isAsciiDigit(s.charAt(i))) {}
+      if (i == length) {
+        return true;
+      }
+      c = s.charAt(i);
+    }
+
+    // Optional exponent part: [eE][-+]?[0-9]+
+    if (c == 'e' || c == 'E') {
+      if (++i == length) {
+        return false;
+      }
+      c = s.charAt(i);
+      if (c == '+' || c == '-') {
+        if (++i == length) {
+          return false;
+        }
+        c = s.charAt(i);
+      }
+      if (!isAsciiDigit(c)) {
+        return false;
+      }
+      while (++i < length && isAsciiDigit(s.charAt(i))) {}
+    }
+
+    return i == length;
+  }
+
+  private static boolean isAsciiDigit(char c) {
+    return c >= '0' && c <= '9';
   }
 
   private void string(String value) throws IOException {
