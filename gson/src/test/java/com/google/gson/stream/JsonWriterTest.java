@@ -17,6 +17,7 @@
 package com.google.gson.stream;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.FormattingStyle;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.regex.Pattern;
 import org.junit.Test;
 
 @SuppressWarnings("resource")
@@ -596,6 +598,36 @@ public final class JsonWriterTest {
               "String created by class com.google.gson.internal.LazilyParsedNumber is not a valid"
                   + " JSON number: "
                   + malformedNumber);
+    }
+  }
+
+  @Test
+  public void testIsValidJsonNumberMatchesRfc8259Regex() {
+    Pattern rfc8259Pattern =
+        Pattern.compile("-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?");
+
+    String[] prefixes = {"", "-", "+", "--", " "};
+    String[] intParts = {"", "0", "00", "01", "1", "9", "10", "9876543210", "/", ":", "\u0660"};
+    String[] fracParts = {"", ".", ".0", ".05", ".99", "..1", "./", ".:", ".\u0660"};
+    String[] expParts = {
+      "", "e", "E", "e+", "E-", "e0", "E00", "e+1", "E-99", "e+-1", "e1.0", "e/", "e:", "e\u0660"
+    };
+    String[] suffixes = {"", " ", "a", ".", "e1"};
+
+    for (String prefix : prefixes) {
+      for (String intPart : intParts) {
+        for (String fracPart : fracParts) {
+          for (String expPart : expParts) {
+            for (String suffix : suffixes) {
+              String candidate = prefix + intPart + fracPart + expPart + suffix;
+              boolean expected = rfc8259Pattern.matcher(candidate).matches();
+              assertWithMessage("isValidJsonNumber(\"%s\")", candidate)
+                  .that(JsonWriter.isValidJsonNumber(candidate))
+                  .isEqualTo(expected);
+            }
+          }
+        }
+      }
     }
   }
 
