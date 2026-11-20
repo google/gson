@@ -89,6 +89,22 @@ public class JavaUtilConcurrentAtomicTest {
   }
 
   @Test
+  public void testAtomicIntegerArrayWithNullElement() {
+    JsonSyntaxException e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("[1,null,3]", AtomicIntegerArray.class));
+    assertThat(e).hasCauseThat().isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void testAtomicIntegerArrayWithNonNumericElement() {
+    JsonSyntaxException e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("[1,true,3]", AtomicIntegerArray.class));
+    assertThat(e).hasCauseThat().isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
   public void testAtomicLongArray() {
     AtomicLongArray target = gson.fromJson("[10, 13, 14]", AtomicLongArray.class);
     assertThat(target.length()).isEqualTo(3);
