@@ -50,6 +50,27 @@ public final class JsonReaderTest {
     assertThat(reader.getStrictness()).isEqualTo(Strictness.LEGACY_STRICT);
   }
 
+  @Test
+  public void testDuplicateNamesRejected() throws IOException {
+    JsonReader reader = new JsonReader(reader("{\"a\":1,\"a\":2}"));
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("a");
+    assertThat(reader.nextInt()).isEqualTo(1);
+
+    MalformedJsonException e = assertThrows(MalformedJsonException.class, () -> reader.nextName());
+    assertThat(e).hasMessageThat().contains("Duplicate name 'a'");
+  }
+
+  @Test
+  public void testDuplicateNamesInSkippedObjectRejected() throws IOException {
+    JsonReader reader = new JsonReader(reader("{\"ignored\":{\"a\":1,\"a\":2}}"));
+    reader.beginObject();
+    assertThat(reader.nextName()).isEqualTo("ignored");
+
+    MalformedJsonException e = assertThrows(MalformedJsonException.class, () -> reader.skipValue());
+    assertThat(e).hasMessageThat().contains("Duplicate name 'a'");
+  }
+
   @SuppressWarnings("deprecation") // for JsonReader.setLenient
   @Test
   public void testSetLenientTrue() {
@@ -2165,7 +2186,6 @@ public final class JsonReaderTest {
     assertDocument(
         "{\"name\"=>\"string\"=>", BEGIN_OBJECT, NAME, STRING, MalformedJsonException.class);
     assertDocument("{\"name\"=>\"string\",", BEGIN_OBJECT, NAME, STRING, EOFException.class);
-    assertDocument("{\"name\"=>\"string\",\"name\"", BEGIN_OBJECT, NAME, STRING, NAME);
     assertDocument("[}", BEGIN_ARRAY, MalformedJsonException.class);
     assertDocument("[,]", BEGIN_ARRAY, NULL, NULL, END_ARRAY);
     assertDocument("{", BEGIN_OBJECT, EOFException.class);
