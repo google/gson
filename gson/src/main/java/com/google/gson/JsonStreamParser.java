@@ -30,19 +30,9 @@ import java.util.NoSuchElementException;
  * asynchronously. The JSON data is parsed in lenient mode, see also {@link
  * JsonReader#setStrictness(Strictness)}.
  *
- * <p>This class is conditionally thread-safe (see Item 70, Effective Java second edition). To
- * properly use this class across multiple threads, you will need to add some external
- * synchronization. For example:
- *
- * <pre>
- * JsonStreamParser parser = new JsonStreamParser("['first'] {'second':10} 'third'");
- * JsonElement element;
- * synchronized (parser) {  // synchronize on an object shared by threads
- *   if (parser.hasNext()) {
- *     element = parser.next();
- *   }
- * }
- * </pre>
+ * <p>This class is not thread-safe; concurrent accesses to it must be externally synchronized. For
+ * example, code that calls {@link #hasNext()} and then {@link #next()} needs to synchronize
+ * externally, since otherwise another thread could consume the element in between.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -50,7 +40,6 @@ import java.util.NoSuchElementException;
  */
 public final class JsonStreamParser implements Iterator<JsonElement> {
   private final JsonReader parser;
-  private final Object lock;
 
   /**
    * @param json The string containing JSON elements concatenated to each other.
@@ -67,7 +56,6 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
   public JsonStreamParser(Reader reader) {
     parser = new JsonReader(reader);
     parser.setStrictness(Strictness.LENIENT);
-    lock = new Object();
   }
 
   /**
@@ -101,14 +89,12 @@ public final class JsonStreamParser implements Iterator<JsonElement> {
    */
   @Override
   public boolean hasNext() {
-    synchronized (lock) {
-      try {
-        return parser.peek() != JsonToken.END_DOCUMENT;
-      } catch (MalformedJsonException e) {
-        throw new JsonSyntaxException(e);
-      } catch (IOException e) {
-        throw new JsonIOException(e);
-      }
+    try {
+      return parser.peek() != JsonToken.END_DOCUMENT;
+    } catch (MalformedJsonException e) {
+      throw new JsonSyntaxException(e);
+    } catch (IOException e) {
+      throw new JsonIOException(e);
     }
   }
 
