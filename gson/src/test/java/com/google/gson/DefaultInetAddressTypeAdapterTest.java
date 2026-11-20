@@ -68,6 +68,40 @@ public class DefaultInetAddressTypeAdapterTest {
   }
 
   @Test
+  public void testInetAddressDeserializeIpLikeNonIpAddress() {
+    // These look like IP addresses but are not IP literals that InetAddress.getByName parses.
+    for (String address :
+        new String[] {"256.1.1.1", "300.1.1.1", "1.2.3.999", "0001.2.3.4", "zz:1", "g::1"}) {
+      String jsonAddress = "\"" + address + "\"";
+      JsonSyntaxException e =
+          assertThrows(
+              JsonSyntaxException.class, () -> gson.fromJson(jsonAddress, InetAddress.class));
+      assertThat(e)
+          .hasMessageThat()
+          .startsWith("Failed parsing '" + address + "' as InetAddress; at path $");
+    }
+  }
+
+  @Test
+  public void testInetAddressDeserializeIpAddressForms() throws Exception {
+    for (String address :
+        new String[] {
+          "0.0.0.0",
+          "255.255.255.255",
+          "01.2.3.4",
+          "001.002.003.004",
+          "::1",
+          "[::1]",
+          "::ffff:1.2.3.4",
+          "fe80::1%1"
+        }) {
+      String jsonAddress = "\"" + address + "\"";
+      assertThat(gson.fromJson(jsonAddress, InetAddress.class))
+          .isEqualTo(InetAddress.getByName(address));
+    }
+  }
+
+  @Test
   public void testInetAddressDeserializeNonIpAddressAllowed() throws Exception {
     String jsonAddress = "\"localhost\"";
     InetAddress expected = InetAddress.getByName("localhost");
