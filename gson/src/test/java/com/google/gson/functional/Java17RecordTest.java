@@ -30,6 +30,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.ReflectionAccessFilter.FilterResult;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.Expose;
@@ -126,8 +127,9 @@ public final class Java17RecordTest {
     record LocalRecord(Integer a, Integer b) {}
 
     String json = "{\"a\":null,\"a\":2,\"b\":1,\"b\":null}";
-    // Should use value of last occurrence
-    assertThat(gson.fromJson(json, LocalRecord.class)).isEqualTo(new LocalRecord(2, null));
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson(json, LocalRecord.class));
+    assertThat(e).hasCauseThat().hasMessageThat().contains("Duplicate name 'a'");
   }
 
   @Test

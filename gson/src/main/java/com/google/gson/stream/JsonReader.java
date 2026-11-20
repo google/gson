@@ -1519,6 +1519,7 @@ public class JsonReader implements Closeable {
    * </ul>
    */
   public void skipValue() throws IOException {
+    boolean skippedPromotedName = promotedName;
     int count = 0;
     do {
       int p = peeked;
@@ -1606,6 +1607,9 @@ public class JsonReader implements Closeable {
 
     pathIndices[stackSize - 1]++;
     recordPromotedName("<skipped>");
+    if (skippedPromotedName) {
+      pathNames[stackSize - 1] = "<skipped>";
+    }
   }
 
   private void push(int newTop) throws MalformedJsonException {
