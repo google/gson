@@ -25,8 +25,12 @@ import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Reads a JSON (<a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>) encoded value as a
@@ -298,6 +302,8 @@ public class JsonReader implements Closeable {
 
   private int stackSize = 0;
 
+  private final Deque<Set<String>> objectNames = new ArrayDeque<>();
+
   {
     stack[stackSize++] = JsonScope.EMPTY_DOCUMENT;
   }
@@ -490,7 +496,7 @@ public class JsonReader implements Closeable {
       p = doPeek();
     }
     if (p == PEEKED_END_ARRAY) {
-      stackSize--;
+      popStack();
       pathIndices[stackSize - 1]++;
       peeked = PEEKED_NONE;
     } else {
@@ -529,7 +535,7 @@ public class JsonReader implements Closeable {
       p = doPeek();
     }
     if (p == PEEKED_END_OBJECT) {
-      stackSize--;
+      popStack();
       pathNames[stackSize] = null; // Free the last path name so that it can be garbage collected!
       pathIndices[stackSize - 1]++;
       peeked = PEEKED_NONE;
@@ -974,14 +980,22 @@ public class JsonReader implements Closeable {
       default:
         throw unexpectedTokenError("a name");
     }
+    checkDuplicateName(result);
     peeked = PEEKED_NONE;
     pathNames[stackSize - 1] = result;
     return result;
   }
 
+  private void checkDuplicateName(String name) throws MalformedJsonException {
+    if (!objectNames.peek().add(name)) {
+      throw syntaxError("Duplicate name '" + name + "'");
+    }
+  }
+
   /** Records a promoted property name in the JSON path after it has been consumed as a value. */
-  private void recordPromotedName(String name) {
+  private void recordPromotedName(String name) throws MalformedJsonException {
     if (promotedName) {
+      checkDuplicateName(name);
       pathNames[stackSize - 1] = name;
       promotedName = false;
     }
@@ -1484,6 +1498,7 @@ public class JsonReader implements Closeable {
     peeked = PEEKED_NONE;
     stack[0] = JsonScope.CLOSED;
     stackSize = 1;
+    objectNames.clear();
     in.close();
   }
 
@@ -1521,7 +1536,7 @@ public class JsonReader implements Closeable {
           count++;
           break;
         case PEEKED_END_ARRAY:
-          stackSize--;
+          popStack();
           count--;
           break;
         case PEEKED_END_OBJECT:
@@ -1531,34 +1546,46 @@ public class JsonReader implements Closeable {
             // Free the last path name so that it can be garbage collected
             pathNames[stackSize - 1] = null;
           }
-          stackSize--;
+          popStack();
           count--;
           break;
         case PEEKED_UNQUOTED:
-          skipUnquotedValue();
+          if (promotedName) {
+            recordPromotedName(nextUnquotedValue());
+          } else {
+            skipUnquotedValue();
+          }
           break;
         case PEEKED_SINGLE_QUOTED:
-          skipQuotedValue('\'');
+          if (promotedName) {
+            recordPromotedName(nextQuotedValue('\''));
+          } else {
+            skipQuotedValue('\'');
+          }
           break;
         case PEEKED_DOUBLE_QUOTED:
-          skipQuotedValue('"');
+          if (promotedName) {
+            recordPromotedName(nextQuotedValue('"'));
+          } else {
+            skipQuotedValue('"');
+          }
           break;
         case PEEKED_UNQUOTED_NAME:
-          skipUnquotedValue();
+          checkDuplicateName(nextUnquotedValue());
           // Only update when name is explicitly skipped, otherwise stack is not updated anyways
           if (count == 0) {
             pathNames[stackSize - 1] = "<skipped>";
           }
           break;
         case PEEKED_SINGLE_QUOTED_NAME:
-          skipQuotedValue('\'');
+          checkDuplicateName(nextQuotedValue('\''));
           // Only update when name is explicitly skipped, otherwise stack is not updated anyways
           if (count == 0) {
             pathNames[stackSize - 1] = "<skipped>";
           }
           break;
         case PEEKED_DOUBLE_QUOTED_NAME:
-          skipQuotedValue('"');
+          checkDuplicateName(nextQuotedValue('"'));
           // Only update when name is explicitly skipped, otherwise stack is not updated anyways
           if (count == 0) {
             pathNames[stackSize - 1] = "<skipped>";
@@ -1595,6 +1622,19 @@ public class JsonReader implements Closeable {
       pathNames = Arrays.copyOf(pathNames, newLength);
     }
     stack[stackSize++] = newTop;
+    if (newTop == JsonScope.EMPTY_OBJECT) {
+      objectNames.push(new HashSet<>());
+    }
+  }
+
+  private void popStack() {
+    int top = stack[stackSize - 1];
+    if (top == JsonScope.EMPTY_OBJECT
+        || top == JsonScope.DANGLING_NAME
+        || top == JsonScope.NONEMPTY_OBJECT) {
+      objectNames.pop();
+    }
+    stackSize--;
   }
 
   /**

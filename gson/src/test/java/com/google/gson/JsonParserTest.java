@@ -41,6 +41,38 @@ public class JsonParserTest {
   }
 
   @Test
+  public void testParseDuplicateObjectName() {
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> JsonParser.parseString("{\"a\":1,\"a\":2}"));
+    assertThat(e).hasCauseThat().hasMessageThat().contains("Duplicate name 'a'");
+  }
+
+  @Test
+  public void testParseDuplicateNestedObjectName() {
+    JsonSyntaxException e =
+        assertThrows(
+            JsonSyntaxException.class,
+            () -> JsonParser.parseString("{\"outer\":{\"a\":1,\"a\":2}}"));
+    assertThat(e).hasCauseThat().hasMessageThat().contains("Duplicate name 'a'");
+  }
+
+  @Test
+  public void testParseValidObjectNamesAndValues() {
+    JsonObject object =
+        JsonParser.parseString(
+                "{\"a\":1,\"b\":2,\"A\":3,\"nested\":{\"a\":4},\"array\":[null,{\"y\":5}],"
+                    + "\"nullable\":null}")
+            .getAsJsonObject();
+
+    assertThat(object.get("a").getAsInt()).isEqualTo(1);
+    assertThat(object.get("b").getAsInt()).isEqualTo(2);
+    assertThat(object.get("A").getAsInt()).isEqualTo(3);
+    assertThat(object.getAsJsonObject("nested").get("a").getAsInt()).isEqualTo(4);
+    assertThat(object.getAsJsonArray("array").get(0).isJsonNull()).isTrue();
+    assertThat(object.get("nullable").isJsonNull()).isTrue();
+  }
+
+  @Test
   public void testParseUnquotedStringArrayFails() {
     JsonElement element = JsonParser.parseString("[a,b,c]");
     assertThat(element.getAsJsonArray().get(0).getAsString()).isEqualTo("a");

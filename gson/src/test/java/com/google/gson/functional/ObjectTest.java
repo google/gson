@@ -208,6 +208,22 @@ public class ObjectTest {
     assertThat(e).hasMessageThat().isEqualTo(expectedMessage);
   }
 
+  private static final class PojoWithOneField {
+    @SuppressWarnings("unused")
+    String value;
+  }
+
+  @Test
+  public void testDeserializeDuplicatePojoField() {
+    JsonSyntaxException e =
+        assertThrows(
+            JsonSyntaxException.class,
+            () ->
+                gson.fromJson(
+                    "{\"value\":\"first\",\"value\":\"second\"}", PojoWithOneField.class));
+    assertThat(e).hasCauseThat().hasMessageThat().contains("Duplicate name 'value'");
+  }
+
   @Test
   public void testNestedSerialization() {
     Nested target =
