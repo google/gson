@@ -161,6 +161,41 @@ public class DefaultDateTypeAdapterTest {
     assertParsed("1970-01-01T01:00:00+01", adapterFactory);
   }
 
+  /**
+   * JDK 21+ CLDR uses U+202F (narrow no-break space) before AM/PM in default DateFormat output;
+   * older JDKs use a regular space. Parsing must accept both so dates remain interoperable across
+   * JDK versions (see GitHub issue #2689).
+   */
+  @Test
+  public void testParsingAcceptsNarrowNoBreakSpaceBeforeAmPm() throws Exception {
+    TimeZone defaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.US);
+    try {
+      TypeAdapter<Date> adapter = dateAdapter(DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
+      // US MEDIUM DateFormat style after Java 9 uses a comma after the year.
+      String withRegularSpace = "Mar 21, 2022, 11:03:07 AM";
+      String withNarrowNoBreakSpace = "Mar 21, 2022, 11:03:07\u202FAM";
+      String withNoBreakSpace = "Mar 21, 2022, 11:03:07\u00A0AM";
+      String withPmRegularSpace = "Mar 21, 2022, 4:45:51 PM";
+      String withPmNarrowNoBreakSpace = "Mar 21, 2022, 4:45:51\u202FPM";
+
+      Date fromRegular = adapter.fromJson(toLiteral(withRegularSpace));
+      Date fromNnbsp = adapter.fromJson(toLiteral(withNarrowNoBreakSpace));
+      Date fromNbsp = adapter.fromJson(toLiteral(withNoBreakSpace));
+      assertThat(fromNnbsp.getTime()).isEqualTo(fromRegular.getTime());
+      assertThat(fromNbsp.getTime()).isEqualTo(fromRegular.getTime());
+
+      Date fromPmRegular = adapter.fromJson(toLiteral(withPmRegularSpace));
+      Date fromPmNnbsp = adapter.fromJson(toLiteral(withPmNarrowNoBreakSpace));
+      assertThat(fromPmNnbsp.getTime()).isEqualTo(fromPmRegular.getTime());
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+      Locale.setDefault(defaultLocale);
+    }
+  }
+
   @Test
   public void testDatePattern() {
     String pattern = "yyyy-MM-dd";
