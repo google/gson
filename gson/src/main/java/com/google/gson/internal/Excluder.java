@@ -24,6 +24,7 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.Since;
 import com.google.gson.annotations.Until;
+import com.google.gson.internal.bind.SerializationDelegatingTypeAdapter;
 import com.google.gson.internal.reflect.ReflectionHelper;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -118,7 +119,7 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
       return null;
     }
 
-    return new TypeAdapter<T>() {
+    return new SerializationDelegatingTypeAdapter<T>() {
       /**
        * The delegate is lazily created because it may not be needed, and creating it may fail.
        * Field has to be {@code volatile} because {@link Gson} guarantees to be thread-safe.
@@ -151,6 +152,13 @@ public final class Excluder implements TypeAdapterFactory, Cloneable {
           d = delegate = gson.getDelegateAdapter(Excluder.this, type);
         }
         return d;
+      }
+
+      @Override
+      public TypeAdapter<T> getSerializationDelegate() {
+        // When skipSerialize is true this adapter handles serialization itself (writes null),
+        // so there is no delegation. Otherwise it delegates to the next adapter in the chain.
+        return skipSerialize ? this : delegate();
       }
     };
   }
