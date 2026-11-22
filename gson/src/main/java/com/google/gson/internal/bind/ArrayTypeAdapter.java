@@ -17,6 +17,7 @@
 package com.google.gson.internal.bind;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.GsonTypes;
@@ -73,6 +74,13 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     in.beginArray();
     while (in.hasNext()) {
       E instance = componentTypeAdapter.read(in);
+      if (instance == null && componentType.isPrimitive()) {
+        throw new JsonSyntaxException(
+            "Null value is not allowed in "
+                + componentType
+                + "[] array; at path "
+                + in.getPreviousPath());
+      }
       list.add(instance);
     }
     in.endArray();
