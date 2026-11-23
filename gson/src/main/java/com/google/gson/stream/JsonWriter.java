@@ -27,6 +27,7 @@ import static com.google.gson.stream.JsonScope.NONEMPTY_OBJECT;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.FormattingStyle;
 import com.google.gson.Strictness;
+import com.google.gson.internal.LazilyParsedNumber;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -37,7 +38,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
 
 /**
  * Writes a JSON (<a href="https://www.ietf.org/rfc/rfc8259.txt">RFC 8259</a>) encoded value to a
@@ -160,11 +160,6 @@ import java.util.regex.Pattern;
  * @since 1.6
  */
 public class JsonWriter implements Closeable, Flushable {
-
-  // Syntax as defined by https://datatracker.ietf.org/doc/html/rfc8259#section-6
-  private static final Pattern VALID_JSON_NUMBER_PATTERN =
-      Pattern.compile("-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?");
-
   /*
    * From RFC 8259, "All Unicode characters may be placed within the
    * quotation marks except for the characters that must be escaped:
@@ -645,9 +640,13 @@ public class JsonWriter implements Closeable, Flushable {
         if (strictness != Strictness.LENIENT) {
           throw new IllegalArgumentException("Numeric values must be finite, but was " + string);
         }
-      } else if (numberClass != Float.class
-          && numberClass != Double.class
-          && !VALID_JSON_NUMBER_PATTERN.matcher(string).matches()) {
+      }
+      // Note: Non-finite Float and Double are already covered by string check above
+      else if (!(numberClass == Float.class
+          || numberClass == Double.class
+          || (numberClass == LazilyParsedNumber.class
+              && ((LazilyParsedNumber) value).isGuaranteedValidJsonNumber())
+          || LazilyParsedNumber.isValidJsonNumber(string))) {
         throw new IllegalArgumentException(
             "String created by " + numberClass + " is not a valid JSON number: " + string);
       }

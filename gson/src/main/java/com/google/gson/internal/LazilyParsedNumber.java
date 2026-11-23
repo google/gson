@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.math.BigDecimal;
+import java.util.regex.Pattern;
 
 /**
  * This class holds a number value that is lazily converted to a specific number type
@@ -27,13 +28,37 @@ import java.math.BigDecimal;
  */
 @SuppressWarnings("serial") // ignore warning about missing serialVersionUID
 public final class LazilyParsedNumber extends Number implements Comparable<LazilyParsedNumber> {
+  // Syntax as defined by https://datatracker.ietf.org/doc/html/rfc8259#section-6
+  private static final Pattern VALID_JSON_NUMBER_PATTERN =
+      Pattern.compile("-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?");
+
+  public static boolean isValidJsonNumber(String number) {
+    return VALID_JSON_NUMBER_PATTERN.matcher(number).matches();
+  }
+
   private final String value;
+  private final boolean guaranteedValidJsonNumber;
+
+  public LazilyParsedNumber(String value, boolean guaranteedValidJsonNumber) {
+    // Only `assert`; we trust the caller
+    assert !guaranteedValidJsonNumber || isValidJsonNumber(value);
+    this.value = value;
+    this.guaranteedValidJsonNumber = guaranteedValidJsonNumber;
+  }
 
   /**
    * @param value must not be null
    */
   public LazilyParsedNumber(String value) {
-    this.value = value;
+    this(value, false);
+  }
+
+  /**
+   * Returns whether the number value returned by {@link #toString()} is guaranteed to be a valid
+   * JSON number. {@code false} if this cannot be guaranteed.
+   */
+  public boolean isGuaranteedValidJsonNumber() {
+    return guaranteedValidJsonNumber;
   }
 
   private BigDecimal asBigDecimal() {

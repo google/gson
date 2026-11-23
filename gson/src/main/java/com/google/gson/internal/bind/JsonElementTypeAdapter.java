@@ -22,6 +22,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.TypeAdapter;
+import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -60,8 +61,23 @@ public class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
       case STRING:
         return new JsonPrimitive(in.nextString());
       case NUMBER:
+        boolean guaranteedValidJsonNumber = false;
+        // Only for `JsonReader` we know that `peek() == NUMBER` means the number string will be
+        // valid; for other reader implementations this is not guaranteed, even `JsonTreeReader`
+        // uses NUMBER if the value is any `Number` implementation
+        if (in.getClass() == JsonReader.class) {
+          if (JsonReaderInternalAccess.INSTANCE.isPeekedLong(in)) {
+            long value = in.nextLong();
+            boolean fitsInt = value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE;
+            return new JsonPrimitive(fitsInt ? (Number) (int) value : (Number) value);
+          }
+          // Note: Don't try `JsonReader#nextDouble()` because it might be lossy
+
+          guaranteedValidJsonNumber = true;
+        }
+
         String number = in.nextString();
-        return new JsonPrimitive(new LazilyParsedNumber(number));
+        return new JsonPrimitive(new LazilyParsedNumber(number, guaranteedValidJsonNumber));
       case BOOLEAN:
         return JsonPrimitive.of(in.nextBoolean());
       case NULL:
