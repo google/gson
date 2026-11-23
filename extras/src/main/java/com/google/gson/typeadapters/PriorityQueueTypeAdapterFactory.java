@@ -26,6 +26,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -54,6 +55,9 @@ public final class PriorityQueueTypeAdapterFactory implements TypeAdapterFactory
     }
 
     Type queueType = type.getType();
+    if (queueType instanceof WildcardType) {
+      queueType = ((WildcardType) queueType).getUpperBounds()[0];
+    }
     Type elementType =
         queueType instanceof ParameterizedType
             ? ((ParameterizedType) queueType).getActualTypeArguments()[0]
