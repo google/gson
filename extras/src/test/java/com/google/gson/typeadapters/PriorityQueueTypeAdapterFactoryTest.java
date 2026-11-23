@@ -62,6 +62,20 @@ public class PriorityQueueTypeAdapterFactoryTest {
   }
 
   @Test
+  public void testQueueWithWildcardUpperBound() {
+    TypeToken<List<? extends PriorityQueue<Integer>>> type =
+        new TypeToken<List<? extends PriorityQueue<Integer>>>() {};
+    List<? extends PriorityQueue<Integer>> queues = gson.fromJson("[[3,1,2]]", type);
+
+    PriorityQueue<Integer> queue = queues.get(0);
+    Integer first = queue.poll();
+    assertThat(first).isEqualTo(1);
+    assertThat(queue.poll()).isEqualTo(2);
+    assertThat(queue.poll()).isEqualTo(3);
+    assertThat(queue).isEmpty();
+  }
+
+  @Test
   public void testEmptyAndNullQueue() {
     assertThat(gson.toJson(new PriorityQueue<>(), QUEUE_TYPE.getType())).isEqualTo("[]");
     assertThat(gson.fromJson("[]", QUEUE_TYPE)).isEmpty();
