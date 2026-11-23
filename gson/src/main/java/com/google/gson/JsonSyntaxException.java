@@ -16,7 +16,8 @@
 package com.google.gson;
 
 /**
- * This exception is raised when Gson attempts to read (or write) a malformed JSON element.
+ * This exception is raised when Gson encounters malformed JSON or when a JSON value does not match
+ * the expected type.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
