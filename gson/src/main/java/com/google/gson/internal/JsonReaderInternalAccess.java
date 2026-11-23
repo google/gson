@@ -17,6 +17,7 @@
 package com.google.gson.internal;
 
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import java.io.IOException;
 
 /** Internal-only APIs of JsonReader available only to other classes in Gson. */
@@ -28,4 +29,14 @@ public abstract class JsonReaderInternalAccess {
 
   /** Changes the type of the current property name token to a string value. */
   public abstract void promoteNameToValue(JsonReader reader) throws IOException;
+
+  /**
+   * Whether it is guaranteed that the peeked value is a number which will fit into a {@code long},
+   * and {@link JsonReader#nextLong()} is guaranteed to not fail. Must only be called after {@link
+   * JsonReader#peek()} returned {@link JsonToken#NUMBER}.
+   *
+   * <p>A return value of {@code false} does not mean the number is not a valid {@code long}; the
+   * number might be valid but the implementation cannot guarantee it.
+   */
+  public abstract boolean isPeekedLong(JsonReader reader);
 }

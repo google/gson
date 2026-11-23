@@ -2018,6 +2018,11 @@ public class JsonReader implements Closeable {
             // Remember to update the JSON path once this name is consumed as a value (#1768).
             reader.promotedName = true;
           }
+
+          @Override
+          public boolean isPeekedLong(JsonReader reader) {
+            return reader.getClass() == JsonReader.class && reader.peeked == PEEKED_LONG;
+          }
         };
   }
 }
