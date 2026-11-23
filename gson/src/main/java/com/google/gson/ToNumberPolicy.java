@@ -96,6 +96,11 @@ public enum ToNumberPolicy implements ToNumberStrategy {
   LONG_OR_DOUBLE {
     @Override
     public Number readNumber(JsonReader in) throws IOException, JsonParseException {
+      // Avoid `number -> string -> long` when we know that number is a `long`
+      if (in.peek() == JsonToken.NUMBER && JsonReaderInternalAccess.INSTANCE.isPeekedLong(in)) {
+        return in.nextLong();
+      }
+
       String value = in.nextString();
       if (value.indexOf('.') >= 0) {
         return parseAsDouble(value, in);
@@ -130,6 +135,10 @@ public enum ToNumberPolicy implements ToNumberStrategy {
   BIG_DECIMAL {
     @Override
     public BigDecimal readNumber(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NUMBER && JsonReaderInternalAccess.INSTANCE.isPeekedLong(in)) {
+        return NumberLimits.bigDecimalFromLong(in.nextLong());
+      }
+
       String value = in.nextString();
       try {
         return NumberLimits.parseBigDecimal(value);

@@ -206,7 +206,9 @@ public final class JsonPrimitive extends JsonElement {
   public BigDecimal getAsBigDecimal() {
     return value instanceof BigDecimal
         ? (BigDecimal) value
-        : NumberLimits.parseBigDecimal(getAsString());
+        : isIntegral(this)
+            ? NumberLimits.bigDecimalFromLong(getAsNumber().longValue())
+            : NumberLimits.parseBigDecimal(getAsString());
   }
 
   /**
@@ -217,8 +219,8 @@ public final class JsonPrimitive extends JsonElement {
     return value instanceof BigInteger
         ? (BigInteger) value
         : isIntegral(this)
-            ? BigInteger.valueOf(this.getAsNumber().longValue())
-            : NumberLimits.parseBigInteger(this.getAsString());
+            ? NumberLimits.bigIntegerFromLong(getAsNumber().longValue())
+            : NumberLimits.parseBigInteger(getAsString());
   }
 
   /**
