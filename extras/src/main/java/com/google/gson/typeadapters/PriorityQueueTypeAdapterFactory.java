@@ -84,6 +84,7 @@ public final class PriorityQueueTypeAdapterFactory implements TypeAdapterFactory
         return null;
       }
       try {
+        // Add elements individually so even a singleton must be comparable.
         PriorityQueue<Object> queue = new PriorityQueue<>();
         queue.addAll(elements);
         return queue;
@@ -95,6 +96,7 @@ public final class PriorityQueueTypeAdapterFactory implements TypeAdapterFactory
 
     @Override
     public void write(JsonWriter out, PriorityQueue<Object> queue) throws IOException {
+      // The JSON contains only elements: a custom comparator would be lost on deserialization.
       if (queue.comparator() != null) {
         throw new IllegalArgumentException(
             "PriorityQueue with a custom comparator is not supported");
