@@ -44,6 +44,7 @@ import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.GregorianCalendar;
+import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -942,6 +943,43 @@ public final class TypeAdapters {
   public static final TypeAdapterFactory CALENDAR_FACTORY =
       newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
 
+  private static boolean isScript(String value) {
+    if (value.length() != 4) {
+      return false;
+    }
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Returns the locale for {@code language[_country[_variant]]} with the given script, or {@code
+   * null} if the Locale is not well-formed.
+   */
+  private static Locale localeWithScript(String name, String script) {
+    StringTokenizer tokenizer = new StringTokenizer(name, "_");
+    if (!tokenizer.hasMoreElements()) {
+      return null;
+    }
+    String language = tokenizer.nextToken();
+    String country = tokenizer.hasMoreElements() ? tokenizer.nextToken() : null;
+    String variant = tokenizer.hasMoreElements() ? tokenizer.nextToken() : null;
+    try {
+      return new Locale.Builder()
+          .setLanguage(language)
+          .setScript(script)
+          .setRegion(country)
+          .setVariant(variant)
+          .build();
+    } catch (IllformedLocaleException e) {
+      return null;
+    }
+  }
+
   public static final TypeAdapter<Locale> LOCALE =
       new TypeAdapter<Locale>() {
         @Override
@@ -954,6 +992,17 @@ public final class TypeAdapters {
           if (locale.isEmpty()) {
             return Locale.ROOT;
           }
+          // Locale.toString() writes the script as a "_#" suffix, e.g. "sr_RS_#Latn" for sr-Latn-RS
+          int scriptIndex = locale.indexOf("_#");
+          if (scriptIndex > 0 && isScript(locale.substring(scriptIndex + 2))) {
+            Locale withScript =
+                localeWithScript(
+                    locale.substring(0, scriptIndex), locale.substring(scriptIndex + 2));
+            if (withScript != null) {
+              return withScript;
+            }
+          }
+          // Any other content (for example extensions like "_#u-ca-buddhist") is parsed as before
           StringTokenizer tokenizer = new StringTokenizer(locale, "_");
           String language = null;
           String country = null;

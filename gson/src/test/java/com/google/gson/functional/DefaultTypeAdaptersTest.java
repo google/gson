@@ -328,6 +328,37 @@ public class DefaultTypeAdaptersTest {
   }
 
   @Test
+  public void testLocaleRoundTripWithScript() {
+    Locale serbianLatin = Locale.forLanguageTag("sr-Latn-RS");
+    assertThat(gson.toJson(serbianLatin)).isEqualTo("\"sr_RS_#Latn\"");
+    assertLocaleRoundTrip(serbianLatin);
+    assertLocaleRoundTrip(Locale.forLanguageTag("zh-Hant-TW"));
+    // Script without region
+    assertLocaleRoundTrip(Locale.forLanguageTag("zh-Hant"));
+    assertLocaleRoundTrip(Locale.forLanguageTag("sr-Latn"));
+  }
+
+  @Test
+  public void testLocaleRoundTripKeepsExtensionSuffix() {
+    // Locale.toString() writes extensions after "_#" too, and they must not be treated as a script
+    assertLocaleStringRoundTrip("en_US_#u-ca-buddhist");
+    assertLocaleStringRoundTrip("th_TH_#u-nu-thai");
+  }
+
+  private void assertLocaleRoundTrip(Locale locale) {
+    Locale actual = gson.fromJson(gson.toJson(locale), Locale.class);
+    assertWithMessage("toLanguageTag")
+        .that(actual.toLanguageTag())
+        .isEqualTo(locale.toLanguageTag());
+    assertThat(actual).isEqualTo(locale);
+  }
+
+  private void assertLocaleStringRoundTrip(String localeString) {
+    String json = "\"" + localeString + "\"";
+    assertThat(gson.toJson(gson.fromJson(json, Locale.class))).isEqualTo(json);
+  }
+
+  @Test
   public void testLocaleDeserializationError(@TestParameter({"_", "___"}) String invalid) {
     String invalidJson = "[\"" + invalid + "\"]";
     JsonSyntaxException e =
