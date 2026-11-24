@@ -73,7 +73,7 @@ public final class StructTypeAdapter {
       case STRING_VALUE:
         return new JsonPrimitive(value.getStringValue());
       case BOOL_VALUE:
-        return new JsonPrimitive(value.getBoolValue());
+        return JsonPrimitive.of(value.getBoolValue());
       case STRUCT_VALUE:
         return fromStruct(value.getStructValue());
       case LIST_VALUE:

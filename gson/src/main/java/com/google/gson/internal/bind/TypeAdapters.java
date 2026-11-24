@@ -224,7 +224,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.byteValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which widens number
+            Number byteNumber = value instanceof Byte ? value : value.byteValue();
+            out.value(byteNumber);
           }
         }
       };
@@ -259,7 +261,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.shortValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which widens number
+            Number shortNumber = value instanceof Short ? value : value.shortValue();
+            out.value(shortNumber);
           }
         }
       };
@@ -287,7 +291,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.intValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which widens number
+            Number intNumber = value instanceof Integer ? value : value.intValue();
+            out.value(intNumber);
           }
         }
       };
@@ -491,7 +497,7 @@ public final class TypeAdapters {
       if (strict) {
         checkValidFloatingPoint(floatValue);
       }
-      // For backward compatibility don't call `JsonWriter.value(float)` because that method has
+      // For backward compatibility don't call `JsonWriter#value(float)` because that method has
       // been newly added and not all custom JsonWriter implementations might override it yet
       Number floatNumber = value instanceof Float ? value : floatValue;
       out.value(floatNumber);
@@ -726,9 +732,6 @@ public final class TypeAdapters {
             return null;
           }
           String nextString = in.nextString();
-          if (nextString.equals("null")) {
-            return null;
-          }
           try {
             return new URL(nextString);
           } catch (MalformedURLException e) {
@@ -754,9 +757,6 @@ public final class TypeAdapters {
             return null;
           }
           String nextString = in.nextString();
-          if (nextString.equals("null")) {
-            return null;
-          }
           try {
             return new URI(nextString);
           } catch (URISyntaxException e) {
@@ -862,6 +862,8 @@ public final class TypeAdapters {
    * An abstract {@link TypeAdapter} for classes whose JSON serialization consists of a fixed set of
    * integer fields. That is the case for {@link Calendar} and the legacy serialization of various
    * {@code java.time} types.
+   *
+   * <p>This class handles {@code null}; subclasses don't have to use {@link #nullSafe()}.
    */
   abstract static class IntegerFieldsTypeAdapter<T> extends TypeAdapter<T> {
     private final List<String> fields;
@@ -870,8 +872,21 @@ public final class TypeAdapters {
       this.fields = Arrays.asList(fields);
     }
 
+    /**
+     * On deserialization: Creates an object from the integer values. Subclasses should use {@link
+     * Math#toIntExact(long)} and similar if necessary to prevent silent truncation.
+     *
+     * <p>Values have the same order as the field names provided to the {@linkplain
+     * #IntegerFieldsTypeAdapter(String[]) constructor}.
+     */
     abstract T create(long[] values);
 
+    /**
+     * On serialization: Extracts the integer values from the object.
+     *
+     * <p>Values must have the same order as the field names provided to the {@linkplain
+     * #IntegerFieldsTypeAdapter(String[]) constructor}.
+     */
     abstract long[] integerValues(T t);
 
     @Override
@@ -882,7 +897,7 @@ public final class TypeAdapters {
       }
       in.beginObject();
       long[] values = new long[fields.size()];
-      while (in.peek() != JsonToken.END_OBJECT) {
+      while (in.hasNext()) {
         String name = in.nextName();
         int index = fields.indexOf(name);
         if (index >= 0) {
@@ -951,6 +966,9 @@ public final class TypeAdapters {
             return null;
           }
           String locale = in.nextString();
+          if (locale.isEmpty()) {
+            return Locale.ROOT;
+          }
           StringTokenizer tokenizer = new StringTokenizer(locale, "_");
           String language = null;
           String country = null;
@@ -964,7 +982,11 @@ public final class TypeAdapters {
           if (tokenizer.hasMoreElements()) {
             variant = tokenizer.nextToken();
           }
-          if (country == null && variant == null) {
+          if (language == null) {
+            throw new JsonSyntaxException(
+                "Failed parsing '" + locale + "' as Locale; at path " + in.getPreviousPath());
+          }
+          if (country == null) {
             return new Locale(language);
           } else if (variant == null) {
             return new Locale(language, country);
@@ -988,23 +1010,9 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
 
+  public static final TypeAdapterFactory JAVA_TIME_FACTORY = new JavaTimeTypeAdapterFactory();
+
   public static final TypeAdapterFactory JDK_OPTIONAL_FACTORY = JdkOptionalTypeAdapters.FACTORY;
-
-  interface FactorySupplier {
-    TypeAdapterFactory get();
-  }
-
-  public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
-    try {
-      Class<?> javaTimeTypeAdapterFactoryClass =
-          Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");
-      FactorySupplier supplier =
-          (FactorySupplier) javaTimeTypeAdapterFactoryClass.getDeclaredConstructor().newInstance();
-      return supplier.get();
-    } catch (ReflectiveOperationException | LinkageError e) {
-      return null;
-    }
-  }
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(

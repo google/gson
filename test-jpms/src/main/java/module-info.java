@@ -19,9 +19,7 @@
  * only in test sources:
  *
  * <blockquote>
- *
  * Can't compile test sources when main sources are missing a module descriptor
- *
  * </blockquote>
  */
 module com.google.gson.dummy {}

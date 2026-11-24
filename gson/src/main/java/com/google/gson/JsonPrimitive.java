@@ -34,10 +34,25 @@ import java.util.Objects;
  */
 public final class JsonPrimitive extends JsonElement {
 
+  /**
+   * A {@code JsonPrimitive} representing the boolean value {@code true}.
+   *
+   * @since $next-version$
+   */
+  public static final JsonPrimitive TRUE = new JsonPrimitive(true);
+
+  /**
+   * A {@code JsonPrimitive} representing the boolean value {@code false}.
+   *
+   * @since $next-version$
+   */
+  public static final JsonPrimitive FALSE = new JsonPrimitive(false);
+
   private final Object value;
 
   /**
-   * Create a primitive containing a boolean value.
+   * Create a primitive containing a boolean value. Consider using {@link #of(boolean)}, {@link
+   * #TRUE}, or {@link #FALSE} instead to avoid allocating a new instance.
    *
    * @param bool the value to create the primitive with.
    */
@@ -83,6 +98,15 @@ public final class JsonPrimitive extends JsonElement {
     // convert characters to strings since in JSON, characters are represented as a single
     // character string
     value = Objects.requireNonNull(c).toString();
+  }
+
+  /**
+   * Returns {@link #TRUE} or {@link #FALSE} corresponding to {@code value}.
+   *
+   * @since $next-version$
+   */
+  public static JsonPrimitive of(boolean value) {
+    return value ? TRUE : FALSE;
   }
 
   /**
@@ -276,8 +300,9 @@ public final class JsonPrimitive extends JsonElement {
       return hashOfDoubleValue(getAsNumber().doubleValue());
     }
     if (value instanceof Number) {
-      // equals compares the remaining numbers by their double values. (For two BigDecimals it
-      // uses compareTo, which only considers values equal that also have the same double value.)
+      // equals compares the remaining numbers by their double values. (For two BigDecimal or
+      // LazilyParsedNumber values it uses BigDecimal.compareTo, which only considers values equal
+      // that also have the same double value.)
       return hashOfDoubleValue(getAsNumber().doubleValue());
     }
     return value.hashCode();
@@ -321,9 +346,13 @@ public final class JsonPrimitive extends JsonElement {
           : this.getAsNumber().longValue() == other.getAsNumber().longValue();
     }
     if (value instanceof Number && other.value instanceof Number) {
-      if (value instanceof BigDecimal && other.value instanceof BigDecimal) {
+      if (isDecimal(this) && isDecimal(other)) {
         // Uses compareTo to ignore scale of values, e.g. `0` and `0.00` should be considered equal
-        return this.getAsBigDecimal().compareTo(other.getAsBigDecimal()) == 0;
+        try {
+          return this.getAsBigDecimal().compareTo(other.getAsBigDecimal()) == 0;
+        } catch (NumberFormatException e) {
+          // LazilyParsedNumber which is not supported by BigDecimal, e.g. NaN; compare as double
+        }
       }
 
       double thisAsDouble = this.getAsDouble();
@@ -349,5 +378,13 @@ public final class JsonPrimitive extends JsonElement {
           || number instanceof Byte;
     }
     return false;
+  }
+
+  /**
+   * Returns true if the specified number is a {@link BigDecimal} or a {@link LazilyParsedNumber}
+   * (the type of numbers parsed from JSON), whose decimal value can be compared exactly.
+   */
+  private static boolean isDecimal(JsonPrimitive primitive) {
+    return primitive.value instanceof BigDecimal || primitive.value instanceof LazilyParsedNumber;
   }
 }

@@ -236,6 +236,34 @@ public class ArrayTest {
     assertThat(values[0]).isNull();
   }
 
+  @Test
+  public void testPrimitiveArrayWithNullElementDeserialization() {
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1, null]", int[].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Null value is not allowed in int[] array; at path $[1]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[null]", boolean[].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Null value is not allowed in boolean[] array; at path $[0]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1.0, null]", double[].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Null value is not allowed in double[] array; at path $[1]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[null]]", int[][].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Null value is not allowed in int[] array; at path $[0][0]");
+
+    // Outer array element in int[][] is int[] (an Object, not primitive), so [null] is allowed
+    int[][] outerNull = gson.fromJson("[null]", int[][].class);
+    assertThat(outerNull).asList().containsExactly((Object) null);
+  }
+
   /** Regression tests for Issue 272 */
   @Test
   public void testMultidimensionalArraysSerialization() {
