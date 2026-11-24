@@ -559,4 +559,29 @@ public class CollectionTest {
     assertThat(small).isNotNull();
     assertThat(small.inSmall).isEqualTo("hello");
   }
+
+  @Test
+  public void testCollectionRejectingNullElement() {
+    // TreeSet, ArrayDeque and PriorityQueue throw NullPointerException from add(null); that must be
+    // reported as malformed input instead of escaping to the caller.
+    TypeToken<TreeSet<String>> treeSetType = new TypeToken<TreeSet<String>>() {};
+    TypeToken<ArrayDeque<String>> dequeType = new TypeToken<ArrayDeque<String>>() {};
+    TypeToken<PriorityQueue<String>> queueType = new TypeToken<PriorityQueue<String>>() {};
+    TypeToken<List<String>> listType = new TypeToken<List<String>>() {};
+
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[null]", treeSetType));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("null is not a valid element for java.util.TreeSet; at path $[0]");
+
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[null]", dequeType));
+    assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[null]", queueType));
+
+    // Collections that do accept null are unaffected.
+    assertThat(gson.<List<String>>fromJson("[null]", listType)).containsExactly((String) null);
+    assertThat(gson.<TreeSet<String>>fromJson("[\"b\",\"a\"]", treeSetType))
+        .containsExactly("a", "b")
+        .inOrder();
+  }
 }

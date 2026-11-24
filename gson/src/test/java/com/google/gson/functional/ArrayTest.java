@@ -323,4 +323,29 @@ public class ArrayTest {
     assertThat(new Gson().toJson(stringArrays))
         .isEqualTo("[[\"test1\",\"test2\"],[\"test3\",\"test4\"]]");
   }
+
+  @Test
+  public void testPrimitiveArrayWithNullElement() {
+    // A primitive array cannot hold null, so this must be reported as malformed input rather than
+    // as the IllegalArgumentException that Array.set would throw.
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[1,null]", int[].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("null is not a valid value for a int array element; at path $[1]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[null]", double[].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("null is not a valid value for a double array element; at path $[0]");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[null]]", int[][].class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("null is not a valid value for a int array element; at path $[0][0]");
+
+    // Arrays of reference types still accept null.
+    assertThat(gson.fromJson("[1,null]", Integer[].class)).asList().containsExactly(1, null);
+    assertThat(gson.fromJson("[null]", String[].class)).asList().containsExactly((Object) null);
+  }
 }

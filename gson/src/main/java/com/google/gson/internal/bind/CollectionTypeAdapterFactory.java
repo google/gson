@@ -83,18 +83,23 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
       in.beginArray();
       while (in.hasNext()) {
         E instance = elementTypeAdapter.read(in);
-        try {
-          collection.add(instance);
-        } catch (NullPointerException e) {
-          if (instance == null) {
+        if (instance == null) {
+          // Most collections accept null, but some (TreeSet, ArrayDeque, PriorityQueue, EnumSet...)
+          // reject it with a NullPointerException. Surface that as Gson's documented
+          // JsonSyntaxException. Only the null case is wrapped, so a NullPointerException from
+          // anywhere else is not masked.
+          try {
+            collection.add(null);
+          } catch (NullPointerException e) {
             throw new JsonSyntaxException(
-                "Null element is not allowed in "
-                    + collection.getClass()
+                "null is not a valid element for "
+                    + collection.getClass().getName()
                     + "; at path "
                     + in.getPreviousPath(),
                 e);
           }
-          throw e;
+        } else {
+          collection.add(instance);
         }
       }
       in.endArray();
