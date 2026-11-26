@@ -88,6 +88,42 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     int size = list.size();
     // Have to copy primitives one by one to primitive array
     if (componentType.isPrimitive()) {
+      if (componentType == int.class) {
+        int[] array = new int[size];
+        for (int i = 0; i < size; i++) {
+          Object value = list.get(i);
+          if (value instanceof Integer) {
+            array[i] = (Integer) value;
+          } else {
+            Array.set(array, i, value);
+          }
+        }
+        return array;
+      }
+      if (componentType == long.class) {
+        long[] array = new long[size];
+        for (int i = 0; i < size; i++) {
+          Object value = list.get(i);
+          if (value instanceof Long) {
+            array[i] = (Long) value;
+          } else {
+            Array.set(array, i, value);
+          }
+        }
+        return array;
+      }
+      if (componentType == double.class) {
+        double[] array = new double[size];
+        for (int i = 0; i < size; i++) {
+          Object value = list.get(i);
+          if (value instanceof Double) {
+            array[i] = (Double) value;
+          } else {
+            Array.set(array, i, value);
+          }
+        }
+        return array;
+      }
       Object array = Array.newInstance(componentType, size);
       for (int i = 0; i < size; i++) {
         Array.set(array, i, list.get(i));
@@ -110,11 +146,33 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     }
 
     out.beginArray();
-    for (int i = 0, length = Array.getLength(array); i < length; i++) {
-      @SuppressWarnings("unchecked")
-      E value = (E) Array.get(array, i);
-      componentTypeAdapter.write(out, value);
+    if (array instanceof Object[]) {
+      for (Object value : (Object[]) array) {
+        writeElement(out, value);
+      }
+    } else if (array instanceof int[]) {
+      for (int value : (int[]) array) {
+        writeElement(out, value);
+      }
+    } else if (array instanceof long[]) {
+      for (long value : (long[]) array) {
+        writeElement(out, value);
+      }
+    } else if (array instanceof double[]) {
+      for (double value : (double[]) array) {
+        writeElement(out, value);
+      }
+    } else {
+      for (int i = 0, length = Array.getLength(array); i < length; i++) {
+        writeElement(out, Array.get(array, i));
+      }
     }
     out.endArray();
+  }
+
+  private void writeElement(JsonWriter out, Object value) throws IOException {
+    @SuppressWarnings("unchecked")
+    E element = (E) value;
+    componentTypeAdapter.write(out, element);
   }
 }
