@@ -19,7 +19,7 @@
 
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson-parent</artifactId>
-  <version>2.14.1-SNAPSHOT</version>
+  <version>2.15.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Gson Parent</name>
@@ -43,11 +43,12 @@
 
     <!-- Make the build reproducible, see https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
     <!-- Automatically updated by Maven Release Plugin -->
-    <project.build.outputTimestamp>2026-04-23T19:00:38Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-10-24T01:07:07Z</project.build.outputTimestamp>
 
     <!-- These properties are to be overwritten by the Maven modules -->
     <!-- Whether this module is an integration test module -->
     <gson.isTestModule>false</gson.isTestModule>
+    <artifactregistry-maven-wagon.version>2.2.5</artifactregistry-maven-wagon.version>
   </properties>
 
   <!-- These attributes specify that the URLs should be inherited by the modules as is, to avoid constructing
@@ -132,7 +133,7 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-        <version>3.10.0</version>
+        <version>3.11.0</version>
         <executions>
           <execution>
             <goals>
@@ -177,33 +178,6 @@
         </configuration>
       </plugin>
 
-      <!-- Attaches a `.buildinfo` file which contains information for reproducing the build,
-        such as OS, JDK version, ...
-        Since this is a multi-module Maven project, only one aggregated file will be created for
-        the last module, see the note on https://maven.apache.org/plugins/maven-artifact-plugin/usage.html#recording-buildinfo-file -->
-      <!-- The other goals of this plugin are run by the GitHub workflow to verify that
-        the build is reproducible (see `artifact:...` usage in the workflow) -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-artifact-plugin</artifactId>
-        <version>3.6.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>buildinfo</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Publish gson-parent to Maven Central on `deploy` (common configuration is defined in `pluginManagement`) -->
-      <plugin>
-        <groupId>org.sonatype.central</groupId>
-        <artifactId>central-publishing-maven-plugin</artifactId>
-        <!-- Set `inherited=false` to only apply this execution to gson-parent;
-          if modules should be deployed, it has to be configured explicitly for them -->
-        <inherited>false</inherited>
-      </plugin>
     </plugins>
 
     <pluginManagement>
@@ -211,7 +185,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.15.0</version>
+          <version>3.16.0</version>
           <configuration>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
@@ -294,7 +268,7 @@
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>2.50.0</version>
+                <version>2.51.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -332,12 +306,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.6</version>
+          <version>3.6.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.5.6</version>
+          <version>3.6.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -347,7 +321,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>3.1.4</version>
+          <version>3.2.0</version>
           <configuration>
             <skip>${gson.isTestModule}</skip>
           </configuration>
@@ -371,7 +345,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.1.4</version>
+          <version>3.2.0</version>
           <configuration>
             <!-- skip because central-publishing-maven-plugin is used for deployment -->
             <skip>true</skip>
@@ -380,8 +354,7 @@
         <plugin>
           <groupId>org.sonatype.central</groupId>
           <artifactId>central-publishing-maven-plugin</artifactId>
-          <version>0.11.0</version>
-          <extensions>true</extensions>
+          <version>0.12.0</version>
           <configuration>
             <publishingServerId>central</publishingServerId>
           </configuration>
@@ -474,11 +447,18 @@
           </executions>
         </plugin>
 
-        <!-- Plugin for checking source and binary compatibility; used by GitHub workflow -->
+        <!-- Plugin for verifying reproducible builds; see `mvn ... artifact:...` usage in GitHub workflow -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-artifact-plugin</artifactId>
+          <version>3.7.0</version>
+        </plugin>
+
+        <!-- Plugins for checking source and binary compatibility; used by GitHub workflow -->
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.26.1</version>
+          <version>0.26.5</version>
           <configuration>
             <skip>${gson.isTestModule}</skip>
 
@@ -487,7 +467,7 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>${project.artifactId}</artifactId>
                 <!-- This is set by the GitHub workflow -->
-                <version>0.0.0-JAPICMP-OLD</version>
+                <version>0.0.0-OLD</version>
               </dependency>
             </oldVersion>
 
@@ -506,6 +486,47 @@
           </configuration>
         </plugin>
 
+        <!-- Note: Requires Java >= 25 at runtime. For the `gson` module, `com.google.gson.internal`
+          and its subpackages are automatically excluded because `module-info.class` (added during
+          the `package` phase by moditect-maven-plugin) does not export them. -->
+        <plugin>
+          <groupId>io.github.alien-tools</groupId>
+          <artifactId>roseau-maven-plugin</artifactId>
+          <version>0.7.0</version>
+          <!-- Upgrade JDT Core from 3.46.0 to 3.47.0 because 3.46.0 declares version ranges whose
+            lower bounds (3.24.0 / 3.14.700) do not exist as exact versions on Maven Central, which
+            breaks proxies that strip version ranges. -->
+          <dependencies>
+            <dependency>
+              <groupId>org.eclipse.jdt</groupId>
+              <artifactId>org.eclipse.jdt.core</artifactId>
+              <version>3.47.0</version>
+            </dependency>
+          </dependencies>
+          <configuration>
+            <skip>${gson.isTestModule}</skip>
+
+            <baselineDependency>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <!-- This is set by the GitHub workflow -->
+              <version>0.0.0-OLD</version>
+            </baselineDependency>
+
+            <failOnIncompatibility>true</failOnIncompatibility>
+            <reports>
+              <report>
+                <file>report.html</file>
+                <format>HTML</format>
+              </report>
+              <report>
+                <file>report.csv</file>
+                <format>CSV</format>
+              </report>
+            </reports>
+          </configuration>
+        </plugin>
+
         <!-- Plugin for checking compatibility with Android API -->
         <!-- Note: For now this is not part of a normal Maven build but instead executed only by a
           GitHub workflow because the Animal Sniffer signature files use Java Serialization, so they
@@ -513,7 +534,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>animal-sniffer-maven-plugin</artifactId>
-          <version>1.27</version>
+          <version>1.28</version>
           <executions>
             <execution>
               <id>check-android-compatibility</id>
@@ -529,7 +550,7 @@
                   <version>7.0_r2</version>
                 </signature>
                 <annotations>
-                  <annotation>com.google.gson.internal.bind.IgnoreJRERequirement</annotation>
+                  <annotation>com.google.gson.internal.bind.IgnoreAndroidApiLevelRequirement</annotation>
                 </annotations>
               </configuration>
             </execution>
@@ -540,11 +561,11 @@
   </build>
 
   <profiles>
-    <!-- Disable Spotless before Java 17 -->
+    <!-- Disable Spotless before Java 21 -->
     <profile>
       <id>disable-spotless</id>
       <activation>
-        <jdk>[,17)</jdk>
+        <jdk>[,21)</jdk>
       </activation>
       <build>
         <plugins>
@@ -625,6 +646,64 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Stages gson-parent and gson to Google Cloud Artifact Registry for OSS Exit Gate publishing
+      when invoked with `-Dbypass-oss-exit-gate=false` (see ReleaseProcess.md and google/guava#8843). -->
+    <profile>
+      <id>oss-exit-gate</id>
+      <activation>
+        <property>
+          <name>bypass-oss-exit-gate</name>
+          <value>false</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.google.cloud.artifactregistry</groupId>
+            <artifactId>artifactregistry-maven-wagon</artifactId>
+            <version>${artifactregistry-maven-wagon.version}</version>
+            <extensions>true</extensions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <skip>false</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <distributionManagement>
+        <repository>
+          <id>oss-exit-gate</id>
+          <url>artifactregistry://us-maven.pkg.dev/oss-exit-gate-prod/gson--mavencentral</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+
+    <profile>
+      <id>bypass-oss-exit-gate</id>
+      <!-- Remove <activation> once OSS Exit Gate credential handoff is complete so OSS Exit Gate becomes the default. -->
+      <activation>
+        <property>
+          <!-- Uses !false rather than activeByDefault so activating `-P release` does not deactivate it automatically. -->
+          <name>bypass-oss-exit-gate</name>
+          <value>!false</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <inherited>false</inherited>
           </plugin>
         </plugins>
       </build>

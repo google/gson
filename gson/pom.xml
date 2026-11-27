@@ -20,7 +20,7 @@
   <parent>
     <groupId>com.google.code.gson</groupId>
     <artifactId>gson-parent</artifactId>
-    <version>2.14.1-SNAPSHOT</version>
+    <version>2.15.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>gson</artifactId>
@@ -36,9 +36,10 @@
   <properties>
     <!-- Make the build reproducible, see root `pom.xml` -->
     <!-- This is duplicated here because that is recommended by `artifact:check-buildplan` -->
-    <project.build.outputTimestamp>2026-04-23T19:00:38Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-10-24T01:07:07Z</project.build.outputTimestamp>
 
     <excludeTestCompilation>**/Java17*</excludeTestCompilation>
+    <skipJavaTimeTest>false</skipJavaTimeTest>
   </properties>
 
   <dependencies>
@@ -50,7 +51,7 @@
     <dependency>
       <groupId>com.google.errorprone</groupId>
       <artifactId>error_prone_annotations</artifactId>
-      <version>2.50.0</version>
+      <version>2.51.0</version>
     </dependency>
 
     <dependency>
@@ -66,13 +67,19 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava-testlib</artifactId>
-      <version>33.7.0-jre</version>
+      <version>33.7.2-jre</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.7.0-jre</version>
+      <version>33.7.2-jre</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.testparameterinjector</groupId>
+      <artifactId>test-parameter-injector</artifactId>
+      <version>1.25</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -85,7 +92,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>templating-maven-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
         <executions>
           <execution>
             <id>filtering-java-templates</id>
@@ -179,6 +186,23 @@
             configuration locally). -->
           <argLine>--illegal-access=deny</argLine>
         </configuration>
+        <executions>
+          <!-- Additionally run `JavaTimeTest` with the `java.time` package open for reflection, to ensure backward
+            compatibility with previous reflection-based serialization -->
+          <execution>
+            <id>java-time-test</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <phase>test</phase>
+            <configuration>
+              <skipTests>${skipJavaTimeTest}</skipTests>
+              <argLine>--add-opens java.base/java.time=ALL-UNNAMED</argLine>
+              <test>JavaTimeTest</test>
+              <failIfNoTests>true</failIfNoTests>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <!-- Failsafe plugin for running integration tests against final JAR, see `*IT.java` test classes -->
       <plugin>
@@ -211,12 +235,12 @@
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-base</artifactId>
-            <version>7.9.1</version>
+            <version>7.10.0</version>
           </dependency>
           <dependency>
             <groupId>com.guardsquare</groupId>
             <artifactId>proguard-core</artifactId>
-            <version>9.3.2</version>
+            <version>9.4.0</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -341,14 +365,6 @@
         </configuration>
       </plugin>
 
-      <!--
-        Plugin for deploying to Maven Central
-        (configured in parent POM)
-      -->
-      <plugin>
-        <groupId>org.sonatype.central</groupId>
-        <artifactId>central-publishing-maven-plugin</artifactId>
-      </plugin>
     </plugins>
   </build>
 
@@ -396,6 +412,7 @@
     <profile>
       <id>gson-subset</id>
       <properties>
+        <skipJavaTimeTest>true</skipJavaTimeTest>
         <gsonSubsetSrcDir>${project.build.directory}/gson-subset-src</gsonSubsetSrcDir>
       </properties>
       <build>
@@ -513,6 +530,46 @@
             <configuration>
               <skip>true</skip>
             </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>oss-exit-gate</id>
+      <activation>
+        <property>
+          <name>bypass-oss-exit-gate</name>
+          <value>false</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <skip>false</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>bypass-oss-exit-gate</id>
+      <activation>
+        <property>
+          <name>bypass-oss-exit-gate</name>
+          <value>!false</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
           </plugin>
         </plugins>
       </build>

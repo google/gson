@@ -84,7 +84,7 @@ public final class JsonArray extends JsonElement implements Iterable<JsonElement
    * @since 2.4
    */
   public void add(Boolean bool) {
-    elements.add(bool == null ? JsonNull.INSTANCE : new JsonPrimitive(bool));
+    elements.add(bool == null ? JsonNull.INSTANCE : JsonPrimitive.of(bool));
   }
 
   /**

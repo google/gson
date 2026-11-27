@@ -168,6 +168,47 @@ public class JsonArrayAsListTest {
   }
 
   @Test
+  public void testSubListClear() {
+    JsonArray a = new JsonArray();
+    for (int i = 0; i < 6; i++) {
+      a.add(i);
+    }
+
+    List<JsonElement> list = a.asList();
+    List<JsonElement> subList = list.subList(1, 5);
+    subList.clear();
+
+    assertThat(subList).isEmpty();
+    assertThat(list).containsExactly(new JsonPrimitive(0), new JsonPrimitive(5)).inOrder();
+    assertThat(a.toString()).isEqualTo("[0,5]");
+
+    subList.add(new JsonPrimitive(7));
+    assertThat(a.toString()).isEqualTo("[0,7,5]");
+  }
+
+  @Test
+  public void testNestedSubListClear() {
+    JsonArray a = new JsonArray();
+    for (int i = 0; i < 6; i++) {
+      a.add(i);
+    }
+
+    List<JsonElement> list = a.asList();
+    List<JsonElement> subList = list.subList(1, 5);
+    subList.subList(1, 3).clear();
+
+    assertThat(subList).containsExactly(new JsonPrimitive(1), new JsonPrimitive(4)).inOrder();
+    assertThat(list)
+        .containsExactly(
+            new JsonPrimitive(0), new JsonPrimitive(1), new JsonPrimitive(4), new JsonPrimitive(5))
+        .inOrder();
+    assertThat(a.toString()).isEqualTo("[0,1,4,5]");
+
+    subList.subList(1, 1).clear();
+    assertThat(a.toString()).isEqualTo("[0,1,4,5]");
+  }
+
+  @Test
   public void testRemoveIf() {
     JsonArray a = new JsonArray();
     a.add(1);

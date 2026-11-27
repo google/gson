@@ -76,7 +76,7 @@ The Gson instance does not maintain any state while invoking JSON operations. So
 
 ```gradle
 dependencies {
-    implementation 'com.google.code.gson:gson:2.14.0'
+    implementation 'com.google.code.gson:gson:2.15.0'
 }
 ```
 
@@ -90,7 +90,7 @@ To use Gson with Maven2/3, you can use the Gson version available in Maven Centr
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.14.0</version>
+      <version>2.15.0</version>
       <scope>compile</scope>
     </dependency>
 </dependencies>
@@ -409,32 +409,48 @@ gson.registerTypeAdapter(MyType.class, new MyInstanceCreator());
 
 #### Writing a Serializer
 
-Here is an example of how to write a custom serializer for JodaTime `DateTime` class.
+This serializer writes a `java.time.Instant` as an ISO-8601 string.
 
 ```java
-private class DateTimeSerializer implements JsonSerializer<DateTime> {
-  public JsonElement serialize(DateTime src, Type typeOfSrc, JsonSerializationContext context) {
+class InstantSerializer implements JsonSerializer<Instant> {
+  @Override
+  public JsonElement serialize(Instant src, Type typeOfSrc, JsonSerializationContext context) {
     return new JsonPrimitive(src.toString());
   }
 }
 ```
 
-Gson calls `serialize()` when it runs into a `DateTime` object during serialization.
-
 #### Writing a Deserializer
 
-Here is an example of how to write a custom deserializer for JodaTime DateTime class.
+This deserializer reads the same format and reports invalid values as `JsonParseException`.
 
 ```java
-private class DateTimeDeserializer implements JsonDeserializer<DateTime> {
-  public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-      throws JsonParseException {
-    return new DateTime(json.getAsJsonPrimitive().getAsString());
+class InstantDeserializer implements JsonDeserializer<Instant> {
+  @Override
+  public Instant deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+    if (!json.isJsonPrimitive() || !json.getAsJsonPrimitive().isString()) {
+      throw new JsonParseException("Expected an ISO-8601 instant string");
+    }
+    try {
+      return Instant.parse(json.getAsString());
+    } catch (DateTimeParseException e) {
+      throw new JsonParseException("Invalid ISO-8601 instant", e);
+    }
   }
 }
 ```
 
-Gson calls `deserialize` when it needs to deserialize a JSON string fragment into a DateTime object
+Register both adapters for `Instant.class` to use them together:
+
+```java
+Gson gson = new GsonBuilder()
+    .registerTypeAdapter(Instant.class, new InstantSerializer())
+    .registerTypeAdapter(Instant.class, new InstantDeserializer())
+    .create();
+Instant instant = Instant.parse("2025-01-01T00:00:00Z");
+String json = gson.toJson(instant);
+Instant parsed = gson.fromJson(json, Instant.class);
+```
 
 **Finer points with Serializers and Deserializers**
 

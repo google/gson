@@ -35,7 +35,7 @@ import org.junit.Test;
 public class GsonVersionDiagnosticsTest {
   // We require a patch number, even if it is .0, consistent with https://semver.org/#spec-item-2.
   private static final Pattern GSON_VERSION_PATTERN =
-      Pattern.compile("(\\(GSON \\d\\.\\d+\\.\\d)(?:[-.][A-Z]+)?\\)$");
+      Pattern.compile("(\\(Gson \\d\\.\\d+\\.\\d)(?:[-.][A-Z]+)?\\)$");
 
   private Gson gson;
 
@@ -61,8 +61,8 @@ public class GsonVersionDiagnosticsTest {
 
   @Test
   public void testVersionPattern() {
-    assertThat("(GSON 2.8.5)").matches(GSON_VERSION_PATTERN);
-    assertThat("(GSON 2.8.5-SNAPSHOT)").matches(GSON_VERSION_PATTERN);
+    assertThat("(Gson 2.8.5)").matches(GSON_VERSION_PATTERN);
+    assertThat("(Gson 2.8.5-SNAPSHOT)").matches(GSON_VERSION_PATTERN);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class GsonVersionDiagnosticsTest {
   private static void ensureAssertionErrorPrintsGsonVersion(AssertionError expected) {
     String msg = expected.getMessage();
     // System.err.println(msg);
-    int start = msg.indexOf("(GSON");
+    int start = msg.indexOf("(Gson");
     assertThat(start > 0).isTrue();
     int end = msg.indexOf("):") + 1;
     assertThat(end > 0 && end > start + 6).isTrue();

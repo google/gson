@@ -10,7 +10,31 @@ The following is a step-by-step procedure for releasing a new version of Google-
 1. Start the release: `mvn release:prepare`
     - Answer questions: usually the defaults are fine. Try to follow [Semantic Versioning](https://semver.org/) when choosing the release version number.
     - This will do a full build, change version from `-SNAPSHOT` to the released version, commit and create the tags. It will then change the version to `-SNAPSHOT` for the next release.
-1. Complete the release: `mvn release:perform`
+1. Complete the release:
+    - **Via OSS Exit Gate (Google maintainers):**
+      1. Ensure Application Default Credentials are active: `gcloud auth application-default login`
+      2. Stage GPG-signed `gson-parent` and `gson` artifacts to Artifact Registry:
+         `mvn release:perform -Darguments="-Dbypass-oss-exit-gate=false"`
+      3. Trigger OSS Exit Gate publication to Maven Central (replacing `<VERSION>` with the released version, e.g. `2.15.1`):
+         ```sh
+         cat > /tmp/gson-manifest.json <<EOF
+         {
+           "publish_all": false,
+           "publishing_groups": [
+             {
+               "namespace": "com.google.code.gson",
+               "packages": [
+                 {"name": "gson-parent", "version": "<VERSION>"},
+                 {"name": "gson", "version": "<VERSION>"}
+               ]
+             }
+           ]
+         }
+         EOF
+         gcloud storage cp /tmp/gson-manifest.json "gs://oss-exit-gate-prod-projects-bucket/gson/mavencentral/manifests/manifest-<VERSION>.json"
+         ```
+      4. Skip the manual Central Portal UI steps below (OSS Exit Gate validates and publishes the bundle to Maven Central and sends status emails).
+    - **Direct Central Portal fallback (until `bypass-oss-exit-gate` default activation is removed):** `mvn release:perform`
 1. [Log in to the Central Portal](https://central.sonatype.com/)
 1. Download and sanity check all files.\
    Do not skip this step! Once you release the staging repository, there is no going back. It will get synced with Maven Central and you will not be able to update or delete anything. Your only recourse will be to release a new version of Gson and hope that no one uses the old one.
@@ -34,7 +58,7 @@ The following describes how to perform the steps of the release locally to verif
 
 > [!CAUTION]\
 > Be careful with this, these steps might be outdated or incomplete. Double-check that you are working on a copy of your local Gson Git repository and make sure you have followed all steps. To be safe you can also temporarily turn off your internet connection to avoid accidentally pushing changes to the real remote Git or Maven repository.\
-> As an alternative to the steps described below you can instead [perform a dry run](https://maven.apache.org/maven-release/maven-release-plugin/usage.html#do-a-dry-run), though this might not behave identical to a real release.
+> As an alternative to the steps described below you can instead [perform a dry run](https://maven.apache.org/maven-release/maven-release-plugin/usage.html#do-a-dry-run), though this might not behave identically to a real release.
 
 1. Make a copy of your local Gson Git repository and only work with that copy
 1. Make sure you are on the `main` branch

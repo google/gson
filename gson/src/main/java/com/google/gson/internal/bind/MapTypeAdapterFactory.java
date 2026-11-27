@@ -63,7 +63,7 @@ import java.util.Map;
  * }
  * }</pre>
  *
- * But GSON is unable to deserialize this value because the JSON string name is just the {@link
+ * But Gson is unable to deserialize this value because the JSON string name is just the {@link
  * Object#toString() toString()} of the map key. Attempting to convert the above JSON to an object
  * fails with a parse exception:
  *
@@ -80,7 +80,7 @@ import java.util.Map;
  * be used as the map's key; not just strings. But it's also less portable because the receiver of
  * such JSON must be aware of the map entry convention.
  *
- * <p>Register this adapter when you are creating your GSON instance.
+ * <p>Register this adapter when you are creating your {@code Gson} instance.
  *
  * <pre>{@code
  * Gson gson = new GsonBuilder()
@@ -186,13 +186,7 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         in.beginArray();
         while (in.hasNext()) {
           in.beginArray(); // entry array
-          K key = keyTypeAdapter.read(in);
-          if (map.containsKey(key)) {
-            throw new JsonSyntaxException(
-                "Duplicate key '" + key + "'; at path " + in.getPreviousPath());
-          }
-          V value = valueTypeAdapter.read(in);
-          map.put(key, value);
+          readEntry(in, map);
           in.endArray();
         }
         in.endArray();
@@ -200,17 +194,46 @@ public final class MapTypeAdapterFactory implements TypeAdapterFactory {
         in.beginObject();
         while (in.hasNext()) {
           JsonReaderInternalAccess.INSTANCE.promoteNameToValue(in);
-          K key = keyTypeAdapter.read(in);
-          if (map.containsKey(key)) {
-            throw new JsonSyntaxException(
-                "Duplicate key '" + key + "'; at path " + in.getPreviousPath());
-          }
-          V value = valueTypeAdapter.read(in);
-          map.put(key, value);
+          readEntry(in, map);
         }
         in.endObject();
       }
       return map;
+    }
+
+    private void readEntry(JsonReader in, Map<K, V> map) throws IOException {
+      K key = keyTypeAdapter.read(in);
+      String keyPath = (key == null) ? in.getPreviousPath() : null;
+      boolean duplicate;
+      try {
+        duplicate = map.containsKey(key);
+      } catch (NullPointerException e) {
+        if (key == null) {
+          throw nullJsonSyntaxException("key", map, keyPath, e);
+        }
+        throw e;
+      }
+      if (duplicate) {
+        throw new JsonSyntaxException(
+            "Duplicate key '" + key + "'; at path " + in.getPreviousPath());
+      }
+      V value = valueTypeAdapter.read(in);
+      try {
+        map.put(key, value);
+      } catch (NullPointerException e) {
+        if (key == null) {
+          throw nullJsonSyntaxException("key", map, keyPath, e);
+        } else if (value == null) {
+          throw nullJsonSyntaxException("value", map, in.getPreviousPath(), e);
+        }
+        throw e;
+      }
+    }
+
+    private JsonSyntaxException nullJsonSyntaxException(
+        String keyOrValue, Map<?, ?> map, String path, NullPointerException e) {
+      return new JsonSyntaxException(
+          "Null " + keyOrValue + " is not allowed in " + map.getClass() + "; at path " + path, e);
     }
 
     @Override
