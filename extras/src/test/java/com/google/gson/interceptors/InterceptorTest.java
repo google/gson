@@ -163,6 +163,7 @@ public final class InterceptorTest {
     }
   }
 
+  @SuppressWarnings("ExposedPrivateType")
   public static final class UserValidator implements JsonPostDeserializer<User> {
     @Override
     public void postDeserialize(User user) {
@@ -186,6 +187,7 @@ public final class InterceptorTest {
     String zip;
   }
 
+  @SuppressWarnings("ExposedPrivateType")
   public static final class AddressValidator implements JsonPostDeserializer<Address> {
     @Override
     public void postDeserialize(Address address) {

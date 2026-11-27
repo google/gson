@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 
-/** Reads and writes GSON parse trees over streams. */
+/** Reads and writes {@link JsonElement} trees over streams. */
 public final class Streams {
   private Streams() {
     throw new UnsupportedOperationException();
@@ -48,7 +48,7 @@ public final class Streams {
       return JsonElementTypeAdapter.ADAPTER.read(reader);
     } catch (EOFException e) {
       /*
-       * For compatibility with JSON 1.5 and earlier, we return a JsonNull for
+       * For compatibility with Gson 1.5 and earlier, we return a JsonNull for
        * empty documents instead of throwing.
        */
       if (isEmpty) {

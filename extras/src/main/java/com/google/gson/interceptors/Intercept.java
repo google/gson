@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 /**
  * Use this annotation to indicate various interceptors for class instances after they have been
  * processed by Gson. For example, you can use it to validate an instance after it has been
- * deserialized from Json. Here is an example of how this annotation is used:
+ * deserialized from JSON. Here is an example of how this annotation is used:
  *
  * <p>Here is an example of how this annotation is used:
  *

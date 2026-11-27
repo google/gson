@@ -17,8 +17,10 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,5 +56,18 @@ public class PrimitiveCharacterTest {
 
     actual = gson.fromJson("a", Character.class);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  public void testWrongLength() {
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"\"", char.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Expecting single character, got: '' (length 0); at path $");
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("\"ab\"", char.class));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("Expecting single character, got: 'ab' (length 2); at path $");
   }
 }

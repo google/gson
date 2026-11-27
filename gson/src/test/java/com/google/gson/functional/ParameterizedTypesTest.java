@@ -287,7 +287,7 @@ public class ParameterizedTypesTest {
   }
 
   /**
-   * An test object that has fields that are type variables.
+   * A test object that has fields that are type variables.
    *
    * @param <T> Enforce T to be a string to make writing the "toExpectedJson" method easier.
    */
@@ -481,7 +481,7 @@ public class ParameterizedTypesTest {
 
   private interface Immutable {}
 
-  public static final class Amount<Q extends Quantity>
+  private static final class Amount<Q extends Quantity>
       implements Measurable<Q>, Field<Amount<?>>, Serializable, Immutable {
     private static final long serialVersionUID = -7560491093120970437L;
 

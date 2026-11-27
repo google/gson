@@ -63,7 +63,7 @@ public class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
         String number = in.nextString();
         return new JsonPrimitive(new LazilyParsedNumber(number));
       case BOOLEAN:
-        return new JsonPrimitive(in.nextBoolean());
+        return JsonPrimitive.of(in.nextBoolean());
       case NULL:
         in.nextNull();
         return JsonNull.INSTANCE;

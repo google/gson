@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /** Internal helper class for {@link ReflectionAccessFilter}. */
-public class ReflectionAccessFilterHelper {
+public final class ReflectionAccessFilterHelper {
   private ReflectionAccessFilterHelper() {}
 
   // Platform type detection is based on Moshi's Util.isPlatformType(Class)

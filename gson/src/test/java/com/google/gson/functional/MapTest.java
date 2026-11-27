@@ -17,7 +17,6 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Gson;
@@ -31,17 +30,28 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
 import com.google.gson.common.TestTypes;
 import com.google.gson.internal.GsonTypes;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.testing.junit.testparameterinjector.TestParameter;
+import com.google.testing.junit.testparameterinjector.TestParameterInjector;
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -51,6 +61,7 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Functional test for Json serialization and deserialization for Maps
@@ -58,6 +69,7 @@ import org.junit.Test;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@RunWith(TestParameterInjector.class)
 public class MapTest {
   private Gson gson;
 
@@ -165,6 +177,44 @@ public class MapTest {
     assertThat(map.get(null)).isNull();
   }
 
+  /**
+   * Tests deserializing as {@code Map<String, ...>} with a key being deserialized as {@code null}.
+   * This can only occur if a custom type adapter for {@code String} is used. (Unless "map as array"
+   * form is used, see {@link MapAsArrayTypeAdapterTest}.)
+   */
+  @Test
+  public void testStringMapDeserializationWithCustomAdapterNullKey() {
+    Gson gson =
+        new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .registerTypeAdapter(
+                String.class,
+                new TypeAdapter<String>() {
+                  @Override
+                  public String read(JsonReader in) throws IOException {
+                    String value = in.nextString();
+                    return value.isEmpty() ? null : value;
+                  }
+
+                  @Override
+                  public void write(JsonWriter out, String value) {
+                    throw new AssertionError("not needed for this test");
+                  }
+                })
+            .create();
+
+    String json = "{\"a\":1,\"\":2,\"b\":3}";
+
+    Map<String, Integer> expectedMap = new LinkedHashMap<>();
+    expectedMap.put("a", 1);
+    expectedMap.put(null, 2);
+    expectedMap.put("b", 3);
+
+    Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+    Map<String, Integer> map = gson.fromJson(json, type);
+    assertThat(map).containsExactlyEntriesIn(expectedMap).inOrder();
+  }
+
   @Test
   public void testMapSerializationWithIntegerKeys() {
     Map<Integer, String> map = new LinkedHashMap<>();
@@ -220,40 +270,7 @@ public class MapTest {
     Type typeOfMap = new TypeToken<Map<String, Integer>>() {}.getType();
     Map<?, ?> map = gson.fromJson("{\"a\":1}", typeOfMap);
 
-    assertWithMessage(
-            "Map<String, ...> should use LinkedTreeMap to protect against DoS in older JDK"
-                + " versions")
-        .that(map)
-        .isInstanceOf(LinkedTreeMap.class);
-
     Map<?, ?> expectedMap = Collections.singletonMap("a", 1);
-    assertThat(map).isEqualTo(expectedMap);
-  }
-
-  @Test
-  public void testMapStringSupertypeKeyDeserialization() {
-    // Should only use Gson's LinkedTreeMap for String as key, but not for supertypes (e.g. Object)
-    Type typeOfMap = new TypeToken<Map<Object, Integer>>() {}.getType();
-    Map<?, ?> map = gson.fromJson("{\"a\":1}", typeOfMap);
-
-    assertWithMessage("Map<Object, ...> should not use Gson Map implementation")
-        .that(map)
-        .isNotInstanceOf(LinkedTreeMap.class);
-
-    Map<?, ?> expectedMap = Collections.singletonMap("a", 1);
-    assertThat(map).isEqualTo(expectedMap);
-  }
-
-  @Test
-  public void testMapNonStringKeyDeserialization() {
-    Type typeOfMap = new TypeToken<Map<Integer, Integer>>() {}.getType();
-    Map<?, ?> map = gson.fromJson("{\"1\":1}", typeOfMap);
-
-    assertWithMessage("Map<Integer, ...> should not use Gson Map implementation")
-        .that(map)
-        .isNotInstanceOf(LinkedTreeMap.class);
-
-    Map<?, ?> expectedMap = Collections.singletonMap(1, 1);
     assertThat(map).isEqualTo(expectedMap);
   }
 
@@ -317,6 +334,100 @@ public class MapTest {
     assertThat(map.get(123)).isEqualTo("456");
     String json = gson.toJson(map);
     assertThat(json).isEqualTo("{\"123\":\"456\"}");
+  }
+
+  private enum MyEnum {
+    A,
+    B
+  }
+
+  /** Provider of {@link Map} types whose {@link Map#containsKey(Object)} disallows {@code null}. */
+  private static final class NullKeyDisallowedInContainsKeyTypesProvider
+      extends TestParameterValuesProvider {
+    @Override
+    protected List<?> provideValues(Context context) {
+      return Arrays.asList(
+          TypeToken.get(Properties.class),
+          new TypeToken<Hashtable<String, String>>() {},
+          new TypeToken<TreeMap<String, String>>() {},
+          new TypeToken<ConcurrentMap<String, String>>() {},
+          new TypeToken<ConcurrentHashMap<String, String>>() {},
+          new TypeToken<ConcurrentNavigableMap<String, String>>() {},
+          new TypeToken<ConcurrentSkipListMap<String, String>>() {});
+    }
+  }
+
+  @Test
+  public void testMapDeserializationNullKeyDisallowed(
+      @TestParameter(valuesProvider = NullKeyDisallowedInContainsKeyTypesProvider.class)
+          TypeToken<?> typeToken) {
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[null, \"a\"]]", typeToken));
+    assertThat(e).hasMessageThat().startsWith("Null key is not allowed in class java.util.");
+    assertThat(e).hasMessageThat().endsWith("; at path $[0][0]");
+    assertThat(e).hasCauseThat().isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  public void testEnumMapDeserializationNullKeyDisallowed() {
+    // EnumMap.containsKey(null) returns false, so NullPointerException is thrown by EnumMap.put
+    var typeToken = new TypeToken<EnumMap<MyEnum, String>>() {};
+    JsonSyntaxException enumMapArrayException =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[null, \"a\"]]", typeToken));
+    assertThat(enumMapArrayException)
+        .hasMessageThat()
+        .isEqualTo("Null key is not allowed in class java.util.EnumMap; at path $[0][0]");
+    assertThat(enumMapArrayException).hasCauseThat().isInstanceOf(NullPointerException.class);
+
+    // Unknown enum constant deserializes to a null key in JSON object syntax
+    JsonSyntaxException enumMapObjectException =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("{\"UNKNOWN\": \"a\"}", typeToken));
+    assertThat(enumMapObjectException)
+        .hasMessageThat()
+        .isEqualTo("Null key is not allowed in class java.util.EnumMap; at path $.UNKNOWN");
+    assertThat(enumMapObjectException).hasCauseThat().isInstanceOf(NullPointerException.class);
+  }
+
+  private static final class NullValueDisallowedTypesProvider extends TestParameterValuesProvider {
+    @Override
+    protected List<?> provideValues(Context context) {
+      return Arrays.asList(
+          TypeToken.get(Properties.class),
+          new TypeToken<Hashtable<String, String>>() {},
+          new TypeToken<ConcurrentMap<String, String>>() {},
+          new TypeToken<ConcurrentHashMap<String, String>>() {},
+          new TypeToken<ConcurrentNavigableMap<String, String>>() {},
+          new TypeToken<ConcurrentSkipListMap<String, String>>() {});
+    }
+  }
+
+  @Test
+  public void testMapDeserializationNullValueDisallowed(
+      @TestParameter(valuesProvider = NullValueDisallowedTypesProvider.class)
+          TypeToken<?> typeToken) {
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{\"a\": null}", typeToken));
+    assertThat(e).hasMessageThat().startsWith("Null value is not allowed in class java.util.");
+    assertThat(e).hasMessageThat().endsWith("; at path $.a");
+    assertThat(e).hasCauseThat().isInstanceOf(NullPointerException.class);
+
+    e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[[\"a\", null]]", typeToken));
+    assertThat(e).hasMessageThat().startsWith("Null value is not allowed in class java.util.");
+    assertThat(e).hasMessageThat().endsWith("; at path $[0][1]");
+    assertThat(e).hasCauseThat().isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  public void testEnumMapAndTreeMapDeserializationNullValueAllowed() {
+    // EnumMap and TreeMap allow null values
+    EnumMap<MyEnum, String> enumMap =
+        gson.fromJson("{\"A\": null}", new TypeToken<EnumMap<MyEnum, String>>() {});
+    assertThat(enumMap).containsExactly(MyEnum.A, null);
+
+    TreeMap<String, String> treeMap =
+        gson.fromJson("{\"a\": null}", new TypeToken<TreeMap<String, String>>() {});
+    assertThat(treeMap).containsExactly("a", null);
   }
 
   @Test
@@ -690,7 +801,7 @@ public class MapTest {
   public void testMapDeserializationWithDuplicateKeys() {
     Type type = new TypeToken<Map<String, Integer>>() {}.getType();
     var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{'a':1,'a':2}", type));
-    assertThat(e).hasMessageThat().isEqualTo("duplicate key: a");
+    assertThat(e).hasMessageThat().isEqualTo("Duplicate key 'a'; at path $.a");
   }
 
   @Test
@@ -700,7 +811,7 @@ public class MapTest {
     // so the old `if (replaced != null)` check failed to detect the duplicate
     var e =
         assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{\"a\":null,\"a\":1}", type));
-    assertThat(e).hasMessageThat().isEqualTo("duplicate key: a");
+    assertThat(e).hasMessageThat().isEqualTo("Duplicate key 'a'; at path $.a");
   }
 
   @Test
@@ -709,7 +820,14 @@ public class MapTest {
     var e =
         assertThrows(
             JsonSyntaxException.class, () -> gson.fromJson("{\"a\":null,\"a\":null}", type));
-    assertThat(e).hasMessageThat().isEqualTo("duplicate key: a");
+    assertThat(e).hasMessageThat().isEqualTo("Duplicate key 'a'; at path $.a");
+  }
+
+  @Test
+  public void testMapDeserializationUnterminatedValueIncludesNameInPath() {
+    Type type = new TypeToken<Map<String, String>>() {}.getType();
+    var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{\"name\":\"value", type));
+    assertThat(e).hasCauseThat().hasMessageThat().contains("path $.name");
   }
 
   @Test

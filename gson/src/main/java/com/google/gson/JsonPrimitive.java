@@ -34,10 +34,25 @@ import java.util.Objects;
  */
 public final class JsonPrimitive extends JsonElement {
 
+  /**
+   * A {@code JsonPrimitive} representing the boolean value {@code true}.
+   *
+   * @since $next-version$
+   */
+  public static final JsonPrimitive TRUE = new JsonPrimitive(true);
+
+  /**
+   * A {@code JsonPrimitive} representing the boolean value {@code false}.
+   *
+   * @since $next-version$
+   */
+  public static final JsonPrimitive FALSE = new JsonPrimitive(false);
+
   private final Object value;
 
   /**
-   * Create a primitive containing a boolean value.
+   * Create a primitive containing a boolean value. Consider using {@link #of(boolean)}, {@link
+   * #TRUE}, or {@link #FALSE} instead to avoid allocating a new instance.
    *
    * @param bool the value to create the primitive with.
    */
@@ -83,6 +98,15 @@ public final class JsonPrimitive extends JsonElement {
     // convert characters to strings since in JSON, characters are represented as a single
     // character string
     value = Objects.requireNonNull(c).toString();
+  }
+
+  /**
+   * Returns {@link #TRUE} or {@link #FALSE} corresponding to {@code value}.
+   *
+   * @since $next-version$
+   */
+  public static JsonPrimitive of(boolean value) {
+    return value ? TRUE : FALSE;
   }
 
   /**
@@ -262,16 +286,42 @@ public final class JsonPrimitive extends JsonElement {
     if (value == null) {
       return 31;
     }
-    // Using recommended hashing algorithm from Effective Java for longs and doubles
+    // The conditions below parallel the structure of equals(Object). Unlike in equals, every
+    // numeric branch must delegate to the same double-based hash: equals can consider primitives
+    // from *different* branches equal (for example Integer 42 equals Double 42.0 and a lazily
+    // parsed number 42 through the floating-point comparison), so a branch hashing anything other
+    // than the double value would give equal primitives different hash codes, see
+    // https://github.com/google/gson/issues/992
     if (isIntegral(this)) {
-      long value = getAsNumber().longValue();
-      return (int) (value ^ (value >>> 32));
+      // equals compares two integral primitives by their BigInteger values or long values;
+      // primitives equal under either comparison also have the same double value, so the
+      // double-based hash is consistent with this branch of equals. It is also consistent with
+      // the mixed comparisons handled below, such as Integer 42 vs Double 42.0.
+      return hashOfDoubleValue(getAsNumber().doubleValue());
     }
     if (value instanceof Number) {
-      long value = Double.doubleToLongBits(getAsNumber().doubleValue());
-      return (int) (value ^ (value >>> 32));
+      // equals compares the remaining numbers by their double values. (For two BigDecimal or
+      // LazilyParsedNumber values it uses BigDecimal.compareTo, which only considers values equal
+      // that also have the same double value.)
+      return hashOfDoubleValue(getAsNumber().doubleValue());
     }
     return value.hashCode();
+  }
+
+  /**
+   * Hash code derived from the {@code double} value which {@link #equals(Object)} ultimately
+   * compares numbers by.
+   *
+   * <p>Mathematically integral values within {@code long} range use the hashing algorithm
+   * recommended by Effective Java for longs; this keeps the hash code unchanged for the common
+   * integral types and also normalizes {@code -0.0} to {@code 0.0} (which {@code equals} considers
+   * equal to {@code 0}). All other values hash their {@link Double#doubleToLongBits} bits, which
+   * collapses all NaN bit patterns to a single canonical value, matching {@code equals} which
+   * considers all NaN values equal.
+   */
+  private static int hashOfDoubleValue(double doubleValue) {
+    long longValue = (long) doubleValue;
+    return (doubleValue == longValue) ? Long.hashCode(longValue) : Double.hashCode(doubleValue);
   }
 
   /**
@@ -296,9 +346,13 @@ public final class JsonPrimitive extends JsonElement {
           : this.getAsNumber().longValue() == other.getAsNumber().longValue();
     }
     if (value instanceof Number && other.value instanceof Number) {
-      if (value instanceof BigDecimal && other.value instanceof BigDecimal) {
+      if (isDecimal(this) && isDecimal(other)) {
         // Uses compareTo to ignore scale of values, e.g. `0` and `0.00` should be considered equal
-        return this.getAsBigDecimal().compareTo(other.getAsBigDecimal()) == 0;
+        try {
+          return this.getAsBigDecimal().compareTo(other.getAsBigDecimal()) == 0;
+        } catch (NumberFormatException e) {
+          // LazilyParsedNumber which is not supported by BigDecimal, e.g. NaN; compare as double
+        }
       }
 
       double thisAsDouble = this.getAsDouble();
@@ -324,5 +378,13 @@ public final class JsonPrimitive extends JsonElement {
           || number instanceof Byte;
     }
     return false;
+  }
+
+  /**
+   * Returns true if the specified number is a {@link BigDecimal} or a {@link LazilyParsedNumber}
+   * (the type of numbers parsed from JSON), whose decimal value can be compared exactly.
+   */
+  private static boolean isDecimal(JsonPrimitive primitive) {
+    return primitive.value instanceof BigDecimal || primitive.value instanceof LazilyParsedNumber;
   }
 }

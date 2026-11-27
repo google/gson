@@ -96,6 +96,7 @@ import java.io.Writer;
  * Gson gson = builder.create();
  * }</pre>
  *
+ * @see GsonBuilder#registerTypeAdapter(java.lang.reflect.Type, Object)
  * @since 2.1
  */
 // non-Javadoc:
@@ -157,7 +158,7 @@ public abstract class TypeAdapter<T> {
    * @since 2.2
    */
   public final String toJson(T value) {
-    StringBuilder stringBuilder = new StringBuilder();
+    StringBuilder stringBuilder = JsonElement.newJsonStringBuilder();
     try {
       toJson(Streams.writerForAppendable(stringBuilder), value);
     } catch (IOException e) {

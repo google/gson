@@ -16,9 +16,10 @@
 
 package com.google.gson.internal.bind;
 
+import static java.lang.Math.toIntExact;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -52,6 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.regex.Pattern;
 
 /**
  * Type adapters for basic types. More complex adapters exist as separate classes in the enclosing
@@ -151,7 +154,7 @@ public final class TypeAdapters {
             in.nextNull();
             return null;
           } else if (peek == JsonToken.STRING) {
-            // support strings for compatibility with GSON 1.7
+            // support strings for compatibility with Gson 1.7
             return Boolean.parseBoolean(in.nextString());
           }
           return in.nextBoolean();
@@ -214,7 +217,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.byteValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which widens number
+            Number byteNumber = value instanceof Byte ? value : value.byteValue();
+            out.value(byteNumber);
           }
         }
       };
@@ -249,7 +254,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.shortValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which widens number
+            Number shortNumber = value instanceof Short ? value : value.shortValue();
+            out.value(shortNumber);
           }
         }
       };
@@ -277,7 +284,9 @@ public final class TypeAdapters {
           if (value == null) {
             out.nullValue();
           } else {
-            out.value(value.intValue());
+            // Always wrap as Number; don't use `JsonWriter#value(long)`, which widens number
+            Number intNumber = value instanceof Integer ? value : value.intValue();
+            out.value(intNumber);
           }
         }
       };
@@ -378,8 +387,12 @@ public final class TypeAdapters {
         List<Long> list = new ArrayList<>();
         in.beginArray();
         while (in.hasNext()) {
-          long value = longAdapter.read(in).longValue();
-          list.add(value);
+          Number value = longAdapter.read(in);
+          if (value == null) {
+            throw new JsonSyntaxException(
+                "null is not a valid AtomicLongArray element; at path " + in.getPreviousPath());
+          }
+          list.add(value.longValue());
         }
         in.endArray();
         int length = list.size();
@@ -473,7 +486,7 @@ public final class TypeAdapters {
       if (strict) {
         checkValidFloatingPoint(floatValue);
       }
-      // For backward compatibility don't call `JsonWriter.value(float)` because that method has
+      // For backward compatibility don't call `JsonWriter#value(float)` because that method has
       // been newly added and not all custom JsonWriter implementations might override it yet
       Number floatNumber = value instanceof Float ? value : floatValue;
       out.value(floatNumber);
@@ -534,9 +547,15 @@ public final class TypeAdapters {
             return null;
           }
           String str = in.nextString();
-          if (str.length() != 1) {
+          int length = str.length();
+          if (length != 1) {
             throw new JsonSyntaxException(
-                "Expecting character, got: " + str + "; at " + in.getPreviousPath());
+                "Expecting single character, got: '"
+                    + str
+                    + "' (length "
+                    + length
+                    + "); at path "
+                    + in.getPreviousPath());
           }
           return str.charAt(0);
         }
@@ -698,7 +717,12 @@ public final class TypeAdapters {
             return null;
           }
           String nextString = in.nextString();
-          return nextString.equals("null") ? null : new URL(nextString);
+          try {
+            return new URL(nextString);
+          } catch (MalformedURLException e) {
+            throw new JsonSyntaxException(
+                "Failed parsing '" + nextString + "' as URL; at path " + in.getPreviousPath(), e);
+          }
         }
 
         @Override
@@ -717,17 +741,18 @@ public final class TypeAdapters {
             in.nextNull();
             return null;
           }
+          String nextString = in.nextString();
           try {
-            String nextString = in.nextString();
-            return nextString.equals("null") ? null : new URI(nextString);
+            return new URI(nextString);
           } catch (URISyntaxException e) {
-            throw new JsonIOException(e);
+            throw new JsonSyntaxException(
+                "Failed parsing '" + nextString + "' as URI; at path " + in.getPreviousPath(), e);
           }
         }
 
         @Override
         public void write(JsonWriter out, URI value) throws IOException {
-          out.value(value == null ? null : value.toASCIIString());
+          out.value(value == null ? null : value.toString());
         }
       };
 
@@ -735,17 +760,32 @@ public final class TypeAdapters {
 
   public static final TypeAdapter<InetAddress> INET_ADDRESS =
       new TypeAdapter<InetAddress>() {
+
+        // A pattern that matches every IP address and no DNS address. It matches plenty of things
+        // that aren't either of those, which is fine. An IPv4 address is n.n.n.n where each n is a
+        // non-negative integer. An IPv6 address contains at least one colon. (There are further
+        // constraints in both cases, but they don't matter here.)
+        private final Pattern ipAddressPattern = Pattern.compile(".*:.*|[0-9]+(\\.[0-9]+){3}");
+
         @Override
         public InetAddress read(JsonReader in) throws IOException {
           if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;
           }
-          // regrettably, this should have included both the host name and the host address
-          // For compatibility, we use InetAddress.getByName rather than the possibly-better
-          // .getAllByName
+          String s = in.nextString();
+          if (!ipAddressPattern.matcher(s).matches()
+              && !Boolean.getBoolean("gson.allowDnsInetAddress")) {
+            throw new JsonSyntaxException(
+                "Failed parsing '"
+                    + s
+                    + "' as InetAddress; at path "
+                    + in.getPreviousPath()
+                    + "; to allow DNS addresses, set system property gson.allowDnsInetAddress to"
+                    + " \"true\"");
+          }
           @SuppressWarnings("AddressSelection")
-          InetAddress addr = InetAddress.getByName(in.nextString());
+          InetAddress addr = InetAddress.getByName(s);
           return addr;
         }
 
@@ -807,6 +847,8 @@ public final class TypeAdapters {
    * An abstract {@link TypeAdapter} for classes whose JSON serialization consists of a fixed set of
    * integer fields. That is the case for {@link Calendar} and the legacy serialization of various
    * {@code java.time} types.
+   *
+   * <p>This class handles {@code null}; subclasses don't have to use {@link #nullSafe()}.
    */
   abstract static class IntegerFieldsTypeAdapter<T> extends TypeAdapter<T> {
     private final List<String> fields;
@@ -815,8 +857,21 @@ public final class TypeAdapters {
       this.fields = Arrays.asList(fields);
     }
 
+    /**
+     * On deserialization: Creates an object from the integer values. Subclasses should use {@link
+     * Math#toIntExact(long)} and similar if necessary to prevent silent truncation.
+     *
+     * <p>Values have the same order as the field names provided to the {@linkplain
+     * #IntegerFieldsTypeAdapter(String[]) constructor}.
+     */
     abstract T create(long[] values);
 
+    /**
+     * On serialization: Extracts the integer values from the object.
+     *
+     * <p>Values must have the same order as the field names provided to the {@linkplain
+     * #IntegerFieldsTypeAdapter(String[]) constructor}.
+     */
     abstract long[] integerValues(T t);
 
     @Override
@@ -827,7 +882,7 @@ public final class TypeAdapters {
       }
       in.beginObject();
       long[] values = new long[fields.size()];
-      while (in.peek() != JsonToken.END_OBJECT) {
+      while (in.hasNext()) {
         String name = in.nextName();
         int index = fields.indexOf(name);
         if (index >= 0) {
@@ -884,15 +939,6 @@ public final class TypeAdapters {
         }
       };
 
-  // TODO: update this when we are on at least Android API Level 24.
-  private static int toIntExact(long x) {
-    int i = (int) x;
-    if (i != x) {
-      throw new IllegalArgumentException("Too big for an int: " + x);
-    }
-    return i;
-  }
-
   public static final TypeAdapterFactory CALENDAR_FACTORY =
       newFactoryForMultipleTypes(Calendar.class, GregorianCalendar.class, CALENDAR);
 
@@ -905,6 +951,9 @@ public final class TypeAdapters {
             return null;
           }
           String locale = in.nextString();
+          if (locale.isEmpty()) {
+            return Locale.ROOT;
+          }
           StringTokenizer tokenizer = new StringTokenizer(locale, "_");
           String language = null;
           String country = null;
@@ -918,7 +967,11 @@ public final class TypeAdapters {
           if (tokenizer.hasMoreElements()) {
             variant = tokenizer.nextToken();
           }
-          if (country == null && variant == null) {
+          if (language == null) {
+            throw new JsonSyntaxException(
+                "Failed parsing '" + locale + "' as Locale; at path " + in.getPreviousPath());
+          }
+          if (country == null) {
             return new Locale(language);
           } else if (variant == null) {
             return new Locale(language, country);
@@ -942,21 +995,9 @@ public final class TypeAdapters {
 
   public static final TypeAdapterFactory ENUM_FACTORY = EnumTypeAdapter.FACTORY;
 
-  interface FactorySupplier {
-    TypeAdapterFactory get();
-  }
+  public static final TypeAdapterFactory JAVA_TIME_FACTORY = new JavaTimeTypeAdapterFactory();
 
-  public static TypeAdapterFactory javaTimeTypeAdapterFactory() {
-    try {
-      Class<?> javaTimeTypeAdapterFactoryClass =
-          Class.forName("com.google.gson.internal.bind.JavaTimeTypeAdapters");
-      FactorySupplier supplier =
-          (FactorySupplier) javaTimeTypeAdapterFactoryClass.getDeclaredConstructor().newInstance();
-      return supplier.get();
-    } catch (ReflectiveOperationException | LinkageError e) {
-      return null;
-    }
-  }
+  public static final TypeAdapterFactory JDK_OPTIONAL_FACTORY = JdkOptionalTypeAdapters.FACTORY;
 
   @SuppressWarnings("TypeParameterNaming")
   public static <TT> TypeAdapterFactory newFactory(

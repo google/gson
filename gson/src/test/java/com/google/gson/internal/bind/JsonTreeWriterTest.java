@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.Strictness;
 import com.google.gson.common.MoreAsserts;
 import com.google.gson.internal.LazilyParsedNumber;
@@ -198,6 +199,11 @@ public final class JsonTreeWriterTest {
     JsonTreeWriter writer = new JsonTreeWriter();
     boolean bool = true;
     assertThat(writer.value(bool)).isEqualTo(writer);
+    assertThat(writer.get()).isSameInstanceAs(JsonPrimitive.TRUE);
+
+    writer = new JsonTreeWriter();
+    writer.value(false);
+    assertThat(writer.get()).isSameInstanceAs(JsonPrimitive.FALSE);
   }
 
   @Test
@@ -205,6 +211,11 @@ public final class JsonTreeWriterTest {
     JsonTreeWriter writer = new JsonTreeWriter();
     Boolean bool = true;
     assertThat(writer.value(bool)).isEqualTo(writer);
+    assertThat(writer.get()).isSameInstanceAs(JsonPrimitive.TRUE);
+
+    writer = new JsonTreeWriter();
+    writer.value(Boolean.FALSE);
+    assertThat(writer.get()).isSameInstanceAs(JsonPrimitive.FALSE);
   }
 
   @Test

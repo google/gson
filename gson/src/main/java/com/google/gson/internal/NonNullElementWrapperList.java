@@ -19,9 +19,12 @@ package com.google.gson.internal;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.RandomAccess;
+import java.util.Spliterator;
+import java.util.function.Predicate;
 
 /**
  * {@link List} which wraps another {@code List} but prevents insertion of {@code null} elements.
@@ -83,6 +86,11 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   }
 
   @Override
+  protected void removeRange(int fromIndex, int toIndex) {
+    delegate.subList(fromIndex, toIndex).clear();
+  }
+
+  @Override
   public boolean removeAll(Collection<?> c) {
     return delegate.removeAll(c);
   }
@@ -90,6 +98,11 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   @Override
   public boolean retainAll(Collection<?> c) {
     return delegate.retainAll(c);
+  }
+
+  @Override
+  public boolean removeIf(Predicate<? super E> filter) {
+    return delegate.removeIf(filter);
   }
 
   @Override
@@ -118,6 +131,16 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   }
 
   @Override
+  public void sort(Comparator<? super E> c) {
+    delegate.sort(c);
+  }
+
+  @Override
+  public Spliterator<E> spliterator() {
+    return delegate.spliterator();
+  }
+
+  @Override
   public boolean equals(Object o) {
     return delegate.equals(o);
   }
@@ -126,7 +149,4 @@ public class NonNullElementWrapperList<E> extends AbstractList<E> implements Ran
   public int hashCode() {
     return delegate.hashCode();
   }
-
-  // Maybe also delegate List#sort and List#spliterator in the future, but that
-  // requires Android API level 24
 }

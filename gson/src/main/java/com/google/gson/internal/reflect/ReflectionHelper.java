@@ -25,7 +25,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-public class ReflectionHelper {
+public final class ReflectionHelper {
 
   private static final RecordHelper RECORD_HELPER;
 
@@ -230,7 +230,7 @@ public class ReflectionHelper {
     abstract Method getAccessor(Class<?> raw, Field field);
   }
 
-  private static class RecordSupportedHelper extends RecordHelper {
+  private static final class RecordSupportedHelper extends RecordHelper {
     private final Method isRecord;
     private final Method getRecordComponents;
     private final Method getName;
@@ -297,7 +297,7 @@ public class ReflectionHelper {
   }
 
   /** Instance used when records are not supported */
-  private static class RecordNotSupportedHelper extends RecordHelper {
+  private static final class RecordNotSupportedHelper extends RecordHelper {
 
     @Override
     boolean isRecord(Class<?> clazz) {

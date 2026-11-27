@@ -1,6 +1,6 @@
 package com.google.gson.internal;
 
-public class TroubleshootingGuide {
+public final class TroubleshootingGuide {
   private TroubleshootingGuide() {}
 
   /** Creates a URL referring to the specified troubleshooting section. */

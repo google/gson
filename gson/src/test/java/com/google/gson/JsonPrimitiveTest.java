@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.common.MoreAsserts;
+import com.google.gson.internal.LazilyParsedNumber;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import org.junit.Test;
@@ -63,6 +64,35 @@ public class JsonPrimitiveTest {
 
     json = new JsonPrimitive("1.3");
     assertThat(json.getAsBoolean()).isFalse();
+  }
+
+  @Test
+  public void testBooleanConstantsAndOf() {
+    assertThat(JsonPrimitive.TRUE.isBoolean()).isTrue();
+    assertThat(JsonPrimitive.TRUE.getAsBoolean()).isTrue();
+    MoreAsserts.assertEqualsAndHashCode(JsonPrimitive.TRUE, new JsonPrimitive(true));
+
+    assertThat(JsonPrimitive.FALSE.isBoolean()).isTrue();
+    assertThat(JsonPrimitive.FALSE.getAsBoolean()).isFalse();
+    MoreAsserts.assertEqualsAndHashCode(JsonPrimitive.FALSE, new JsonPrimitive(false));
+
+    assertThat(JsonPrimitive.of(true)).isSameInstanceAs(JsonPrimitive.TRUE);
+    assertThat(JsonPrimitive.of(false)).isSameInstanceAs(JsonPrimitive.FALSE);
+
+    assertThat(JsonParser.parseString("true")).isSameInstanceAs(JsonPrimitive.TRUE);
+    assertThat(JsonParser.parseString("false")).isSameInstanceAs(JsonPrimitive.FALSE);
+
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("t", true);
+    jsonObject.addProperty("f", false);
+    assertThat(jsonObject.get("t")).isSameInstanceAs(JsonPrimitive.TRUE);
+    assertThat(jsonObject.get("f")).isSameInstanceAs(JsonPrimitive.FALSE);
+
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(true);
+    jsonArray.add(false);
+    assertThat(jsonArray.get(0)).isSameInstanceAs(JsonPrimitive.TRUE);
+    assertThat(jsonArray.get(1)).isSameInstanceAs(JsonPrimitive.FALSE);
   }
 
   @Test
@@ -296,6 +326,80 @@ public class JsonPrimitiveTest {
         new JsonPrimitive(new BigDecimal("0")), new JsonPrimitive(0));
     MoreAsserts.assertEqualsAndHashCode(
         new JsonPrimitive(Float.NaN), new JsonPrimitive(Double.NaN));
+  }
+
+  /**
+   * Regression test for <a href="https://github.com/google/gson/issues/992">issue 992</a>: numbers
+   * which {@link JsonPrimitive#equals(Object)} considers equal must have the same hash code, even
+   * when they are backed by different {@link Number} classes.
+   */
+  @Test
+  public void testEqualsAndHashCodeAcrossNumberTypes() {
+    // The case from issue 992: an integer compared with the corresponding lazily parsed number
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(42), new JsonPrimitive(new LazilyParsedNumber("42")));
+    // Round-trip through JSON string representation produces a lazily parsed number
+    JsonPrimitive integer = new JsonPrimitive(42);
+    JsonPrimitive parsedBack = JsonParser.parseString(integer.toString()).getAsJsonPrimitive();
+    MoreAsserts.assertEqualsAndHashCode(integer, parsedBack);
+
+    // Integral and floating point Number classes with the same numeric value
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(42), new JsonPrimitive(42.0));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new BigDecimal("42")), new JsonPrimitive(42));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new BigInteger("42")), new JsonPrimitive(new LazilyParsedNumber("42")));
+    // equals considers -0.0 and 0 equal
+    MoreAsserts.assertEqualsAndHashCode(new JsonPrimitive(-0.0), new JsonPrimitive(0));
+    // equals considers a large long equal to the double it loses precision to
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(9007199254740993L), new JsonPrimitive(9007199254740992.0));
+  }
+
+  /**
+   * Numbers parsed from JSON are backed by {@link LazilyParsedNumber}. Like two {@link BigDecimal}
+   * values, two such numbers should only be equal if their decimal values are equal, and not
+   * already if they are converted to the same {@code double} value.
+   */
+  @Test
+  public void testLazilyParsedNumberEquals() {
+    // Different integers above 2^53 which are converted to the same double value
+    assertThat(JsonParser.parseString("9007199254740993"))
+        .isNotEqualTo(JsonParser.parseString("9007199254740992"));
+    assertThat(JsonParser.parseString("{\"id\":12345678901234567891}"))
+        .isNotEqualTo(JsonParser.parseString("{\"id\":12345678901234567890}"));
+    // Different decimal numbers which are converted to the same double value
+    assertThat(new JsonPrimitive(new LazilyParsedNumber("0.1")))
+        .isNotEqualTo(new JsonPrimitive(new LazilyParsedNumber("0.10000000000000001")));
+    // Different numbers outside the double range
+    assertThat(new JsonPrimitive(new LazilyParsedNumber("1e400")))
+        .isNotEqualTo(new JsonPrimitive(new LazilyParsedNumber("2e400")));
+    assertThat(new JsonPrimitive(new LazilyParsedNumber("9007199254740993")))
+        .isNotEqualTo(new JsonPrimitive(new BigDecimal("9007199254740992")));
+
+    // Equal numbers with different representations
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("1")),
+        new JsonPrimitive(new LazilyParsedNumber("1.0")));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("100")),
+        new JsonPrimitive(new LazilyParsedNumber("1e2")));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("-0")),
+        new JsonPrimitive(new LazilyParsedNumber("0.0")));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("9007199254740993")),
+        new JsonPrimitive(new BigDecimal("9007199254740993.00")));
+    MoreAsserts.assertEqualsAndHashCode(
+        JsonParser.parseString("[1e400]"), JsonParser.parseString("[10E399]"));
+
+    // Values which are not supported by BigDecimal are compared as double
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("NaN")),
+        new JsonPrimitive(new LazilyParsedNumber("NaN")));
+    MoreAsserts.assertEqualsAndHashCode(
+        new JsonPrimitive(new LazilyParsedNumber("-Infinity")),
+        new JsonPrimitive(new LazilyParsedNumber("-Infinity")));
   }
 
   @Test

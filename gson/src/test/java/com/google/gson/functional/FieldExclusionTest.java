@@ -24,8 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Performs some functional testing to ensure GSON infrastructure properly serializes/deserializes
- * fields that either should or should not be included in the output based on the GSON
+ * Performs some functional testing to ensure Gson infrastructure properly serializes/deserializes
+ * fields that either should or should not be included in the output based on the Gson
  * configuration.
  *
  * @author Joel Leitch

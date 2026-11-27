@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 /**
  * Interface representing a custom serializer for JSON. You should write a custom serializer, if you
  * are not happy with the default serialization done by Gson. You will also need to register this
- * serializer through {@link com.google.gson.GsonBuilder#registerTypeAdapter(Type, Object)}.
+ * serializer through {@link GsonBuilder#registerTypeAdapter(Type, Object)}.
  *
  * <p>Let us look at example where defining a serializer will be useful. The {@code Id} class
  * defined below has two fields: {@code clazz} and {@code value}.
@@ -70,6 +70,7 @@ import java.lang.reflect.Type;
  * @author Joel Leitch
  * @param <T> type for which the serializer is being registered. It is possible that a serializer
  *     may be asked to serialize a specific generic type of the T.
+ * @see GsonBuilder#registerTypeAdapter(Type, Object)
  */
 public interface JsonSerializer<T> {
 
@@ -83,7 +84,7 @@ public interface JsonSerializer<T> {
    * src} object itself since that will cause an infinite loop (Gson will call your call-back method
    * again).
    *
-   * @param src the object that needs to be converted to Json.
+   * @param src the object that needs to be converted to JSON.
    * @param typeOfSrc the actual type (fully genericized version) of the source object.
    * @return a JsonElement corresponding to the specified object.
    */

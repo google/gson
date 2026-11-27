@@ -57,7 +57,7 @@ public class NamingPolicyTest {
   }
 
   @Test
-  public void testGsonWithNonDefaultFieldNamingPolicyDeserialiation() {
+  public void testGsonWithNonDefaultFieldNamingPolicyDeserialization() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
     String target = "{\"SomeConstantStringInstanceField\":\"someValue\"}";
     StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
@@ -87,7 +87,7 @@ public class NamingPolicyTest {
   }
 
   @Test
-  public void testGsonWithLowerCaseDotPolicyDeserialiation() {
+  public void testGsonWithLowerCaseDotPolicyDeserialization() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DOTS).create();
     String target = "{\"some.constant.string.instance.field\":\"someValue\"}";
     StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
@@ -95,7 +95,7 @@ public class NamingPolicyTest {
   }
 
   @Test
-  public void testGsonWithLowerCaseDashPolicyDeserialiation() {
+  public void testGsonWithLowerCaseDashPolicyDeserialization() {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES).create();
     String target = "{\"some-constant-string-instance-field\":\"someValue\"}";
     StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
@@ -115,7 +115,7 @@ public class NamingPolicyTest {
   }
 
   @Test
-  public void testGsonWithLowerCaseUnderscorePolicyDeserialiation() {
+  public void testGsonWithLowerCaseUnderscorePolicyDeserialization() {
     Gson gson =
         builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
     String target = "{\"some_constant_string_instance_field\":\"someValue\"}";
@@ -172,7 +172,7 @@ public class NamingPolicyTest {
   }
 
   @Test
-  public void testGsonWithUpperCamelCaseSpacesPolicySerialiation() {
+  public void testGsonWithUpperCamelCaseSpacesPolicySerialization() {
     Gson gson =
         builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES).create();
     StringWrapper target = new StringWrapper("blah");
@@ -184,7 +184,7 @@ public class NamingPolicyTest {
   }
 
   @Test
-  public void testGsonWithUpperCamelCaseSpacesPolicyDeserialiation() {
+  public void testGsonWithUpperCamelCaseSpacesPolicyDeserialization() {
     Gson gson =
         builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES).create();
     String target = "{\"Some Constant String Instance Field\":\"someValue\"}";
@@ -205,7 +205,7 @@ public class NamingPolicyTest {
   }
 
   @Test
-  public void testGsonWithUpperCaseUnderscorePolicyDeserialiation() {
+  public void testGsonWithUpperCaseUnderscorePolicyDeserialization() {
     Gson gson =
         builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CASE_WITH_UNDERSCORES).create();
     String target = "{\"SOME_CONSTANT_STRING_INSTANCE_FIELD\":\"someValue\"}";
@@ -239,7 +239,7 @@ public class NamingPolicyTest {
   }
 
   @Test
-  public void testGsonWithNameDeserialiation() {
+  public void testGsonWithNameDeserialization() {
     Gson gson =
         builder
             .setFieldNamingStrategy(
@@ -262,7 +262,7 @@ public class NamingPolicyTest {
   }
 
   @Test
-  public void testGsonWithAlternateNamesDeserialiation() {
+  public void testGsonWithAlternateNamesDeserialization() {
     Gson gson =
         builder
             .setFieldNamingStrategy(

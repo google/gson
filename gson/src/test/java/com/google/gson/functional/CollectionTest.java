@@ -27,14 +27,21 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes.BagOfPrimitives;
 import com.google.gson.reflect.TypeToken;
+import com.google.testing.junit.testparameterinjector.TestParameter;
+import com.google.testing.junit.testparameterinjector.TestParameterInjector;
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider;
 import java.lang.reflect.Type;
 import java.util.AbstractCollection;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -44,9 +51,11 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.Vector;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Functional tests for Json serialization and deserialization of collections.
@@ -54,6 +63,7 @@ import org.junit.Test;
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
+@RunWith(TestParameterInjector.class)
 public class CollectionTest {
   private Gson gson;
 
@@ -254,6 +264,54 @@ public class CollectionTest {
     }
   }
 
+  private enum MyEnum {
+    A,
+    B
+  }
+
+  private static final class NullRejectingCollectionTypesProvider
+      extends TestParameterValuesProvider {
+    @Override
+    protected List<?> provideValues(Context context) {
+      return Arrays.asList(
+          new TypeToken<Queue<String>>() {},
+          new TypeToken<Deque<String>>() {},
+          new TypeToken<ArrayDeque<String>>() {},
+          new TypeToken<PriorityQueue<String>>() {},
+          new TypeToken<TreeSet<String>>() {});
+    }
+  }
+
+  @Test
+  public void testNullsInNullRejectingCollectionDeserialization(
+      @TestParameter(valuesProvider = NullRejectingCollectionTypesProvider.class)
+          TypeToken<?> typeToken) {
+    JsonSyntaxException e =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[\"a\", null]", typeToken));
+    assertThat(e).hasMessageThat().startsWith("Null element is not allowed in class java.util.");
+    assertThat(e).hasMessageThat().endsWith("; at path $[1]");
+    assertThat(e).hasCauseThat().isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  public void testNullsInEnumSetDeserialization() {
+    var typeToken = new TypeToken<EnumSet<MyEnum>>() {};
+    Class<?> enumSetClass = EnumSet.noneOf(MyEnum.class).getClass();
+    JsonSyntaxException enumSetNullException =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[\"A\", null]", typeToken));
+    assertThat(enumSetNullException)
+        .hasMessageThat()
+        .isEqualTo("Null element is not allowed in " + enumSetClass + "; at path $[1]");
+    assertThat(enumSetNullException).hasCauseThat().isInstanceOf(NullPointerException.class);
+
+    JsonSyntaxException enumSetUnknownException =
+        assertThrows(JsonSyntaxException.class, () -> gson.fromJson("[\"UNKNOWN\"]", typeToken));
+    assertThat(enumSetUnknownException)
+        .hasMessageThat()
+        .isEqualTo("Null element is not allowed in " + enumSetClass + "; at path $[0]");
+    assertThat(enumSetUnknownException).hasCauseThat().isInstanceOf(NullPointerException.class);
+  }
+
   @Test
   public void testCollectionOfObjectSerialization() {
     List<Object> target = new ArrayList<>();
@@ -353,7 +411,7 @@ public class CollectionTest {
   }
 
   @Test
-  public void testWildcardPrimitiveCollectionSerilaization() {
+  public void testWildcardPrimitiveCollectionSerialization() {
     Collection<? extends Integer> target = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
     Type collectionType = new TypeToken<Collection<? extends Integer>>() {}.getType();
     String json = gson.toJson(target, collectionType);
@@ -364,7 +422,7 @@ public class CollectionTest {
   }
 
   @Test
-  public void testWildcardPrimitiveCollectionDeserilaization() {
+  public void testWildcardPrimitiveCollectionDeserialization() {
     String json = "[1,2,3,4,5,6,7,8,9]";
     Type collectionType = new TypeToken<Collection<? extends Integer>>() {}.getType();
     Collection<? extends Integer> target = gson.fromJson(json, collectionType);

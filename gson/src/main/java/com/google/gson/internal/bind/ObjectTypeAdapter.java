@@ -21,7 +21,6 @@ import com.google.gson.ToNumberPolicy;
 import com.google.gson.ToNumberStrategy;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -30,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +81,7 @@ public final class ObjectTypeAdapter extends TypeAdapter<Object> {
         return new ArrayList<>();
       case BEGIN_OBJECT:
         in.beginObject();
-        return new LinkedTreeMap<>();
+        return new LinkedHashMap<>();
       default:
         return null;
     }

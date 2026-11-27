@@ -168,6 +168,79 @@ public class JsonArrayAsListTest {
   }
 
   @Test
+  public void testSubListClear() {
+    JsonArray a = new JsonArray();
+    for (int i = 0; i < 6; i++) {
+      a.add(i);
+    }
+
+    List<JsonElement> list = a.asList();
+    List<JsonElement> subList = list.subList(1, 5);
+    subList.clear();
+
+    assertThat(subList).isEmpty();
+    assertThat(list).containsExactly(new JsonPrimitive(0), new JsonPrimitive(5)).inOrder();
+    assertThat(a.toString()).isEqualTo("[0,5]");
+
+    subList.add(new JsonPrimitive(7));
+    assertThat(a.toString()).isEqualTo("[0,7,5]");
+  }
+
+  @Test
+  public void testNestedSubListClear() {
+    JsonArray a = new JsonArray();
+    for (int i = 0; i < 6; i++) {
+      a.add(i);
+    }
+
+    List<JsonElement> list = a.asList();
+    List<JsonElement> subList = list.subList(1, 5);
+    subList.subList(1, 3).clear();
+
+    assertThat(subList).containsExactly(new JsonPrimitive(1), new JsonPrimitive(4)).inOrder();
+    assertThat(list)
+        .containsExactly(
+            new JsonPrimitive(0), new JsonPrimitive(1), new JsonPrimitive(4), new JsonPrimitive(5))
+        .inOrder();
+    assertThat(a.toString()).isEqualTo("[0,1,4,5]");
+
+    subList.subList(1, 1).clear();
+    assertThat(a.toString()).isEqualTo("[0,1,4,5]");
+  }
+
+  @Test
+  public void testRemoveIf() {
+    JsonArray a = new JsonArray();
+    a.add(1);
+    a.add(2);
+    a.add(3);
+    a.add(2);
+    a.add(JsonNull.INSTANCE);
+
+    List<JsonElement> list = a.asList();
+    assertThat(list.removeIf(element -> element.equals(new JsonPrimitive(2)))).isTrue();
+    assertThat(a.toString()).isEqualTo("[1,3,null]");
+    assertThat(list.removeIf(JsonElement::isJsonNull)).isTrue();
+    assertThat(a.toString()).isEqualTo("[1,3]");
+    assertThat(list.removeIf(element -> false)).isFalse();
+    assertThat(a.toString()).isEqualTo("[1,3]");
+    assertThat(list.removeIf(element -> true)).isTrue();
+    assertThat(a).isEmpty();
+    assertThat(list.removeIf(element -> true)).isFalse();
+  }
+
+  @Test
+  public void testRemoveIfNullPredicate() {
+    JsonArray a = new JsonArray();
+    List<JsonElement> list = a.asList();
+    assertThrows(NullPointerException.class, () -> list.removeIf(null));
+
+    a.add(1);
+    assertThrows(NullPointerException.class, () -> list.removeIf(null));
+    assertThat(a.toString()).isEqualTo("[1]");
+  }
+
+  @Test
   public void testContains() {
     JsonArray a = new JsonArray();
     a.add(1);

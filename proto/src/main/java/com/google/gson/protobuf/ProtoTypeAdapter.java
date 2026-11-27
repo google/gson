@@ -51,7 +51,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * GSON type adapter for protocol buffers that knows how to serialize enums either by using their
+ * Gson type adapter for protocol buffers that knows how to serialize enums either by using their
  * values or their names, and also supports custom proto field names.
  *
  * <p>You can specify which case representation is used for the proto fields when writing/reading
@@ -142,7 +142,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
      * string client_app_id = 1 [(serialized_name) = "appId"];
      * </pre>
      *
-     * ...the adapter will serialize the field using '{@code appId}' instead of the default ' {@code
+     * ...the adapter will serialize the field using '{@code appId}' instead of the default '{@code
      * clientAppId}'. This lets you customize the name serialization of any proto field.
      */
     @CanIgnoreReturnValue
@@ -154,7 +154,7 @@ public class ProtoTypeAdapter implements JsonSerializer<Message>, JsonDeserializ
 
     /**
      * Adds an enum value proto annotation that, when set, overrides the default <b>enum</b> value
-     * serialization/deserialization of this adapter. For example, if you add the ' {@code
+     * serialization/deserialization of this adapter. For example, if you add the '{@code
      * serialized_value}' annotation and you define an enum in your proto like the one below:
      *
      * <pre>

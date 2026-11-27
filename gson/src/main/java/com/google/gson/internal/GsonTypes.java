@@ -169,7 +169,9 @@ public final class GsonTypes {
 
   /** Returns true if {@code a} and {@code b} are equal. */
   public static boolean equals(Type a, Type b) {
-    if (a == b) {
+    @SuppressWarnings("ReferenceEquality")
+    boolean areSame = a == b;
+    if (areSame) {
       // also handles (a == null && b == null)
       return true;
 
@@ -366,7 +368,9 @@ public final class GsonTypes {
         }
 
         toResolve = resolveTypeVariable(context, contextRawType, typeVariable);
-        if (toResolve == typeVariable) {
+        @SuppressWarnings("ReferenceEquality")
+        boolean areSame = toResolve == typeVariable;
+        if (areSame) {
           break;
         }
 
@@ -421,14 +425,14 @@ public final class GsonTypes {
         if (originalLowerBound.length == 1) {
           Type lowerBound =
               resolve(context, contextRawType, originalLowerBound[0], visitedTypeVariables);
-          if (lowerBound != originalLowerBound[0]) {
+          if (!equal(lowerBound, originalLowerBound[0])) {
             toResolve = supertypeOf(lowerBound);
             break;
           }
         } else if (originalUpperBound.length == 1) {
           Type upperBound =
               resolve(context, contextRawType, originalUpperBound[0], visitedTypeVariables);
-          if (upperBound != originalUpperBound[0]) {
+          if (!equal(upperBound, originalUpperBound[0])) {
             toResolve = subtypeOf(upperBound);
             break;
           }
