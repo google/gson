@@ -30,6 +30,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 /** Adapter for arrays. */
 public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
@@ -85,57 +86,49 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
     }
     in.endArray();
 
-    int size = list.size();
     // Have to copy primitives one by one to primitive array
     if (componentType.isPrimitive()) {
-      if (componentType == int.class) {
-        int[] array = new int[size];
-        for (int i = 0; i < size; i++) {
-          Object value = list.get(i);
-          if (value instanceof Integer) {
-            array[i] = (Integer) value;
-          } else {
-            Array.set(array, i, value);
-          }
-        }
-        return array;
-      }
-      if (componentType == long.class) {
-        long[] array = new long[size];
-        for (int i = 0; i < size; i++) {
-          Object value = list.get(i);
-          if (value instanceof Long) {
-            array[i] = (Long) value;
-          } else {
-            Array.set(array, i, value);
-          }
-        }
-        return array;
-      }
-      if (componentType == double.class) {
-        double[] array = new double[size];
-        for (int i = 0; i < size; i++) {
-          Object value = list.get(i);
-          if (value instanceof Double) {
-            array[i] = (Double) value;
-          } else {
-            Array.set(array, i, value);
-          }
-        }
-        return array;
-      }
-      Object array = Array.newInstance(componentType, size);
-      for (int i = 0; i < size; i++) {
-        Array.set(array, i, list.get(i));
-      }
-      return array;
+      return listToPrimitiveArray(componentType, list);
     }
     // But for Object[] can use ArrayList.toArray
     else {
+      int size = list.size();
       @SuppressWarnings("unchecked")
       E[] array = (E[]) Array.newInstance(componentType, size);
       return list.toArray(array);
     }
+  }
+
+  private static Object listToPrimitiveArray(Class<?> componentType, List<?> list) {
+    int size = list.size();
+    try {
+      if (componentType == int.class) {
+        int[] array = new int[size];
+        for (int i = 0; i < size; i++) {
+          array[i] = (Integer) list.get(i);
+        }
+        return array;
+      } else if (componentType == long.class) {
+        long[] array = new long[size];
+        for (int i = 0; i < size; i++) {
+          array[i] = (Long) list.get(i);
+        }
+        return array;
+      } else if (componentType == double.class) {
+        double[] array = new double[size];
+        for (int i = 0; i < size; i++) {
+          array[i] = (Double) list.get(i);
+        }
+        return array;
+      }
+    } catch (ClassCastException e) {
+      // Fall through to Array.set for widening conversions or IllegalArgumentException
+    }
+    Object array = Array.newInstance(componentType, size);
+    for (int i = 0; i < size; i++) {
+      Array.set(array, i, list.get(i));
+    }
+    return array;
   }
 
   @Override
