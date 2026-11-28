@@ -29,8 +29,20 @@ public final class NumberLimits {
     return decimal;
   }
 
+  public static BigDecimal bigDecimalFromLong(long value) {
+    // Sanity check, ensuring that max length check is never needed here
+    assert Long.toString(Long.MIN_VALUE).length() < MAX_NUMBER_STRING_LENGTH;
+    return new BigDecimal(value);
+  }
+
   public static BigInteger parseBigInteger(String s) throws NumberFormatException {
     checkNumberStringLength(s);
     return new BigInteger(s);
+  }
+
+  public static BigInteger bigIntegerFromLong(long value) {
+    // Sanity check, ensuring that max length check is never needed here
+    assert Long.toString(Long.MIN_VALUE).length() < MAX_NUMBER_STRING_LENGTH;
+    return BigInteger.valueOf(value);
   }
 }

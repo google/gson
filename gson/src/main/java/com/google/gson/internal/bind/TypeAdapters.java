@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.NumberLimits;
 import com.google.gson.internal.TroubleshootingGuide;
@@ -595,10 +596,15 @@ public final class TypeAdapters {
       new TypeAdapter<BigDecimal>() {
         @Override
         public BigDecimal read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
+          JsonToken peeked = in.peek();
+          if (peeked == JsonToken.NULL) {
             in.nextNull();
             return null;
           }
+          if (peeked == JsonToken.NUMBER && JsonReaderInternalAccess.INSTANCE.isPeekedLong(in)) {
+            return NumberLimits.bigDecimalFromLong(in.nextLong());
+          }
+
           String s = in.nextString();
           try {
             return NumberLimits.parseBigDecimal(s);
@@ -621,10 +627,15 @@ public final class TypeAdapters {
       new TypeAdapter<BigInteger>() {
         @Override
         public BigInteger read(JsonReader in) throws IOException {
-          if (in.peek() == JsonToken.NULL) {
+          JsonToken peeked = in.peek();
+          if (peeked == JsonToken.NULL) {
             in.nextNull();
             return null;
           }
+          if (peeked == JsonToken.NUMBER && JsonReaderInternalAccess.INSTANCE.isPeekedLong(in)) {
+            return NumberLimits.bigIntegerFromLong(in.nextLong());
+          }
+
           String s = in.nextString();
           try {
             return NumberLimits.parseBigInteger(s);

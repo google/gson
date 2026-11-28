@@ -308,7 +308,14 @@ public final class JsonTreeReader extends JsonReader {
     return result;
   }
 
-  JsonElement nextJsonElement() throws IOException {
+  /**
+   * Returns the next JSON value as {@link JsonElement}.
+   *
+   * <p>This method is specific to {@link JsonTreeReader} and allows optimizations for callers which
+   * need a {@code JsonElement} and can therefore reuse the {@code JsonElement} from this reader
+   * instead of creating a duplicate one themselves.
+   */
+  public JsonElement nextJsonElement() throws IOException {
     JsonToken peeked = peek();
     if (peeked == JsonToken.NAME
         || peeked == JsonToken.END_ARRAY

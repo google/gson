@@ -16,9 +16,12 @@
 
 package com.google.gson;
 
+import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.NumberLimits;
+import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -36,8 +39,9 @@ import java.math.BigDecimal;
 public enum ToNumberPolicy implements ToNumberStrategy {
 
   /**
-   * Using this policy will ensure that numbers will be read as {@link Double} values. This is the
-   * default strategy used during deserialization of numbers as {@link Object}.
+   * Using this policy will ensure that numbers will be read as {@link Double} values.
+   *
+   * <p>This is the default strategy used during deserialization of numbers as {@link Object}.
    */
   DOUBLE {
     @Override
@@ -47,13 +51,36 @@ public enum ToNumberPolicy implements ToNumberStrategy {
   },
 
   /**
-   * Using this policy will ensure that numbers will be read as a lazily parsed number backed by a
-   * string. This is the default strategy used during deserialization of numbers as {@link Number}.
+   * Using this policy will ensure that numbers are successfully read as {@link Number} value,
+   * without any information loss. To achieve this the policy might fall back to creating a lazily
+   * parsed number backed by a string. Users of this policy should not make any assumptions about
+   * the exact {@code Number} implementation which will be used.
+   *
+   * <p>This is the default strategy used during deserialization of numbers as {@code Number}.
    */
   LAZILY_PARSED_NUMBER {
     @Override
     public Number readNumber(JsonReader in) throws IOException {
-      return new LazilyParsedNumber(in.nextString());
+      boolean guaranteedValidJsonNumber = false;
+      if (in.peek() == JsonToken.NUMBER) {
+        Class<?> readerClass = in.getClass();
+        // Only for `JsonReader` we know that `peek() == NUMBER` means the number string will be
+        // valid; for other reader implementations this is not guaranteed, even `JsonTreeReader`
+        // uses NUMBER if the value is any `Number` implementation
+        if (readerClass == JsonReader.class) {
+          if (JsonReaderInternalAccess.INSTANCE.isPeekedLong(in)) {
+            long value = in.nextLong();
+            boolean fitsInt = value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE;
+            return fitsInt ? (Number) (int) value : (Number) value;
+          }
+          // Note: Don't try `JsonReader#nextDouble()` because it might be lossy
+
+          guaranteedValidJsonNumber = true;
+        } else if (readerClass == JsonTreeReader.class) {
+          return ((JsonTreeReader) in).nextJsonElement().getAsNumber();
+        }
+      }
+      return new LazilyParsedNumber(in.nextString(), guaranteedValidJsonNumber);
     }
   },
 
@@ -69,6 +96,11 @@ public enum ToNumberPolicy implements ToNumberStrategy {
   LONG_OR_DOUBLE {
     @Override
     public Number readNumber(JsonReader in) throws IOException, JsonParseException {
+      // Avoid `number -> string -> long` when we know that number is a `long`
+      if (in.peek() == JsonToken.NUMBER && JsonReaderInternalAccess.INSTANCE.isPeekedLong(in)) {
+        return in.nextLong();
+      }
+
       String value = in.nextString();
       if (value.indexOf('.') >= 0) {
         return parseAsDouble(value, in);
@@ -103,6 +135,10 @@ public enum ToNumberPolicy implements ToNumberStrategy {
   BIG_DECIMAL {
     @Override
     public BigDecimal readNumber(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NUMBER && JsonReaderInternalAccess.INSTANCE.isPeekedLong(in)) {
+        return NumberLimits.bigDecimalFromLong(in.nextLong());
+      }
+
       String value = in.nextString();
       try {
         return NumberLimits.parseBigDecimal(value);
