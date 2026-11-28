@@ -18,6 +18,7 @@ package com.google.gson;
 
 import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.NumberLimits;
+import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.MalformedJsonException;
 import java.io.IOException;
@@ -72,17 +73,22 @@ public enum ToNumberPolicy implements ToNumberStrategy {
       String value = in.nextString();
       if (value.indexOf('.') >= 0) {
         return parseAsDouble(value, in);
-      } else {
-        try {
-          return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-          return parseAsDouble(value, in);
-        }
+      }
+      // Long.parseLong accepts non-ASCII Unicode digits (e.g. fullwidth U+FF10-U+FF19) via
+      // Character.digit, so reject them here to match JsonReader.nextLong (see #2994).
+      if (!JsonTreeReader.isAllAscii(value)) {
+        throw new JsonParseException("Cannot parse " + value + "; at path " + in.getPreviousPath());
+      }
+      try {
+        return Long.parseLong(value);
+      } catch (NumberFormatException e) {
+        return parseAsDouble(value, in);
       }
     }
 
     private Number parseAsDouble(String value, JsonReader in) throws IOException {
       try {
+        // Note: Unlike integer parsing, Double parsing already rejects non-ASCII, as desired
         Double d = Double.valueOf(value);
         if ((d.isInfinite() || d.isNaN()) && !in.isLenient()) {
           throw new MalformedJsonException(
