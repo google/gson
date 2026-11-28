@@ -385,6 +385,29 @@ final class JavaTimeTypeAdapterFactory implements TypeAdapterFactory {
           }
         }.nullSafe();
 
+    private static final TypeAdapter<ZoneOffset> ZONE_OFFSET =
+        new TypeAdapter<ZoneOffset>() {
+          @Override
+          public ZoneOffset read(JsonReader in) throws IOException {
+            ZoneId zoneId = ZONE_ID.read(in);
+            if (zoneId != null && !(zoneId instanceof ZoneOffset)) {
+              throw new JsonSyntaxException(
+                  "Expected a "
+                      + ZoneOffset.class.getName()
+                      + " but was "
+                      + zoneId.getClass().getName()
+                      + "; at path "
+                      + in.getPreviousPath());
+            }
+            return (ZoneOffset) zoneId;
+          }
+
+          @Override
+          public void write(JsonWriter out, ZoneOffset value) throws IOException {
+            ZONE_ID.write(out, value);
+          }
+        };
+
     private static TypeAdapter<ZonedDateTime> zonedDateTime(Gson gson) {
       TypeAdapter<LocalDateTime> localDateTimeAdapter = localDateTime(gson);
       TypeAdapter<ZoneOffset> zoneOffsetAdapter = gson.getAdapter(ZoneOffset.class);
@@ -471,7 +494,7 @@ final class JavaTimeTypeAdapterFactory implements TypeAdapterFactory {
         adapter = YEAR;
       } else if (rawType == YearMonth.class) {
         adapter = YEAR_MONTH;
-      } else if (rawType == ZoneId.class || rawType == ZoneOffset.class) {
+      } else if (rawType == ZoneId.class) {
         // We don't check ZoneId.class.isAssignableFrom(rawType) because we don't want to match the
         // non-public class ZoneRegion in the runtime type check in
         // TypeAdapterRuntimeTypeWrapper.write. If we did, then our ZONE_ID would take precedence
@@ -480,6 +503,8 @@ final class JavaTimeTypeAdapterFactory implements TypeAdapterFactory {
         // TODO: Maybe this needs an additional `ZoneId.class.isAssignableFrom(rawType)` check
         //   nonetheless, see https://github.com/google/gson/pull/2972#discussion_r2702021300
         adapter = ZONE_ID;
+      } else if (rawType == ZoneOffset.class) {
+        adapter = ZONE_OFFSET;
       } else if (rawType == ZonedDateTime.class) {
         adapter = zonedDateTime(gson);
       }

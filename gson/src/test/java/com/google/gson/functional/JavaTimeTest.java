@@ -16,10 +16,12 @@
 package com.google.gson.functional;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -200,6 +202,20 @@ public class JavaTimeTest {
     ZoneOffset zoneOffset = ZoneOffset.ofTotalSeconds(-8 * 60 * 60);
     String json = "{\"totalSeconds\":-28800}";
     roundTrip(zoneOffset, json);
+  }
+
+  @Test
+  public void testZoneOffsetList() {
+    TypeToken<List<ZoneOffset>> type = new TypeToken<>() {};
+    assertThat(gson.fromJson("[{\"id\":\"-08:00\"},null]", type))
+        .containsExactly(ZoneOffset.ofHours(-8), null)
+        .inOrder();
+
+    JsonSyntaxException e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("[{\"id\":\"Europe/Paris\"}]", type));
+    assertThat(e).hasMessageThat().contains("Expected a java.time.ZoneOffset");
+    assertThat(e).hasMessageThat().contains("at path $[0]");
   }
 
   /**
