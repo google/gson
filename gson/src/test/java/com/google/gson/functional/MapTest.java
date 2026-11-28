@@ -801,17 +801,15 @@ public class MapTest {
   public void testMapDeserializationWithDuplicateKeys() {
     Type type = new TypeToken<Map<String, Integer>>() {}.getType();
     var e = assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{'a':1,'a':2}", type));
-    assertThat(e).hasMessageThat().isEqualTo("Duplicate key 'a'; at path $.a");
+    assertThat(e).hasCauseThat().hasMessageThat().contains("Duplicate name 'a'");
   }
 
   @Test
   public void testMapDeserializationWithDuplicateKeysNullFirstValue() {
     Type type = new TypeToken<Map<String, Integer>>() {}.getType();
-    // Duplicate key where the first value is null; map.put() returns null (the previous value)
-    // so the old `if (replaced != null)` check failed to detect the duplicate
     var e =
         assertThrows(JsonSyntaxException.class, () -> gson.fromJson("{\"a\":null,\"a\":1}", type));
-    assertThat(e).hasMessageThat().isEqualTo("Duplicate key 'a'; at path $.a");
+    assertThat(e).hasCauseThat().hasMessageThat().contains("Duplicate name 'a'");
   }
 
   @Test
@@ -820,7 +818,7 @@ public class MapTest {
     var e =
         assertThrows(
             JsonSyntaxException.class, () -> gson.fromJson("{\"a\":null,\"a\":null}", type));
-    assertThat(e).hasMessageThat().isEqualTo("Duplicate key 'a'; at path $.a");
+    assertThat(e).hasCauseThat().hasMessageThat().contains("Duplicate name 'a'");
   }
 
   @Test

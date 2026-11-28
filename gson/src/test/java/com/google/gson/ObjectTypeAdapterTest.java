@@ -17,6 +17,7 @@
 package com.google.gson;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.gson.stream.JsonReader;
 import java.io.IOException;
@@ -39,6 +40,14 @@ public final class ObjectTypeAdapterTest {
     assertThat(map.get("b")).isEqualTo(Arrays.asList(1.0, 2.0, null));
     assertThat(map.get("c")).isEqualTo(Collections.singletonMap("x", "y"));
     assertThat(map).hasSize(3);
+  }
+
+  @Test
+  public void testDeserializeDuplicateObjectName() {
+    JsonSyntaxException e =
+        assertThrows(
+            JsonSyntaxException.class, () -> gson.fromJson("{\"a\":1,\"a\":2}", Object.class));
+    assertThat(e).hasCauseThat().hasMessageThat().contains("Duplicate name 'a'");
   }
 
   @Test
