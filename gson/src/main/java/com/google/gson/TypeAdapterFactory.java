@@ -106,7 +106,7 @@ import com.google.gson.reflect.TypeToken;
  * public class MultisetTypeAdapterFactory implements TypeAdapterFactory {
  *   public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
  *     Type type = typeToken.getType();
- *     if (typeToken.getRawType() != Multiset.class
+ *     if (!Multiset.class.isAssignableFrom(typeToken.getRawType())
  *         || !(type instanceof ParameterizedType)) {
  *       return null;
  *     }
